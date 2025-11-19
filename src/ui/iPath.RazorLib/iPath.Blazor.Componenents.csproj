@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Groups\GroupListPage.razor.cs" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
+    <PackageReference Include="MudBlazor" Version="8.14.0" />
+    <PackageReference Include="Refit" Version="8.0.0" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\core\iPath.Application\iPath.Application.csproj" />
+    <ProjectReference Include="..\..\core\iPath.Domain\iPath.Domain.csproj" />
+    <ProjectReference Include="..\iPath.Blazor.ServiceLib\iPath.Blazor.ServiceLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Groups\GroupListPage.razor.cs" />
+  </ItemGroup>
+
+</Project>

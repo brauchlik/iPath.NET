@@ -1,0 +1,27 @@
+﻿@page "/Account/Logout"
+
+
+@inject SignInManager<User> SignInManager
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+
+<PageTitle>Log out</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Log out</MudText>
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            // Clear the existing external cookie to ensure a clean login process
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
+        await SignInManager.SignOutAsync();
+        RedirectManager.RedirectTo("/");
+    }
+}

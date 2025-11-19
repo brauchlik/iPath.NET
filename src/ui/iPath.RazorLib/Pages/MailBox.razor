@@ -1,0 +1,44 @@
+﻿@page "/mailbox"
+
+<MudText Typo="Typo.h4">MailBox</MudText>
+
+<MudDataGrid T="EmailMessage" ServerData="GetData">
+    <Columns>
+        <HierarchyColumn T="EmailMessage" />
+        <PropertyColumn Property="e => e.Receiver" />
+        <PropertyColumn Property="e => e.Subject" />
+        <PropertyColumn Property="e => e.CreatedOn" Format="d" />
+    </Columns>
+    <ChildRowContent>
+        @((MarkupString)context.Item.Body)
+    </ChildRowContent>
+    <PagerContent>
+        <MudDataGridPager T="EmailMessage" />
+    </PagerContent>
+</MudDataGrid>
+
+
+@inject IPathApi api
+@inject ISnackbar snackbar
+
+@code {
+    async Task<GridData<EmailMessage>> GetData(GridState<EmailMessage> state)
+    {
+        try
+        {
+            var resp = await api.GetMailBox(state.Page, state.PageSize);
+            if (resp.IsSuccessful)
+                return resp.Content.ToGridData();
+        }
+        catch(Exception ex)
+        {
+            snackbar.Add(ex.Message, Severity.Error);
+        }
+        return new GridData<EmailMessage>();
+    }
+
+    async Task LoadData()
+    {
+        var test = await api.GetMailBox(0, 10);
+    }
+}

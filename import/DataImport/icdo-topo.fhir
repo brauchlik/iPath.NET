@@ -1,0 +1,5383 @@
+{
+  "resourceType": "CodeSystem",
+  "url": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+  "identifier": [
+    {
+      "system": "urn:ietf:rfc:3986",
+      "value": "urn:oid:2.16.840.1.113883.6.43.1"
+    }
+  ],
+  "name": "IcdO3",
+  "title": "International Classification of Diseases for Oncology, version 3",
+  "status": "active",
+  "experimental": false,
+  "description": "International Classification of Diseases for Oncology, version 3. For more information see http://www.who.int/classifications/icd/adaptations/oncology/en/.",
+  "caseSensitive": true,
+  "content": "not-present",
+  "concept": [
+    {
+      "code": "C80.9",
+      "display": "Unknown primary site"
+    },
+    {
+      "code": "C80",
+      "display": "UNKNOWN PRIMARY SITE"
+    },
+    {
+      "code": "C77.9",
+      "display": "Lymph node, NOS"
+    },
+    {
+      "code": "C77.8",
+      "display": "Lymph nodes of multiple regions"
+    },
+    {
+      "code": "C77.5/9",
+      "display": "Obturator lymph node"
+    },
+    {
+      "code": "C77.5/8",
+      "display": "Pelvic lymph nodes"
+    },
+    {
+      "code": "C77.5/7",
+      "display": "Hypogastric lymph node"
+    },
+    {
+      "code": "C77.5/6",
+      "display": "Iliac lymph node"
+    },
+    {
+      "code": "C77.5/5",
+      "display": "Intrapelvic lymph node"
+    },
+    {
+      "code": "C77.5/4",
+      "display": "Paracervical lymph node"
+    },
+    {
+      "code": "C77.5/3",
+      "display": "Parametrial lymph node"
+    },
+    {
+      "code": "C77.5/2",
+      "display": "Presymphysial lymph node"
+    },
+    {
+      "code": "C77.5/1",
+      "display": "Sacral lymph node"
+    },
+    {
+      "code": "C77.5",
+      "display": "Inferior epigastric lymph node"
+    },
+    {
+      "code": "C77.4/9",
+      "display": "Femoral lymph node"
+    },
+    {
+      "code": "C77.4/8",
+      "display": "Lymph node of groin"
+    },
+    {
+      "code": "C77.4/7",
+      "display": "Lymph nodes of inguinal region or leg"
+    },
+    {
+      "code": "C77.4/6",
+      "display": "Inguinal lymph node"
+    },
+    {
+      "code": "C77.4/5",
+      "display": "Lymph node of Cloquet"
+    },
+    {
+      "code": "C77.4/4",
+      "display": "Lymph node of Rosenmuller"
+    },
+    {
+      "code": "C77.4/3",
+      "display": "Popliteal lymph node"
+    },
+    {
+      "code": "C77.4/2",
+      "display": "Tibial lymph node"
+    },
+    {
+      "code": "C77.4/1",
+      "display": "Subinguinal lymph node"
+    },
+    {
+      "code": "C77.4",
+      "display": "Lymph node of lower limb"
+    },
+    {
+      "code": "C77.3/9",
+      "display": "Brachial lymph node"
+    },
+    {
+      "code": "C77.3/8",
+      "display": "Subscapular lymph node"
+    },
+    {
+      "code": "C77.3/7",
+      "display": "Axillary lymph node"
+    },
+    {
+      "code": "C77.3/6",
+      "display": "Cubital lymph node"
+    },
+    {
+      "code": "C77.3/5",
+      "display": "Epitrochlear lymph node"
+    },
+    {
+      "code": "C77.3/4",
+      "display": "Lymph node of upper limb"
+    },
+    {
+      "code": "C77.3/3",
+      "display": "Pectoral lymph node"
+    },
+    {
+      "code": "C77.3/2",
+      "display": "Subclavicular lymph node"
+    },
+    {
+      "code": "C77.3/1",
+      "display": "Infraclavicular lymph node"
+    },
+    {
+      "code": "C77.3",
+      "display": "Lymph nodes of axilla or arm"
+    },
+    {
+      "code": "C77.2/9",
+      "display": "Mesenteric lymph node, NOS"
+    },
+    {
+      "code": "C77.2/8",
+      "display": "Splenic hilar lymph node"
+    },
+    {
+      "code": "C77.2/7",
+      "display": "Retroperitoneal lymph node"
+    },
+    {
+      "code": "C77.2/6",
+      "display": "Portal lymph node"
+    },
+    {
+      "code": "C77.2/5",
+      "display": "Peripancreatic lymph node"
+    },
+    {
+      "code": "C77.2/4",
+      "display": "Superior mesenteric lymph node"
+    },
+    {
+      "code": "C77.2/3",
+      "display": "Para-aortic lymph node"
+    },
+    {
+      "code": "C77.2/24",
+      "display": "Abdominal lymph node"
+    },
+    {
+      "code": "C77.2/23",
+      "display": "Intestinal lymph node"
+    },
+    {
+      "code": "C77.2/22",
+      "display": "Inferior mesenteric lymph node"
+    },
+    {
+      "code": "C77.2/21",
+      "display": "Ileocolic lymph node"
+    },
+    {
+      "code": "C77.2/20",
+      "display": "Hepatic lymph node"
+    },
+    {
+      "code": "C77.2/2",
+      "display": "Pancreatic lymph node, NOS"
+    },
+    {
+      "code": "C77.2/19",
+      "display": "Gastric lymph node"
+    },
+    {
+      "code": "C77.2/18",
+      "display": "Common duct lymph node"
+    },
+    {
+      "code": "C77.2/17",
+      "display": "Colic lymph node"
+    },
+    {
+      "code": "C77.2/16",
+      "display": "Aortic lymph node"
+    },
+    {
+      "code": "C77.2/15",
+      "display": "Intra-abdominal lymph nodes"
+    },
+    {
+      "code": "C77.2/14",
+      "display": "Porta hepatis lymph node"
+    },
+    {
+      "code": "C77.2/13",
+      "display": "Lumbar lymph node"
+    },
+    {
+      "code": "C77.2/12",
+      "display": "Celiac lymph node"
+    },
+    {
+      "code": "C77.2/11",
+      "display": "Pyloric lymph node"
+    },
+    {
+      "code": "C77.2/10",
+      "display": "Periaortic lymph node"
+    },
+    {
+      "code": "C77.2/1",
+      "display": "Midcolic lymph node"
+    },
+    {
+      "code": "C77.2",
+      "display": "Splenic lymph node, NOS"
+    },
+    {
+      "code": "C77.1/9",
+      "display": "Diaphragmatic lymph node"
+    },
+    {
+      "code": "C77.1/8",
+      "display": "Esophageal lymph node"
+    },
+    {
+      "code": "C77.1/7",
+      "display": "Hilar lymph node, NOS"
+    },
+    {
+      "code": "C77.1/6",
+      "display": "Parasternal lymph node"
+    },
+    {
+      "code": "C77.1/5",
+      "display": "Pulmonary lymph node, NOS"
+    },
+    {
+      "code": "C77.1/4",
+      "display": "Thoracic lymph node"
+    },
+    {
+      "code": "C77.1/3",
+      "display": "Tracheal lymph node"
+    },
+    {
+      "code": "C77.1/2",
+      "display": "Tracheobronchial lymph node"
+    },
+    {
+      "code": "C77.1/14",
+      "display": "Intrathoracic lymph nodes"
+    },
+    {
+      "code": "C77.1/13",
+      "display": "Pulmonary hilar lymph node"
+    },
+    {
+      "code": "C77.1/12",
+      "display": "Innominate lymph node"
+    },
+    {
+      "code": "C77.1/11",
+      "display": "Bronchial lymph node"
+    },
+    {
+      "code": "C77.1/10",
+      "display": "Bronchopulmonary lymph node"
+    },
+    {
+      "code": "C77.1/1",
+      "display": "Intercostal lymph node"
+    },
+    {
+      "code": "C77.1",
+      "display": "Mediastinal lymph node"
+    },
+    {
+      "code": "C77.0/9",
+      "display": "Lymph nodes of head, face and neck"
+    },
+    {
+      "code": "C77.0/8",
+      "display": "Submental lymph node"
+    },
+    {
+      "code": "C77.0/7",
+      "display": "Supraclavicular lymph node"
+    },
+    {
+      "code": "C77.0/6",
+      "display": "Pretracheal lymph node"
+    },
+    {
+      "code": "C77.0/5",
+      "display": "Retropharyngeal lymph node"
+    },
+    {
+      "code": "C77.0/4",
+      "display": "Scalene lymph node"
+    },
+    {
+      "code": "C77.0/3",
+      "display": "Sublingual lymph node"
+    },
+    {
+      "code": "C77.0/2",
+      "display": "Submandibular lymph node"
+    },
+    {
+      "code": "C77.0/17",
+      "display": "Prelaryngeal lymph node"
+    },
+    {
+      "code": "C77.0/16",
+      "display": "Occipital lymph node"
+    },
+    {
+      "code": "C77.0/15",
+      "display": "Mandibular lymph node"
+    },
+    {
+      "code": "C77.0/14",
+      "display": "Jugular lymph node"
+    },
+    {
+      "code": "C77.0/13",
+      "display": "Facial lymph node"
+    },
+    {
+      "code": "C77.0/12",
+      "display": "Cervical lymph node"
+    },
+    {
+      "code": "C77.0/11",
+      "display": "Auricular lymph node"
+    },
+    {
+      "code": "C77.0/10",
+      "display": "Preauricular lymph node"
+    },
+    {
+      "code": "C77.0/1",
+      "display": "Submaxillary lymph node"
+    },
+    {
+      "code": "C77.0",
+      "display": "Parotid lymph node"
+    },
+    {
+      "code": "C77",
+      "display": "LYMPH NODES"
+    },
+    {
+      "code": "C76.8",
+      "display": "Overlapping lesion of ill-defined sites"
+    },
+    {
+      "code": "C76.7/3",
+      "display": "Trunk, NOS"
+    },
+    {
+      "code": "C76.7/2",
+      "display": "Flank, NOS"
+    },
+    {
+      "code": "C76.7/1",
+      "display": "Back, NOS"
+    },
+    {
+      "code": "C76.7",
+      "display": "Other ill-defined sites"
+    },
+    {
+      "code": "C76.5/9",
+      "display": "Lower limb, NOS"
+    },
+    {
+      "code": "C76.5/8",
+      "display": "Ankle, NOS"
+    },
+    {
+      "code": "C76.5/7",
+      "display": "Calf, NOS"
+    },
+    {
+      "code": "C76.5/6",
+      "display": "Hip, NOS"
+    },
+    {
+      "code": "C76.5/5",
+      "display": "Knee, NOS"
+    },
+    {
+      "code": "C76.5/4",
+      "display": "Leg, NOS"
+    },
+    {
+      "code": "C76.5/3",
+      "display": "Popliteal space, NOS"
+    },
+    {
+      "code": "C76.5/2",
+      "display": "Thigh, NOS"
+    },
+    {
+      "code": "C76.5/10",
+      "display": "Heel, NOS"
+    },
+    {
+      "code": "C76.5/1",
+      "display": "Toe, NOS"
+    },
+    {
+      "code": "C76.5",
+      "display": "Foot, NOS"
+    },
+    {
+      "code": "C76.4/9",
+      "display": "Forearm, NOS"
+    },
+    {
+      "code": "C76.4/8",
+      "display": "Upper limb, NOS"
+    },
+    {
+      "code": "C76.4/7",
+      "display": "Antecubital space, NOS"
+    },
+    {
+      "code": "C76.4/6",
+      "display": "Arm, NOS"
+    },
+    {
+      "code": "C76.4/5",
+      "display": "Finger, NOS"
+    },
+    {
+      "code": "C76.4/4",
+      "display": "Hand, NOS"
+    },
+    {
+      "code": "C76.4/3",
+      "display": "Shoulder, NOS"
+    },
+    {
+      "code": "C76.4/2",
+      "display": "Thumb, NOS"
+    },
+    {
+      "code": "C76.4/1",
+      "display": "Wrist, NOS"
+    },
+    {
+      "code": "C76.4",
+      "display": "Elbow, NOS"
+    },
+    {
+      "code": "C76.3/9",
+      "display": "Groin, NOS"
+    },
+    {
+      "code": "C76.3/8",
+      "display": "Ischiorectal fossa"
+    },
+    {
+      "code": "C76.3/7",
+      "display": "Pelvic wall, NOS"
+    },
+    {
+      "code": "C76.3/6",
+      "display": "Perineum, NOS"
+    },
+    {
+      "code": "C76.3/5",
+      "display": "Rectovaginal septum"
+    },
+    {
+      "code": "C76.3/4",
+      "display": "Inguinal region, NOS"
+    },
+    {
+      "code": "C76.3/3",
+      "display": "Perirectal region, NOS"
+    },
+    {
+      "code": "C76.3/2",
+      "display": "Presacral region, NOS"
+    },
+    {
+      "code": "C76.3/12",
+      "display": "Gluteal region, NOS"
+    },
+    {
+      "code": "C76.3/11",
+      "display": "Pelvis, NOS"
+    },
+    {
+      "code": "C76.3/10",
+      "display": "Buttock, NOS"
+    },
+    {
+      "code": "C76.3/1",
+      "display": "Sacrococcygeal region, NOS"
+    },
+    {
+      "code": "C76.3",
+      "display": "Rectovesical septum"
+    },
+    {
+      "code": "C76.2/2",
+      "display": "Abdomen, NOS"
+    },
+    {
+      "code": "C76.2/1",
+      "display": "Intra-abdominal site, NOS"
+    },
+    {
+      "code": "C76.2",
+      "display": "Abdominal wall, NOS"
+    },
+    {
+      "code": "C76.1/7",
+      "display": "Thorax, NOS"
+    },
+    {
+      "code": "C76.1/6",
+      "display": "Axilla, NOS"
+    },
+    {
+      "code": "C76.1/5",
+      "display": "Chest, NOS"
+    },
+    {
+      "code": "C76.1/4",
+      "display": "Chest wall, NOS"
+    },
+    {
+      "code": "C76.1/3",
+      "display": "Intrathoracic site, NOS"
+    },
+    {
+      "code": "C76.1/2",
+      "display": "Thoracic wall, NOS"
+    },
+    {
+      "code": "C76.1/1",
+      "display": "Scapular region, NOS"
+    },
+    {
+      "code": "C76.1",
+      "display": "Infraclavicular region, NOS"
+    },
+    {
+      "code": "C76.0/5",
+      "display": "Nose, NOS"
+    },
+    {
+      "code": "C76.0/4",
+      "display": "Head, face or neck, NOS"
+    },
+    {
+      "code": "C76.0/3",
+      "display": "Jaw, NOS"
+    },
+    {
+      "code": "C76.0/2",
+      "display": "Supraclavicular region, NOS"
+    },
+    {
+      "code": "C76.0/1",
+      "display": "Cervical region, NOS"
+    },
+    {
+      "code": "C76.0",
+      "display": "Cheek, NOS"
+    },
+    {
+      "code": "C76",
+      "display": "OTHER AND ILL-DEFINED SITES"
+    },
+    {
+      "code": "C75.9",
+      "display": "Endocrine gland, NOS"
+    },
+    {
+      "code": "C75.8/2",
+      "display": "Pluriglandular"
+    },
+    {
+      "code": "C75.8/1",
+      "display": "Multiple endocrine glands"
+    },
+    {
+      "code": "C75.8",
+      "display": "Overlapping lesion of endocrine glands and related structures"
+    },
+    {
+      "code": "C75.5/6",
+      "display": "Organ of Zuckerkandl"
+    },
+    {
+      "code": "C75.5/5",
+      "display": "Aortic body and other paraganglia"
+    },
+    {
+      "code": "C75.5/4",
+      "display": "Coccygeal body"
+    },
+    {
+      "code": "C75.5/3",
+      "display": "Coccygeal glomus"
+    },
+    {
+      "code": "C75.5/2",
+      "display": "Para-aortic body"
+    },
+    {
+      "code": "C75.5/1",
+      "display": "Paraganglion"
+    },
+    {
+      "code": "C75.5",
+      "display": "Glomus jugulare"
+    },
+    {
+      "code": "C75.4",
+      "display": "Carotid body"
+    },
+    {
+      "code": "C75.3",
+      "display": "Pineal gland"
+    },
+    {
+      "code": "C75.2",
+      "display": "Craniopharyngeal duct"
+    },
+    {
+      "code": "C75.1/5",
+      "display": "Rathke pouch"
+    },
+    {
+      "code": "C75.1/4",
+      "display": "Hypophysis"
+    },
+    {
+      "code": "C75.1/3",
+      "display": "Pituitary gland"
+    },
+    {
+      "code": "C75.1/2",
+      "display": "Pituitary fossa"
+    },
+    {
+      "code": "C75.1/1",
+      "display": "Sella turcica"
+    },
+    {
+      "code": "C75.1",
+      "display": "Pituitary, NOS"
+    },
+    {
+      "code": "C75.0",
+      "display": "Parathyroid gland"
+    },
+    {
+      "code": "C75",
+      "display": "OTHER ENDOCRINE GLANDS AND RELATED STRUCTURES"
+    },
+    {
+      "code": "C74.9/2",
+      "display": "Adrenal, NOS"
+    },
+    {
+      "code": "C74.9/1",
+      "display": "Suprarenal gland"
+    },
+    {
+      "code": "C74.9",
+      "display": "Adrenal gland, NOS"
+    },
+    {
+      "code": "C74.1",
+      "display": "Medulla of adrenal gland"
+    },
+    {
+      "code": "C74.0",
+      "display": "Cortex of adrenal gland"
+    },
+    {
+      "code": "C74",
+      "display": "ADRENAL GLAND"
+    },
+    {
+      "code": "C73.9/2",
+      "display": "Thyroid, NOS"
+    },
+    {
+      "code": "C73.9/1",
+      "display": "Thyroid gland"
+    },
+    {
+      "code": "C73.9",
+      "display": "Thyroglossal duct"
+    },
+    {
+      "code": "C73",
+      "display": "THYROID GLAND"
+    },
+    {
+      "code": "C72.9/4",
+      "display": "Parasellar"
+    },
+    {
+      "code": "C72.9/3",
+      "display": "Extradural"
+    },
+    {
+      "code": "C72.9/2",
+      "display": "Epidural"
+    },
+    {
+      "code": "C72.9/1",
+      "display": "Central nervous system"
+    },
+    {
+      "code": "C72.9",
+      "display": "Nervous system, NOS"
+    },
+    {
+      "code": "C72.8",
+      "display": "Overlapping lesion of brain and central nervous system"
+    },
+    {
+      "code": "C72.5/9",
+      "display": "Vagus nerve"
+    },
+    {
+      "code": "C72.5/8",
+      "display": "Abducens nerve"
+    },
+    {
+      "code": "C72.5/7",
+      "display": "Spinal accessory nerve"
+    },
+    {
+      "code": "C72.5/6",
+      "display": "Facial nerve"
+    },
+    {
+      "code": "C72.5/5",
+      "display": "Glossopharyngeal nerve"
+    },
+    {
+      "code": "C72.5/4",
+      "display": "Hypoglossal nerve"
+    },
+    {
+      "code": "C72.5/3",
+      "display": "Oculomotor nerve"
+    },
+    {
+      "code": "C72.5/2",
+      "display": "Trigeminal nerve"
+    },
+    {
+      "code": "C72.5/10",
+      "display": "Accessory nerve, NOS"
+    },
+    {
+      "code": "C72.5/1",
+      "display": "Trochlear nerve"
+    },
+    {
+      "code": "C72.5",
+      "display": "Cranial nerve, NOS"
+    },
+    {
+      "code": "C72.4",
+      "display": "Acoustic nerve"
+    },
+    {
+      "code": "C72.3/2",
+      "display": "Optic tract"
+    },
+    {
+      "code": "C72.3/1",
+      "display": "Optic chiasm"
+    },
+    {
+      "code": "C72.3",
+      "display": "Optic nerve"
+    },
+    {
+      "code": "C72.2",
+      "display": "Olfactory nerve"
+    },
+    {
+      "code": "C72.1",
+      "display": "Cauda equina"
+    },
+    {
+      "code": "C72.0/6",
+      "display": "Conus medullaris"
+    },
+    {
+      "code": "C72.0/5",
+      "display": "Filum terminale"
+    },
+    {
+      "code": "C72.0/4",
+      "display": "Spinal cord"
+    },
+    {
+      "code": "C72.0/3",
+      "display": "Lumbar cord"
+    },
+    {
+      "code": "C72.0/2",
+      "display": "Thoracic cord"
+    },
+    {
+      "code": "C72.0/1",
+      "display": "Sacral cord"
+    },
+    {
+      "code": "C72.0",
+      "display": "Cervical cord"
+    },
+    {
+      "code": "C72",
+      "display": "SPINAL CORD, CRANIAL NERVES, AND OTHER PARTS OF CENTRAL NERVOUS SYSTEM"
+    },
+    {
+      "code": "C71.9/6",
+      "display": "Anterior cranial fossa"
+    },
+    {
+      "code": "C71.9/5",
+      "display": "Brain, NOS"
+    },
+    {
+      "code": "C71.9/4",
+      "display": "Cranial fossa, NOS"
+    },
+    {
+      "code": "C71.9/3",
+      "display": "Middle cranial fossa"
+    },
+    {
+      "code": "C71.9/2",
+      "display": "Posterior cranial fossa"
+    },
+    {
+      "code": "C71.9/1",
+      "display": "Suprasellar"
+    },
+    {
+      "code": "C71.9",
+      "display": "Intracranial site"
+    },
+    {
+      "code": "C71.8/2",
+      "display": "Tapetum"
+    },
+    {
+      "code": "C71.8/1",
+      "display": "Corpus callosum"
+    },
+    {
+      "code": "C71.8",
+      "display": "Overlapping lesion of brain"
+    },
+    {
+      "code": "C71.7/9",
+      "display": "Fourth ventricle, NOS"
+    },
+    {
+      "code": "C71.7/8",
+      "display": "Brain stem"
+    },
+    {
+      "code": "C71.7/7",
+      "display": "Cerebral peduncle"
+    },
+    {
+      "code": "C71.7/6",
+      "display": "Basis pedunculi"
+    },
+    {
+      "code": "C71.7/5",
+      "display": "Medulla oblongata"
+    },
+    {
+      "code": "C71.7/4",
+      "display": "Midbrain"
+    },
+    {
+      "code": "C71.7/3",
+      "display": "Olive"
+    },
+    {
+      "code": "C71.7/2",
+      "display": "Pons"
+    },
+    {
+      "code": "C71.7/10",
+      "display": "Infratentorial brain, NOS"
+    },
+    {
+      "code": "C71.7/1",
+      "display": "Pyramid"
+    },
+    {
+      "code": "C71.7",
+      "display": "Choroid plexus of fourth ventricle"
+    },
+    {
+      "code": "C71.6/2",
+      "display": "Vermis of cerebellum"
+    },
+    {
+      "code": "C71.6/1",
+      "display": "Cerebellopontine angle"
+    },
+    {
+      "code": "C71.6",
+      "display": "Cerebellum, NOS"
+    },
+    {
+      "code": "C71.5/7",
+      "display": "Lateral ventricle, NOS"
+    },
+    {
+      "code": "C71.5/6",
+      "display": "Ventricle, NOS"
+    },
+    {
+      "code": "C71.5/5",
+      "display": "Cerebral ventricle"
+    },
+    {
+      "code": "C71.5/4",
+      "display": "Choroid plexus, NOS"
+    },
+    {
+      "code": "C71.5/3",
+      "display": "Choroid plexus of lateral ventricle"
+    },
+    {
+      "code": "C71.5/2",
+      "display": "Ependyma"
+    },
+    {
+      "code": "C71.5/1",
+      "display": "Third ventricle, NOS"
+    },
+    {
+      "code": "C71.5",
+      "display": "Choroid plexus of third ventricle"
+    },
+    {
+      "code": "C71.4/1",
+      "display": "Occipital pole"
+    },
+    {
+      "code": "C71.4",
+      "display": "Occipital lobe"
+    },
+    {
+      "code": "C71.3",
+      "display": "Parietal lobe"
+    },
+    {
+      "code": "C71.2/2",
+      "display": "Temporal lobe"
+    },
+    {
+      "code": "C71.2/1",
+      "display": "Uncus"
+    },
+    {
+      "code": "C71.2",
+      "display": "Hippocampus"
+    },
+    {
+      "code": "C71.1/1",
+      "display": "Frontal pole"
+    },
+    {
+      "code": "C71.1",
+      "display": "Frontal lobe"
+    },
+    {
+      "code": "C71.0/9",
+      "display": "Insula"
+    },
+    {
+      "code": "C71.0/8",
+      "display": "Internal capsule"
+    },
+    {
+      "code": "C71.0/7",
+      "display": "Island of Reil"
+    },
+    {
+      "code": "C71.0/6",
+      "display": "Operculum"
+    },
+    {
+      "code": "C71.0/5",
+      "display": "Pallium"
+    },
+    {
+      "code": "C71.0/4",
+      "display": "Putamen"
+    },
+    {
+      "code": "C71.0/3",
+      "display": "Rhinencephalon"
+    },
+    {
+      "code": "C71.0/2",
+      "display": "Supratentorial brain, NOS"
+    },
+    {
+      "code": "C71.0/17",
+      "display": "Hypothalamus"
+    },
+    {
+      "code": "C71.0/16",
+      "display": "Cerebrum"
+    },
+    {
+      "code": "C71.0/15",
+      "display": "Basal ganglia"
+    },
+    {
+      "code": "C71.0/14",
+      "display": "Central white matter"
+    },
+    {
+      "code": "C71.0/13",
+      "display": "Cerebral cortex"
+    },
+    {
+      "code": "C71.0/12",
+      "display": "Cerebral hemisphere"
+    },
+    {
+      "code": "C71.0/11",
+      "display": "Cerebral white matter"
+    },
+    {
+      "code": "C71.0/10",
+      "display": "Globus pallidus"
+    },
+    {
+      "code": "C71.0/1",
+      "display": "Thalamus"
+    },
+    {
+      "code": "C71.0",
+      "display": "Corpus striatum"
+    },
+    {
+      "code": "C71",
+      "display": "BRAIN"
+    },
+    {
+      "code": "C70.9/4",
+      "display": "Dura, NOS"
+    },
+    {
+      "code": "C70.9/3",
+      "display": "Meninges, NOS"
+    },
+    {
+      "code": "C70.9/2",
+      "display": "Arachnoid, NOS"
+    },
+    {
+      "code": "C70.9/1",
+      "display": "Pia mater, NOS"
+    },
+    {
+      "code": "C70.9",
+      "display": "Dura mater, NOS"
+    },
+    {
+      "code": "C70.1/3",
+      "display": "Spinal pia mater"
+    },
+    {
+      "code": "C70.1/2",
+      "display": "Spinal dura mater"
+    },
+    {
+      "code": "C70.1/1",
+      "display": "Spinal arachnoid"
+    },
+    {
+      "code": "C70.1",
+      "display": "Spinal meninges"
+    },
+    {
+      "code": "C70.0/9",
+      "display": "Cerebral meninges"
+    },
+    {
+      "code": "C70.0/8",
+      "display": "Cranial dura mater"
+    },
+    {
+      "code": "C70.0/7",
+      "display": "Cranial meninges"
+    },
+    {
+      "code": "C70.0/6",
+      "display": "Cranial pia mater"
+    },
+    {
+      "code": "C70.0/5",
+      "display": "Falx cerebelli"
+    },
+    {
+      "code": "C70.0/4",
+      "display": "Falx cerebri"
+    },
+    {
+      "code": "C70.0/3",
+      "display": "Intracranial arachnoid"
+    },
+    {
+      "code": "C70.0/2",
+      "display": "Tentorium cerebelli"
+    },
+    {
+      "code": "C70.0/10",
+      "display": "Intracranial meninges"
+    },
+    {
+      "code": "C70.0/1",
+      "display": "Tentorium, NOS"
+    },
+    {
+      "code": "C70.0",
+      "display": "Falx, NOS"
+    },
+    {
+      "code": "C70",
+      "display": "MENINGES"
+    },
+    {
+      "code": "C69.9",
+      "display": "Eye, NOS"
+    },
+    {
+      "code": "C69.8",
+      "display": "Overlapping lesion of eye and adnexa"
+    },
+    {
+      "code": "C69.6/6",
+      "display": "Soft tissue of orbit"
+    },
+    {
+      "code": "C69.6/5",
+      "display": "Retrobulbar tissue"
+    },
+    {
+      "code": "C69.6/4",
+      "display": "Peripheral nerves of orbit"
+    },
+    {
+      "code": "C69.6/3",
+      "display": "Extraocular muscle"
+    },
+    {
+      "code": "C69.6/2",
+      "display": "Connective tissue of orbit"
+    },
+    {
+      "code": "C69.6/1",
+      "display": "Autonomic nervous system of orbit"
+    },
+    {
+      "code": "C69.6",
+      "display": "Orbit, NOS"
+    },
+    {
+      "code": "C69.5/4",
+      "display": "Nasolacrimal duct"
+    },
+    {
+      "code": "C69.5/3",
+      "display": "Lacrimal gland"
+    },
+    {
+      "code": "C69.5/2",
+      "display": "Nasal lacrimal duct"
+    },
+    {
+      "code": "C69.5/1",
+      "display": "Lacrimal sac"
+    },
+    {
+      "code": "C69.5",
+      "display": "Lacrimal duct, NOS"
+    },
+    {
+      "code": "C69.4/6",
+      "display": "Ciliary body"
+    },
+    {
+      "code": "C69.4/5",
+      "display": "Eyeball"
+    },
+    {
+      "code": "C69.4/4",
+      "display": "Intraocular"
+    },
+    {
+      "code": "C69.4/3",
+      "display": "Uveal tract"
+    },
+    {
+      "code": "C69.4/2",
+      "display": "Sclera"
+    },
+    {
+      "code": "C69.4/1",
+      "display": "Iris"
+    },
+    {
+      "code": "C69.4",
+      "display": "Crystalline lens"
+    },
+    {
+      "code": "C69.3",
+      "display": "Choroid"
+    },
+    {
+      "code": "C69.2",
+      "display": "Retina"
+    },
+    {
+      "code": "C69.1/1",
+      "display": "Limbus of cornea"
+    },
+    {
+      "code": "C69.1",
+      "display": "Cornea, NOS"
+    },
+    {
+      "code": "C69.0",
+      "display": "Conjunctiva"
+    },
+    {
+      "code": "C69",
+      "display": "EYE AND ADNEXA"
+    },
+    {
+      "code": "C68.9",
+      "display": "Urinary system, NOS"
+    },
+    {
+      "code": "C68.8",
+      "display": "Overlapping lesion of urinary organs"
+    },
+    {
+      "code": "C68.1",
+      "display": "Paraurethral gland"
+    },
+    {
+      "code": "C68.0/3",
+      "display": "Prostatic utricle"
+    },
+    {
+      "code": "C68.0/2",
+      "display": "Cowper gland"
+    },
+    {
+      "code": "C68.0/1",
+      "display": "Urethral gland"
+    },
+    {
+      "code": "C68.0",
+      "display": "Urethra"
+    },
+    {
+      "code": "C68",
+      "display": "OTHER AND UNSPECIFIED URINARY ORGANS"
+    },
+    {
+      "code": "C67.9/2",
+      "display": "Urinary bladder, NOS"
+    },
+    {
+      "code": "C67.9/1",
+      "display": "Bladder wall, NOS"
+    },
+    {
+      "code": "C67.9",
+      "display": "Bladder, NOS"
+    },
+    {
+      "code": "C67.8",
+      "display": "Overlapping lesion of bladder"
+    },
+    {
+      "code": "C67.7",
+      "display": "Urachus"
+    },
+    {
+      "code": "C67.6",
+      "display": "Ureteric orifice"
+    },
+    {
+      "code": "C67.5/1",
+      "display": "Internal urethral orifice"
+    },
+    {
+      "code": "C67.5",
+      "display": "Bladder neck"
+    },
+    {
+      "code": "C67.4",
+      "display": "Posterior wall of bladder"
+    },
+    {
+      "code": "C67.3",
+      "display": "Anterior wall of bladder"
+    },
+    {
+      "code": "C67.2",
+      "display": "Lateral wall of bladder"
+    },
+    {
+      "code": "C67.1",
+      "display": "Dome of bladder"
+    },
+    {
+      "code": "C67.0",
+      "display": "Trigone of bladder"
+    },
+    {
+      "code": "C67",
+      "display": "BLADDER"
+    },
+    {
+      "code": "C66.9",
+      "display": "Ureter"
+    },
+    {
+      "code": "C66",
+      "display": "URETER"
+    },
+    {
+      "code": "C65.9/4",
+      "display": "Pelviureteric junction"
+    },
+    {
+      "code": "C65.9/3",
+      "display": "Renal pelvis"
+    },
+    {
+      "code": "C65.9/2",
+      "display": "Pelvis of kidney"
+    },
+    {
+      "code": "C65.9/1",
+      "display": "Renal calyx"
+    },
+    {
+      "code": "C65.9",
+      "display": "Renal calyces"
+    },
+    {
+      "code": "C65",
+      "display": "RENAL PELVIS"
+    },
+    {
+      "code": "C64.9/2",
+      "display": "Kidney parenchyma"
+    },
+    {
+      "code": "C64.9/1",
+      "display": "Renal, NOS"
+    },
+    {
+      "code": "C64.9",
+      "display": "Kidney, NOS"
+    },
+    {
+      "code": "C64",
+      "display": "KIDNEY"
+    },
+    {
+      "code": "C63.9/2",
+      "display": "Male genital organs, NOS"
+    },
+    {
+      "code": "C63.9/1",
+      "display": "Male genital tract, NOS"
+    },
+    {
+      "code": "C63.9",
+      "display": "Male genitourinary tract, NOS"
+    },
+    {
+      "code": "C63.8",
+      "display": "Overlapping lesion of male genital organs Note:"
+    },
+    {
+      "code": "C63.7/2",
+      "display": "Tunica vaginalis"
+    },
+    {
+      "code": "C63.7/1",
+      "display": "Seminal vesicle"
+    },
+    {
+      "code": "C63.7",
+      "display": "Other specified parts of male genital organs"
+    },
+    {
+      "code": "C63.2/1",
+      "display": "Skin of scrotum"
+    },
+    {
+      "code": "C63.2",
+      "display": "Scrotum, NOS"
+    },
+    {
+      "code": "C63.1/1",
+      "display": "Vas deferens"
+    },
+    {
+      "code": "C63.1",
+      "display": "Spermatic cord"
+    },
+    {
+      "code": "C63.0",
+      "display": "Epididymis"
+    },
+    {
+      "code": "C63",
+      "display": "OTHER AND UNSPECIFIED MALE GENITAL ORGANS"
+    },
+    {
+      "code": "C62.9/1",
+      "display": "Testis, NOS"
+    },
+    {
+      "code": "C62.9",
+      "display": "Testicle, NOS"
+    },
+    {
+      "code": "C62.1/1",
+      "display": "Scrotal testis"
+    },
+    {
+      "code": "C62.1",
+      "display": "Descended testis"
+    },
+    {
+      "code": "C62.0/2",
+      "display": "Ectopic testis (site of neoplasm)"
+    },
+    {
+      "code": "C62.0/1",
+      "display": "Retained testis (site of neoplasm)"
+    },
+    {
+      "code": "C62.0",
+      "display": "Undescended testis"
+    },
+    {
+      "code": "C62",
+      "display": "TESTIS"
+    },
+    {
+      "code": "C61.9/1",
+      "display": "Prostate, NOS"
+    },
+    {
+      "code": "C61.9",
+      "display": "Prostate gland"
+    },
+    {
+      "code": "C61",
+      "display": "PROSTATE GLAND"
+    },
+    {
+      "code": "C60.9",
+      "display": "Penis, NOS"
+    },
+    {
+      "code": "C60.8",
+      "display": "Overlapping lesion of penis"
+    },
+    {
+      "code": "C60.2/2",
+      "display": "Corpus of penis"
+    },
+    {
+      "code": "C60.2/1",
+      "display": "Corpus cavernosum"
+    },
+    {
+      "code": "C60.2",
+      "display": "Body of penis"
+    },
+    {
+      "code": "C60.1",
+      "display": "Glans penis"
+    },
+    {
+      "code": "C60.0/1",
+      "display": "Prepuce"
+    },
+    {
+      "code": "C60.0",
+      "display": "Foreskin"
+    },
+    {
+      "code": "C60",
+      "display": "PENIS"
+    },
+    {
+      "code": "C58.9/1",
+      "display": "Placenta"
+    },
+    {
+      "code": "C58.9",
+      "display": "Fetal membranes"
+    },
+    {
+      "code": "C58",
+      "display": "PLACENTA"
+    },
+    {
+      "code": "C57.9/5",
+      "display": "Female genital tract, NOS"
+    },
+    {
+      "code": "C57.9/4",
+      "display": "Vesicovaginal septum"
+    },
+    {
+      "code": "C57.9/3",
+      "display": "Vesicocervical tissue"
+    },
+    {
+      "code": "C57.9/2",
+      "display": "Urethrovaginal septum"
+    },
+    {
+      "code": "C57.9/1",
+      "display": "Female genitourinary tract, NOS"
+    },
+    {
+      "code": "C57.9",
+      "display": "Female genital organs, NOS"
+    },
+    {
+      "code": "C57.8/2",
+      "display": "Overlapping lesion of female genital organs"
+    },
+    {
+      "code": "C57.8/1",
+      "display": "Tubo-ovarian"
+    },
+    {
+      "code": "C57.8",
+      "display": "Utero-ovarian"
+    },
+    {
+      "code": "C57.7/2",
+      "display": "Wolffian duct"
+    },
+    {
+      "code": "C57.7/1",
+      "display": "Wolffian body"
+    },
+    {
+      "code": "C57.7",
+      "display": "Other specified parts of female genital organs"
+    },
+    {
+      "code": "C57.4/1",
+      "display": "Adnexa, NOS"
+    },
+    {
+      "code": "C57.4",
+      "display": "Uterine adnexa"
+    },
+    {
+      "code": "C57.3/2",
+      "display": "Uterine ligament"
+    },
+    {
+      "code": "C57.3/1",
+      "display": "Parametrium"
+    },
+    {
+      "code": "C57.3",
+      "display": "Uterosacral ligament"
+    },
+    {
+      "code": "C57.2",
+      "display": "Round ligament"
+    },
+    {
+      "code": "C57.1/2",
+      "display": "Parovarian region"
+    },
+    {
+      "code": "C57.1/1",
+      "display": "Mesovarium"
+    },
+    {
+      "code": "C57.1",
+      "display": "Broad ligament"
+    },
+    {
+      "code": "C57.0/1",
+      "display": "Uterine tube"
+    },
+    {
+      "code": "C57.0",
+      "display": "Fallopian tube"
+    },
+    {
+      "code": "C57",
+      "display": "OTHER AND UNSPECIFIED FEMALE GENITAL ORGANS"
+    },
+    {
+      "code": "C56.9",
+      "display": "Ovary"
+    },
+    {
+      "code": "C56",
+      "display": "OVARY"
+    },
+    {
+      "code": "C55.9/1",
+      "display": "Uterine, NOS"
+    },
+    {
+      "code": "C55.9",
+      "display": "Uterus, NOS"
+    },
+    {
+      "code": "C55",
+      "display": "UTERUS, NOS"
+    },
+    {
+      "code": "C54.9/1",
+      "display": "Body of uterus"
+    },
+    {
+      "code": "C54.9",
+      "display": "Corpus uteri"
+    },
+    {
+      "code": "C54.8",
+      "display": "Overlapping lesion of corpus uteri"
+    },
+    {
+      "code": "C54.3",
+      "display": "Fundus uteri"
+    },
+    {
+      "code": "C54.2",
+      "display": "Myometrium"
+    },
+    {
+      "code": "C54.1/2",
+      "display": "Endometrial stroma"
+    },
+    {
+      "code": "C54.1/1",
+      "display": "Endometrial gland"
+    },
+    {
+      "code": "C54.1",
+      "display": "Endometrium"
+    },
+    {
+      "code": "C54.0/1",
+      "display": "Lower uterine segment"
+    },
+    {
+      "code": "C54.0",
+      "display": "Isthmus uteri"
+    },
+    {
+      "code": "C54",
+      "display": "CORPUS UTERI"
+    },
+    {
+      "code": "C53.9/2",
+      "display": "Uterine cervix"
+    },
+    {
+      "code": "C53.9/1",
+      "display": "Cervix, NOS"
+    },
+    {
+      "code": "C53.9",
+      "display": "Cervix uteri"
+    },
+    {
+      "code": "C53.8/2",
+      "display": "Overlapping lesion of cervix uteri"
+    },
+    {
+      "code": "C53.8/1",
+      "display": "Cervical stump"
+    },
+    {
+      "code": "C53.8",
+      "display": "Squamocolumnar junction of cervix"
+    },
+    {
+      "code": "C53.1/1",
+      "display": "Exocervix"
+    },
+    {
+      "code": "C53.1",
+      "display": "External os"
+    },
+    {
+      "code": "C53.0/5",
+      "display": "Endocervix"
+    },
+    {
+      "code": "C53.0/4",
+      "display": "Nabothian gland"
+    },
+    {
+      "code": "C53.0/3",
+      "display": "Endocervical gland"
+    },
+    {
+      "code": "C53.0/2",
+      "display": "Endocervical canal"
+    },
+    {
+      "code": "C53.0/1",
+      "display": "Cervical canal"
+    },
+    {
+      "code": "C53.0",
+      "display": "Internal os"
+    },
+    {
+      "code": "C53",
+      "display": "CERVIX UTERI"
+    },
+    {
+      "code": "C52.9/4",
+      "display": "Gartner duct"
+    },
+    {
+      "code": "C52.9/3",
+      "display": "Fornix of vagina"
+    },
+    {
+      "code": "C52.9/2",
+      "display": "Vaginal vault"
+    },
+    {
+      "code": "C52.9/1",
+      "display": "Vagina, NOS"
+    },
+    {
+      "code": "C52.9",
+      "display": "Hymen"
+    },
+    {
+      "code": "C52",
+      "display": "VAGINA"
+    },
+    {
+      "code": "C51.9/8",
+      "display": "Labium, NOS"
+    },
+    {
+      "code": "C51.9/7",
+      "display": "Vulva, NOS"
+    },
+    {
+      "code": "C51.9/6",
+      "display": "External female genitalia"
+    },
+    {
+      "code": "C51.9/5",
+      "display": "Labia, NOS"
+    },
+    {
+      "code": "C51.9/4",
+      "display": "Mons pubis"
+    },
+    {
+      "code": "C51.9/3",
+      "display": "Mons veneris"
+    },
+    {
+      "code": "C51.9/2",
+      "display": "Pudendum"
+    },
+    {
+      "code": "C51.9/1",
+      "display": "Skin of vulva"
+    },
+    {
+      "code": "C51.9",
+      "display": "Fourchette"
+    },
+    {
+      "code": "C51.8",
+      "display": "Overlapping lesion of vulva"
+    },
+    {
+      "code": "C51.2",
+      "display": "Clitoris"
+    },
+    {
+      "code": "C51.1/1",
+      "display": "Labium minus"
+    },
+    {
+      "code": "C51.1",
+      "display": "Labia minora"
+    },
+    {
+      "code": "C51.0/3",
+      "display": "Labium majus"
+    },
+    {
+      "code": "C51.0/2",
+      "display": "Labia majora, NOS"
+    },
+    {
+      "code": "C51.0/1",
+      "display": "Skin of labia majora"
+    },
+    {
+      "code": "C51.0",
+      "display": "Bartholin gland"
+    },
+    {
+      "code": "C51",
+      "display": "VULVA"
+    },
+    {
+      "code": "C50.9/1",
+      "display": "Mammary gland"
+    },
+    {
+      "code": "C50.9",
+      "display": "Breast, NOS"
+    },
+    {
+      "code": "C50.8/5",
+      "display": "Midline of breast"
+    },
+    {
+      "code": "C50.8/4",
+      "display": "Lower breast"
+    },
+    {
+      "code": "C50.8/3",
+      "display": "Inner breast"
+    },
+    {
+      "code": "C50.8/2",
+      "display": "Outer breast"
+    },
+    {
+      "code": "C50.8/1",
+      "display": "Upper breast"
+    },
+    {
+      "code": "C50.8",
+      "display": "Overlapping lesion of breast"
+    },
+    {
+      "code": "C50.6/1",
+      "display": "Tail of breast, NOS"
+    },
+    {
+      "code": "C50.6",
+      "display": "Axillary tail of breast"
+    },
+    {
+      "code": "C50.5",
+      "display": "Lower-outer quadrant of breast"
+    },
+    {
+      "code": "C50.4",
+      "display": "Upper-outer quadrant of breast"
+    },
+    {
+      "code": "C50.3",
+      "display": "Lower-inner quadrant of breast"
+    },
+    {
+      "code": "C50.2",
+      "display": "Upper-inner quadrant of breast"
+    },
+    {
+      "code": "C50.1",
+      "display": "Central portion of breast"
+    },
+    {
+      "code": "C50.0/1",
+      "display": "Areola"
+    },
+    {
+      "code": "C50.0",
+      "display": "Nipple"
+    },
+    {
+      "code": "C50",
+      "display": "BREAST"
+    },
+    {
+      "code": "C49.9/9",
+      "display": "Vessel, NOS"
+    },
+    {
+      "code": "C49.9/8",
+      "display": "Muscle, NOS"
+    },
+    {
+      "code": "C49.9/7",
+      "display": "Skeletal muscle, NOS"
+    },
+    {
+      "code": "C49.9/6",
+      "display": "Subcutaneous tissue, NOS"
+    },
+    {
+      "code": "C49.9/5",
+      "display": "Synovia, NOS"
+    },
+    {
+      "code": "C49.9/4",
+      "display": "Aponeurosis, NOS"
+    },
+    {
+      "code": "C49.9/3",
+      "display": "Tendon, NOS"
+    },
+    {
+      "code": "C49.9/2",
+      "display": "Tendon sheath, NOS"
+    },
+    {
+      "code": "C49.9/19",
+      "display": "Ligament, NOS"
+    },
+    {
+      "code": "C49.9/18",
+      "display": "Connective, subcutaneous and other soft tissues, NOS"
+    },
+    {
+      "code": "C49.9/17",
+      "display": "Adipose tissue, NOS"
+    },
+    {
+      "code": "C49.9/16",
+      "display": "Blood vessel, NOS"
+    },
+    {
+      "code": "C49.9/15",
+      "display": "Artery, NOS"
+    },
+    {
+      "code": "C49.9/14",
+      "display": "Bursa, NOS"
+    },
+    {
+      "code": "C49.9/13",
+      "display": "Connective tissue, NOS"
+    },
+    {
+      "code": "C49.9/12",
+      "display": "Fascia, NOS"
+    },
+    {
+      "code": "C49.9/11",
+      "display": "Fatty tissue, NOS"
+    },
+    {
+      "code": "C49.9/10",
+      "display": "Fibrous tissue, NOS"
+    },
+    {
+      "code": "C49.9/1",
+      "display": "Vein, NOS"
+    },
+    {
+      "code": "C49.9",
+      "display": "Lymphatic, NOS"
+    },
+    {
+      "code": "C49.8",
+      "display": "Overlapping lesion of connective, subcutaneous and other soft tissues"
+    },
+    {
+      "code": "C49.6/4",
+      "display": "flank"
+    },
+    {
+      "code": "C49.6/3",
+      "display": "back"
+    },
+    {
+      "code": "C49.6/2",
+      "display": "Connective, subcutaneous and other soft tissues of:"
+    },
+    {
+      "code": "C49.6/1",
+      "display": "Connective, subcutaneous and other soft tissues of trunk NOS"
+    },
+    {
+      "code": "C49.6",
+      "display": "trunk"
+    },
+    {
+      "code": "C49.5/9",
+      "display": "Connective, subcutaneous and other soft tissues of:"
+    },
+    {
+      "code": "C49.5/8",
+      "display": "Connective, subcutaneous and other soft tissues of pelvis"
+    },
+    {
+      "code": "C49.5/7",
+      "display": "buttock"
+    },
+    {
+      "code": "C49.5/6",
+      "display": "groin"
+    },
+    {
+      "code": "C49.5/5",
+      "display": "perineum"
+    },
+    {
+      "code": "C49.5/4",
+      "display": "sacrococcygeal region"
+    },
+    {
+      "code": "C49.5/3",
+      "display": "Gluteus maximus muscle"
+    },
+    {
+      "code": "C49.5/2",
+      "display": "Iliac vein"
+    },
+    {
+      "code": "C49.5/10",
+      "display": "gluteal region"
+    },
+    {
+      "code": "C49.5/1",
+      "display": "Iliac artery"
+    },
+    {
+      "code": "C49.5",
+      "display": "inguinal region"
+    },
+    {
+      "code": "C49.4/9",
+      "display": "Abdominal aorta"
+    },
+    {
+      "code": "C49.4/8",
+      "display": "Abdominal wall muscle"
+    },
+    {
+      "code": "C49.4/7",
+      "display": "Iliopsoas muscle"
+    },
+    {
+      "code": "C49.4/6",
+      "display": "Inferior vena cava"
+    },
+    {
+      "code": "C49.4/5",
+      "display": "Mesenteric artery"
+    },
+    {
+      "code": "C49.4/4",
+      "display": "Psoas muscle"
+    },
+    {
+      "code": "C49.4/3",
+      "display": "Rectus abdominis muscle"
+    },
+    {
+      "code": "C49.4/2",
+      "display": "Renal artery"
+    },
+    {
+      "code": "C49.4/15",
+      "display": "Abdominal vena cava"
+    },
+    {
+      "code": "C49.4/14",
+      "display": "Connective, subcutaneous and other soft tissues of abdomen"
+    },
+    {
+      "code": "C49.4/13",
+      "display": "Connective, subcutaneous and other soft tissues of :"
+    },
+    {
+      "code": "C49.4/12",
+      "display": "abdomen"
+    },
+    {
+      "code": "C49.4/11",
+      "display": "abdominal wall"
+    },
+    {
+      "code": "C49.4/10",
+      "display": "Vena cava, NOS"
+    },
+    {
+      "code": "C49.4/1",
+      "display": "Celiac artery"
+    },
+    {
+      "code": "C49.4",
+      "display": "umbilicus"
+    },
+    {
+      "code": "C49.3/9",
+      "display": "Thoracic duct"
+    },
+    {
+      "code": "C49.3/8",
+      "display": "Axillary artery"
+    },
+    {
+      "code": "C49.3/7",
+      "display": "Diaphragm"
+    },
+    {
+      "code": "C49.3/6",
+      "display": "Intercostal muscle"
+    },
+    {
+      "code": "C49.3/5",
+      "display": "Internal mammary artery"
+    },
+    {
+      "code": "C49.3/4",
+      "display": "Latissimus dorsi muscle"
+    },
+    {
+      "code": "C49.3/3",
+      "display": "Trapezius muscle"
+    },
+    {
+      "code": "C49.3/20",
+      "display": "Superior vena cava"
+    },
+    {
+      "code": "C49.3/2",
+      "display": "Subclavian artery"
+    },
+    {
+      "code": "C49.3/19",
+      "display": "infraclavicular region"
+    },
+    {
+      "code": "C49.3/18",
+      "display": "thoracic wall"
+    },
+    {
+      "code": "C49.3/17",
+      "display": "thorax"
+    },
+    {
+      "code": "C49.3/16",
+      "display": "chest wall"
+    },
+    {
+      "code": "C49.3/15",
+      "display": "chest"
+    },
+    {
+      "code": "C49.3/14",
+      "display": "axilla"
+    },
+    {
+      "code": "C49.3/13",
+      "display": "Connective, subcutaneous and other soft tissues of :"
+    },
+    {
+      "code": "C49.3/12",
+      "display": "Connective, subcutaneous and other soft tissues of thorax"
+    },
+    {
+      "code": "C49.3/11",
+      "display": "scapular region"
+    },
+    {
+      "code": "C49.3/10",
+      "display": "C38._)"
+    },
+    {
+      "code": "C49.3/1",
+      "display": "Pectoralis major muscle"
+    },
+    {
+      "code": "C49.3",
+      "display": "Aorta, NOS"
+    },
+    {
+      "code": "C49.2/9",
+      "display": "Connective, subcutaneous and other soft tissues of:"
+    },
+    {
+      "code": "C49.2/8",
+      "display": "toe"
+    },
+    {
+      "code": "C49.2/7",
+      "display": "Biceps femoris muscle"
+    },
+    {
+      "code": "C49.2/6",
+      "display": "Femoral artery"
+    },
+    {
+      "code": "C49.2/5",
+      "display": "Gastrocnemius muscle"
+    },
+    {
+      "code": "C49.2/4",
+      "display": "Plantar aponeurosis"
+    },
+    {
+      "code": "C49.2/3",
+      "display": "Plantar fascia"
+    },
+    {
+      "code": "C49.2/2",
+      "display": "Quadriceps femoris muscle"
+    },
+    {
+      "code": "C49.2/17",
+      "display": "leg"
+    },
+    {
+      "code": "C49.2/16",
+      "display": "hip"
+    },
+    {
+      "code": "C49.2/15",
+      "display": "heel"
+    },
+    {
+      "code": "C49.2/14",
+      "display": "foot"
+    },
+    {
+      "code": "C49.2/13",
+      "display": "calf"
+    },
+    {
+      "code": "C49.2/12",
+      "display": "ankle"
+    },
+    {
+      "code": "C49.2/11",
+      "display": "Connective, subcutaneous and other soft tissues of lower limb and hip"
+    },
+    {
+      "code": "C49.2/10",
+      "display": "popliteal space"
+    },
+    {
+      "code": "C49.2/1",
+      "display": "thigh"
+    },
+    {
+      "code": "C49.2",
+      "display": "knee"
+    },
+    {
+      "code": "C49.1/9",
+      "display": "antecubital space"
+    },
+    {
+      "code": "C49.1/8",
+      "display": "Deltoideus muscle"
+    },
+    {
+      "code": "C49.1/7",
+      "display": "wrist"
+    },
+    {
+      "code": "C49.1/6",
+      "display": "Ulnar artery"
+    },
+    {
+      "code": "C49.1/5",
+      "display": "Triceps brachii muscle"
+    },
+    {
+      "code": "C49.1/4",
+      "display": "Radial artery"
+    },
+    {
+      "code": "C49.1/3",
+      "display": "Palmar aponeurosis"
+    },
+    {
+      "code": "C49.1/2",
+      "display": "Coracobrachialis muscle"
+    },
+    {
+      "code": "C49.1/19",
+      "display": "Palmar fascia"
+    },
+    {
+      "code": "C49.1/18",
+      "display": "shoulder"
+    },
+    {
+      "code": "C49.1/17",
+      "display": "hand"
+    },
+    {
+      "code": "C49.1/16",
+      "display": "forearm"
+    },
+    {
+      "code": "C49.1/15",
+      "display": "finger"
+    },
+    {
+      "code": "C49.1/14",
+      "display": "Connective, subcutaneous and other soft tissues of upper limb and shoulder"
+    },
+    {
+      "code": "C49.1/13",
+      "display": "elbow"
+    },
+    {
+      "code": "C49.1/12",
+      "display": "thumb"
+    },
+    {
+      "code": "C49.1/11",
+      "display": "arm"
+    },
+    {
+      "code": "C49.1/10",
+      "display": "Connective, subcutaneous and other soft tissues of:"
+    },
+    {
+      "code": "C49.1/1",
+      "display": "Brachialis muscle"
+    },
+    {
+      "code": "C49.1",
+      "display": "Biceps brachii muscle"
+    },
+    {
+      "code": "C49.0/9",
+      "display": "Connective, subcutaneous and other soft tissues of head, face, and neck"
+    },
+    {
+      "code": "C49.0/8",
+      "display": "Carotid artery"
+    },
+    {
+      "code": "C49.0/7",
+      "display": "Sternocleidomastoid muscle"
+    },
+    {
+      "code": "C49.0/6",
+      "display": "neck"
+    },
+    {
+      "code": "C49.0/5",
+      "display": "Masseter muscle"
+    },
+    {
+      "code": "C49.0/4",
+      "display": "Cartilage of ear"
+    },
+    {
+      "code": "C49.0/3",
+      "display": "Auricular cartilage"
+    },
+    {
+      "code": "C49.0/2",
+      "display": "supraclavicular region"
+    },
+    {
+      "code": "C49.0/18",
+      "display": "temple"
+    },
+    {
+      "code": "C49.0/17",
+      "display": "scalp"
+    },
+    {
+      "code": "C49.0/16",
+      "display": "C69.6 and nasal cartilage C30.0)"
+    },
+    {
+      "code": "C49.0/15",
+      "display": "Connective, subcutaneous and other soft tissues of:"
+    },
+    {
+      "code": "C49.0/14",
+      "display": "cheek"
+    },
+    {
+      "code": "C49.0/13",
+      "display": "chin"
+    },
+    {
+      "code": "C49.0/12",
+      "display": "face"
+    },
+    {
+      "code": "C49.0/11",
+      "display": "forehead"
+    },
+    {
+      "code": "C49.0/10",
+      "display": "head"
+    },
+    {
+      "code": "C49.0/1",
+      "display": "pterygoid fossa"
+    },
+    {
+      "code": "C49.0",
+      "display": "cervical region"
+    },
+    {
+      "code": "C49",
+      "display": "CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES"
+    },
+    {
+      "code": "C48.8",
+      "display": "Overlapping lesion of retroperitoneum and peritoneum"
+    },
+    {
+      "code": "C48.2/1",
+      "display": "Peritoneal cavity"
+    },
+    {
+      "code": "C48.2",
+      "display": "Peritoneum, NOS"
+    },
+    {
+      "code": "C48.1/8",
+      "display": "Omentum"
+    },
+    {
+      "code": "C48.1/7",
+      "display": "Specified parts of peritoneum"
+    },
+    {
+      "code": "C48.1/6",
+      "display": "Mesentery"
+    },
+    {
+      "code": "C48.1/5",
+      "display": "Mesoappendix"
+    },
+    {
+      "code": "C48.1/4",
+      "display": "Mesocolon"
+    },
+    {
+      "code": "C48.1/3",
+      "display": "Rectouterine pouch"
+    },
+    {
+      "code": "C48.1/2",
+      "display": "Cul de sac"
+    },
+    {
+      "code": "C48.1/1",
+      "display": "Pouch of Douglas"
+    },
+    {
+      "code": "C48.1",
+      "display": "Pelvic peritoneum"
+    },
+    {
+      "code": "C48.0/6",
+      "display": "Retroperitoneum"
+    },
+    {
+      "code": "C48.0/5",
+      "display": "Retroperitoneal tissue"
+    },
+    {
+      "code": "C48.0/4",
+      "display": "Retrocecal tissue"
+    },
+    {
+      "code": "C48.0/3",
+      "display": "Perirenal tissue"
+    },
+    {
+      "code": "C48.0/2",
+      "display": "Peripancreatic tissue"
+    },
+    {
+      "code": "C48.0/1",
+      "display": "Perinephric tissue"
+    },
+    {
+      "code": "C48.0",
+      "display": "Periadrenal tissue"
+    },
+    {
+      "code": "C48",
+      "display": "RETROPERITONEUM AND PERITONEUM"
+    },
+    {
+      "code": "C47.9/6",
+      "display": "Spinal nerve, NOS"
+    },
+    {
+      "code": "C47.9/5",
+      "display": "Peripheral nerve, NOS"
+    },
+    {
+      "code": "C47.9/4",
+      "display": "Parasympathetic nervous system, NOS"
+    },
+    {
+      "code": "C47.9/3",
+      "display": "Nerve, NOS"
+    },
+    {
+      "code": "C47.9/2",
+      "display": "Ganglia, NOS"
+    },
+    {
+      "code": "C47.9/1",
+      "display": "Autonomic nervous system, NOS"
+    },
+    {
+      "code": "C47.9",
+      "display": "Sympathetic nervous system, NOS"
+    },
+    {
+      "code": "C47.8",
+      "display": "Overlapping lesion of peripheral nerves and autonomic nervous system"
+    },
+    {
+      "code": "C47.6/5",
+      "display": "back"
+    },
+    {
+      "code": "C47.6/4",
+      "display": "Lumbar nerve"
+    },
+    {
+      "code": "C47.6/3",
+      "display": "Peripheral nerves and autonomic nervous system of:"
+    },
+    {
+      "code": "C47.6/2",
+      "display": "Peripheral nerves and autonomic nervous system of trunk, NOS"
+    },
+    {
+      "code": "C47.6/1",
+      "display": "flank"
+    },
+    {
+      "code": "C47.6",
+      "display": "trunk"
+    },
+    {
+      "code": "C47.5/9",
+      "display": "Peripheral nerves and autonomic nervous system of pelvis"
+    },
+    {
+      "code": "C47.5/8",
+      "display": "Peripheral nerves and autonomic nervous system of:"
+    },
+    {
+      "code": "C47.5/7",
+      "display": "groin"
+    },
+    {
+      "code": "C47.5/6",
+      "display": "gluteal region"
+    },
+    {
+      "code": "C47.5/5",
+      "display": "inguinal region"
+    },
+    {
+      "code": "C47.5/4",
+      "display": "sacrococcygeal region"
+    },
+    {
+      "code": "C47.5/3",
+      "display": "Lumbosacral plexus"
+    },
+    {
+      "code": "C47.5/2",
+      "display": "Sacral nerve"
+    },
+    {
+      "code": "C47.5/10",
+      "display": "perineum"
+    },
+    {
+      "code": "C47.5/1",
+      "display": "Sacral plexus"
+    },
+    {
+      "code": "C47.5",
+      "display": "buttock"
+    },
+    {
+      "code": "C47.4/3",
+      "display": "umbilicus"
+    },
+    {
+      "code": "C47.4/2",
+      "display": "abdominal wall"
+    },
+    {
+      "code": "C47.4/1",
+      "display": "Peripheral nerves and autonomic nervous system of:"
+    },
+    {
+      "code": "C47.4",
+      "display": "Peripheral nerves and autonomic nervous system of abdomen"
+    },
+    {
+      "code": "C47.3/8",
+      "display": "chest wall"
+    },
+    {
+      "code": "C47.3/7",
+      "display": "Intercostal nerve"
+    },
+    {
+      "code": "C47.3/6",
+      "display": "scapular region"
+    },
+    {
+      "code": "C47.3/5",
+      "display": "infraclavicular region"
+    },
+    {
+      "code": "C47.3/4",
+      "display": "chest"
+    },
+    {
+      "code": "C47.3/3",
+      "display": "axilla"
+    },
+    {
+      "code": "C47.3/2",
+      "display": "Peripheral nerves and autonomic nervous system of:"
+    },
+    {
+      "code": "C47.3/1",
+      "display": "Peripheral nerves and autonomic nervous system of thorax"
+    },
+    {
+      "code": "C47.3",
+      "display": "thoracic wall"
+    },
+    {
+      "code": "C47.2/9",
+      "display": "hip"
+    },
+    {
+      "code": "C47.2/8",
+      "display": "Peripheral nerves and autonomic nervous system of lower limband hip"
+    },
+    {
+      "code": "C47.2/7",
+      "display": "Obturator nerve"
+    },
+    {
+      "code": "C47.2/6",
+      "display": "heel"
+    },
+    {
+      "code": "C47.2/5",
+      "display": "Sciatic nerve"
+    },
+    {
+      "code": "C47.2/4",
+      "display": "leg"
+    },
+    {
+      "code": "C47.2/3",
+      "display": "Femoral nerve"
+    },
+    {
+      "code": "C47.2/2",
+      "display": "toe"
+    },
+    {
+      "code": "C47.2/14",
+      "display": "knee"
+    },
+    {
+      "code": "C47.2/13",
+      "display": "Peripheral nerves and autonomic nervous system of:"
+    },
+    {
+      "code": "C47.2/12",
+      "display": "ankle"
+    },
+    {
+      "code": "C47.2/11",
+      "display": "calf"
+    },
+    {
+      "code": "C47.2/10",
+      "display": "foot"
+    },
+    {
+      "code": "C47.2/1",
+      "display": "thigh"
+    },
+    {
+      "code": "C47.2",
+      "display": "popliteal space"
+    },
+    {
+      "code": "C47.1/9",
+      "display": "forearm"
+    },
+    {
+      "code": "C47.1/8",
+      "display": "Peripheral nerves and autonomic nervous system of upper limb and shoulder"
+    },
+    {
+      "code": "C47.1/7",
+      "display": "shoulder"
+    },
+    {
+      "code": "C47.1/6",
+      "display": "thumb"
+    },
+    {
+      "code": "C47.1/5",
+      "display": "wrist"
+    },
+    {
+      "code": "C47.1/4",
+      "display": "Brachial nerve"
+    },
+    {
+      "code": "C47.1/3",
+      "display": "Brachial plexus"
+    },
+    {
+      "code": "C47.1/2",
+      "display": "Median nerve"
+    },
+    {
+      "code": "C47.1/15",
+      "display": "hand"
+    },
+    {
+      "code": "C47.1/14",
+      "display": "Peripheral nerves and autonomic nervous system of :"
+    },
+    {
+      "code": "C47.1/13",
+      "display": "antecubital space"
+    },
+    {
+      "code": "C47.1/12",
+      "display": "arm"
+    },
+    {
+      "code": "C47.1/11",
+      "display": "elbow"
+    },
+    {
+      "code": "C47.1/10",
+      "display": "finger"
+    },
+    {
+      "code": "C47.1/1",
+      "display": "Ulnar nerve"
+    },
+    {
+      "code": "C47.1",
+      "display": "Radial nerve"
+    },
+    {
+      "code": "C47.0/9",
+      "display": "face"
+    },
+    {
+      "code": "C47.0/8",
+      "display": "forehead"
+    },
+    {
+      "code": "C47.0/7",
+      "display": "head"
+    },
+    {
+      "code": "C47.0/6",
+      "display": "temple"
+    },
+    {
+      "code": "C47.0/5",
+      "display": "cervical region"
+    },
+    {
+      "code": "C47.0/4",
+      "display": "Cervical plexus"
+    },
+    {
+      "code": "C47.0/3",
+      "display": "pterygoid fossa"
+    },
+    {
+      "code": "C47.0/2",
+      "display": "Peripheral nerves and autonomic nervous system of:"
+    },
+    {
+      "code": "C47.0/13",
+      "display": "neck"
+    },
+    {
+      "code": "C47.0/12",
+      "display": "chin"
+    },
+    {
+      "code": "C47.0/11",
+      "display": "Peripheral nerves and autonomic nervous system of head, face, and neck"
+    },
+    {
+      "code": "C47.0/10",
+      "display": "cheek"
+    },
+    {
+      "code": "C47.0/1",
+      "display": "supraclavicular region"
+    },
+    {
+      "code": "C47.0",
+      "display": "scalp"
+    },
+    {
+      "code": "C47",
+      "display": "PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM"
+    },
+    {
+      "code": "C44.9/1",
+      "display": "C51.0, skin of vulva C51.9, skin of penis C60.9 and skin of scrotum C63.2)"
+    },
+    {
+      "code": "C44.9",
+      "display": "Skin, NOS"
+    },
+    {
+      "code": "C44.8",
+      "display": "Overlapping lesion of skin"
+    },
+    {
+      "code": "C44.7/9",
+      "display": "heel"
+    },
+    {
+      "code": "C44.7/8",
+      "display": "hip"
+    },
+    {
+      "code": "C44.7/7",
+      "display": "Sole of foot"
+    },
+    {
+      "code": "C44.7/6",
+      "display": "leg"
+    },
+    {
+      "code": "C44.7/5",
+      "display": "Toe nail"
+    },
+    {
+      "code": "C44.7/4",
+      "display": "Plantar skin"
+    },
+    {
+      "code": "C44.7/3",
+      "display": "toe"
+    },
+    {
+      "code": "C44.7/2",
+      "display": "thigh"
+    },
+    {
+      "code": "C44.7/15",
+      "display": "knee"
+    },
+    {
+      "code": "C44.7/14",
+      "display": "Skin of lower limb and hip"
+    },
+    {
+      "code": "C44.7/13",
+      "display": "Skin of:"
+    },
+    {
+      "code": "C44.7/12",
+      "display": "ankle"
+    },
+    {
+      "code": "C44.7/11",
+      "display": "calf"
+    },
+    {
+      "code": "C44.7/10",
+      "display": "foot"
+    },
+    {
+      "code": "C44.7/1",
+      "display": "popliteal space"
+    },
+    {
+      "code": "C44.7",
+      "display": "lower limb"
+    },
+    {
+      "code": "C44.6/9",
+      "display": "Palmar skin"
+    },
+    {
+      "code": "C44.6/8",
+      "display": "finger"
+    },
+    {
+      "code": "C44.6/7",
+      "display": "Skin of upper limb and shoulder"
+    },
+    {
+      "code": "C44.6/6",
+      "display": "shoulder"
+    },
+    {
+      "code": "C44.6/5",
+      "display": "thumb"
+    },
+    {
+      "code": "C44.6/4",
+      "display": "upper limb"
+    },
+    {
+      "code": "C44.6/3",
+      "display": "wrist"
+    },
+    {
+      "code": "C44.6/2",
+      "display": "Finger nail"
+    },
+    {
+      "code": "C44.6/14",
+      "display": "forearm"
+    },
+    {
+      "code": "C44.6/13",
+      "display": "hand"
+    },
+    {
+      "code": "C44.6/12",
+      "display": "Skin of:"
+    },
+    {
+      "code": "C44.6/11",
+      "display": "antecubital space"
+    },
+    {
+      "code": "C44.6/10",
+      "display": "arm"
+    },
+    {
+      "code": "C44.6/1",
+      "display": "palm"
+    },
+    {
+      "code": "C44.6",
+      "display": "elbow"
+    },
+    {
+      "code": "C44.5/9",
+      "display": "scapular region"
+    },
+    {
+      "code": "C44.5/8",
+      "display": "sacrococcygeal region"
+    },
+    {
+      "code": "C44.5/7",
+      "display": "infraclavicular region"
+    },
+    {
+      "code": "C44.5/6",
+      "display": "umbilicus"
+    },
+    {
+      "code": "C44.5/5",
+      "display": "trunk"
+    },
+    {
+      "code": "C44.5/4",
+      "display": "thorax"
+    },
+    {
+      "code": "C44.5/3",
+      "display": "thoracic wall"
+    },
+    {
+      "code": "C44.5/24",
+      "display": "Skin of trunk"
+    },
+    {
+      "code": "C44.5/23",
+      "display": "chest"
+    },
+    {
+      "code": "C44.5/22",
+      "display": "buttock"
+    },
+    {
+      "code": "C44.5/21",
+      "display": "breast"
+    },
+    {
+      "code": "C44.5/20",
+      "display": "back"
+    },
+    {
+      "code": "C44.5/2",
+      "display": "Umbilicus, NOS"
+    },
+    {
+      "code": "C44.5/19",
+      "display": "axilla"
+    },
+    {
+      "code": "C44.5/18",
+      "display": "anus"
+    },
+    {
+      "code": "C44.5/17",
+      "display": "abdominal wall"
+    },
+    {
+      "code": "C44.5/16",
+      "display": "Skin of:"
+    },
+    {
+      "code": "C44.5/15",
+      "display": "groin"
+    },
+    {
+      "code": "C44.5/14",
+      "display": "flank"
+    },
+    {
+      "code": "C44.5/13",
+      "display": "abdomen"
+    },
+    {
+      "code": "C44.5/12",
+      "display": "gluteal region"
+    },
+    {
+      "code": "C44.5/11",
+      "display": "chest wall"
+    },
+    {
+      "code": "C44.5/10",
+      "display": "Perianal skin"
+    },
+    {
+      "code": "C44.5/1",
+      "display": "perineum"
+    },
+    {
+      "code": "C44.5",
+      "display": "inguinal region"
+    },
+    {
+      "code": "C44.4/6",
+      "display": "Skin of supraclavicular region"
+    },
+    {
+      "code": "C44.4/5",
+      "display": "Skin of neck"
+    },
+    {
+      "code": "C44.4/4",
+      "display": "Skin of scalp and neck"
+    },
+    {
+      "code": "C44.4/3",
+      "display": "Skin of head, NOS"
+    },
+    {
+      "code": "C44.4/2",
+      "display": "Skin of scalp"
+    },
+    {
+      "code": "C44.4/1",
+      "display": "Skin of cervical region"
+    },
+    {
+      "code": "C44.4",
+      "display": "Scalp, NOS"
+    },
+    {
+      "code": "C44.3/9",
+      "display": "jaw"
+    },
+    {
+      "code": "C44.3/8",
+      "display": "nose"
+    },
+    {
+      "code": "C44.3/7",
+      "display": "Forehead, NOS"
+    },
+    {
+      "code": "C44.3/6",
+      "display": "Chin, NOS"
+    },
+    {
+      "code": "C44.3/5",
+      "display": "Columnella"
+    },
+    {
+      "code": "C44.3/4",
+      "display": "Eyebrow"
+    },
+    {
+      "code": "C44.3/3",
+      "display": "External cheek"
+    },
+    {
+      "code": "C44.3/2",
+      "display": "Ala nasi"
+    },
+    {
+      "code": "C44.3/17",
+      "display": "temple"
+    },
+    {
+      "code": "C44.3/16",
+      "display": "External nose"
+    },
+    {
+      "code": "C44.3/15",
+      "display": "Skin of other and unspecified parts of face"
+    },
+    {
+      "code": "C44.3/14",
+      "display": "Skin of:"
+    },
+    {
+      "code": "C44.3/13",
+      "display": "cheek"
+    },
+    {
+      "code": "C44.3/12",
+      "display": "chin"
+    },
+    {
+      "code": "C44.3/11",
+      "display": "face"
+    },
+    {
+      "code": "C44.3/10",
+      "display": "forehead"
+    },
+    {
+      "code": "C44.3/1",
+      "display": "Brow"
+    },
+    {
+      "code": "C44.3",
+      "display": "Temple, NOS"
+    },
+    {
+      "code": "C44.2/9",
+      "display": "Auricle, NOS"
+    },
+    {
+      "code": "C44.2/8",
+      "display": "External auricular canal"
+    },
+    {
+      "code": "C44.2/7",
+      "display": "Concha"
+    },
+    {
+      "code": "C44.2/6",
+      "display": "Ear canal"
+    },
+    {
+      "code": "C44.2/5",
+      "display": "External auditory meatus"
+    },
+    {
+      "code": "C44.2/4",
+      "display": "Helix"
+    },
+    {
+      "code": "C44.2/3",
+      "display": "Skin of auricle"
+    },
+    {
+      "code": "C44.2/2",
+      "display": "Skin of ear, NOS"
+    },
+    {
+      "code": "C44.2/17",
+      "display": "External auditory canal"
+    },
+    {
+      "code": "C44.2/16",
+      "display": "Earlobe"
+    },
+    {
+      "code": "C44.2/15",
+      "display": "Ear, NOS"
+    },
+    {
+      "code": "C44.2/14",
+      "display": "Ceruminal gland"
+    },
+    {
+      "code": "C44.2/13",
+      "display": "Pinna"
+    },
+    {
+      "code": "C44.2/12",
+      "display": "External ear"
+    },
+    {
+      "code": "C44.2/11",
+      "display": "Ear lobule"
+    },
+    {
+      "code": "C44.2/10",
+      "display": "Auditory canal, NOS"
+    },
+    {
+      "code": "C44.2/1",
+      "display": "Tragus"
+    },
+    {
+      "code": "C44.2",
+      "display": "Auricular canal, NOS"
+    },
+    {
+      "code": "C44.1/8",
+      "display": "Lower lid"
+    },
+    {
+      "code": "C44.1/7",
+      "display": "Eyelid"
+    },
+    {
+      "code": "C44.1/6",
+      "display": "Lid, NOS"
+    },
+    {
+      "code": "C44.1/5",
+      "display": "Palpebra"
+    },
+    {
+      "code": "C44.1/4",
+      "display": "Inner canthus"
+    },
+    {
+      "code": "C44.1/3",
+      "display": "Meibomian gland"
+    },
+    {
+      "code": "C44.1/2",
+      "display": "Outer canthus"
+    },
+    {
+      "code": "C44.1/1",
+      "display": "Upper lid"
+    },
+    {
+      "code": "C44.1",
+      "display": "Canthus, NOS"
+    },
+    {
+      "code": "C44.0/2",
+      "display": "Skin of upper lip"
+    },
+    {
+      "code": "C44.0/1",
+      "display": "Skin of lower lip"
+    },
+    {
+      "code": "C44.0",
+      "display": "Skin of lip, NOS"
+    },
+    {
+      "code": "C44",
+      "display": "SKIN"
+    },
+    {
+      "code": "C42.4",
+      "display": "Hematopoietic system, NOS"
+    },
+    {
+      "code": "C42.3",
+      "display": "Reticuloendothelial system,NOS"
+    },
+    {
+      "code": "C42.2",
+      "display": "Spleen"
+    },
+    {
+      "code": "C42.1",
+      "display": "Bone marrow"
+    },
+    {
+      "code": "C42.0",
+      "display": "Blood"
+    },
+    {
+      "code": "C42",
+      "display": "HEMATOPOIETIC AND RETICULOENDOTHELIAL SYSTEMS"
+    },
+    {
+      "code": "C41.9/4",
+      "display": "Skeletal bone"
+    },
+    {
+      "code": "C41.9/3",
+      "display": "Joint, NOS"
+    },
+    {
+      "code": "C41.9/2",
+      "display": "Cartilage, NOS"
+    },
+    {
+      "code": "C41.9/1",
+      "display": "Bone, NOS"
+    },
+    {
+      "code": "C41.9",
+      "display": "Articular cartilage, NOS"
+    },
+    {
+      "code": "C41.8",
+      "display": "Overlapping lesion of bones, joints and articular cartilage"
+    },
+    {
+      "code": "C41.4/9",
+      "display": "Acetabulum"
+    },
+    {
+      "code": "C41.4/8",
+      "display": "Bone of hip"
+    },
+    {
+      "code": "C41.4/7",
+      "display": "Hip joint"
+    },
+    {
+      "code": "C41.4/6",
+      "display": "Innominate bone"
+    },
+    {
+      "code": "C41.4/5",
+      "display": "Ischium"
+    },
+    {
+      "code": "C41.4/4",
+      "display": "Pelvic bone"
+    },
+    {
+      "code": "C41.4/3",
+      "display": "Pubic bone"
+    },
+    {
+      "code": "C41.4/2",
+      "display": "Sacrum"
+    },
+    {
+      "code": "C41.4/11",
+      "display": "Ilium"
+    },
+    {
+      "code": "C41.4/10",
+      "display": "Pelvic bones, sacrum, coccyx and associated joints"
+    },
+    {
+      "code": "C41.4/1",
+      "display": "Symphysis pubis"
+    },
+    {
+      "code": "C41.4",
+      "display": "Coccyx"
+    },
+    {
+      "code": "C41.3/3",
+      "display": "Sternocostal joint"
+    },
+    {
+      "code": "C41.3/2",
+      "display": "Costovertebral joint"
+    },
+    {
+      "code": "C41.3/1",
+      "display": "Costal cartilage"
+    },
+    {
+      "code": "C41.3",
+      "display": "Rib, sternum, clavicle and associated joints"
+    },
+    {
+      "code": "C41.2/8",
+      "display": "Vertebra"
+    },
+    {
+      "code": "C41.2/7",
+      "display": "Bone of back"
+    },
+    {
+      "code": "C41.2/6",
+      "display": "Vertebral column"
+    },
+    {
+      "code": "C41.2/5",
+      "display": "Atlas"
+    },
+    {
+      "code": "C41.2/4",
+      "display": "Axis"
+    },
+    {
+      "code": "C41.2/3",
+      "display": "Intervertebral disc"
+    },
+    {
+      "code": "C41.2/2",
+      "display": "Nucleus pulposus"
+    },
+    {
+      "code": "C41.2/1",
+      "display": "Spinal column"
+    },
+    {
+      "code": "C41.2",
+      "display": "Spine"
+    },
+    {
+      "code": "C41.1/3",
+      "display": "Jaw bone, NOS"
+    },
+    {
+      "code": "C41.1/2",
+      "display": "Lower jaw bone"
+    },
+    {
+      "code": "C41.1/1",
+      "display": "Temporomandibular joint"
+    },
+    {
+      "code": "C41.1",
+      "display": "Mandible"
+    },
+    {
+      "code": "C41.0/9",
+      "display": "Frontal bone"
+    },
+    {
+      "code": "C41.0/8",
+      "display": "Temporal bone"
+    },
+    {
+      "code": "C41.0/7",
+      "display": "Nasal bone"
+    },
+    {
+      "code": "C41.0/6",
+      "display": "Zygomatic bone"
+    },
+    {
+      "code": "C41.0/5",
+      "display": "Occipital bone"
+    },
+    {
+      "code": "C41.0/4",
+      "display": "Orbital bone"
+    },
+    {
+      "code": "C41.0/3",
+      "display": "Parietal bone"
+    },
+    {
+      "code": "C41.0/2",
+      "display": "Skull, NOS"
+    },
+    {
+      "code": "C41.0/16",
+      "display": "Upper jaw bone"
+    },
+    {
+      "code": "C41.0/15",
+      "display": "Maxilla"
+    },
+    {
+      "code": "C41.0/14",
+      "display": "Bones of skull and face and associated joints"
+    },
+    {
+      "code": "C41.0/13",
+      "display": "Calvarium"
+    },
+    {
+      "code": "C41.0/12",
+      "display": "Cranial bone"
+    },
+    {
+      "code": "C41.0/11",
+      "display": "Ethmoid bone"
+    },
+    {
+      "code": "C41.0/10",
+      "display": "Facial bone"
+    },
+    {
+      "code": "C41.0/1",
+      "display": "Sphenoid bone"
+    },
+    {
+      "code": "C41.0",
+      "display": "Hyoid bone"
+    },
+    {
+      "code": "C41",
+      "display": "BONES, JOINTS AND ARTICULAR CARTILAGE OF OTHER AND UNSPECIFIED SITES"
+    },
+    {
+      "code": "C40.9/3",
+      "display": "Joint of limb, NOS"
+    },
+    {
+      "code": "C40.9/2",
+      "display": "Cartilage of limb, NOS"
+    },
+    {
+      "code": "C40.9/1",
+      "display": "Bone of limb, NOS"
+    },
+    {
+      "code": "C40.9",
+      "display": "Articular cartilage of limb, NOS"
+    },
+    {
+      "code": "C40.8",
+      "display": "Overlapping lesion of bones, joints and articular cartilage of limbs"
+    },
+    {
+      "code": "C40.3/9",
+      "display": "Bone of toe"
+    },
+    {
+      "code": "C40.3/8",
+      "display": "Short bones of lower limb and associated joints"
+    },
+    {
+      "code": "C40.3/7",
+      "display": "Bone of ankle"
+    },
+    {
+      "code": "C40.3/6",
+      "display": "Bone of heel"
+    },
+    {
+      "code": "C40.3/5",
+      "display": "Metatarsal bone"
+    },
+    {
+      "code": "C40.3/4",
+      "display": "Tarsal bone"
+    },
+    {
+      "code": "C40.3/3",
+      "display": "Patella"
+    },
+    {
+      "code": "C40.3/2",
+      "display": "Foot joint"
+    },
+    {
+      "code": "C40.3/10",
+      "display": "Bone of foot"
+    },
+    {
+      "code": "C40.3/1",
+      "display": "Phalanx of foot"
+    },
+    {
+      "code": "C40.3",
+      "display": "Ankle joint"
+    },
+    {
+      "code": "C40.2/8",
+      "display": "Lateral meniscus of knee joint"
+    },
+    {
+      "code": "C40.2/7",
+      "display": "Long bones of lower limb and associated joints"
+    },
+    {
+      "code": "C40.2/6",
+      "display": "Bone of leg"
+    },
+    {
+      "code": "C40.2/5",
+      "display": "Femur"
+    },
+    {
+      "code": "C40.2/4",
+      "display": "Fibula"
+    },
+    {
+      "code": "C40.2/3",
+      "display": "Semilunar cartilage"
+    },
+    {
+      "code": "C40.2/2",
+      "display": "Medial meniscus of knee joint"
+    },
+    {
+      "code": "C40.2/1",
+      "display": "Tibia"
+    },
+    {
+      "code": "C40.2",
+      "display": "Knee joint, NOS"
+    },
+    {
+      "code": "C40.1/9",
+      "display": "Carpal bone"
+    },
+    {
+      "code": "C40.1/8",
+      "display": "Bone of wrist"
+    },
+    {
+      "code": "C40.1/7",
+      "display": "Bone of finger"
+    },
+    {
+      "code": "C40.1/6",
+      "display": "Bone of thumb"
+    },
+    {
+      "code": "C40.1/5",
+      "display": "Short bones of upper limb and associated joints"
+    },
+    {
+      "code": "C40.1/4",
+      "display": "Metacarpal bone"
+    },
+    {
+      "code": "C40.1/3",
+      "display": "Phalanx of hand"
+    },
+    {
+      "code": "C40.1/2",
+      "display": "Wrist joint"
+    },
+    {
+      "code": "C40.1/1",
+      "display": "Bone of hand"
+    },
+    {
+      "code": "C40.1",
+      "display": "Hand joint"
+    },
+    {
+      "code": "C40.0/9",
+      "display": "Acromioclavicular joint"
+    },
+    {
+      "code": "C40.0/8",
+      "display": "Bone of arm"
+    },
+    {
+      "code": "C40.0/7",
+      "display": "Bone of forearm"
+    },
+    {
+      "code": "C40.0/6",
+      "display": "Elbow joint"
+    },
+    {
+      "code": "C40.0/5",
+      "display": "Radius"
+    },
+    {
+      "code": "C40.0/4",
+      "display": "Scapula"
+    },
+    {
+      "code": "C40.0/3",
+      "display": "Shoulder girdle"
+    },
+    {
+      "code": "C40.0/2",
+      "display": "Shoulder joint"
+    },
+    {
+      "code": "C40.0/11",
+      "display": "Humerus"
+    },
+    {
+      "code": "C40.0/10",
+      "display": "Long bones of upper limb, scapula and associated joints"
+    },
+    {
+      "code": "C40.0/1",
+      "display": "Ulna"
+    },
+    {
+      "code": "C40.0",
+      "display": "Bone of shoulder"
+    },
+    {
+      "code": "C40",
+      "display": "BONES, JOINTS AND ARTICULAR CARTILAGE OF LIMBS"
+    },
+    {
+      "code": "C39.9/1",
+      "display": "Respiratory tract, NOS"
+    },
+    {
+      "code": "C39.9",
+      "display": "Ill-defined sites within respiratory system"
+    },
+    {
+      "code": "C39.8",
+      "display": "Overlapping lesion of respiratory system and intrathoracic organs"
+    },
+    {
+      "code": "C39.0",
+      "display": "Upper respiratory tract, NOS"
+    },
+    {
+      "code": "C39",
+      "display": "OTHER AND ILL-DEFINED SITES WITHIN RESPIRATORY SYSTEM AND INTRATHORACIC ORGANS"
+    },
+    {
+      "code": "C38.8",
+      "display": "Overlapping lesion of heart, mediastinum and pleura"
+    },
+    {
+      "code": "C38.4/2",
+      "display": "Visceral pleura"
+    },
+    {
+      "code": "C38.4/1",
+      "display": "Parietal pleura"
+    },
+    {
+      "code": "C38.4",
+      "display": "Pleura, NOS"
+    },
+    {
+      "code": "C38.3",
+      "display": "Mediastinum, NOS"
+    },
+    {
+      "code": "C38.2",
+      "display": "Posterior mediastinum"
+    },
+    {
+      "code": "C38.1",
+      "display": "Anterior mediastinum"
+    },
+    {
+      "code": "C38.0/6",
+      "display": "Pericardium"
+    },
+    {
+      "code": "C38.0/5",
+      "display": "Endocardium"
+    },
+    {
+      "code": "C38.0/4",
+      "display": "Heart"
+    },
+    {
+      "code": "C38.0/3",
+      "display": "Cardiac ventricle"
+    },
+    {
+      "code": "C38.0/2",
+      "display": "Myocardium"
+    },
+    {
+      "code": "C38.0/1",
+      "display": "Epicardium"
+    },
+    {
+      "code": "C38.0",
+      "display": "Cardiac atrium"
+    },
+    {
+      "code": "C38",
+      "display": "HEART, MEDIASTINUM, AND PLEURA"
+    },
+    {
+      "code": "C37.9",
+      "display": "Thymus"
+    },
+    {
+      "code": "C37",
+      "display": "THYMUS"
+    },
+    {
+      "code": "C34.9/4",
+      "display": "Bronchogenic"
+    },
+    {
+      "code": "C34.9/3",
+      "display": "Bronchiole"
+    },
+    {
+      "code": "C34.9/2",
+      "display": "Bronchus, NOS"
+    },
+    {
+      "code": "C34.9/1",
+      "display": "Lung, NOS"
+    },
+    {
+      "code": "C34.9",
+      "display": "Pulmonary, NOS"
+    },
+    {
+      "code": "C34.8",
+      "display": "Overlapping lesion of lung"
+    },
+    {
+      "code": "C34.3/1",
+      "display": "Lower lobe, lung"
+    },
+    {
+      "code": "C34.3",
+      "display": "Lower lobe, bronchus"
+    },
+    {
+      "code": "C34.2/1",
+      "display": "Middle lobe, bronchus"
+    },
+    {
+      "code": "C34.2",
+      "display": "Middle lobe, lung"
+    },
+    {
+      "code": "C34.1/2",
+      "display": "Upper lobe, lung"
+    },
+    {
+      "code": "C34.1/1",
+      "display": "Lingula of lung"
+    },
+    {
+      "code": "C34.1",
+      "display": "Upper lobe, bronchus"
+    },
+    {
+      "code": "C34.0/2",
+      "display": "Main bronchus"
+    },
+    {
+      "code": "C34.0/1",
+      "display": "Carina"
+    },
+    {
+      "code": "C34.0",
+      "display": "Hilus of lung"
+    },
+    {
+      "code": "C34",
+      "display": "BRONCHUS AND LUNG"
+    },
+    {
+      "code": "C33.9",
+      "display": "Trachea"
+    },
+    {
+      "code": "C33",
+      "display": "TRACHEA"
+    },
+    {
+      "code": "C32.9",
+      "display": "Larynx, NOS"
+    },
+    {
+      "code": "C32.8",
+      "display": "Overlapping lesion of larynx"
+    },
+    {
+      "code": "C32.3/4",
+      "display": "Arytenoid cartilage"
+    },
+    {
+      "code": "C32.3/3",
+      "display": "Cricoid cartilage"
+    },
+    {
+      "code": "C32.3/2",
+      "display": "Laryngeal cartilage"
+    },
+    {
+      "code": "C32.3/1",
+      "display": "Thyroid cartilage"
+    },
+    {
+      "code": "C32.3",
+      "display": "Cuneiform cartilage"
+    },
+    {
+      "code": "C32.2",
+      "display": "Subglottis"
+    },
+    {
+      "code": "C32.1/8",
+      "display": "Laryngeal aspect of aryepiglottic fold"
+    },
+    {
+      "code": "C32.1/7",
+      "display": "Supraglottis"
+    },
+    {
+      "code": "C32.1/6",
+      "display": "Epiglottis, NOS"
+    },
+    {
+      "code": "C32.1/5",
+      "display": "Extrinsic larynx"
+    },
+    {
+      "code": "C32.1/4",
+      "display": "Posterior surface of epiglottis"
+    },
+    {
+      "code": "C32.1/3",
+      "display": "Ventricular band of larynx"
+    },
+    {
+      "code": "C32.1/2",
+      "display": "False vocal cord"
+    },
+    {
+      "code": "C32.1/1",
+      "display": "False cord"
+    },
+    {
+      "code": "C32.1",
+      "display": "anterior surface of epiglottis"
+    },
+    {
+      "code": "C32.0/5",
+      "display": "Glottis"
+    },
+    {
+      "code": "C32.0/4",
+      "display": "True cord"
+    },
+    {
+      "code": "C32.0/3",
+      "display": "True vocal cord"
+    },
+    {
+      "code": "C32.0/2",
+      "display": "Vocal cord, NOS"
+    },
+    {
+      "code": "C32.0/1",
+      "display": "Laryngeal commissure"
+    },
+    {
+      "code": "C32.0",
+      "display": "Intrinsic larynx"
+    },
+    {
+      "code": "C32",
+      "display": "LARYNX"
+    },
+    {
+      "code": "C31.9/2",
+      "display": "Accessory nasal sinus"
+    },
+    {
+      "code": "C31.9/1",
+      "display": "Accessory sinus, NOS"
+    },
+    {
+      "code": "C31.9",
+      "display": "Paranasal sinus"
+    },
+    {
+      "code": "C31.8",
+      "display": "Overlapping lesion of accessory sinuses"
+    },
+    {
+      "code": "C31.3",
+      "display": "Sphenoid sinus"
+    },
+    {
+      "code": "C31.2",
+      "display": "Frontal sinus"
+    },
+    {
+      "code": "C31.1",
+      "display": "Ethmoid sinus"
+    },
+    {
+      "code": "C31.0/2",
+      "display": "Antrum, NOS"
+    },
+    {
+      "code": "C31.0/1",
+      "display": "Maxillary antrum"
+    },
+    {
+      "code": "C31.0",
+      "display": "Maxillary sinus"
+    },
+    {
+      "code": "C31",
+      "display": "ACCESSORY SINUSES"
+    },
+    {
+      "code": "C30.1/5",
+      "display": "Tympanic cavity"
+    },
+    {
+      "code": "C30.1/4",
+      "display": "Mastoid antrum"
+    },
+    {
+      "code": "C30.1/3",
+      "display": "Auditory tube"
+    },
+    {
+      "code": "C30.1/2",
+      "display": "Inner ear"
+    },
+    {
+      "code": "C30.1/1",
+      "display": "Middle ear"
+    },
+    {
+      "code": "C30.1",
+      "display": "Eustachian tube"
+    },
+    {
+      "code": "C30.0/9",
+      "display": "Vestibule of nose"
+    },
+    {
+      "code": "C30.0/8",
+      "display": "Internal nose"
+    },
+    {
+      "code": "C30.0/7",
+      "display": "Nasal turbinate"
+    },
+    {
+      "code": "C30.0/6",
+      "display": "Nasal cavity"
+    },
+    {
+      "code": "C30.0/5",
+      "display": "Naris"
+    },
+    {
+      "code": "C30.0/4",
+      "display": "Nasal cartilage"
+    },
+    {
+      "code": "C30.0/3",
+      "display": "Nasal mucosa"
+    },
+    {
+      "code": "C30.0/2",
+      "display": "Nasal septum, NOS"
+    },
+    {
+      "code": "C30.0/1",
+      "display": "posterior margin of nasal septum"
+    },
+    {
+      "code": "C30.0",
+      "display": "Nostril"
+    },
+    {
+      "code": "C30",
+      "display": "NASAL CAVITY AND MIDDLE EAR"
+    },
+    {
+      "code": "C26.9/1",
+      "display": "Digestive organs, NOS"
+    },
+    {
+      "code": "C26.9",
+      "display": "Gastrointestinal tract, NOS"
+    },
+    {
+      "code": "C26.8",
+      "display": "Overlapping lesion of digestive system"
+    },
+    {
+      "code": "C26.0/2",
+      "display": "Intestine, NOS"
+    },
+    {
+      "code": "C26.0/1",
+      "display": "Bowel, NOS"
+    },
+    {
+      "code": "C26.0",
+      "display": "Intestinal tract, NOS"
+    },
+    {
+      "code": "C26",
+      "display": "OTHER AND ILL-DEFINED DIGESTIVE ORGANS"
+    },
+    {
+      "code": "C25.9",
+      "display": "Pancreas, NOS"
+    },
+    {
+      "code": "C25.8",
+      "display": "Overlapping lesion of pancreas"
+    },
+    {
+      "code": "C25.7/1",
+      "display": "Neck of pancreas"
+    },
+    {
+      "code": "C25.7",
+      "display": "Other specified parts of pancreas"
+    },
+    {
+      "code": "C25.4/2",
+      "display": "Endocrine pancreas"
+    },
+    {
+      "code": "C25.4/1",
+      "display": "Islands of Langerhans"
+    },
+    {
+      "code": "C25.4",
+      "display": "Islets of Langerhans"
+    },
+    {
+      "code": "C25.3/2",
+      "display": "Duct of Santorini"
+    },
+    {
+      "code": "C25.3/1",
+      "display": "Pancreatic duct"
+    },
+    {
+      "code": "C25.3",
+      "display": "Duct of Wirsung"
+    },
+    {
+      "code": "C25.2",
+      "display": "Tail of pancreas"
+    },
+    {
+      "code": "C25.1",
+      "display": "Body of pancreas"
+    },
+    {
+      "code": "C25.0",
+      "display": "Head of pancreas"
+    },
+    {
+      "code": "C25",
+      "display": "PANCREAS"
+    },
+    {
+      "code": "C24.9",
+      "display": "Biliary tract, NOS"
+    },
+    {
+      "code": "C24.8",
+      "display": "Overlapping lesion of biliary tract Note:"
+    },
+    {
+      "code": "C24.1/1",
+      "display": "Periampullary"
+    },
+    {
+      "code": "C24.1",
+      "display": "Ampulla of Vater"
+    },
+    {
+      "code": "C24.0/9",
+      "display": "Biliary duct, NOS"
+    },
+    {
+      "code": "C24.0/8",
+      "display": "Bile duct, NOS"
+    },
+    {
+      "code": "C24.0/7",
+      "display": "Choledochal duct"
+    },
+    {
+      "code": "C24.0/6",
+      "display": "Common bile duct"
+    },
+    {
+      "code": "C24.0/5",
+      "display": "Common duct"
+    },
+    {
+      "code": "C24.0/4",
+      "display": "Cystic duct"
+    },
+    {
+      "code": "C24.0/3",
+      "display": "Hepatic duct"
+    },
+    {
+      "code": "C24.0/2",
+      "display": "Cystic bile duct"
+    },
+    {
+      "code": "C24.0/10",
+      "display": "Hepatic bile duct"
+    },
+    {
+      "code": "C24.0/1",
+      "display": "Sphincter of Oddi"
+    },
+    {
+      "code": "C24.0",
+      "display": "Extrahepatic bile duct"
+    },
+    {
+      "code": "C24",
+      "display": "OTHER AND UNSPECIFIED PARTS OF BILIARY TRACT"
+    },
+    {
+      "code": "C23.9",
+      "display": "Gallbladder"
+    },
+    {
+      "code": "C23",
+      "display": "GALLBLADDER"
+    },
+    {
+      "code": "C22.1/2",
+      "display": "Cholangiole"
+    },
+    {
+      "code": "C22.1/1",
+      "display": "Biliary canaliculus"
+    },
+    {
+      "code": "C22.1",
+      "display": "Intrahepatic bile duct"
+    },
+    {
+      "code": "C22.0/1",
+      "display": "Liver"
+    },
+    {
+      "code": "C22.0",
+      "display": "Hepatic, NOS"
+    },
+    {
+      "code": "C22",
+      "display": "LIVER AND INTRAHEPATIC BILE DUCTS"
+    },
+    {
+      "code": "C21.8/2",
+      "display": "Overlapping lesion of rectum, anus and anal canal"
+    },
+    {
+      "code": "C21.8/1",
+      "display": "Anorectum"
+    },
+    {
+      "code": "C21.8",
+      "display": "Anorectal junction"
+    },
+    {
+      "code": "C21.2",
+      "display": "Cloacogenic zone"
+    },
+    {
+      "code": "C21.1/1",
+      "display": "Anal canal"
+    },
+    {
+      "code": "C21.1",
+      "display": "Anal sphincter"
+    },
+    {
+      "code": "C21.0",
+      "display": "Anus, NOS"
+    },
+    {
+      "code": "C21",
+      "display": "ANUS AND ANAL CANAL"
+    },
+    {
+      "code": "C20.9/1",
+      "display": "Rectum, NOS"
+    },
+    {
+      "code": "C20.9",
+      "display": "Rectal ampulla"
+    },
+    {
+      "code": "C20",
+      "display": "RECTUM"
+    },
+    {
+      "code": "C19.9/4",
+      "display": "Rectosigmoid junction"
+    },
+    {
+      "code": "C19.9/3",
+      "display": "Colon and rectum"
+    },
+    {
+      "code": "C19.9/2",
+      "display": "Rectosigmoid, NOS"
+    },
+    {
+      "code": "C19.9/1",
+      "display": "Rectosigmoid colon"
+    },
+    {
+      "code": "C19.9",
+      "display": "Pelvirectal junction"
+    },
+    {
+      "code": "C19",
+      "display": "RECTOSIGMOID JUNCTION"
+    },
+    {
+      "code": "C18.9/4",
+      "display": "Large bowel, NOS"
+    },
+    {
+      "code": "C18.9/3",
+      "display": "and rectosigmoid junction"
+    },
+    {
+      "code": "C18.9/2",
+      "display": "Colon, NOS"
+    },
+    {
+      "code": "C18.9/1",
+      "display": "rectum, NOS"
+    },
+    {
+      "code": "C18.9",
+      "display": "Large intestine"
+    },
+    {
+      "code": "C18.8",
+      "display": "Overlapping lesion of colon"
+    },
+    {
+      "code": "C18.7/3",
+      "display": "Pelvic colon"
+    },
+    {
+      "code": "C18.7/2",
+      "display": "Sigmoid flexure of colon"
+    },
+    {
+      "code": "C18.7/1",
+      "display": "Sigmoid, NOS"
+    },
+    {
+      "code": "C18.7",
+      "display": "Sigmoid colon"
+    },
+    {
+      "code": "C18.6/1",
+      "display": "Left colon"
+    },
+    {
+      "code": "C18.6",
+      "display": "Descending colon"
+    },
+    {
+      "code": "C18.5",
+      "display": "Splenic flexure of colon"
+    },
+    {
+      "code": "C18.4",
+      "display": "Transverse colon"
+    },
+    {
+      "code": "C18.3",
+      "display": "Hepatic flexure of colon"
+    },
+    {
+      "code": "C18.2/1",
+      "display": "Ascending colon"
+    },
+    {
+      "code": "C18.2",
+      "display": "Right colon"
+    },
+    {
+      "code": "C18.1",
+      "display": "Appendix"
+    },
+    {
+      "code": "C18.0/2",
+      "display": "Ileocecal junction"
+    },
+    {
+      "code": "C18.0/1",
+      "display": "Ileocecal valve"
+    },
+    {
+      "code": "C18.0",
+      "display": "Cecum"
+    },
+    {
+      "code": "C18",
+      "display": "COLON"
+    },
+    {
+      "code": "C17.9/1",
+      "display": "Small bowel, NOS"
+    },
+    {
+      "code": "C17.9",
+      "display": "Small intestine, NOS"
+    },
+    {
+      "code": "C17.8",
+      "display": "Overlapping lesion of smallintestine"
+    },
+    {
+      "code": "C17.3",
+      "display": "Meckel diverticulum"
+    },
+    {
+      "code": "C17.2",
+      "display": "Ileum"
+    },
+    {
+      "code": "C17.1",
+      "display": "Jejunum"
+    },
+    {
+      "code": "C17.0",
+      "display": "Duodenum"
+    },
+    {
+      "code": "C17",
+      "display": "SMALL INTESTINE"
+    },
+    {
+      "code": "C16.9/1",
+      "display": "Gastric, NOS"
+    },
+    {
+      "code": "C16.9",
+      "display": "Stomach, NOS"
+    },
+    {
+      "code": "C16.8/2",
+      "display": "Anterior wall of stomach, NOS"
+    },
+    {
+      "code": "C16.8/1",
+      "display": "Posterior wall of stomach, NOS"
+    },
+    {
+      "code": "C16.8",
+      "display": "Overlapping lesion of stomach"
+    },
+    {
+      "code": "C16.6",
+      "display": "Greater curvature of stomach, NOS"
+    },
+    {
+      "code": "C16.5",
+      "display": "Lesser curvature of stomach, NOS"
+    },
+    {
+      "code": "C16.4/2",
+      "display": "Prepylorus"
+    },
+    {
+      "code": "C16.4/1",
+      "display": "Pyloric canal"
+    },
+    {
+      "code": "C16.4",
+      "display": "Pylorus"
+    },
+    {
+      "code": "C16.3/2",
+      "display": "Pyloric antrum"
+    },
+    {
+      "code": "C16.3/1",
+      "display": "Antrum of stomach"
+    },
+    {
+      "code": "C16.3",
+      "display": "Gastric antrum"
+    },
+    {
+      "code": "C16.2/2",
+      "display": "Body of stomach"
+    },
+    {
+      "code": "C16.2/1",
+      "display": "Gastric corpus"
+    },
+    {
+      "code": "C16.2",
+      "display": "Corpus of stomach"
+    },
+    {
+      "code": "C16.1/1",
+      "display": "Gastric fundus"
+    },
+    {
+      "code": "C16.1",
+      "display": "Fundus of stomach"
+    },
+    {
+      "code": "C16.0/4",
+      "display": "Gastric cardia"
+    },
+    {
+      "code": "C16.0/3",
+      "display": "Cardia, NOS"
+    },
+    {
+      "code": "C16.0/2",
+      "display": "Cardioesophageal junction"
+    },
+    {
+      "code": "C16.0/1",
+      "display": "Esophagogastric junction"
+    },
+    {
+      "code": "C16.0",
+      "display": "Gastroesophageal junction"
+    },
+    {
+      "code": "C16",
+      "display": "STOMACH"
+    },
+    {
+      "code": "C15.9",
+      "display": "Esophagus, NOS"
+    },
+    {
+      "code": "C15.8",
+      "display": "Overlapping lesion of esophagus"
+    },
+    {
+      "code": "C15.5/1",
+      "display": "Distal third of esophagus"
+    },
+    {
+      "code": "C15.5",
+      "display": "Lower third of esophagus"
+    },
+    {
+      "code": "C15.4",
+      "display": "Middle third of esophagus"
+    },
+    {
+      "code": "C15.3/1",
+      "display": "Upper third of esophagus"
+    },
+    {
+      "code": "C15.3",
+      "display": "Proximal third of esophagus"
+    },
+    {
+      "code": "C15.2",
+      "display": "Abdominal esophagus"
+    },
+    {
+      "code": "C15.1",
+      "display": "Thoracic esophagus"
+    },
+    {
+      "code": "C15.0",
+      "display": "Cervical esophagus"
+    },
+    {
+      "code": "C15",
+      "display": "ESOPHAGUS"
+    },
+    {
+      "code": "C14.8",
+      "display": "Overlapping lesion of lip, oral cavity and pharynx"
+    },
+    {
+      "code": "C14.2",
+      "display": "Waldeyer ring"
+    },
+    {
+      "code": "C14.0/6",
+      "display": "Pharynx, NOS"
+    },
+    {
+      "code": "C14.0/5",
+      "display": "Throat"
+    },
+    {
+      "code": "C14.0/4",
+      "display": "Retropharynx"
+    },
+    {
+      "code": "C14.0/3",
+      "display": "Posterior wall of pharynx, NOS"
+    },
+    {
+      "code": "C14.0/2",
+      "display": "Lateral wall of pharynx, NOS"
+    },
+    {
+      "code": "C14.0/1",
+      "display": "Wall of pharynx, NOS"
+    },
+    {
+      "code": "C14.0",
+      "display": "Pharyngeal wall, NOS"
+    },
+    {
+      "code": "C14",
+      "display": "OTHER AND ILL-DEFINED SITES IN LIP, ORAL CAVITY AND PHARYNX"
+    },
+    {
+      "code": "C13.9/2",
+      "display": "Laryngopharynx"
+    },
+    {
+      "code": "C13.9/1",
+      "display": "Hypopharyngeal wall"
+    },
+    {
+      "code": "C13.9",
+      "display": "Hypopharynx, NOS"
+    },
+    {
+      "code": "C13.8",
+      "display": "Overlapping lesion of hypopharynx"
+    },
+    {
+      "code": "C13.2",
+      "display": "Posterior wall of hypopharynx"
+    },
+    {
+      "code": "C13.1/3",
+      "display": "Aryepiglottic fold, NOS"
+    },
+    {
+      "code": "C13.1/2",
+      "display": "laryngeal aspect of aryepiglottic fold"
+    },
+    {
+      "code": "C13.1/1",
+      "display": "Arytenoid fold"
+    },
+    {
+      "code": "C13.1",
+      "display": "Hypopharyngeal aspect of aryepiglottic fold"
+    },
+    {
+      "code": "C13.0/2",
+      "display": "Cricoid, NOS"
+    },
+    {
+      "code": "C13.0/1",
+      "display": "Postcricoid region"
+    },
+    {
+      "code": "C13.0",
+      "display": "Cricopharynx"
+    },
+    {
+      "code": "C13",
+      "display": "HYPOPHARYNX"
+    },
+    {
+      "code": "C12.9/3",
+      "display": "Piriform sinus"
+    },
+    {
+      "code": "C12.9/2",
+      "display": "Pyriform fossa"
+    },
+    {
+      "code": "C12.9/1",
+      "display": "Pyriform sinus"
+    },
+    {
+      "code": "C12.9",
+      "display": "Piriform fossa"
+    },
+    {
+      "code": "C12",
+      "display": "PYRIFORM SINUS"
+    },
+    {
+      "code": "C11.9/1",
+      "display": "Nasopharynx, NOS"
+    },
+    {
+      "code": "C11.9",
+      "display": "Nasopharyngeal wall"
+    },
+    {
+      "code": "C11.8",
+      "display": "Overlapping lesion of nasopharynx"
+    },
+    {
+      "code": "C11.3/4",
+      "display": "Anterior wall of nasopharynx"
+    },
+    {
+      "code": "C11.3/3",
+      "display": "Nasopharyngeal surface of soft palate"
+    },
+    {
+      "code": "C11.3/2",
+      "display": "Pharyngeal fornix"
+    },
+    {
+      "code": "C11.3/1",
+      "display": "Choana"
+    },
+    {
+      "code": "C11.3",
+      "display": "Posterior margin of nasal septum"
+    },
+    {
+      "code": "C11.2/1",
+      "display": "Fossa of Rosenmuller"
+    },
+    {
+      "code": "C11.2",
+      "display": "Lateral wall of nasopharynx"
+    },
+    {
+      "code": "C11.1/2",
+      "display": "Adenoid"
+    },
+    {
+      "code": "C11.1/1",
+      "display": "Posterior wall of nasopharynx"
+    },
+    {
+      "code": "C11.1",
+      "display": "Pharyngeal tonsil"
+    },
+    {
+      "code": "C11.0/1",
+      "display": "Roof of nasopharynx"
+    },
+    {
+      "code": "C11.0",
+      "display": "Superior wall of nasopharynx"
+    },
+    {
+      "code": "C11",
+      "display": "NASOPHARYNX"
+    },
+    {
+      "code": "C10.9/2",
+      "display": "Oropharynx, NOS"
+    },
+    {
+      "code": "C10.9/1",
+      "display": "Fauces, NOS"
+    },
+    {
+      "code": "C10.9",
+      "display": "Mesopharynx, NOS"
+    },
+    {
+      "code": "C10.8/1",
+      "display": "Overlapping lesion of oropharynx"
+    },
+    {
+      "code": "C10.8",
+      "display": "Junctional region of oropharynx"
+    },
+    {
+      "code": "C10.4",
+      "display": "Branchial cleft"
+    },
+    {
+      "code": "C10.3/1",
+      "display": "Posterior wall of mesopharynx"
+    },
+    {
+      "code": "C10.3",
+      "display": "Posterior wall of oropharynx"
+    },
+    {
+      "code": "C10.2/1",
+      "display": "Lateral wall of mesopharynx"
+    },
+    {
+      "code": "C10.2",
+      "display": "Lateral wall of oropharynx"
+    },
+    {
+      "code": "C10.1",
+      "display": "Anterior surface of epiglottis"
+    },
+    {
+      "code": "C10.0",
+      "display": "Vallecula"
+    },
+    {
+      "code": "C10",
+      "display": "OROPHARYNX"
+    },
+    {
+      "code": "C09.9/2",
+      "display": "Palatine tonsil"
+    },
+    {
+      "code": "C09.9/1",
+      "display": "Tonsil, NOS"
+    },
+    {
+      "code": "C09.9",
+      "display": "Faucial tonsil"
+    },
+    {
+      "code": "C09.8",
+      "display": "Overlapping lesion of tonsil"
+    },
+    {
+      "code": "C09.1/2",
+      "display": "Glossopalatine fold"
+    },
+    {
+      "code": "C09.1/1",
+      "display": "Faucial pillar"
+    },
+    {
+      "code": "C09.1",
+      "display": "Tonsillar pillar"
+    },
+    {
+      "code": "C09.0",
+      "display": "Tonsillar fossa"
+    },
+    {
+      "code": "C09",
+      "display": "TONSIL"
+    },
+    {
+      "code": "C08.9/2",
+      "display": "Major salivary gland, NOS"
+    },
+    {
+      "code": "C08.9/1",
+      "display": "minor salivary gland, NOS"
+    },
+    {
+      "code": "C08.9",
+      "display": "Salivary gland, NOS"
+    },
+    {
+      "code": "C08.8",
+      "display": "Overlapping lesion of major salivary glands"
+    },
+    {
+      "code": "C08.1/1",
+      "display": "Sublingual gland duct"
+    },
+    {
+      "code": "C08.1",
+      "display": "Sublingual gland"
+    },
+    {
+      "code": "C08.0/3",
+      "display": "Submaxillary gland duct"
+    },
+    {
+      "code": "C08.0/2",
+      "display": "Wharton duct"
+    },
+    {
+      "code": "C08.0/1",
+      "display": "Submaxillary gland"
+    },
+    {
+      "code": "C08.0",
+      "display": "Submandibular gland"
+    },
+    {
+      "code": "C08",
+      "display": "OTHER AND UNSPECIFIED MAJOR SALIVARY GLANDS"
+    },
+    {
+      "code": "C07.9/3",
+      "display": "Stensen duct"
+    },
+    {
+      "code": "C07.9/2",
+      "display": "Parotid, NOS"
+    },
+    {
+      "code": "C07.9/1",
+      "display": "Parotid gland"
+    },
+    {
+      "code": "C07.9",
+      "display": "Parotid gland duct"
+    },
+    {
+      "code": "C07",
+      "display": "PAROTID GLAND"
+    },
+    {
+      "code": "C06.9/4",
+      "display": "Buccal cavity"
+    },
+    {
+      "code": "C06.9/3",
+      "display": "Mouth, NOS"
+    },
+    {
+      "code": "C06.9/2",
+      "display": "Oral cavity"
+    },
+    {
+      "code": "C06.9/1",
+      "display": "Oral mucosa"
+    },
+    {
+      "code": "C06.9",
+      "display": "Minor salivary gland, NOS"
+    },
+    {
+      "code": "C06.8",
+      "display": "Overlapping lesion of other and unspecified parts of mouth"
+    },
+    {
+      "code": "C06.2/2",
+      "display": "Retromolar trigone"
+    },
+    {
+      "code": "C06.2/1",
+      "display": "Retromolar triangle"
+    },
+    {
+      "code": "C06.2",
+      "display": "Retromolar area"
+    },
+    {
+      "code": "C06.1/2",
+      "display": "Labial sulcus"
+    },
+    {
+      "code": "C06.1/1",
+      "display": "Buccal sulcus"
+    },
+    {
+      "code": "C06.1",
+      "display": "Vestibule of mouth"
+    },
+    {
+      "code": "C06.0/2",
+      "display": "Buccal mucosa"
+    },
+    {
+      "code": "C06.0/1",
+      "display": "Internal cheek"
+    },
+    {
+      "code": "C06.0",
+      "display": "Cheek mucosa"
+    },
+    {
+      "code": "C06",
+      "display": "OTHER AND UNSPECIFIED PARTS OF MOUTH"
+    },
+    {
+      "code": "C05.9/1",
+      "display": "Palate, NOS"
+    },
+    {
+      "code": "C05.9",
+      "display": "Roof of mouth"
+    },
+    {
+      "code": "C05.8/1",
+      "display": "Junction of hard and soft palate"
+    },
+    {
+      "code": "C05.8",
+      "display": "Overlapping lesion of palate"
+    },
+    {
+      "code": "C05.2",
+      "display": "Uvula"
+    },
+    {
+      "code": "C05.1",
+      "display": "Soft palate, NOS"
+    },
+    {
+      "code": "C05.0",
+      "display": "Hard palate"
+    },
+    {
+      "code": "C05",
+      "display": "PALATE"
+    },
+    {
+      "code": "C04.9",
+      "display": "Floor of mouth, NOS"
+    },
+    {
+      "code": "C04.8",
+      "display": "Overlapping lesion of floor of mouth"
+    },
+    {
+      "code": "C04.1",
+      "display": "Lateral floor of mouth"
+    },
+    {
+      "code": "C04.0",
+      "display": "Anterior floor of mouth"
+    },
+    {
+      "code": "C04",
+      "display": "FLOOR OF MOUTH"
+    },
+    {
+      "code": "C03.9/5",
+      "display": "Alveolar ridge mucosa, NOS"
+    },
+    {
+      "code": "C03.9/4",
+      "display": "Alveolar mucosa, NOS"
+    },
+    {
+      "code": "C03.9/3",
+      "display": "Gum, NOS"
+    },
+    {
+      "code": "C03.9/2",
+      "display": "Tooth socket"
+    },
+    {
+      "code": "C03.9/1",
+      "display": "Periodontal tissue"
+    },
+    {
+      "code": "C03.9",
+      "display": "Alveolus, NOS"
+    },
+    {
+      "code": "C03.1/4",
+      "display": "Lower gingiva"
+    },
+    {
+      "code": "C03.1/3",
+      "display": "Lower alveolus"
+    },
+    {
+      "code": "C03.1/2",
+      "display": "Lower alveolar ridge mucosa"
+    },
+    {
+      "code": "C03.1/1",
+      "display": "Lower alveolar mucosa"
+    },
+    {
+      "code": "C03.1",
+      "display": "Lower gum"
+    },
+    {
+      "code": "C03.0/4",
+      "display": "Upper alveolar ridge mucosa"
+    },
+    {
+      "code": "C03.0/3",
+      "display": "Upper alveolar mucosa"
+    },
+    {
+      "code": "C03.0/2",
+      "display": "Upper alveolus"
+    },
+    {
+      "code": "C03.0/1",
+      "display": "Upper gingiva"
+    },
+    {
+      "code": "C03.0",
+      "display": "Upper gum"
+    },
+    {
+      "code": "C03",
+      "display": "GUM"
+    },
+    {
+      "code": "C02.9/1",
+      "display": "Lingual, NOS"
+    },
+    {
+      "code": "C02.9",
+      "display": "Tongue, NOS"
+    },
+    {
+      "code": "C02.8/1",
+      "display": "Junctional zone of tongue"
+    },
+    {
+      "code": "C02.8",
+      "display": "Overlapping lesion of tongue"
+    },
+    {
+      "code": "C02.4",
+      "display": "Lingual tonsil"
+    },
+    {
+      "code": "C02.3/1",
+      "display": "Anterior tongue, NOS"
+    },
+    {
+      "code": "C02.3",
+      "display": "Anterior 2/3 of tongue, NOS"
+    },
+    {
+      "code": "C02.2/3",
+      "display": "Frenulum linguae"
+    },
+    {
+      "code": "C02.2/2",
+      "display": "Anterior 2/3 of tongue, ventral surface"
+    },
+    {
+      "code": "C02.2/1",
+      "display": "Ventral surface of tongue, NOS"
+    },
+    {
+      "code": "C02.2",
+      "display": "Ventral surface of anterior tongue, NOS"
+    },
+    {
+      "code": "C02.1/1",
+      "display": "Tip of tongue"
+    },
+    {
+      "code": "C02.1",
+      "display": "Border of tongue"
+    },
+    {
+      "code": "C02.0/3",
+      "display": "Dorsal surface of anterior tongue"
+    },
+    {
+      "code": "C02.0/2",
+      "display": "Midline of tongue"
+    },
+    {
+      "code": "C02.0/1",
+      "display": "Anterior 2/3 of tongue, dorsal surface"
+    },
+    {
+      "code": "C02.0",
+      "display": "Dorsal surface of tongue, NOS"
+    },
+    {
+      "code": "C02",
+      "display": "OTHER AND UNSPECIFIED PARTS OF TONGUE"
+    },
+    {
+      "code": "C01.9/4",
+      "display": "Root of tongue"
+    },
+    {
+      "code": "C01.9/3",
+      "display": "Base of tongue, NOS"
+    },
+    {
+      "code": "C01.9/2",
+      "display": "Dorsal surface of base of tongue"
+    },
+    {
+      "code": "C01.9/1",
+      "display": "Posterior tongue, NOS"
+    },
+    {
+      "code": "C01.9",
+      "display": "Posterior third of tongue"
+    },
+    {
+      "code": "C01",
+      "display": "BASE OF TONGUE"
+    },
+    {
+      "code": "C00.9",
+      "display": "Lip, NOS"
+    },
+    {
+      "code": "C00.8",
+      "display": "Overlapping lesion of lip"
+    },
+    {
+      "code": "C00.6/1",
+      "display": "Labial commissure"
+    },
+    {
+      "code": "C00.6",
+      "display": "Commissure of lip"
+    },
+    {
+      "code": "C00.5/4",
+      "display": "Mucosa of lip, NOS"
+    },
+    {
+      "code": "C00.5/3",
+      "display": "Internal lip, NOS"
+    },
+    {
+      "code": "C00.5/2",
+      "display": "Inner aspect of lip, NOS"
+    },
+    {
+      "code": "C00.5/1",
+      "display": "Frenulum of lip, NOS"
+    },
+    {
+      "code": "C00.5",
+      "display": "Frenulum labii, NOS"
+    },
+    {
+      "code": "C00.4/2",
+      "display": "Frenulum of lower lip"
+    },
+    {
+      "code": "C00.4/1",
+      "display": "Inner aspect of lower lip"
+    },
+    {
+      "code": "C00.4",
+      "display": "Mucosa of lower lip"
+    },
+    {
+      "code": "C00.3/1",
+      "display": "Mucosa of upper lip"
+    },
+    {
+      "code": "C00.3",
+      "display": "Frenulum of upper lip"
+    },
+    {
+      "code": "C00.2",
+      "display": "External lip, NOS"
+    },
+    {
+      "code": "C00.1/3",
+      "display": "skin of lower lip"
+    },
+    {
+      "code": "C00.1/2",
+      "display": "Lower lip, NOS"
+    },
+    {
+      "code": "C00.1/1",
+      "display": "Vermilion border of lower lip"
+    },
+    {
+      "code": "C00.1",
+      "display": "External lower lip"
+    },
+    {
+      "code": "C00.0/3",
+      "display": "Vermilion border of upper lip"
+    },
+    {
+      "code": "C00.0/2",
+      "display": "External upper lip"
+    },
+    {
+      "code": "C00.0/1",
+      "display": "skin of upper lip"
+    },
+    {
+      "code": "C00.0",
+      "display": "Upper lip, NOS"
+    },
+    {
+      "code": "C00",
+      "display": "LIP"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+﻿@namespace iPath.Blazor.Componenents.Nodes
+@implements IDisposable
+
+
+@using Microsoft.JSInterop
+@using System.ComponentModel
+  
+
+@inject ISnackbar snackbar
+@inject IJSRuntime JS
+@inject IHttpClientFactory httpFactory
+@inject NodeViewModel vm
+
+
+@if( !vm.IsRootNodeSelected && !vm.SelectedNode.ChildNodes.Any() )
+{
+    <div class="ipath_image">
+        @if (vm.SelectedNode.IsImage)
+        {
+            <img src=@vm.SelectedNode.FileUrl() @onclick="@vm.GoNext" />
+        }
+        else
+        {
+            <MudIcon Size="Size.Large" Icon=@vm.SelectedNode.FileIcon() />
+        }
+        <div class="image_info">@vm.SelectedNode.GalleryCaption.ShortenTo(50)</div>
+    </div>
+}
+else
+{
+    <div class="ipath_section_header">
+        <div class="ipath_header_title">Gallery</div>
+        <div class="ipath_header_actions">
+            <MudTooltip Text="Sort Images">
+                <MudIcon Size="Size.Small" Icon="@Icons.Material.Rounded.PlaylistPlay" @onclick="ActivateSort"/>
+            </MudTooltip>
+        </div>
+    </div>
+
+    @if (vm.SelectedNode != null)
+    {
+        @if( !Sorting )
+        {
+            <NodeGalleryView  />
+        }
+        else
+        {
+            <NodeGallerySortable OnSortingFinished="SortingFinished" />
+        }
+    }
+}
+
+@code {
+    bool Sorting;
+
+    protected override void OnInitialized()
+    {
+        vm.PropertyChanged += PropertyChangedEventHandler;
+    }
+
+    public void Dispose()
+    {
+        vm.PropertyChanged -= PropertyChangedEventHandler;
+    }
+
+    async void PropertyChangedEventHandler(object sender, PropertyChangedEventArgs args)
+    {
+        InvokeAsync(() => StateHasChanged());
+    }
+
+
+    void ActivateSort()
+    {
+        Sorting = true;
+    }
+
+    void SortingFinished(bool sorted)
+    {
+        Sorting = false;
+        StateHasChanged();
+    }
+
+    public void SignalStateChanged()
+    {
+        StateHasChanged();
+    }
+}

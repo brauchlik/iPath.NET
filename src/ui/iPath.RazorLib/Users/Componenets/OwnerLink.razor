@@ -1,0 +1,23 @@
+﻿@namespace iPath.Blazor.Componenents.Users
+
+@inject IDialogService srvDialog
+
+@inject UserViewModel vm
+
+<MudLink OnClick="ShowProfileAsync">@Username</MudLink>
+
+@code {
+    [Parameter, EditorRequired]
+    public OwnerDto? Owner { get; set; } = null!;
+
+    string Username => Owner is null ? "--" : Owner.Username;
+
+
+    async Task ShowProfileAsync()
+    {
+        if (Owner is not null)
+        {
+            await vm.ShowProfileAsync(Owner.Id);
+        }
+    }
+}

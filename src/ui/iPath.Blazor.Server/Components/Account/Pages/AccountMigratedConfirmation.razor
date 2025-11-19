@@ -1,0 +1,30 @@
+﻿@page "/Account/AccountMigrationConfirmation"
+@page "/Account/AccountMigrationConfirmation/{base64}"
+@using System.Text
+
+
+<PageTitle>Account migration confirmation</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small">
+    <MudText Typo="Typo.h4" GutterBottom="true">Account Migration</MudText>
+    <MudAlert Severity="Severity.Info" Elevation="1" Variant="Variant.Outlined">
+        <MudText Typo="Typo.body1">
+            Your account has been successfully migrated to our new system.
+        </MudText>
+        <MudText Typo="Typo.body2">
+            Before you can start using your account, we ask you to confirm your email 
+            and set a new password for security reasons.<br /><br />
+            We have sent a password reset link to @email. 
+            Please check your inbox and follow the instructions to set a new password and access 
+            your account.
+        </MudText>
+    </MudAlert>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string? base64 { get; set; }
+
+    string email => base64 is null ? "your registered email address"
+        : Encoding.UTF8.GetString(Convert.FromBase64String(base64));
+}

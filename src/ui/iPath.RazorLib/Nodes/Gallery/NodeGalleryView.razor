@@ -1,0 +1,49 @@
+﻿@namespace iPath.Blazor.Componenents.Nodes
+
+@using System.ComponentModel
+
+@inject ISnackbar snackbar
+@inject IDialogService srvDialog
+@inject NodeViewModel vm
+
+
+@**** Gallery View **********************************************@
+@if( vm.SelectedNode != null)
+{ 
+	<div class="gallery">
+		@foreach (var c in vm.SelectedNode.ChildNodes.OrderBy(c => c.SortNr))
+		{
+			<div class="gallery-item" @onclick="@(() => OnChildClick(c))">
+
+				<div class="gallery-contextmenu">
+					<MudMenu FullWidth="true" ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.TopCenter" Disabled="vm.EditDisabled">
+						<ActivatorContent>
+							<MudIcon Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" />
+						</ActivatorContent>
+						<ChildContent>
+							<MudMenuItem Label="Delete" Disabled="vm.DeleteDisabled" OnClick=@(() => vm.Delete(c)) />
+							<MudMenuItem Label="Edit" Disabled="vm.EditDisabled" OnClick=@(() => vm.Edit(c)) />
+						</ChildContent>
+					</MudMenu>
+				</div>
+
+				<MudTooltip>
+					<TooltipContent>
+						<b>Owner: </b> @c.Owner.Username - @c.CreatedOn.ToString("d")<br />
+						<b>Filename: </b>@c.GalleryCaption
+					</TooltipContent>
+					<ChildContent>
+						<GalleryImage Model="@c" />
+					</ChildContent>
+				</MudTooltip>
+			</div>
+		}
+	</div>
+}
+
+@code {
+	async Task OnChildClick(NodeDto child)
+	{
+		await vm.SelectedChilNode(child);
+	}
+}

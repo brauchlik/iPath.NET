@@ -1,0 +1,18 @@
+﻿<MudStack Row Class="pa-2 mud-theme-info">
+    <MudText Typo="@Typo">@Title</MudText>
+    <MudSpacer />
+    @ActionContent
+</MudStack>
+
+
+@code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; }
+
+    [Parameter]
+    public Typo Typo { get; set; } = Typo.h4;
+
+
+    [Parameter]
+    public RenderFragment? ActionContent { get; set; }
+}

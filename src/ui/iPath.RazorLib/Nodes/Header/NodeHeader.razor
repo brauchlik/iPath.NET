@@ -1,0 +1,29 @@
+﻿@namespace iPath.Blazor.Componenents.Nodes
+
+@inject NodeViewModel vm
+
+@if (vm.RootNode is not null)
+{
+    <div class="ipath_node_header ">
+        <div class="ipath_header_title">@vm.RootNode.Title</div>
+        <div class="ipath_header_actions">
+            <MudIconButton OnClick="vm.GoPrevious" Icon="@Icons.Material.Filled.ArrowLeft" Size="Size.Small" Title="Previous" />
+            <MudIconButton OnClick="vm.GoUp" Icon="@Icons.Material.Filled.ArrowDropUp" Size="Size.Small" Title="Up" />
+            <MudIconButton OnClick="vm.GoNext" Icon="@Icons.Material.Filled.ArrowRight" Size="Size.Small" Title="Next" />
+        </div>
+        <div class="ipath_header_toolbar">
+            <MudToolBar>
+                <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(() => vm.Edit())" Disabled="vm.EditDisabled" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Save" OnClick="@(() => vm.Save())" hidden="@hideSave" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Cancel" OnClick="@(() => vm.CancelEdit())" hidden="@hideSave">Cancel</MudIconButton>
+                <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => vm.Delete())" Disabled="vm.DeleteDisabled" />
+                <MudIconButton Icon="@Icons.Material.Outlined.AttachFile" OnClick="@(() => vm.AttachFile())" Disabled="vm.AttachFileDisabled" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Comment" OnClick="@(() => vm.Annotate())" Disabled="vm.AnnotateDisabled" />
+            </MudToolBar>
+        </div>
+    </div>
+}
+
+@code {
+    bool hideSave => !vm.IsEditing;
+}

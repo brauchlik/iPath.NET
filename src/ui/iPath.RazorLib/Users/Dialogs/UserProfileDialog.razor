@@ -1,0 +1,54 @@
+﻿@namespace iPath.Blazor.Componenents.Users
+
+<MudDialog>
+	<TitleContent>
+		<MudText Typo="Typo.h6">@Profile.FirstName @Profile.FamilyName</MudText>
+	</TitleContent>
+	<DialogContent>
+		@if (Profile != null)
+		{
+			<div class="organisation">@((MarkupString)Profile.ContactDetails.Organisation)</div>
+			<div class="address">@((MarkupString)Profile.ContactDetails.Address?.Street)</div>
+			<div class="address">@Profile.ContactDetails.Address?.PostalCode @Profile.ContactDetails.Address?.City</div>
+			<div class="address">@Profile.ContactDetails.Address?.Country</div>
+			<div class="contact">
+				<MudStack Row="true">
+					<MudIcon Icon="@Icons.Material.Outlined.Email" /> @Profile.ContactDetails.Email
+					<MudIcon Icon="@Icons.Material.Outlined.Phone" /> @Profile.ContactDetails.PhoneNr
+				</MudStack>
+			</div>
+		}
+		else
+		{
+			<p>no data</p>
+		}
+	</DialogContent>
+	<DialogActions>
+		<MudButton Color="Color.Primary" OnClick="Close">Ok</MudButton>
+	</DialogActions>
+</MudDialog>
+
+<style>
+	.organisation{
+		font-weight: bold;
+		border-bottom: 1px outset;
+	}
+	.address{
+		font-style: italic;
+	}
+	.contact{
+		margin-top: 1em;
+		border-bottom: 1px outset;
+	}
+</style>
+
+
+@code {
+	[CascadingParameter]
+	private IMudDialogInstance MudDialog { get; set; }
+
+	[Parameter]
+	public UserProfile Profile { get; set; }
+
+	private void Close() => MudDialog.Cancel();
+}

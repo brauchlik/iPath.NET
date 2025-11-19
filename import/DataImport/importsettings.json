@@ -1,0 +1,18 @@
+{
+  "DbProvider": "Sqlite",
+  "ConnectionStrings": {
+    "Postgres_Dev": "Host=127.0.0.1:5433;Database=ipath_net;Username=postgres;Password=test1234;Include Error Detail=true;",
+    "Postgres": "Host=127.0.0.1:5433;Database=ipath_data;Username=postgres;Password=test1234;Include Error Detail=true;",
+    "Sqlite": "Data Source=C:/Daten/ipath_sqlite/ipath_data.db",
+    "ipath_old": "Server=basysdb2.ad.basysdata.ch;Database=ipath_basys;Uid=import;Pwd=ipath2;Charset=latin1;",
+    "ipath_old_local": "Server=127.0.0.1;Database=ipath2;Uid=ipath;Pwd=1cePath;Charset=latin1;"
+  },
+  "ImportConfig": {
+    "BulkSize": 1000,
+    "ImportUsers": false,
+    "ImportCommunities": true,
+    "ImportGroups": true,
+    "ImportNodes": true,
+    "ImportNodeStats": true
+  }
+}

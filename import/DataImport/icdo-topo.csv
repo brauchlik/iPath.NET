@@ -1,0 +1,1341 @@
+﻿C80.9;Unknown primary site
+C80;UNKNOWN PRIMARY SITE
+C77.9;Lymph node, NOS
+C77.8;Lymph nodes of multiple regions
+C77.5/9;Obturator lymph node
+C77.5/8;Pelvic lymph nodes
+C77.5/7;Hypogastric lymph node
+C77.5/6;Iliac lymph node
+C77.5/5;Intrapelvic lymph node
+C77.5/4;Paracervical lymph node
+C77.5/3;Parametrial lymph node
+C77.5/2;Presymphysial lymph node
+C77.5/1;Sacral lymph node
+C77.5;Inferior epigastric lymph node
+C77.4/9;Femoral lymph node
+C77.4/8;Lymph node of groin
+C77.4/7;Lymph nodes of inguinal region or leg
+C77.4/6;Inguinal lymph node
+C77.4/5;Lymph node of Cloquet
+C77.4/4;Lymph node of Rosenmuller
+C77.4/3;Popliteal lymph node
+C77.4/2;Tibial lymph node
+C77.4/1;Subinguinal lymph node
+C77.4;Lymph node of lower limb
+C77.3/9;Brachial lymph node
+C77.3/8;Subscapular lymph node
+C77.3/7;Axillary lymph node
+C77.3/6;Cubital lymph node
+C77.3/5;Epitrochlear lymph node
+C77.3/4;Lymph node of upper limb
+C77.3/3;Pectoral lymph node
+C77.3/2;Subclavicular lymph node
+C77.3/1;Infraclavicular lymph node
+C77.3;Lymph nodes of axilla or arm
+C77.2/9;Mesenteric lymph node, NOS
+C77.2/8;Splenic hilar lymph node
+C77.2/7;Retroperitoneal lymph node
+C77.2/6;Portal lymph node
+C77.2/5;Peripancreatic lymph node
+C77.2/4;Superior mesenteric lymph node
+C77.2/3;Para-aortic lymph node
+C77.2/24;Abdominal lymph node
+C77.2/23;Intestinal lymph node
+C77.2/22;Inferior mesenteric lymph node
+C77.2/21;Ileocolic lymph node
+C77.2/20;Hepatic lymph node
+C77.2/2;Pancreatic lymph node, NOS
+C77.2/19;Gastric lymph node
+C77.2/18;Common duct lymph node
+C77.2/17;Colic lymph node
+C77.2/16;Aortic lymph node
+C77.2/15;Intra-abdominal lymph nodes
+C77.2/14;Porta hepatis lymph node
+C77.2/13;Lumbar lymph node
+C77.2/12;Celiac lymph node
+C77.2/11;Pyloric lymph node
+C77.2/10;Periaortic lymph node
+C77.2/1;Midcolic lymph node
+C77.2;Splenic lymph node, NOS
+C77.1/9;Diaphragmatic lymph node
+C77.1/8;Esophageal lymph node
+C77.1/7;Hilar lymph node, NOS
+C77.1/6;Parasternal lymph node
+C77.1/5;Pulmonary lymph node, NOS
+C77.1/4;Thoracic lymph node
+C77.1/3;Tracheal lymph node
+C77.1/2;Tracheobronchial lymph node
+C77.1/14;Intrathoracic lymph nodes
+C77.1/13;Pulmonary hilar lymph node
+C77.1/12;Innominate lymph node
+C77.1/11;Bronchial lymph node
+C77.1/10;Bronchopulmonary lymph node
+C77.1/1;Intercostal lymph node
+C77.1;Mediastinal lymph node
+C77.0/9;Lymph nodes of head, face and neck
+C77.0/8;Submental lymph node
+C77.0/7;Supraclavicular lymph node
+C77.0/6;Pretracheal lymph node
+C77.0/5;Retropharyngeal lymph node
+C77.0/4;Scalene lymph node
+C77.0/3;Sublingual lymph node
+C77.0/2;Submandibular lymph node
+C77.0/17;Prelaryngeal lymph node
+C77.0/16;Occipital lymph node
+C77.0/15;Mandibular lymph node
+C77.0/14;Jugular lymph node
+C77.0/13;Facial lymph node
+C77.0/12;Cervical lymph node
+C77.0/11;Auricular lymph node
+C77.0/10;Preauricular lymph node
+C77.0/1;Submaxillary lymph node
+C77.0;Parotid lymph node
+C77;LYMPH NODES
+C76.8;Overlapping lesion of ill-defined sites
+C76.7/3;Trunk, NOS
+C76.7/2;Flank, NOS
+C76.7/1;Back, NOS
+C76.7;Other ill-defined sites
+C76.5/9;Lower limb, NOS
+C76.5/8;Ankle, NOS
+C76.5/7;Calf, NOS
+C76.5/6;Hip, NOS
+C76.5/5;Knee, NOS
+C76.5/4;Leg, NOS
+C76.5/3;Popliteal space, NOS
+C76.5/2;Thigh, NOS
+C76.5/10;Heel, NOS
+C76.5/1;Toe, NOS
+C76.5;Foot, NOS
+C76.4/9;Forearm, NOS
+C76.4/8;Upper limb, NOS
+C76.4/7;Antecubital space, NOS
+C76.4/6;Arm, NOS
+C76.4/5;Finger, NOS
+C76.4/4;Hand, NOS
+C76.4/3;Shoulder, NOS
+C76.4/2;Thumb, NOS
+C76.4/1;Wrist, NOS
+C76.4;Elbow, NOS
+C76.3/9;Groin, NOS
+C76.3/8;Ischiorectal fossa
+C76.3/7;Pelvic wall, NOS
+C76.3/6;Perineum, NOS
+C76.3/5;Rectovaginal septum
+C76.3/4;Inguinal region, NOS
+C76.3/3;Perirectal region, NOS
+C76.3/2;Presacral region, NOS
+C76.3/12;Gluteal region, NOS
+C76.3/11;Pelvis, NOS
+C76.3/10;Buttock, NOS
+C76.3/1;Sacrococcygeal region, NOS
+C76.3;Rectovesical septum
+C76.2/2;Abdomen, NOS
+C76.2/1;Intra-abdominal site, NOS
+C76.2;Abdominal wall, NOS
+C76.1/7;Thorax, NOS
+C76.1/6;Axilla, NOS
+C76.1/5;Chest, NOS
+C76.1/4;Chest wall, NOS
+C76.1/3;Intrathoracic site, NOS
+C76.1/2;Thoracic wall, NOS
+C76.1/1;Scapular region, NOS
+C76.1;Infraclavicular region, NOS
+C76.0/5;Nose, NOS
+C76.0/4;Head, face or neck, NOS
+C76.0/3;Jaw, NOS
+C76.0/2;Supraclavicular region, NOS
+C76.0/1;Cervical region, NOS
+C76.0;Cheek, NOS
+C76;OTHER AND ILL-DEFINED SITES
+C75.9;Endocrine gland, NOS
+C75.8/2;Pluriglandular
+C75.8/1;Multiple endocrine glands
+C75.8;Overlapping lesion of endocrine glands and related structures
+C75.5/6;Organ of Zuckerkandl
+C75.5/5;Aortic body and other paraganglia
+C75.5/4;Coccygeal body
+C75.5/3;Coccygeal glomus
+C75.5/2;Para-aortic body
+C75.5/1;Paraganglion
+C75.5;Glomus jugulare
+C75.4;Carotid body
+C75.3;Pineal gland
+C75.2;Craniopharyngeal duct
+C75.1/5;Rathke pouch
+C75.1/4;Hypophysis
+C75.1/3;Pituitary gland
+C75.1/2;Pituitary fossa
+C75.1/1;Sella turcica
+C75.1;Pituitary, NOS
+C75.0;Parathyroid gland
+C75;OTHER ENDOCRINE GLANDS AND RELATED STRUCTURES
+C74.9/2;Adrenal, NOS
+C74.9/1;Suprarenal gland
+C74.9;Adrenal gland, NOS
+C74.1;Medulla of adrenal gland
+C74.0;Cortex of adrenal gland
+C74;ADRENAL GLAND
+C73.9/2;Thyroid, NOS
+C73.9/1;Thyroid gland
+C73.9;Thyroglossal duct
+C73;THYROID GLAND
+C72.9/4;Parasellar
+C72.9/3;Extradural
+C72.9/2;Epidural
+C72.9/1;Central nervous system
+C72.9;Nervous system, NOS
+C72.8;Overlapping lesion of brain and central nervous system
+C72.5/9;Vagus nerve
+C72.5/8;Abducens nerve
+C72.5/7;Spinal accessory nerve
+C72.5/6;Facial nerve
+C72.5/5;Glossopharyngeal nerve
+C72.5/4;Hypoglossal nerve
+C72.5/3;Oculomotor nerve
+C72.5/2;Trigeminal nerve
+C72.5/10;Accessory nerve, NOS
+C72.5/1;Trochlear nerve
+C72.5;Cranial nerve, NOS
+C72.4;Acoustic nerve
+C72.3/2;Optic tract
+C72.3/1;Optic chiasm
+C72.3;Optic nerve
+C72.2;Olfactory nerve
+C72.1;Cauda equina
+C72.0/6;Conus medullaris
+C72.0/5;Filum terminale
+C72.0/4;Spinal cord
+C72.0/3;Lumbar cord
+C72.0/2;Thoracic cord
+C72.0/1;Sacral cord
+C72.0;Cervical cord
+C72;SPINAL CORD, CRANIAL NERVES, AND OTHER PARTS OF CENTRAL NERVOUS SYSTEM
+C71.9/6;Anterior cranial fossa
+C71.9/5;Brain, NOS
+C71.9/4;Cranial fossa, NOS
+C71.9/3;Middle cranial fossa
+C71.9/2;Posterior cranial fossa
+C71.9/1;Suprasellar
+C71.9;Intracranial site
+C71.8/2;Tapetum
+C71.8/1;Corpus callosum
+C71.8;Overlapping lesion of brain
+C71.7/9;Fourth ventricle, NOS
+C71.7/8;Brain stem
+C71.7/7;Cerebral peduncle
+C71.7/6;Basis pedunculi
+C71.7/5;Medulla oblongata
+C71.7/4;Midbrain
+C71.7/3;Olive
+C71.7/2;Pons
+C71.7/10;Infratentorial brain, NOS
+C71.7/1;Pyramid
+C71.7;Choroid plexus of fourth ventricle
+C71.6/2;Vermis of cerebellum
+C71.6/1;Cerebellopontine angle
+C71.6;Cerebellum, NOS
+C71.5/7;Lateral ventricle, NOS
+C71.5/6;Ventricle, NOS
+C71.5/5;Cerebral ventricle
+C71.5/4;Choroid plexus, NOS
+C71.5/3;Choroid plexus of lateral ventricle
+C71.5/2;Ependyma
+C71.5/1;Third ventricle, NOS
+C71.5;Choroid plexus of third ventricle
+C71.4/1;Occipital pole
+C71.4;Occipital lobe
+C71.3;Parietal lobe
+C71.2/2;Temporal lobe
+C71.2/1;Uncus
+C71.2;Hippocampus
+C71.1/1;Frontal pole
+C71.1;Frontal lobe
+C71.0/9;Insula
+C71.0/8;Internal capsule
+C71.0/7;Island of Reil
+C71.0/6;Operculum
+C71.0/5;Pallium
+C71.0/4;Putamen
+C71.0/3;Rhinencephalon
+C71.0/2;Supratentorial brain, NOS
+C71.0/17;Hypothalamus
+C71.0/16;Cerebrum
+C71.0/15;Basal ganglia
+C71.0/14;Central white matter
+C71.0/13;Cerebral cortex
+C71.0/12;Cerebral hemisphere
+C71.0/11;Cerebral white matter
+C71.0/10;Globus pallidus
+C71.0/1;Thalamus
+C71.0;Corpus striatum
+C71;BRAIN
+C70.9/4;Dura, NOS
+C70.9/3;Meninges, NOS
+C70.9/2;Arachnoid, NOS
+C70.9/1;Pia mater, NOS
+C70.9;Dura mater, NOS
+C70.1/3;Spinal pia mater
+C70.1/2;Spinal dura mater
+C70.1/1;Spinal arachnoid
+C70.1;Spinal meninges
+C70.0/9;Cerebral meninges
+C70.0/8;Cranial dura mater
+C70.0/7;Cranial meninges
+C70.0/6;Cranial pia mater
+C70.0/5;Falx cerebelli
+C70.0/4;Falx cerebri
+C70.0/3;Intracranial arachnoid
+C70.0/2;Tentorium cerebelli
+C70.0/10;Intracranial meninges
+C70.0/1;Tentorium, NOS
+C70.0;Falx, NOS
+C70;MENINGES
+C69.9;Eye, NOS
+C69.8;Overlapping lesion of eye and adnexa
+C69.6/6;Soft tissue of orbit
+C69.6/5;Retrobulbar tissue
+C69.6/4;Peripheral nerves of orbit
+C69.6/3;Extraocular muscle
+C69.6/2;Connective tissue of orbit
+C69.6/1;Autonomic nervous system of orbit
+C69.6;Orbit, NOS
+C69.5/4;Nasolacrimal duct
+C69.5/3;Lacrimal gland
+C69.5/2;Nasal lacrimal duct
+C69.5/1;Lacrimal sac
+C69.5;Lacrimal duct, NOS
+C69.4/6;Ciliary body
+C69.4/5;Eyeball
+C69.4/4;Intraocular
+C69.4/3;Uveal tract
+C69.4/2;Sclera
+C69.4/1;Iris
+C69.4;Crystalline lens
+C69.3;Choroid
+C69.2;Retina
+C69.1/1;Limbus of cornea
+C69.1;Cornea, NOS
+C69.0;Conjunctiva
+C69;EYE AND ADNEXA
+C68.9;Urinary system, NOS
+C68.8;Overlapping lesion of urinary organs
+C68.1;Paraurethral gland
+C68.0/3;Prostatic utricle
+C68.0/2;Cowper gland
+C68.0/1;Urethral gland
+C68.0;Urethra
+C68;OTHER AND UNSPECIFIED URINARY ORGANS
+C67.9/2;Urinary bladder, NOS
+C67.9/1;Bladder wall, NOS
+C67.9;Bladder, NOS
+C67.8;Overlapping lesion of bladder
+C67.7;Urachus
+C67.6;Ureteric orifice
+C67.5/1;Internal urethral orifice
+C67.5;Bladder neck
+C67.4;Posterior wall of bladder
+C67.3;Anterior wall of bladder
+C67.2;Lateral wall of bladder
+C67.1;Dome of bladder
+C67.0;Trigone of bladder
+C67;BLADDER
+C66.9;Ureter
+C66;URETER
+C65.9/4;Pelviureteric junction
+C65.9/3;Renal pelvis
+C65.9/2;Pelvis of kidney
+C65.9/1;Renal calyx
+C65.9;Renal calyces
+C65;RENAL PELVIS
+C64.9/2;Kidney parenchyma
+C64.9/1;Renal, NOS
+C64.9;Kidney, NOS
+C64;KIDNEY
+C63.9/2;Male genital organs, NOS
+C63.9/1;Male genital tract, NOS
+C63.9;Male genitourinary tract, NOS
+C63.8;Overlapping lesion of male genital organs Note:
+C63.7/2;Tunica vaginalis
+C63.7/1;Seminal vesicle
+C63.7;Other specified parts of male genital organs
+C63.2/1;Skin of scrotum
+C63.2;Scrotum, NOS
+C63.1/1;Vas deferens
+C63.1;Spermatic cord
+C63.0;Epididymis
+C63;OTHER AND UNSPECIFIED MALE GENITAL ORGANS
+C62.9/1;Testis, NOS
+C62.9;Testicle, NOS
+C62.1/1;Scrotal testis
+C62.1;Descended testis
+C62.0/2;Ectopic testis (site of neoplasm)
+C62.0/1;Retained testis (site of neoplasm)
+C62.0;Undescended testis
+C62;TESTIS
+C61.9/1;Prostate, NOS
+C61.9;Prostate gland
+C61;PROSTATE GLAND
+C60.9;Penis, NOS
+C60.8;Overlapping lesion of penis
+C60.2/2;Corpus of penis
+C60.2/1;Corpus cavernosum
+C60.2;Body of penis
+C60.1;Glans penis
+C60.0/1;Prepuce
+C60.0;Foreskin
+C60;PENIS
+C58.9/1;Placenta
+C58.9;Fetal membranes
+C58;PLACENTA
+C57.9/5;Female genital tract, NOS
+C57.9/4;Vesicovaginal septum
+C57.9/3;Vesicocervical tissue
+C57.9/2;Urethrovaginal septum
+C57.9/1;Female genitourinary tract, NOS
+C57.9;Female genital organs, NOS
+C57.8/2;Overlapping lesion of female genital organs
+C57.8/1;Tubo-ovarian
+C57.8;Utero-ovarian
+C57.7/2;Wolffian duct
+C57.7/1;Wolffian body
+C57.7;Other specified parts of female genital organs
+C57.4/1;Adnexa, NOS
+C57.4;Uterine adnexa
+C57.3/2;Uterine ligament
+C57.3/1;Parametrium
+C57.3;Uterosacral ligament
+C57.2;Round ligament
+C57.1/2;Parovarian region
+C57.1/1;Mesovarium
+C57.1;Broad ligament
+C57.0/1;Uterine tube
+C57.0;Fallopian tube
+C57;OTHER AND UNSPECIFIED FEMALE GENITAL ORGANS
+C56.9;Ovary
+C56;OVARY
+C55.9/1;Uterine, NOS
+C55.9;Uterus, NOS
+C55;UTERUS, NOS
+C54.9/1;Body of uterus
+C54.9;Corpus uteri
+C54.8;Overlapping lesion of corpus uteri
+C54.3;Fundus uteri
+C54.2;Myometrium
+C54.1/2;Endometrial stroma
+C54.1/1;Endometrial gland
+C54.1;Endometrium
+C54.0/1;Lower uterine segment
+C54.0;Isthmus uteri
+C54;CORPUS UTERI
+C53.9/2;Uterine cervix
+C53.9/1;Cervix, NOS
+C53.9;Cervix uteri
+C53.8/2;Overlapping lesion of cervix uteri
+C53.8/1;Cervical stump
+C53.8;Squamocolumnar junction of cervix
+C53.1/1;Exocervix
+C53.1;External os
+C53.0/5;Endocervix
+C53.0/4;Nabothian gland
+C53.0/3;Endocervical gland
+C53.0/2;Endocervical canal
+C53.0/1;Cervical canal
+C53.0;Internal os
+C53;CERVIX UTERI
+C52.9/4;Gartner duct
+C52.9/3;Fornix of vagina
+C52.9/2;Vaginal vault
+C52.9/1;Vagina, NOS
+C52.9;Hymen
+C52;VAGINA
+C51.9/8;Labium, NOS
+C51.9/7;Vulva, NOS
+C51.9/6;External female genitalia
+C51.9/5;Labia, NOS
+C51.9/4;Mons pubis
+C51.9/3;Mons veneris
+C51.9/2;Pudendum
+C51.9/1;Skin of vulva
+C51.9;Fourchette
+C51.8;Overlapping lesion of vulva
+C51.2;Clitoris
+C51.1/1;Labium minus
+C51.1;Labia minora
+C51.0/3;Labium majus
+C51.0/2;Labia majora, NOS
+C51.0/1;Skin of labia majora
+C51.0;Bartholin gland
+C51;VULVA
+C50.9/1;Mammary gland
+C50.9;Breast, NOS
+C50.8/5;Midline of breast
+C50.8/4;Lower breast
+C50.8/3;Inner breast
+C50.8/2;Outer breast
+C50.8/1;Upper breast
+C50.8;Overlapping lesion of breast
+C50.6/1;Tail of breast, NOS
+C50.6;Axillary tail of breast
+C50.5;Lower-outer quadrant of breast
+C50.4;Upper-outer quadrant of breast
+C50.3;Lower-inner quadrant of breast
+C50.2;Upper-inner quadrant of breast
+C50.1;Central portion of breast
+C50.0/1;Areola
+C50.0;Nipple
+C50;BREAST
+C49.9/9;Vessel, NOS
+C49.9/8;Muscle, NOS
+C49.9/7;Skeletal muscle, NOS
+C49.9/6;Subcutaneous tissue, NOS
+C49.9/5;Synovia, NOS
+C49.9/4;Aponeurosis, NOS
+C49.9/3;Tendon, NOS
+C49.9/2;Tendon sheath, NOS
+C49.9/19;Ligament, NOS
+C49.9/18;Connective, subcutaneous and other soft tissues, NOS
+C49.9/17;Adipose tissue, NOS
+C49.9/16;Blood vessel, NOS
+C49.9/15;Artery, NOS
+C49.9/14;Bursa, NOS
+C49.9/13;Connective tissue, NOS
+C49.9/12;Fascia, NOS
+C49.9/11;Fatty tissue, NOS
+C49.9/10;Fibrous tissue, NOS
+C49.9/1;Vein, NOS
+C49.9;Lymphatic, NOS
+C49.8;Overlapping lesion of connective, subcutaneous and other soft tissues
+C49.6/4;flank
+C49.6/3;back
+C49.6/2;Connective, subcutaneous and other soft tissues of:
+C49.6/1;Connective, subcutaneous and other soft tissues of trunk NOS
+C49.6;trunk
+C49.5/9;Connective, subcutaneous and other soft tissues of:
+C49.5/8;Connective, subcutaneous and other soft tissues of pelvis
+C49.5/7;buttock
+C49.5/6;groin
+C49.5/5;perineum
+C49.5/4;sacrococcygeal region
+C49.5/3;Gluteus maximus muscle
+C49.5/2;Iliac vein
+C49.5/10;gluteal region
+C49.5/1;Iliac artery
+C49.5;inguinal region
+C49.4/9;Abdominal aorta
+C49.4/8;Abdominal wall muscle
+C49.4/7;Iliopsoas muscle
+C49.4/6;Inferior vena cava
+C49.4/5;Mesenteric artery
+C49.4/4;Psoas muscle
+C49.4/3;Rectus abdominis muscle
+C49.4/2;Renal artery
+C49.4/15;Abdominal vena cava
+C49.4/14;Connective, subcutaneous and other soft tissues of abdomen
+C49.4/13;Connective, subcutaneous and other soft tissues of :
+C49.4/12;abdomen
+C49.4/11;abdominal wall
+C49.4/10;Vena cava, NOS
+C49.4/1;Celiac artery
+C49.4;umbilicus
+C49.3/9;Thoracic duct
+C49.3/8;Axillary artery
+C49.3/7;Diaphragm
+C49.3/6;Intercostal muscle
+C49.3/5;Internal mammary artery
+C49.3/4;Latissimus dorsi muscle
+C49.3/3;Trapezius muscle
+C49.3/20;Superior vena cava
+C49.3/2;Subclavian artery
+C49.3/19;infraclavicular region
+C49.3/18;thoracic wall
+C49.3/17;thorax
+C49.3/16;chest wall
+C49.3/15;chest
+C49.3/14;axilla
+C49.3/13;Connective, subcutaneous and other soft tissues of :
+C49.3/12;Connective, subcutaneous and other soft tissues of thorax
+C49.3/11;scapular region
+C49.3/10;C38._)
+C49.3/1;Pectoralis major muscle
+C49.3;Aorta, NOS
+C49.2/9;Connective, subcutaneous and other soft tissues of:
+C49.2/8;toe
+C49.2/7;Biceps femoris muscle
+C49.2/6;Femoral artery
+C49.2/5;Gastrocnemius muscle
+C49.2/4;Plantar aponeurosis
+C49.2/3;Plantar fascia
+C49.2/2;Quadriceps femoris muscle
+C49.2/17;leg
+C49.2/16;hip
+C49.2/15;heel
+C49.2/14;foot
+C49.2/13;calf
+C49.2/12;ankle
+C49.2/11;Connective, subcutaneous and other soft tissues of lower limb and hip
+C49.2/10;popliteal space
+C49.2/1;thigh
+C49.2;knee
+C49.1/9;antecubital space
+C49.1/8;Deltoideus muscle
+C49.1/7;wrist
+C49.1/6;Ulnar artery
+C49.1/5;Triceps brachii muscle
+C49.1/4;Radial artery
+C49.1/3;Palmar aponeurosis
+C49.1/2;Coracobrachialis muscle
+C49.1/19;Palmar fascia
+C49.1/18;shoulder
+C49.1/17;hand
+C49.1/16;forearm
+C49.1/15;finger
+C49.1/14;Connective, subcutaneous and other soft tissues of upper limb and shoulder
+C49.1/13;elbow
+C49.1/12;thumb
+C49.1/11;arm
+C49.1/10;Connective, subcutaneous and other soft tissues of:
+C49.1/1;Brachialis muscle
+C49.1;Biceps brachii muscle
+C49.0/9;Connective, subcutaneous and other soft tissues of head, face, and neck
+C49.0/8;Carotid artery
+C49.0/7;Sternocleidomastoid muscle
+C49.0/6;neck
+C49.0/5;Masseter muscle
+C49.0/4;Cartilage of ear
+C49.0/3;Auricular cartilage
+C49.0/2;supraclavicular region
+C49.0/18;temple
+C49.0/17;scalp
+C49.0/16;C69.6 and nasal cartilage C30.0)
+C49.0/15;Connective, subcutaneous and other soft tissues of:
+C49.0/14;cheek
+C49.0/13;chin
+C49.0/12;face
+C49.0/11;forehead
+C49.0/10;head
+C49.0/1;pterygoid fossa
+C49.0;cervical region
+C49;CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES
+C48.8;Overlapping lesion of retroperitoneum and peritoneum
+C48.2/1;Peritoneal cavity
+C48.2;Peritoneum, NOS
+C48.1/8;Omentum
+C48.1/7;Specified parts of peritoneum
+C48.1/6;Mesentery
+C48.1/5;Mesoappendix
+C48.1/4;Mesocolon
+C48.1/3;Rectouterine pouch
+C48.1/2;Cul de sac
+C48.1/1;Pouch of Douglas
+C48.1;Pelvic peritoneum
+C48.0/6;Retroperitoneum
+C48.0/5;Retroperitoneal tissue
+C48.0/4;Retrocecal tissue
+C48.0/3;Perirenal tissue
+C48.0/2;Peripancreatic tissue
+C48.0/1;Perinephric tissue
+C48.0;Periadrenal tissue
+C48;RETROPERITONEUM AND PERITONEUM
+C47.9/6;Spinal nerve, NOS
+C47.9/5;Peripheral nerve, NOS
+C47.9/4;Parasympathetic nervous system, NOS
+C47.9/3;Nerve, NOS
+C47.9/2;Ganglia, NOS
+C47.9/1;Autonomic nervous system, NOS
+C47.9;Sympathetic nervous system, NOS
+C47.8;Overlapping lesion of peripheral nerves and autonomic nervous system
+C47.6/5;back
+C47.6/4;Lumbar nerve
+C47.6/3;Peripheral nerves and autonomic nervous system of:
+C47.6/2;Peripheral nerves and autonomic nervous system of trunk, NOS
+C47.6/1;flank
+C47.6;trunk
+C47.5/9;Peripheral nerves and autonomic nervous system of pelvis
+C47.5/8;Peripheral nerves and autonomic nervous system of:
+C47.5/7;groin
+C47.5/6;gluteal region
+C47.5/5;inguinal region
+C47.5/4;sacrococcygeal region
+C47.5/3;Lumbosacral plexus
+C47.5/2;Sacral nerve
+C47.5/10;perineum
+C47.5/1;Sacral plexus
+C47.5;buttock
+C47.4/3;umbilicus
+C47.4/2;abdominal wall
+C47.4/1;Peripheral nerves and autonomic nervous system of:
+C47.4;Peripheral nerves and autonomic nervous system of abdomen
+C47.3/8;chest wall
+C47.3/7;Intercostal nerve
+C47.3/6;scapular region
+C47.3/5;infraclavicular region
+C47.3/4;chest
+C47.3/3;axilla
+C47.3/2;Peripheral nerves and autonomic nervous system of:
+C47.3/1;Peripheral nerves and autonomic nervous system of thorax
+C47.3;thoracic wall
+C47.2/9;hip
+C47.2/8;Peripheral nerves and autonomic nervous system of lower limband hip
+C47.2/7;Obturator nerve
+C47.2/6;heel
+C47.2/5;Sciatic nerve
+C47.2/4;leg
+C47.2/3;Femoral nerve
+C47.2/2;toe
+C47.2/14;knee
+C47.2/13;Peripheral nerves and autonomic nervous system of:
+C47.2/12;ankle
+C47.2/11;calf
+C47.2/10;foot
+C47.2/1;thigh
+C47.2;popliteal space
+C47.1/9;forearm
+C47.1/8;Peripheral nerves and autonomic nervous system of upper limb and shoulder
+C47.1/7;shoulder
+C47.1/6;thumb
+C47.1/5;wrist
+C47.1/4;Brachial nerve
+C47.1/3;Brachial plexus
+C47.1/2;Median nerve
+C47.1/15;hand
+C47.1/14;Peripheral nerves and autonomic nervous system of :
+C47.1/13;antecubital space
+C47.1/12;arm
+C47.1/11;elbow
+C47.1/10;finger
+C47.1/1;Ulnar nerve
+C47.1;Radial nerve
+C47.0/9;face
+C47.0/8;forehead
+C47.0/7;head
+C47.0/6;temple
+C47.0/5;cervical region
+C47.0/4;Cervical plexus
+C47.0/3;pterygoid fossa
+C47.0/2;Peripheral nerves and autonomic nervous system of:
+C47.0/13;neck
+C47.0/12;chin
+C47.0/11;Peripheral nerves and autonomic nervous system of head, face, and neck
+C47.0/10;cheek
+C47.0/1;supraclavicular region
+C47.0;scalp
+C47;PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM
+C44.9/1;C51.0, skin of vulva C51.9, skin of penis C60.9 and skin of scrotum C63.2)
+C44.9;Skin, NOS
+C44.8;Overlapping lesion of skin
+C44.7/9;heel
+C44.7/8;hip
+C44.7/7;Sole of foot
+C44.7/6;leg
+C44.7/5;Toe nail
+C44.7/4;Plantar skin
+C44.7/3;toe
+C44.7/2;thigh
+C44.7/15;knee
+C44.7/14;Skin of lower limb and hip
+C44.7/13;Skin of:
+C44.7/12;ankle
+C44.7/11;calf
+C44.7/10;foot
+C44.7/1;popliteal space
+C44.7;lower limb
+C44.6/9;Palmar skin
+C44.6/8;finger
+C44.6/7;Skin of upper limb and shoulder
+C44.6/6;shoulder
+C44.6/5;thumb
+C44.6/4;upper limb
+C44.6/3;wrist
+C44.6/2;Finger nail
+C44.6/14;forearm
+C44.6/13;hand
+C44.6/12;Skin of:
+C44.6/11;antecubital space
+C44.6/10;arm
+C44.6/1;palm
+C44.6;elbow
+C44.5/9;scapular region
+C44.5/8;sacrococcygeal region
+C44.5/7;infraclavicular region
+C44.5/6;umbilicus
+C44.5/5;trunk
+C44.5/4;thorax
+C44.5/3;thoracic wall
+C44.5/24;Skin of trunk
+C44.5/23;chest
+C44.5/22;buttock
+C44.5/21;breast
+C44.5/20;back
+C44.5/2;Umbilicus, NOS
+C44.5/19;axilla
+C44.5/18;anus
+C44.5/17;abdominal wall
+C44.5/16;Skin of:
+C44.5/15;groin
+C44.5/14;flank
+C44.5/13;abdomen
+C44.5/12;gluteal region
+C44.5/11;chest wall
+C44.5/10;Perianal skin
+C44.5/1;perineum
+C44.5;inguinal region
+C44.4/6;Skin of supraclavicular region
+C44.4/5;Skin of neck
+C44.4/4;Skin of scalp and neck
+C44.4/3;Skin of head, NOS
+C44.4/2;Skin of scalp
+C44.4/1;Skin of cervical region
+C44.4;Scalp, NOS
+C44.3/9;jaw
+C44.3/8;nose
+C44.3/7;Forehead, NOS
+C44.3/6;Chin, NOS
+C44.3/5;Columnella
+C44.3/4;Eyebrow
+C44.3/3;External cheek
+C44.3/2;Ala nasi
+C44.3/17;temple
+C44.3/16;External nose
+C44.3/15;Skin of other and unspecified parts of face
+C44.3/14;Skin of:
+C44.3/13;cheek
+C44.3/12;chin
+C44.3/11;face
+C44.3/10;forehead
+C44.3/1;Brow
+C44.3;Temple, NOS
+C44.2/9;Auricle, NOS
+C44.2/8;External auricular canal
+C44.2/7;Concha
+C44.2/6;Ear canal
+C44.2/5;External auditory meatus
+C44.2/4;Helix
+C44.2/3;Skin of auricle
+C44.2/2;Skin of ear, NOS
+C44.2/17;External auditory canal
+C44.2/16;Earlobe
+C44.2/15;Ear, NOS
+C44.2/14;Ceruminal gland
+C44.2/13;Pinna
+C44.2/12;External ear
+C44.2/11;Ear lobule
+C44.2/10;Auditory canal, NOS
+C44.2/1;Tragus
+C44.2;Auricular canal, NOS
+C44.1/8;Lower lid
+C44.1/7;Eyelid
+C44.1/6;Lid, NOS
+C44.1/5;Palpebra
+C44.1/4;Inner canthus
+C44.1/3;Meibomian gland
+C44.1/2;Outer canthus
+C44.1/1;Upper lid
+C44.1;Canthus, NOS
+C44.0/2;Skin of upper lip
+C44.0/1;Skin of lower lip
+C44.0;Skin of lip, NOS
+C44;SKIN
+C42.4;Hematopoietic system, NOS
+C42.3;Reticuloendothelial system,NOS
+C42.2;Spleen
+C42.1;Bone marrow
+C42.0;Blood
+C42;HEMATOPOIETIC AND RETICULOENDOTHELIAL SYSTEMS
+C41.9/4;Skeletal bone
+C41.9/3;Joint, NOS
+C41.9/2;Cartilage, NOS
+C41.9/1;Bone, NOS
+C41.9;Articular cartilage, NOS
+C41.8;Overlapping lesion of bones, joints and articular cartilage
+C41.4/9;Acetabulum
+C41.4/8;Bone of hip
+C41.4/7;Hip joint
+C41.4/6;Innominate bone
+C41.4/5;Ischium
+C41.4/4;Pelvic bone
+C41.4/3;Pubic bone
+C41.4/2;Sacrum
+C41.4/11;Ilium
+C41.4/10;Pelvic bones, sacrum, coccyx and associated joints
+C41.4/1;Symphysis pubis
+C41.4;Coccyx
+C41.3/3;Sternocostal joint
+C41.3/2;Costovertebral joint
+C41.3/1;Costal cartilage
+C41.3;Rib, sternum, clavicle and associated joints
+C41.2/8;Vertebra
+C41.2/7;Bone of back
+C41.2/6;Vertebral column
+C41.2/5;Atlas
+C41.2/4;Axis
+C41.2/3;Intervertebral disc
+C41.2/2;Nucleus pulposus
+C41.2/1;Spinal column
+C41.2;Spine
+C41.1/3;Jaw bone, NOS
+C41.1/2;Lower jaw bone
+C41.1/1;Temporomandibular joint
+C41.1;Mandible
+C41.0/9;Frontal bone
+C41.0/8;Temporal bone
+C41.0/7;Nasal bone
+C41.0/6;Zygomatic bone
+C41.0/5;Occipital bone
+C41.0/4;Orbital bone
+C41.0/3;Parietal bone
+C41.0/2;Skull, NOS
+C41.0/16;Upper jaw bone
+C41.0/15;Maxilla
+C41.0/14;Bones of skull and face and associated joints
+C41.0/13;Calvarium
+C41.0/12;Cranial bone
+C41.0/11;Ethmoid bone
+C41.0/10;Facial bone
+C41.0/1;Sphenoid bone
+C41.0;Hyoid bone
+C41;BONES, JOINTS AND ARTICULAR CARTILAGE OF OTHER AND UNSPECIFIED SITES
+C40.9/3;Joint of limb, NOS
+C40.9/2;Cartilage of limb, NOS
+C40.9/1;Bone of limb, NOS
+C40.9;Articular cartilage of limb, NOS
+C40.8;Overlapping lesion of bones, joints and articular cartilage of limbs
+C40.3/9;Bone of toe
+C40.3/8;Short bones of lower limb and associated joints
+C40.3/7;Bone of ankle
+C40.3/6;Bone of heel
+C40.3/5;Metatarsal bone
+C40.3/4;Tarsal bone
+C40.3/3;Patella
+C40.3/2;Foot joint
+C40.3/10;Bone of foot
+C40.3/1;Phalanx of foot
+C40.3;Ankle joint
+C40.2/8;Lateral meniscus of knee joint
+C40.2/7;Long bones of lower limb and associated joints
+C40.2/6;Bone of leg
+C40.2/5;Femur
+C40.2/4;Fibula
+C40.2/3;Semilunar cartilage
+C40.2/2;Medial meniscus of knee joint
+C40.2/1;Tibia
+C40.2;Knee joint, NOS
+C40.1/9;Carpal bone
+C40.1/8;Bone of wrist
+C40.1/7;Bone of finger
+C40.1/6;Bone of thumb
+C40.1/5;Short bones of upper limb and associated joints
+C40.1/4;Metacarpal bone
+C40.1/3;Phalanx of hand
+C40.1/2;Wrist joint
+C40.1/1;Bone of hand
+C40.1;Hand joint
+C40.0/9;Acromioclavicular joint
+C40.0/8;Bone of arm
+C40.0/7;Bone of forearm
+C40.0/6;Elbow joint
+C40.0/5;Radius
+C40.0/4;Scapula
+C40.0/3;Shoulder girdle
+C40.0/2;Shoulder joint
+C40.0/11;Humerus
+C40.0/10;Long bones of upper limb, scapula and associated joints
+C40.0/1;Ulna
+C40.0;Bone of shoulder
+C40;BONES, JOINTS AND ARTICULAR CARTILAGE OF LIMBS
+C39.9/1;Respiratory tract, NOS
+C39.9;Ill-defined sites within respiratory system
+C39.8;Overlapping lesion of respiratory system and intrathoracic organs
+C39.0;Upper respiratory tract, NOS
+C39;OTHER AND ILL-DEFINED SITES WITHIN RESPIRATORY SYSTEM AND INTRATHORACIC ORGANS
+C38.8;Overlapping lesion of heart, mediastinum and pleura
+C38.4/2;Visceral pleura
+C38.4/1;Parietal pleura
+C38.4;Pleura, NOS
+C38.3;Mediastinum, NOS
+C38.2;Posterior mediastinum
+C38.1;Anterior mediastinum
+C38.0/6;Pericardium
+C38.0/5;Endocardium
+C38.0/4;Heart
+C38.0/3;Cardiac ventricle
+C38.0/2;Myocardium
+C38.0/1;Epicardium
+C38.0;Cardiac atrium
+C38;HEART, MEDIASTINUM, AND PLEURA
+C37.9;Thymus
+C37;THYMUS
+C34.9/4;Bronchogenic
+C34.9/3;Bronchiole
+C34.9/2;Bronchus, NOS
+C34.9/1;Lung, NOS
+C34.9;Pulmonary, NOS
+C34.8;Overlapping lesion of lung
+C34.3/1;Lower lobe, lung
+C34.3;Lower lobe, bronchus
+C34.2/1;Middle lobe, bronchus
+C34.2;Middle lobe, lung
+C34.1/2;Upper lobe, lung
+C34.1/1;Lingula of lung
+C34.1;Upper lobe, bronchus
+C34.0/2;Main bronchus
+C34.0/1;Carina
+C34.0;Hilus of lung
+C34;BRONCHUS AND LUNG
+C33.9;Trachea
+C33;TRACHEA
+C32.9;Larynx, NOS
+C32.8;Overlapping lesion of larynx
+C32.3/4;Arytenoid cartilage
+C32.3/3;Cricoid cartilage
+C32.3/2;Laryngeal cartilage
+C32.3/1;Thyroid cartilage
+C32.3;Cuneiform cartilage
+C32.2;Subglottis
+C32.1/8;Laryngeal aspect of aryepiglottic fold
+C32.1/7;Supraglottis
+C32.1/6;Epiglottis, NOS
+C32.1/5;Extrinsic larynx
+C32.1/4;Posterior surface of epiglottis
+C32.1/3;Ventricular band of larynx
+C32.1/2;False vocal cord
+C32.1/1;False cord
+C32.1;anterior surface of epiglottis
+C32.0/5;Glottis
+C32.0/4;True cord
+C32.0/3;True vocal cord
+C32.0/2;Vocal cord, NOS
+C32.0/1;Laryngeal commissure
+C32.0;Intrinsic larynx
+C32;LARYNX
+C31.9/2;Accessory nasal sinus
+C31.9/1;Accessory sinus, NOS
+C31.9;Paranasal sinus
+C31.8;Overlapping lesion of accessory sinuses
+C31.3;Sphenoid sinus
+C31.2;Frontal sinus
+C31.1;Ethmoid sinus
+C31.0/2;Antrum, NOS
+C31.0/1;Maxillary antrum
+C31.0;Maxillary sinus
+C31;ACCESSORY SINUSES
+C30.1/5;Tympanic cavity
+C30.1/4;Mastoid antrum
+C30.1/3;Auditory tube
+C30.1/2;Inner ear
+C30.1/1;Middle ear
+C30.1;Eustachian tube
+C30.0/9;Vestibule of nose
+C30.0/8;Internal nose
+C30.0/7;Nasal turbinate
+C30.0/6;Nasal cavity
+C30.0/5;Naris
+C30.0/4;Nasal cartilage
+C30.0/3;Nasal mucosa
+C30.0/2;Nasal septum, NOS
+C30.0/1;posterior margin of nasal septum
+C30.0;Nostril
+C30;NASAL CAVITY AND MIDDLE EAR
+C26.9/1;Digestive organs, NOS
+C26.9;Gastrointestinal tract, NOS
+C26.8;Overlapping lesion of digestive system
+C26.0/2;Intestine, NOS
+C26.0/1;Bowel, NOS
+C26.0;Intestinal tract, NOS
+C26;OTHER AND ILL-DEFINED DIGESTIVE ORGANS
+C25.9;Pancreas, NOS
+C25.8;Overlapping lesion of pancreas
+C25.7/1;Neck of pancreas
+C25.7;Other specified parts of pancreas
+C25.4/2;Endocrine pancreas
+C25.4/1;Islands of Langerhans
+C25.4;Islets of Langerhans
+C25.3/2;Duct of Santorini
+C25.3/1;Pancreatic duct
+C25.3;Duct of Wirsung
+C25.2;Tail of pancreas
+C25.1;Body of pancreas
+C25.0;Head of pancreas
+C25;PANCREAS
+C24.9;Biliary tract, NOS
+C24.8;Overlapping lesion of biliary tract Note:
+C24.1/1;Periampullary
+C24.1;Ampulla of Vater
+C24.0/9;Biliary duct, NOS
+C24.0/8;Bile duct, NOS
+C24.0/7;Choledochal duct
+C24.0/6;Common bile duct
+C24.0/5;Common duct
+C24.0/4;Cystic duct
+C24.0/3;Hepatic duct
+C24.0/2;Cystic bile duct
+C24.0/10;Hepatic bile duct
+C24.0/1;Sphincter of Oddi
+C24.0;Extrahepatic bile duct
+C24;OTHER AND UNSPECIFIED PARTS OF BILIARY TRACT
+C23.9;Gallbladder
+C23;GALLBLADDER
+C22.1/2;Cholangiole
+C22.1/1;Biliary canaliculus
+C22.1;Intrahepatic bile duct
+C22.0/1;Liver
+C22.0;Hepatic, NOS
+C22;LIVER AND INTRAHEPATIC BILE DUCTS
+C21.8/2;Overlapping lesion of rectum, anus and anal canal
+C21.8/1;Anorectum
+C21.8;Anorectal junction
+C21.2;Cloacogenic zone
+C21.1/1;Anal canal
+C21.1;Anal sphincter
+C21.0;Anus, NOS
+C21;ANUS AND ANAL CANAL
+C20.9/1;Rectum, NOS
+C20.9;Rectal ampulla
+C20;RECTUM
+C19.9/4;Rectosigmoid junction
+C19.9/3;Colon and rectum
+C19.9/2;Rectosigmoid, NOS
+C19.9/1;Rectosigmoid colon
+C19.9;Pelvirectal junction
+C19;RECTOSIGMOID JUNCTION
+C18.9/4;Large bowel, NOS
+C18.9/3;and rectosigmoid junction
+C18.9/2;Colon, NOS
+C18.9/1;rectum, NOS
+C18.9;Large intestine
+C18.8;Overlapping lesion of colon
+C18.7/3;Pelvic colon
+C18.7/2;Sigmoid flexure of colon
+C18.7/1;Sigmoid, NOS
+C18.7;Sigmoid colon
+C18.6/1;Left colon
+C18.6;Descending colon
+C18.5;Splenic flexure of colon
+C18.4;Transverse colon
+C18.3;Hepatic flexure of colon
+C18.2/1;Ascending colon
+C18.2;Right colon
+C18.1;Appendix
+C18.0/2;Ileocecal junction
+C18.0/1;Ileocecal valve
+C18.0;Cecum
+C18;COLON
+C17.9/1;Small bowel, NOS
+C17.9;Small intestine, NOS
+C17.8;Overlapping lesion of smallintestine
+C17.3;Meckel diverticulum
+C17.2;Ileum
+C17.1;Jejunum
+C17.0;Duodenum
+C17;SMALL INTESTINE
+C16.9/1;Gastric, NOS
+C16.9;Stomach, NOS
+C16.8/2;Anterior wall of stomach, NOS
+C16.8/1;Posterior wall of stomach, NOS
+C16.8;Overlapping lesion of stomach
+C16.6;Greater curvature of stomach, NOS
+C16.5;Lesser curvature of stomach, NOS
+C16.4/2;Prepylorus
+C16.4/1;Pyloric canal
+C16.4;Pylorus
+C16.3/2;Pyloric antrum
+C16.3/1;Antrum of stomach
+C16.3;Gastric antrum
+C16.2/2;Body of stomach
+C16.2/1;Gastric corpus
+C16.2;Corpus of stomach
+C16.1/1;Gastric fundus
+C16.1;Fundus of stomach
+C16.0/4;Gastric cardia
+C16.0/3;Cardia, NOS
+C16.0/2;Cardioesophageal junction
+C16.0/1;Esophagogastric junction
+C16.0;Gastroesophageal junction
+C16;STOMACH
+C15.9;Esophagus, NOS
+C15.8;Overlapping lesion of esophagus
+C15.5/1;Distal third of esophagus
+C15.5;Lower third of esophagus
+C15.4;Middle third of esophagus
+C15.3/1;Upper third of esophagus
+C15.3;Proximal third of esophagus
+C15.2;Abdominal esophagus
+C15.1;Thoracic esophagus
+C15.0;Cervical esophagus
+C15;ESOPHAGUS
+C14.8;Overlapping lesion of lip, oral cavity and pharynx
+C14.2;Waldeyer ring
+C14.0/6;Pharynx, NOS
+C14.0/5;Throat
+C14.0/4;Retropharynx
+C14.0/3;Posterior wall of pharynx, NOS
+C14.0/2;Lateral wall of pharynx, NOS
+C14.0/1;Wall of pharynx, NOS
+C14.0;Pharyngeal wall, NOS
+C14;OTHER AND ILL-DEFINED SITES IN LIP, ORAL CAVITY AND PHARYNX
+C13.9/2;Laryngopharynx
+C13.9/1;Hypopharyngeal wall
+C13.9;Hypopharynx, NOS
+C13.8;Overlapping lesion of hypopharynx
+C13.2;Posterior wall of hypopharynx
+C13.1/3;Aryepiglottic fold, NOS
+C13.1/2;laryngeal aspect of aryepiglottic fold
+C13.1/1;Arytenoid fold
+C13.1;Hypopharyngeal aspect of aryepiglottic fold
+C13.0/2;Cricoid, NOS
+C13.0/1;Postcricoid region
+C13.0;Cricopharynx
+C13;HYPOPHARYNX
+C12.9/3;Piriform sinus
+C12.9/2;Pyriform fossa
+C12.9/1;Pyriform sinus
+C12.9;Piriform fossa
+C12;PYRIFORM SINUS
+C11.9/1;Nasopharynx, NOS
+C11.9;Nasopharyngeal wall
+C11.8;Overlapping lesion of nasopharynx
+C11.3/4;Anterior wall of nasopharynx
+C11.3/3;Nasopharyngeal surface of soft palate
+C11.3/2;Pharyngeal fornix
+C11.3/1;Choana
+C11.3;Posterior margin of nasal septum
+C11.2/1;Fossa of Rosenmuller
+C11.2;Lateral wall of nasopharynx
+C11.1/2;Adenoid
+C11.1/1;Posterior wall of nasopharynx
+C11.1;Pharyngeal tonsil
+C11.0/1;Roof of nasopharynx
+C11.0;Superior wall of nasopharynx
+C11;NASOPHARYNX
+C10.9/2;Oropharynx, NOS
+C10.9/1;Fauces, NOS
+C10.9;Mesopharynx, NOS
+C10.8/1;Overlapping lesion of oropharynx
+C10.8;Junctional region of oropharynx
+C10.4;Branchial cleft
+C10.3/1;Posterior wall of mesopharynx
+C10.3;Posterior wall of oropharynx
+C10.2/1;Lateral wall of mesopharynx
+C10.2;Lateral wall of oropharynx
+C10.1;Anterior surface of epiglottis
+C10.0;Vallecula
+C10;OROPHARYNX
+C09.9/2;Palatine tonsil
+C09.9/1;Tonsil, NOS
+C09.9;Faucial tonsil
+C09.8;Overlapping lesion of tonsil
+C09.1/2;Glossopalatine fold
+C09.1/1;Faucial pillar
+C09.1;Tonsillar pillar
+C09.0;Tonsillar fossa
+C09;TONSIL
+C08.9/2;Major salivary gland, NOS
+C08.9/1;minor salivary gland, NOS
+C08.9;Salivary gland, NOS
+C08.8;Overlapping lesion of major salivary glands
+C08.1/1;Sublingual gland duct
+C08.1;Sublingual gland
+C08.0/3;Submaxillary gland duct
+C08.0/2;Wharton duct
+C08.0/1;Submaxillary gland
+C08.0;Submandibular gland
+C08;OTHER AND UNSPECIFIED MAJOR SALIVARY GLANDS
+C07.9/3;Stensen duct
+C07.9/2;Parotid, NOS
+C07.9/1;Parotid gland
+C07.9;Parotid gland duct
+C07;PAROTID GLAND
+C06.9/4;Buccal cavity
+C06.9/3;Mouth, NOS
+C06.9/2;Oral cavity
+C06.9/1;Oral mucosa
+C06.9;Minor salivary gland, NOS
+C06.8;Overlapping lesion of other and unspecified parts of mouth
+C06.2/2;Retromolar trigone
+C06.2/1;Retromolar triangle
+C06.2;Retromolar area
+C06.1/2;Labial sulcus
+C06.1/1;Buccal sulcus
+C06.1;Vestibule of mouth
+C06.0/2;Buccal mucosa
+C06.0/1;Internal cheek
+C06.0;Cheek mucosa
+C06;OTHER AND UNSPECIFIED PARTS OF MOUTH
+C05.9/1;Palate, NOS
+C05.9;Roof of mouth
+C05.8/1;Junction of hard and soft palate
+C05.8;Overlapping lesion of palate
+C05.2;Uvula
+C05.1;Soft palate, NOS
+C05.0;Hard palate
+C05;PALATE
+C04.9;Floor of mouth, NOS
+C04.8;Overlapping lesion of floor of mouth
+C04.1;Lateral floor of mouth
+C04.0;Anterior floor of mouth
+C04;FLOOR OF MOUTH
+C03.9/5;Alveolar ridge mucosa, NOS
+C03.9/4;Alveolar mucosa, NOS
+C03.9/3;Gum, NOS
+C03.9/2;Tooth socket
+C03.9/1;Periodontal tissue
+C03.9;Alveolus, NOS
+C03.1/4;Lower gingiva
+C03.1/3;Lower alveolus
+C03.1/2;Lower alveolar ridge mucosa
+C03.1/1;Lower alveolar mucosa
+C03.1;Lower gum
+C03.0/4;Upper alveolar ridge mucosa
+C03.0/3;Upper alveolar mucosa
+C03.0/2;Upper alveolus
+C03.0/1;Upper gingiva
+C03.0;Upper gum
+C03;GUM
+C02.9/1;Lingual, NOS
+C02.9;Tongue, NOS
+C02.8/1;Junctional zone of tongue
+C02.8;Overlapping lesion of tongue
+C02.4;Lingual tonsil
+C02.3/1;Anterior tongue, NOS
+C02.3;Anterior 2/3 of tongue, NOS
+C02.2/3;Frenulum linguae
+C02.2/2;Anterior 2/3 of tongue, ventral surface
+C02.2/1;Ventral surface of tongue, NOS
+C02.2;Ventral surface of anterior tongue, NOS
+C02.1/1;Tip of tongue
+C02.1;Border of tongue
+C02.0/3;Dorsal surface of anterior tongue
+C02.0/2;Midline of tongue
+C02.0/1;Anterior 2/3 of tongue, dorsal surface
+C02.0;Dorsal surface of tongue, NOS
+C02;OTHER AND UNSPECIFIED PARTS OF TONGUE
+C01.9/4;Root of tongue
+C01.9/3;Base of tongue, NOS
+C01.9/2;Dorsal surface of base of tongue
+C01.9/1;Posterior tongue, NOS
+C01.9;Posterior third of tongue
+C01;BASE OF TONGUE
+C00.9;Lip, NOS
+C00.8;Overlapping lesion of lip
+C00.6/1;Labial commissure
+C00.6;Commissure of lip
+C00.5/4;Mucosa of lip, NOS
+C00.5/3;Internal lip, NOS
+C00.5/2;Inner aspect of lip, NOS
+C00.5/1;Frenulum of lip, NOS
+C00.5;Frenulum labii, NOS
+C00.4/2;Frenulum of lower lip
+C00.4/1;Inner aspect of lower lip
+C00.4;Mucosa of lower lip
+C00.3/1;Mucosa of upper lip
+C00.3;Frenulum of upper lip
+C00.2;External lip, NOS
+C00.1/3;skin of lower lip
+C00.1/2;Lower lip, NOS
+C00.1/1;Vermilion border of lower lip
+C00.1;External lower lip
+C00.0/3;Vermilion border of upper lip
+C00.0/2;External upper lip
+C00.0/1;skin of upper lip
+C00.0;Upper lip, NOS
+C00;LIP

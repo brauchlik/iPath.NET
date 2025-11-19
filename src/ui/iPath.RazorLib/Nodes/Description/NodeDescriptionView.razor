@@ -1,0 +1,72 @@
+﻿@namespace iPath.Blazor.Componenents.Nodes
+
+@inject NodeViewModel vm
+
+
+@if (ExpandDescription)
+{
+	<div class="ipath_node">
+		<div class="ipath_node_title">
+			<div class="ipath_bold">
+				<MudHighlighter Text="@vm.RootNode.Title" HighlightedText="@vm.SearchString" />
+			</div>
+			<div>@vm.RootNode.SubTitle</div>
+		</div>
+		<div class="ipath_node_type">
+			<div class="ipath_bold">Type:</div>
+			<div>@vm.RootNode.CaseType</div>
+		</div>
+		<div class="ipath_node_sender">
+			<div class="ipath_bold">Sender:</div>
+			<OwnerLink Owner="vm.RootNode.Owner" />
+		</div>
+		<div class="ipath_node_date">
+			<div>@vm.RootNode.CreatedOn.ToString("d")</div>
+			<div>
+				@* <MudLink Href=@($"/group/{vm.SelectedNode.Group.Id}")>@vm.SelectedNode.Group.Name</MudLink> *@
+			</div>
+		</div>
+	</div>
+	<div class="ipath_node_description">
+		<MudHighlighter Text="@vm.RootNode.DescriptionHtml" Markup="true" HighlightedText="@vm.SearchString" />
+	</div>
+}
+else
+{
+	<div class="ipath_node">
+		<div class="ipath_node_title2">
+			<div><b>Filename: </b>@vm.RootNode.GalleryCaption.ShortenTo(50)</div>
+			<div onclick="@ToggleDescription">
+				<MudIcon Icon="@ExpandIcon" Size="Size.Small" />
+				<b>@vm.RootNode.Title</b>
+			</div>
+			<div class="ipath_node_description" hidden="@HideDescription">
+				@vm.RootNode.DescriptionHtml
+			</div>
+		</div>
+		<div class="ipath_node_sender2">
+			<div>
+				<b>Sender:</b> <OwnerLink Owner="vm.RootNode.Owner" /></div>
+			<div><b>Type:</b> @vm.RootNode.CaseType</div>
+		</div>
+		<div class="ipath_node_date2">
+			<div>@vm.RootNode.CreatedOn.ToString()</div>
+			<div>@vm.RootNode.GroupId</div>
+		</div>
+	</div>
+}
+
+
+
+@code {
+	bool ExpandDescription => vm.IsRootNodeSelected;
+
+	bool HideDescription = true;
+
+	string ExpandIcon => HideDescription ? Icons.Material.Filled.ExpandMore : Icons.Material.Filled.ExpandLess;
+
+	void ToggleDescription()
+	{
+		HideDescription = !HideDescription;
+	}
+}

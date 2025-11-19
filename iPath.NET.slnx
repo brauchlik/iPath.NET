@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/Core/">
+    <Project Path="src/core/iPath.Application/iPath.Application.csproj" Id="5d914bcf-4789-42cf-bb53-afa2bd16cf1f" />
+    <Project Path="src/core/iPath.Domain/iPath.Domain.csproj" Id="ffc8493c-c7e8-4868-8ac3-67b5de8b8ba7" />
+  </Folder>
+  <Folder Name="/DataImport/">
+    <Project Path="import/DataImport/iPath.DataImport.csproj" />
+  </Folder>
+  <Folder Name="/Doc/">
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="src/infrastructure/iPath.API/iPath.API.csproj" Id="a606b873-0cbc-4b84-b396-f04515874724" />
+    <Project Path="src/infrastructure/iPath.Database.EFCore/iPath.Database.EFCore.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/Migrations/">
+    <Project Path="src/infrastructure/iPath.Database.Postgres/iPath.Database.Postgres.csproj" />
+    <Project Path="src/infrastructure/iPath.Database.Sqlite/iPath.Database.Sqlite.csproj" />
+  </Folder>
+  <Folder Name="/UI/">
+    <Project Path="src/ui/iPath.Blazor.Client/iPath.Blazor.Client.csproj" />
+    <Project Path="src/ui/iPath.Blazor.Server/iPath.Blazor.Server.csproj" />
+    <Project Path="src/ui/iPath.Blazor.ServiceLib/iPath.Blazor.ServiceLib.csproj" Id="43a84d05-ac2f-40c9-abaf-a0b6f33fdad7" />
+    <Project Path="src/ui/iPath.RazorLib/iPath.Blazor.Componenents.csproj" Id="88037264-2022-4498-8a31-917fe2095996" />
+  </Folder>
+</Solution>

@@ -1,0 +1,17 @@
+﻿@page "/groups"
+
+@inject GroupListViewModel vm
+
+<iPath.Blazor.Componenents.Shared.IPathHeader Title="My Groups" />
+
+<MudDataGrid T="GroupListDto" ServerData="vm.GetListAsync" Dense
+             RowClick=@(c => vm.GotoGroup(c.Item))>
+    <Columns>
+        <PropertyColumn Property="x => x.Name" />
+        <PropertyColumn Property="x => x.TotalNodes" Title="# Cases" />
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="GroupListDto" />
+    </PagerContent>
+</MudDataGrid>
+

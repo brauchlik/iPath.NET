@@ -1,0 +1,56 @@
+﻿@page "/admin/groups"
+
+@inject GroupAdminViewModel vm;
+
+<iPath.Blazor.Componenents.Shared.IPathHeader Title="Group Administration">
+    <ActionContent>
+        <MudFab StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="vm.Create" />
+    </ActionContent>
+</iPath.Blazor.Componenents.Shared.IPathHeader>
+
+
+<MudGrid>
+    <MudItem xs="12" sm="8">
+
+        <MudDataGrid T="GroupListDto" ServerData="vm.GetListAsync" itemref="grid"
+                     RowClick="@(async args => await vm.SetSelectedItem(args.Item))"
+                     RowStyleFunc="vm.SelectedRowStyle"
+                     Dense>
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Groups</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="vm.SearchString" @bind-Value:after="@(() => grid.ReloadServerData())"
+                              Placeholder="Search" Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <Columns>
+                <PropertyColumn Property="x => x.Name" />
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="GroupListDto" PageSizeOptions="pageOpts" />
+            </PagerContent>
+        </MudDataGrid>
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        @if (vm.SelectedGroup is not null)
+        {
+            <MudText Typo="Typo.h5">@vm.SelectedGroup.Name</MudText>
+            <p class="py-2">
+                @((MarkupString)vm.SelectedGroup.Settings.Purpose)
+            </p>
+            <MudDivider Class="my-2" />
+            <MudText Typo="Typo.h6">Members</MudText>
+            @foreach (var g in vm.SelectedGroup.Members)
+            {
+                <p>@g.Username</p>
+            }            
+            <MudDivider Class="my-2" />
+            <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="vm.Edit">Edit</MudButton>
+        } 
+    </MudItem>
+</MudGrid>
+
+@code{
+    int[] pageOpts => new[] { 25,50,100 };
+    MudDataGrid<GroupListDto> grid;
+}

@@ -1,0 +1,43 @@
+﻿@page "/admin/users"
+
+@inject UserAdminViewModel vm;
+@inject IStringLocalizer T
+
+<iPath.Blazor.Componenents.Shared.IPathHeader Title=@T["User Administration"]>
+    <ActionContent>
+        <MudFab Disabled="vm.CreateDisable" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" />
+    </ActionContent>
+</iPath.Blazor.Componenents.Shared.IPathHeader>
+
+<p class="mt-4" />
+
+<MudDataGrid T="UserListDto" ServerData="vm.GetListAsync" @ref="grid"
+             RowClick="@(async args => await vm.SetSelectedItem(args.Item))"
+             RowStyleFunc="vm.SelectedRowStyle"
+             Dense>
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">@T["Users"]</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="vm.SearchString" @bind-Value:after="@(() => grid.ReloadServerData())"
+                      Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Username" Title=@T["Username"] />
+        <PropertyColumn Property="x => x.Email" Title=@T["Username"] />
+        <PropertyColumn Property="x => x.Roles.ToCSV()" Title=@T["Roles"] />
+            <TemplateColumn Title=@T["Active"]>
+                <CellTemplate><MudCheckBox Value="@context.Item.IsActive" ReadOnly="true" /></CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title=@T["Confirmed"]>
+            <CellTemplate><MudCheckBox Value="@context.Item.EmailConfirmed" ReadOnly="true" /></CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="UserListDto" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    MudDataGrid<UserListDto> grid;
+}

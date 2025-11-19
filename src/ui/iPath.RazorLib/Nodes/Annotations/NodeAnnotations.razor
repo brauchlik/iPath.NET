@@ -1,0 +1,42 @@
+﻿@namespace iPath.Blazor.Componenents.Nodes
+
+@inject NodeViewModel vm
+
+@if (vm.RootNode != null)
+{
+	<div class="ipath_section_header">
+		<div class="ipath_header_title">Annotations</div>
+		<div class="ipath_header_actions">
+			<MudTooltip Text="Add Annotation">
+				<MudIcon Size="Size.Small" Icon=@SortIcon @onclick="ToggleSort" />
+				<MudIcon Size="Size.Small" Icon="@Icons.Material.Rounded.Add" @onclick="vm.Annotate" Disabled="vm.AnnotateDisabled" />
+			</MudTooltip>
+		</div>
+	</div>
+
+
+	<div class="ipath_annotations">
+		@foreach (var a in vm.RootNode.Annotations.OrderByDirection(Sort, a => a.CreatedOn))
+		{
+			<AnnotationItemView Item="a" OnDelete="OnDelete" />
+		}
+	</div>
+}
+
+@code {
+	async Task OnDelete(AnnotationDto item)
+	{
+		await vm.DeleteAnnotation(item);
+		await vm.ReloadNode();
+	}
+
+
+	private SortDirection Sort = SortDirection.Ascending;
+	string SortIcon => Sort == SortDirection.Ascending ? Icons.Material.Filled.KeyboardDoubleArrowUp : Icons.Material.Filled.KeyboardDoubleArrowDown;
+	void ToggleSort()
+	{
+		Sort = (Sort == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
+	}
+
+
+}

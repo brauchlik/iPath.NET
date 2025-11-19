@@ -1,0 +1,50 @@
+﻿@namespace iPath.Blazor.Componenents.Nodes
+
+@inject IDialogService srvDialog
+@inject NodeViewModel vm
+@inject UserViewModel uvm
+
+<MudChat ChatPosition="ChatBubblePosition.Start">
+	<MudAvatar @onclick="@(() => uvm.ShowProfileAsync(owner.UserId))">@owner?.Initials</MudAvatar>
+	<MudChatHeader Name=@owner?.Username Time=@Item.CreatedOn.ToString("g") />
+	<MudChatBubble @onmouseenter="@(() => Hovering = true)"
+	@onmouseleave="@(() => Hovering = false)">
+		@((MarkupString)Item.Text)
+		<MudPopover Open="@Hovering" Class="hoverarea"
+		AnchorOrigin="Origin.CenterRight"
+		TransformOrigin="Origin.BottomRight"
+		@onmouseenter="@(() => Hovering = true)"
+		@onmouseleave="@(() => Hovering = false)">
+			<div class="d-flex" style="width: 100%;" @onclick:stopPropagation="true" @onclick:preventDefault="true">
+				<MudIcon Icon="@Icons.Material.Rounded.Delete" Size="Size.Small" @onclick="@Delete" Disabled="vm.DeleteAnnotationDisabled" />
+				<MudIcon Icon="@Icons.Material.Rounded.Reply" Size="Size.Small" @onclick="@Reply" Disabled="vm.AnnotateDisabled" />
+			</div>
+		</MudPopover>
+	</MudChatBubble>
+</MudChat>
+
+@code {
+	[Parameter]
+	public AnnotationDto Item { get; set; }
+
+	[Parameter]
+	public EventCallback<AnnotationDto> OnDelete { get; set; }
+
+	[Parameter]
+	public EventCallback<AnnotationDto> OnReply { get; set; }
+
+	private UserProfile? owner = null;
+
+	private bool Hovering;
+
+
+	async Task Delete()
+	{
+		await OnDelete.InvokeAsync(Item);
+	}
+
+	async Task Reply()
+	{
+		await OnReply.InvokeAsync(Item);
+	}
+}

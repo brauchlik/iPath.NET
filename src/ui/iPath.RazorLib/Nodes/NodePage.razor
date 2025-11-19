@@ -1,0 +1,39 @@
+﻿@page "/node/{id}"
+
+@inject NodeViewModel nvm
+
+@if (nvm.RootNode is null)
+{
+    <LoadingMessage />
+}
+else
+{
+    <NodeHeader />
+
+    @if (!nvm.IsEditing)
+    {
+        <NodeDescriptionView />
+    }
+
+    <NodeGallery />
+
+    <NodeAnnotations />
+}
+
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        nvm.ClearData();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await nvm.LoadNode(Guid.Parse(id));
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,105 @@
+﻿@namespace iPath.Blazor.Componenents.Nodes
+
+@implements IDisposable
+
+@using System.ComponentModel
+@using Microsoft.JSInterop
+
+@inject IJSRuntime JS
+@inject ISnackbar snackbar
+@inject NodeViewModel vm
+
+
+@**** Gallery View **********************************************@
+<div class="sortableGallery">
+    <div id="gallery" class="gallery">
+        @foreach (var c in vm.SelectedNode.ChildNodes.OrderBy(c => c.SortNr))
+        {
+            <div class="gallery-item" data-id="@c.Id">
+                @if (c.IsImage)
+                {
+                    <img src="c.ThumbUrl" alt="@c.GalleryCaption.ShortenTo(25)">
+                }
+                else
+                {
+                    <MudIcon Size="Size.Large" Icon="c.FileIcon" />
+                }
+                <div class="gallery-item-label">@c.File?.Filename.ShortenTo(15)</div>
+            </div>
+        }
+    </div>
+    <div class ="sortableGallery_footer">
+        Drag images to change sort order
+        <div>
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveSortAsync">Save</MudButton>
+            <MudButton ButtonType="ButtonType.Reset" Variant="Variant.Outlined" OnClick="CancelSort">Cancel</MudButton>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public EventCallback<bool> OnSortingFinished { get; set; }
+
+    private DotNetObjectReference<NodeGallerySortable> _dotNetHelper;
+    private Dictionary<string, int> _SortOrder;
+    private bool sortHasChanged = false;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _SortOrder = vm.SelectedNode.ChildNodes.Select(x => new { Key = x.Id.ToString(), Value = x.SortNr }).ToDictionary(i => i.Key, i => (i.Value ?? 0));
+            _dotNetHelper = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("initializeSortable", "gallery", _dotNetHelper);
+        }
+    }
+
+
+    [JSInvokable]
+    public void UpdateSortOrder(List<string> newOrder)
+    {
+        foreach (var c in vm.SelectedNode.ChildNodes)
+        {
+            _SortOrder[c.Id.ToString()] = newOrder.IndexOf(c.Id.ToString()) + 1;
+        }
+        sortHasChanged = true;
+        StateHasChanged();
+    }
+
+
+    async Task SaveSortAsync()
+    {
+        var newSort = new Dictionary<Guid, int>();
+        foreach (var c in vm.SelectedNode.ChildNodes)
+        {
+            c.SortNr = _SortOrder[c.Id.ToString()];
+            newSort.Add(c.Id, c.SortNr.Value);
+        }
+        await vm.SaveChildNodeSortOrder(newSort);
+        await OnSortingFinished.InvokeAsync(true);
+    }
+
+    async Task CancelSort()
+    {
+         await OnSortingFinished.InvokeAsync(false);        
+    }
+
+
+
+    public void Dispose()
+    {
+        if (_dotNetHelper is not null)
+        {
+            try
+            {
+                _dotNetHelper.Dispose();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+    }
+}

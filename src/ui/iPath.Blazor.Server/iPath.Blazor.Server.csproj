@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-MudBlazorWebApp1-40913a93-839b-4b54-b940-ec3a2480028c</UserSecretsId>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\infrastructure\iPath.API\iPath.API.csproj" />
+    <ProjectReference Include="..\iPath.Blazor.Client\iPath.Blazor.Client.csproj" />
+    <ProjectReference Include="..\iPath.RazorLib\iPath.Blazor.Componenents.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.*" />
+    <PackageReference Include="Extensions.MudBlazor.StaticInput" Version="3.*" />
+    <PackageReference Include="MudBlazor" Version="8.14.0" />
+  </ItemGroup>
+
+</Project>

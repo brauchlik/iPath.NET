@@ -1,0 +1,47 @@
+﻿<MudNavMenu>
+    <MudText Typo="Typo.h6" Class="pa-3">@username</MudText>
+
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+
+    <AuthorizeView>
+        <NotAuthorized>
+            <MudNavLink Href="Account/Login" Icon="@Icons.Material.Filled.Login">Login</MudNavLink>
+            <MudNavLink Href="Account/Register" Icon="@Icons.Material.Filled.AppRegistration">Register</MudNavLink>
+        </NotAuthorized>
+        <Authorized>
+            <MudNavLink Href="groups" Icon="@Icons.Material.Filled.Groups">My Groups</MudNavLink>
+            <MudNavLink Href="mailbox" Icon="@Icons.Material.Filled.Mail">Mailbox</MudNavLink>
+            <MudNavLink Href="scalar" Target="_blank" Icon="@Icons.Material.Filled.Api">API</MudNavLink>
+            <MudNavLink Href="Account/Logout" Icon="@Icons.Material.Filled.Logout">Logout</MudNavLink>
+        </Authorized>
+    </AuthorizeView>
+
+
+    <AuthorizeView>
+        <Authorized>
+            <MudNavGroup Title="Admin" Expanded="true">
+                <MudNavLink Href="admin/users">Users</MudNavLink>
+                <MudNavLink Href="admin/groups">Groups</MudNavLink>
+                <MudNavLink Href="admin/communities">Communities</MudNavLink>
+                <MudNavLink Href="admin/system">System</MudNavLink>
+            </MudNavGroup>
+        </Authorized>
+    </AuthorizeView>
+
+</MudNavMenu>
+
+@inject AuthenticationStateProvider asp
+@code {
+    string username = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await asp.GetAuthenticationStateAsync();
+        username = state.User.Identity.Name;
+    }
+
+    async Task Logout()
+    {
+        
+    }
+}

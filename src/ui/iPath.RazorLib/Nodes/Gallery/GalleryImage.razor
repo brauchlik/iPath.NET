@@ -1,0 +1,36 @@
+﻿@namespace iPath.Blazor.Componenents.Nodes
+
+@inject NodeViewModel vm
+
+
+<MudTooltip>
+    <ChildContent>
+        @if (Model.IsImage)
+        {
+            <img src="@Model.ThumbUrl()" alt="@Model.GalleryCaption.ShortenTo(25)">
+        }
+        else
+        {
+            <MudIcon Size="Size.Large" Icon="@Model.FileIcon()" />
+        
+            <br />
+        }
+        <div class="gallery-item-label">@Model.File?.Filename.ShortenTo(12)</div>
+    </ChildContent>
+    <TooltipContent>
+        <p><b>Type: </b> @Model.NodeType</p>
+        <MudDivider />
+        @if (@Model.File is not null){
+            <p><b>Filename: </b> @Model.File?.Filename</p>
+        }
+        <p><b>Owner: </b> @Model.Owner.Username</p>
+        <p><b>Created: </b> @Model.CreatedOn.ToString("g")</p>
+    </TooltipContent>
+</MudTooltip>
+
+
+@code {
+    [Parameter, EditorRequired]
+    public NodeDto Model { get; set; }
+
+}

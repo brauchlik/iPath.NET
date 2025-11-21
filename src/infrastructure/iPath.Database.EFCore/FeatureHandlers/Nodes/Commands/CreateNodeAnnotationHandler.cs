@@ -11,7 +11,7 @@ public class CreateNodeAnnotationCommandHandler(iPathDbContext db, IMediator med
         var node = await db.Nodes.FindAsync(request.NodeId);
         Guard.Against.NotFound(request.NodeId, node);
 
-        if (!sess.IsAdmin())
+        if (!sess.IsAdmin)
         {
             // TODO: check authorization. Who may add Annotations ???
 

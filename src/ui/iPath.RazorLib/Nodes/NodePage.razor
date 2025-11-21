@@ -12,10 +12,10 @@ else
 
     @if (!nvm.IsEditing)
     {
-        <NodeDescriptionView />
+        <NodeDescriptionView ExpandDescription="ShowDescription" />
     }
 
-    <NodeGallery />
+    <NodeGallery OnShowingChildNode="@(e => ShowDescription = !e)" />
 
     <NodeAnnotations />
 }
@@ -25,6 +25,7 @@ else
     [Parameter]
     public string id { get; set; }
 
+    bool ShowDescription = true;
 
     protected override void OnInitialized()
     {

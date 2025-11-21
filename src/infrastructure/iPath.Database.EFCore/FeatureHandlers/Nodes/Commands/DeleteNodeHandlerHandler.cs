@@ -9,7 +9,7 @@ public class DeleteNodeCommandHandler(iPathDbContext db, IUserSession sess)
         var node = await db.Nodes.FindAsync(request.NodeId);
         Guard.Against.NotFound(request.NodeId, node);
 
-        if (!sess.IsAdmin())
+        if (!sess.IsAdmin)
         {
             // if not admin check if user is owner
             if (node.OwnerId != sess.User.Id)

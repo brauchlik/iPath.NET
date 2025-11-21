@@ -7,7 +7,7 @@ public class DeleteNodeAnnotationCommandHandler(iPathDbContext db, IUserSession 
 {
     public async Task<Guid> Handle(DeleteNodeAnnotationCommand request, CancellationToken ct)
     {
-        if (!sess.IsAdmin()) throw new NotAllowedException();
+        if (!sess.IsAdmin) throw new NotAllowedException();
 
         await using var tran = await db.Database.BeginTransactionAsync(ct);
 

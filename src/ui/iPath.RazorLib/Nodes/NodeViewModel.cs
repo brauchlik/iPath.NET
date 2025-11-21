@@ -31,6 +31,7 @@ public class NodeViewModel(IPathApi api, ISnackbar snackbar, IDialogService dial
             SelectedNode = child;
         }
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedNode)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsRootNodeSelected)));
     }
 
     public void ClearData()
@@ -63,7 +64,26 @@ public class NodeViewModel(IPathApi api, ISnackbar snackbar, IDialogService dial
 
 
     #region "-- Navigation --"
-    public string ListUrl { get; set; }
+    public GetNodesQuery LastQuery { get; set; }
+    public string NavUrl {  get
+        {
+            if (LastQuery != null)
+            {
+                if (LastQuery.GroupId.HasValue)
+                    return $"groups/{LastQuery.GroupId}";
+                else if (LastQuery.OwnerId.HasValue)
+                    return "mygroups";
+            }
+            return "";
+        } 
+    }
+    public IReadOnlyList<Guid>? IdList { get; set; } = null;
+
+    public async Task LoadIdList()
+    {
+
+    }
+
     public async Task GoUp()
     {
         if (RootNode is null) return;
@@ -71,7 +91,7 @@ public class NodeViewModel(IPathApi api, ISnackbar snackbar, IDialogService dial
         if (IsRootNodeSelected)
         {
             // go back to nodelist (group, search, mynode)
-            nm.NavigateTo(ListUrl);
+            nm.NavigateTo(NavUrl);
         }
         else if(SelectedNode != null && SelectedNode.ParentNodeId.HasValue)
         {

@@ -14,6 +14,7 @@
 
 @if( !vm.IsRootNodeSelected && !vm.SelectedNode.ChildNodes.Any() )
 {
+    OnShowingChildNode.InvokeAsync(true);
     <div class="ipath_image">
         @if (vm.SelectedNode.IsImage)
         {
@@ -28,6 +29,7 @@
 }
 else
 {
+    OnShowingChildNode.InvokeAsync(false);
     <div class="ipath_section_header">
         <div class="ipath_header_title">Gallery</div>
         <div class="ipath_header_actions">
@@ -51,6 +53,9 @@ else
 }
 
 @code {
+    [Parameter]
+    public EventCallback<bool> OnShowingChildNode { get; set; }
+
     bool Sorting;
 
     protected override void OnInitialized()
@@ -67,6 +72,7 @@ else
     {
         InvokeAsync(() => StateHasChanged());
     }
+
 
 
     void ActivateSort()

@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\core\iPath.Application\iPath.Application.csproj" />
-    <ProjectReference Include="..\..\core\iPath.EF.Core\iPath.EF.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,7 @@
 ﻿using iPath.Blazor.Componenents.Admin.Communities;
 using iPath.Blazor.Componenents.Admin.Groups;
 using iPath.Blazor.Componenents.Admin.Users;
+using iPath.Blazor.Componenents.AppState;
 using iPath.Blazor.Componenents.Groups;
 using iPath.Blazor.Componenents.Nodes;
 using iPath.Blazor.Componenents.Users;
@@ -27,6 +28,8 @@ public static class RazorLibServiceRegistration
         services.AddSingleton<IStringLocalizer>(p => p.GetRequiredService<LocalizationService>());
         services.AddLocalization();
 
+        // services.AddScoped<AppState>();
+
         return services;
     }
 
@@ -41,6 +44,7 @@ public static class RazorLibServiceRegistration
         // users
         services.AddScoped<GroupListViewModel>();
         services.AddScoped<GroupIndexViewModel>();
+        services.AddScoped<NodeListViewModel>();
         services.AddScoped<NodeViewModel>();
         services.AddScoped<UserViewModel>();
 

@@ -24,7 +24,7 @@ public class GroupListViewModel(IPathApi api, ISnackbar snackbar, IDialogService
     {
         if (group != null)
         {
-            nm.NavigateTo($"group/{group.Id}");
+            nm.NavigateTo($"groups/{group.Id}");
         }
     }
 }

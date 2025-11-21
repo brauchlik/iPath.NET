@@ -10,6 +10,8 @@ using iPath.RazorLib;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseStaticWebAssets();
+
 // Add MudBlazor services
 builder.Services.AddMudServices();
 

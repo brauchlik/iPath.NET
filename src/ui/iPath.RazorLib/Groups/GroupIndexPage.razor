@@ -1,59 +1,15 @@
-﻿@page "/group/{groupId}"
+﻿@page "/groups/{groupId}"
 
 
-@inject GroupIndexViewModel gvm
-@inject NodeViewModel nvm
+@inject GroupIndexViewModel vm
 
-@if (gvm.Model is null)
+@if (vm.Model is null)
 {
     <LoadingMessage />
 }
 else
 {
-    <MudTable T="NodeListDto" ServerData="gvm.GetNodeListAsync"
-        RowsPerPage="25" Bordered="false" Dense="true" Hover="true">
-    <ToolBarContent>
-            <MudToolBar>
-                <MudTooltip Text="create a new case">
-                    <MudIconButton Icon="@Icons.Material.Outlined.Add" OnClick="nvm.CreateNew" Disabled="nvm.CreateNewDisabled" />
-                </MudTooltip>
-                <MudTooltip Text="export data">
-                    <MudIconButton Icon="@Icons.Material.Outlined.Save" />
-                </MudTooltip>
-            </MudToolBar>
-        <MudSpacer />
-        <MudTextField @bind-Value="gvm.SearchString"
-                      Placeholder="Search" Clearable="true"
-                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" 
-                      Class="mt-0"></MudTextField>
-    </ToolBarContent>
-        <HeaderContent>
-            <MudTh><MudTableSortLabel SortLabel="Description.Title" T="NodeListDto">Title</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortLabel="Description.CaseType" T="NodeListDto">Type</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortLabel="Owner.Username" T="NodeListDto">Sender</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortLabel="CreatedOn" T="NodeListDto" InitialDirection="SortDirection.Descending">Date</MudTableSortLabel></MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Name">
-            <b><MudLink Href=@($"/node/{context.Id}")>
-                <MudHighlighter Text="@context.Title()" HighlightedText="@gvm.SearchString" />
-            </MudLink></b>
-            <div>@context.SubTitle()</div>
-        </MudTd>
-        <MudTd DataLabel="Cases">@context.NodeType</MudTd>
-        <MudTd DataLabel="Cases" Class="ipath_node_sender2"><OwnerLink Owner="@context.Owner"/></MudTd>
-        <MudTd DataLabel="Cases" Class="ipath_node_date2">@context.CreatedOn.ToShortDateString()</MudTd>
-    </RowTemplate>
-    <NoRecordsContent>
-        <MudText>No matching records found</MudText>
-    </NoRecordsContent>
-    <LoadingContent>
-        <MudText>Loading...</MudText>
-    </LoadingContent>
-    <PagerContent>
-        <MudTablePager/>
-    </PagerContent>
-    </MudTable>
+    <NodeListTable GroupId="@vm.Model.Id" />
 }
 
 
@@ -62,11 +18,9 @@ else
     public string groupId { get; set; }
 
 
-    private MudTable<NodeListDto> table;
-
     protected override async Task OnParametersSetAsync()
     {
-        await gvm.LoadGroup(Guid.Parse(groupId));
+        await vm.LoadGroup(Guid.Parse(groupId));
         StateHasChanged();
     }
 }

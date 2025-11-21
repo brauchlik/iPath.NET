@@ -3,7 +3,7 @@
 {
     public async Task<NodeListDto> Handle(CreateNodeCommand request, CancellationToken ct)
     {
-        if (!sess.IsAdmin())
+        if (!sess.IsAdmin)
             sess.AssertInGroup(request.GroupId);
 
         var group = await db.Groups.FindAsync(request.GroupId, ct);

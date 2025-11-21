@@ -1,14 +1,15 @@
 ﻿@page "/groups"
 
 @inject GroupListViewModel vm
+@inject IStringLocalizer T
 
-<iPath.Blazor.Componenents.Shared.IPathHeader Title="My Groups" />
+<iPath.Blazor.Componenents.Shared.IPathHeader Title=@T["My Groups"] />
 
 <MudDataGrid T="GroupListDto" ServerData="vm.GetListAsync" Dense
              RowClick=@(c => vm.GotoGroup(c.Item))>
     <Columns>
         <PropertyColumn Property="x => x.Name" />
-        <PropertyColumn Property="x => x.TotalNodes" Title="# Cases" />
+        <PropertyColumn Property="x => x.TotalNodes" Title=@T["# Cases"] />
     </Columns>
     <PagerContent>
         <MudDataGridPager T="GroupListDto" />

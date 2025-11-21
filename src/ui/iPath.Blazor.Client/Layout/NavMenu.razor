@@ -31,17 +31,23 @@
 </MudNavMenu>
 
 @inject AuthenticationStateProvider asp
+
 @code {
-    string username = "";
+    string username;
 
     protected override async Task OnInitializedAsync()
     {
         var state = await asp.GetAuthenticationStateAsync();
         username = state.User.Identity.Name;
-    }
-
-    async Task Logout()
-    {
-        
+        /*
+        if (state.User.Identity.IsAuthenticated)
+        {
+            await appState.LoadSession();
+        }
+        else
+        {
+            await appState.UnloadSession();
+        }
+        */
     }
 }

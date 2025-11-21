@@ -23,6 +23,11 @@ public static class NodeEndpoints
             .Produces<PagedResultList<NodeListDto>>()
             .RequireAuthorization();
 
+        grp.MapPost("idlist", (GetNodeIdListQuery request, IMediator mediator, CancellationToken ct)
+            => mediator.Send(request, ct))
+            .Produces<IReadOnlyList<Guid>>()
+            .RequireAuthorization();
+
         grp.MapGet("file/{id}", async (string id, IMediator mediator, HttpContext ctx, CancellationToken ct) =>
         {
             if (Guid.TryParse(id, out var nodeId))

@@ -41,7 +41,7 @@ else
 				<b>@vm.RootNode.Title</b>
 			</div>
 			<div class="ipath_node_description" hidden="@HideDescription">
-				@vm.RootNode.DescriptionHtml
+				@vm.RootNode.DescriptionMarkup
 			</div>
 		</div>
 		<div class="ipath_node_sender2">
@@ -59,9 +59,14 @@ else
 
 
 @code {
-	bool ExpandDescription => vm.IsRootNodeSelected;
+	[Parameter]
+	public bool ExpandDescription { get; set; } = true;
 
-	bool HideDescription = true;
+	[Parameter]
+	public EventCallback<bool> ExpandDescriptionChanged { get; set; }
+
+	[Parameter]
+	public bool HideDescription { get; set; } = true;
 
 	string ExpandIcon => HideDescription ? Icons.Material.Filled.ExpandMore : Icons.Material.Filled.ExpandLess;
 

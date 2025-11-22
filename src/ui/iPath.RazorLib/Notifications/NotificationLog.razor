@@ -1,0 +1,45 @@
+﻿@using Microsoft.AspNetCore.SignalR.Client
+@using iPath.Domain.Notificxations
+
+
+<MudPaper Elevation="2">
+<h3 class="mud-theme-primary pa-2">NotificationLog</h3>
+
+    @foreach(var m in messages.Take(20))
+    {
+        <p>@m.EventDate.ToString("g") - @m.type.ToString(): @m.message</p>
+    }
+
+    <MudButton Class="mt-8" Variant="Variant.Filled" Color="Color.Primary" OnClick="TestMessage">Test</MudButton>
+</MudPaper>
+
+
+
+
+
+@inject NavigationManager nm
+@inject IPathApi api
+
+@code {
+    List<NodeNofitication> messages = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var hubConnection = new HubConnectionBuilder()
+            .WithUrl(nm.ToAbsoluteUri("/api/v1/hubs/nodes"))
+            .Build();
+
+        hubConnection.On<NodeNofitication>("NodeEvent", (e) =>
+        {
+            messages.Insert(0, e);
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();        
+    }
+
+    async Task TestMessage()
+    {
+        await api.SendTestNodeEvent(new TestEvent { Message = "test eins zwei drei ..." });
+    }
+}

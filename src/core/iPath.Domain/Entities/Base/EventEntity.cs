@@ -48,3 +48,10 @@ public class EventEntity : IDomainEvent
         return e;
     }
 }
+
+
+
+public class TestEvent : INotification
+{
+    public string Message { get; set; }
+}

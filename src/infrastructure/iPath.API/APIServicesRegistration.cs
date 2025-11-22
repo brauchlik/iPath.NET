@@ -8,6 +8,7 @@ using iPath.Application.Contracts;
 using iPath.Application.Localization;
 using iPath.EF.Core.FeatureHandlers.Users.Queries;
 using iPath.RazorLib.Localization;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Serialization;
@@ -71,7 +72,15 @@ public static class APIServicesRegistration
             options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         });
 
+        // SignalR
+        services.AddSignalR();
+        services.AddResponseCompression(opts =>
+        {
+            opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                ["application/octet-stream"]);
+        });
 
+        // OpenAPI
         services.AddOpenApi();
 
         return services;

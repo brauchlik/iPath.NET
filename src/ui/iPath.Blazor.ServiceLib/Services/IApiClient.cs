@@ -20,6 +20,9 @@ public interface IPathApi
     [Get("/api/v1/session")]
     Task<IApiResponse<SessionUserDto>> GetSession();
 
+    [Post("/api/v1/test/notify")]
+    Task SendTestNodeEvent(TestEvent e);
+
         
     #region "-- Users --"
 

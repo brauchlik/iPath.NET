@@ -6,9 +6,33 @@ namespace iPath.Blazor.Componenents.Nodes;
 
 public static class NodeExtensions
 {
-    public static string? Title(this NodeListDto dto) => dto?.Description?.Title;
-    public static string? SubTitle(this NodeListDto dto) => dto?.Description?.Subtitle;
-    public static string? AccessionNo(this NodeListDto dto) => dto?.Description?.AccessionNo;
+    extension(NodeListDto dto)
+    {
+        public string? Title => dto?.Description?.Title;
+        public string? SubTitle => dto?.Description?.Subtitle;
+        public string? AccessionNo => dto?.Description?.AccessionNo;
+
+        public bool IsNew => dto.LastVisit is null;
+        public string IsNewIcon => dto.IsNew ? Icons.Material.TwoTone.NewReleases : string.Empty;
+
+        public bool HasNewAnnotation
+        {
+            get
+            {
+                if (dto.LastAnnotationDate.HasValue)
+                {
+                    if (!dto.LastVisit.HasValue)
+                        return true;
+                    else
+                        return dto.LastVisit.Value < dto.LastAnnotationDate.Value;
+                }
+                return false;
+            }
+        }
+        public string HasNewAnnotationIcon => dto.HasNewAnnotation ? Icons.Material.TwoTone.Comment : string.Empty;
+    }
+
+
 
 
     extension (NodeDto node)

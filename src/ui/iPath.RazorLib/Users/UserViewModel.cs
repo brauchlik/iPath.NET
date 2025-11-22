@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
 
 namespace iPath.Blazor.Componenents.Users;
 

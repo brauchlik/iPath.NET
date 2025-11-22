@@ -65,6 +65,17 @@ public class NodeViewModel(IPathApi api, ISnackbar snackbar, IDialogService srvD
     }
 
 
+    public async Task MarkAsVisited()
+    {
+        if (RootNode is not null)
+        {
+            await api.UpdateNodeVisit(RootNode.Id);
+        }
+    }
+
+
+
+
     #region "-- Navigation --"
     public GetNodesQuery LastQuery { get; set; }
     public string NavUrl {  get

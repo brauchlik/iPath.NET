@@ -36,5 +36,8 @@ else
     {
         await nvm.LoadNode(Guid.Parse(id));
         StateHasChanged();
+
+        await nvm.MarkAsVisited();
     }
+
 }

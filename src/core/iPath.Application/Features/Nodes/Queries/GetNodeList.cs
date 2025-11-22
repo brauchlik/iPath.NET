@@ -7,4 +7,7 @@ public class GetNodesQuery : PagedQuery<NodeListDto>
 {
     public Guid? GroupId { get; set; }
     public Guid? OwnerId { get; set; }
+
+    public bool IncludeDetails { get; set; }
+    public string SearchString { get; set; }
 }

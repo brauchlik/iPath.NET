@@ -53,7 +53,7 @@
         vertical-align: top;
     }
     .ipath_table td {
-        background-color: var(--mud-palette-background);
+        /*background-color: var(--mud-palette-background);*/
     }
 
 .ipath_table_fixed {
@@ -64,8 +64,8 @@
 
 /*** node header ****/
 .ipath_node_header {
-    background-color: var(--mud-palette-appbar-background);
-    border: 1px solid;
+    /* background-color: var(--mud-palette-appbar-background); */
+    border: 1px solid black;
     display: grid;
     grid-template-columns: 5fr 1fr;
 }
@@ -145,6 +145,7 @@
 
 .ipath_node_title2 {
     grid-column-start: 1;
+    background-color: var(--mud-palette-background);
 }
 
 

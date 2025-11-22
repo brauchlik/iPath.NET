@@ -10,43 +10,44 @@ namespace iPath.API.Services;
 public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemoryCache cache, IHttpContextAccessor acc)
     : IUserSession
 {
-    private SessionUserDto? _User;
+    private SessionUserDto? _user;
     public SessionUserDto? User
     {
         get
         {
-            if (_User is null)
+            if (_user is null)
             {
                 var ctx = acc.HttpContext;
                 if (ctx.User.Identity.IsAuthenticated)
                 {
-                    if (Guid.TryParse(ctx.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value, out var userid)){
+                    if (Guid.TryParse(ctx?.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value, out var userid)){
 
                         var cachekey = userid.ToString();
-                        if (!cache.TryGetValue(cachekey, out _User))
+                        if (!cache.TryGetValue(cachekey, out _user))
                         {
-                            _User = LoadUser(userid).Result;
+                            _user = LoadUser(userid).Result;
 
                             var opts = new MemoryCacheEntryOptions()
                                 .SetSlidingExpiration(TimeSpan.FromMinutes(5));
-                            cache.Set(cachekey, _User, opts);
+                            cache.Set(cachekey, _user, opts);
                         }
                     }
                 }
             }
-            return _User;
+            return _user;
         }
     }
 
 
-    private async Task<SessionUserDto> LoadUser(Guid userid)
+    private async Task<SessionUserDto?> LoadUser(Guid userid)
     {
         var user = await um.FindByIdAsync(userid.ToString());
+        if (user is null) return null;
         var roles = await um.GetRolesAsync(user);
 
         var groups = await db.Set<GroupMember>()
             .Where(m => m.UserId == user.Id)
-            .Select(m => new UserGroupMemberDto(GroupId: m.GroupId, Groupname: m.Group.Name, Role: m.Role)).ToArrayAsync();
+            .Select(m => new UserGroupMemberDto(m.GroupId, m.Group.Name, m.Role)).ToArrayAsync();
 
         return new SessionUserDto(Id: user.Id, Username: user.UserName, Email: user.Email,
             groups: groups, roles: roles.ToArray());

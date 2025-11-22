@@ -1,6 +1,7 @@
 ﻿@namespace iPath.Blazor.Componenents.Nodes
 
 <MudTable T="NodeListDto" ServerData="vm.GetNodeListAsync"
+          @ref="table" Class="ipath_table"
           RowsPerPage="25" Bordered="false" Dense="true" Hover="true">
     <ToolBarContent>
         <MudToolBar>
@@ -13,28 +14,37 @@
         </MudToolBar>
         <MudSpacer />
         <MudTextField @bind-Value="vm.SearchString"
+                      @bind-Value:after=@(() => table.ReloadServerData())
                       Placeholder="Search" Clearable="true"
                       Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
                       Class="mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
         <MudTh><MudTableSortLabel SortLabel="Description.Title" T="NodeListDto">Title</MudTableSortLabel></MudTh>
+        <MudTh></MudTh>
         <MudTh><MudTableSortLabel SortLabel="Description.CaseType" T="NodeListDto">Type</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="Owner.Username" T="NodeListDto">Sender</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Owner" T="NodeListDto">Sender</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="CreatedOn" T="NodeListDto" InitialDirection="SortDirection.Descending">Date</MudTableSortLabel></MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Name">
+        <MudTd DataLabel="Title" Class="ipath_node_title2">
             <b>
                 <MudLink Href=@($"/node/{context.Id}")>
-                    <MudHighlighter Text="@context.Title()" HighlightedText="@vm.SearchString" />
+                    <MudHighlighter Text="@context.Title" HighlightedText="@vm.SearchString" />
                 </MudLink>
             </b>
-            <div>@context.SubTitle()</div>
+            <div><MudHighlighter Text="@context.SubTitle" HighlightedText="@vm.SearchString" /></div>
         </MudTd>
-        <MudTd DataLabel="Cases">@context.NodeType</MudTd>
-        <MudTd DataLabel="Cases" Class="ipath_node_sender2"><OwnerLink Owner="@context.Owner" /></MudTd>
-        <MudTd DataLabel="Cases" Class="ipath_node_date2">@context.CreatedOn.ToShortDateString()</MudTd>
+        <MudTd Class="ipath_node_title2">
+            <MudIcon Icon=@context.IsNewIcon />
+            <MudIcon Icon=@context.HasNewAnnotationIcon />
+        </MudTd>
+        <MudTd DataLabel="CaseType">@context.NodeType</MudTd>
+        <MudTd DataLabel="Owner" Class="ipath_node_sender2"><OwnerLink Owner="@context.Owner" /></MudTd>
+        <MudTd DataLabel="CreatedOn" Class="ipath_node_date2">
+            @context.CreatedOn.ToString("d")<br />
+            @context.AccessionNo
+        </MudTd>
     </RowTemplate>
     <NoRecordsContent>
         <MudText>No matching records found</MudText>
@@ -62,4 +72,6 @@
         get => vm.OwnerId; 
         set => vm.OwnerId = value;
     }
+
+    MudTable<NodeListDto> table;
 }

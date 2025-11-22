@@ -7,10 +7,24 @@
 <iPath.Blazor.Componenents.Shared.IPathHeader Title=@T["My Groups"] />
 
 <MudDataGrid T="GroupListDto" ServerData="vm.GetListAsync" Dense
-             RowClick=@(c => vm.GotoGroup(c.Item))>
+             RowClick=@(c => vm.GotoGroup(c.Item)) 
+             SortMode="SortMode.Single">
+    <ColGroup>
+        <col style="width: 90%;" />
+        <col style="width: 60px;" />
+        <col style="width: 120px; text-align: end; align-content: flex-end"/>
+    </ColGroup>
     <Columns>
-        <PropertyColumn Property="x => x.Name" />
-        <PropertyColumn Property="x => x.TotalNodes" Title=@T["# Cases"] />
+        <PropertyColumn Property="x => x.Name" Sortable="true" />
+        <TemplateColumn CellClass="d-flex justify-end" Sortable="false">
+            <CellTemplate>
+                <MudStack Row>
+                    <MudIcon Icon=@context.Item.NewNodeIcon />
+                    <MudIcon Icon=@context.Item.NewAnnotationIcon />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="x => x.TotalNodes" Title=@T["# Cases"] Sortable="false" />
     </Columns>
     <PagerContent>
         <MudDataGridPager T="GroupListDto" />

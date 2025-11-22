@@ -18,7 +18,12 @@ public class NodeListViewModel(IPathApi api,
     {
         if (GroupId.HasValue || OwnerId.HasValue)
         { 
-            var query = state.BuildQuery(new GetNodesQuery { GroupId = GroupId, OwnerId = OwnerId });
+            var query = state.BuildQuery(new GetNodesQuery {
+                GroupId = this.GroupId, 
+                OwnerId = this.OwnerId,
+                IncludeDetails = true,
+                SearchString = this.SearchString
+            });
             nvm.LastQuery = query;
             nvm.IdList = null;
             var resp = await api.GetNodeList(query);

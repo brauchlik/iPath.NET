@@ -1,4 +1,5 @@
 ﻿using DispatchR.Abstractions.Notification;
+using iPath.Domain.Notificxations;
 using System.Text.Json;
 
 namespace iPath.Domain.Entities;
@@ -25,7 +26,7 @@ public interface IEventInput
 public class EventEntity : IDomainEvent
 {
     public Guid EventId { get; init; }
-    public  DateTime EventDate { get; init; }
+    public DateTime EventDate { get; init; }
     public Guid? UserId { get; init; }
     public string EventName { get; init; } = "";
     public string ObjectName { get; init; } = "";
@@ -54,4 +55,9 @@ public class EventEntity : IDomainEvent
 public class TestEvent : INotification
 {
     public string Message { get; set; }
+}
+
+public interface IHasNodeNotification
+{
+    NodeNofitication ToNotification();
 }

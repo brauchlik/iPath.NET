@@ -1,8 +1,10 @@
 ﻿namespace iPath.Domain.Notificxations;
 
-public record NodeNofitication(Guid? GroupId, 
+public record NodeNofitication(
     Guid NodeId, 
-    Guid OwnerId, 
+    Guid? UserId,
+    Guid? OwnerId,
+    Guid? GroupId,
     DateTime EventDate, 
     eNodeEventType type,
     string message);

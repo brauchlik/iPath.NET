@@ -10,6 +10,6 @@ global using FluentResults;
 
 namespace iPath.Application;
 
-internal class Meta
+public class Meta
 {
 }

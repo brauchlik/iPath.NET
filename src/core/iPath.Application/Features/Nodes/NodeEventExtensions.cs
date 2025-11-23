@@ -1,4 +1,5 @@
 ﻿using DispatchR.Abstractions.Send;
+using iPath.Domain.Notificxations;
 using System.Text.Json;
 
 namespace iPath.Application.Features.Nodes;
@@ -20,8 +21,8 @@ public static class NodeEventExtensions
             EventName = typeof(TEvent).Name,
             ObjectName = input.ObjectName,
             ObjectId = node.Id,
-            GroupId = node.GroupId,
             Payload = JsonSerializer.Serialize(input),
+            Node = node,
         };
         node.AddEventEntity(e);
         return e;
@@ -49,6 +50,17 @@ public static class CreateNodeExtensions
     }
 
 
+    internal static NodeNofitication ToNotif(this NodeEvent e, eNodeEventType t, string msg)
+    {
+        return new NodeNofitication(
+            NodeId: e.ObjectId,
+            UserId: e.UserId,
+            OwnerId: e.Node?.OwnerId,
+            GroupId: e.Node?.GroupId,
+            EventDate: DateTime.UtcNow,
+            type: t, 
+            msg);
+    }
 
 
 }

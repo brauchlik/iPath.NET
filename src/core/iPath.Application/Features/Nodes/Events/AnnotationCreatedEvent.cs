@@ -1,5 +1,11 @@
-﻿namespace iPath.Application.Features.Nodes;
+﻿using iPath.Domain.Notificxations;
 
-public class AnnotationCreatedEvent : NodeEvent, INotification
-{ 
+namespace iPath.Application.Features.Nodes;
+
+public class AnnotationCreatedEvent : NodeEvent, INotification, IHasNodeNotification
+{
+    public NodeNofitication ToNotification()
+    {
+        return this.ToNotif(eNodeEventType.NewAnnotation, "new annotation");
+    }
 }

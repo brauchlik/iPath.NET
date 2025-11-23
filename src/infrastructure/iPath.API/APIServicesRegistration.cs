@@ -24,6 +24,7 @@ public static class APIServicesRegistration
         {
             cfg.Assemblies.Add(typeof(iPath.API.Meta).Assembly);
             cfg.Assemblies.Add(typeof(iPath.EF.Core.Meta).Assembly);
+            cfg.Assemblies.Add(typeof(iPath.Application.Meta).Assembly);
         });
 
         // EF Core and Authentication

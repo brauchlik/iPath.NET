@@ -1,7 +1,11 @@
-﻿namespace iPath.Application.Features.Nodes;
+﻿using System.Text.Json.Serialization;
+
+namespace iPath.Application.Features.Nodes;
 
 
-public class NodeEvent : EventEntity 
+public class NodeEvent : EventEntity
 {
-    public Guid? GroupId { get; set; }
+    [JsonIgnore]
+    public Node? Node { get; set; }
+
 }

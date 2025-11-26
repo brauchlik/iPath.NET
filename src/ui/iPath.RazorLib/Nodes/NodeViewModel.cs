@@ -33,7 +33,15 @@ public class NodeViewModel(IPathApi api,
 
     public NodeDto RootNode { get; private set; }
     public NodeDto? SelectedNode { get; private set; }
-    public bool IsRootNodeSelected => SelectedNode is null || SelectedNode.Id == RootNode.Id;
+    public bool IsRootNodeSelected
+    {
+        get
+        {
+            if (RootNode is null) return false;
+            if (SelectedNode is null) return true;
+            return SelectedNode.Id == RootNode.Id;
+        }
+    }
 
     public async Task SelectChilNode(NodeDto? child)
     {
@@ -287,7 +295,7 @@ public class NodeViewModel(IPathApi api,
 
 
 
-    public bool DeleteDisabled => true;
+    public bool DeleteDisabled => EditDisabled;
 
     public async Task Delete(NodeDto? node = null, bool AskConfirmation = true)
     {
@@ -298,7 +306,7 @@ public class NodeViewModel(IPathApi api,
             bool? result = await srvDialog.ShowMessageBox(
                 T["Warning"],
                 T["Are you sure that you want to delete !"],
-                yesText: T["yes"], cancelText: T["Cancel"]);
+                yesText: T["Yes"], cancelText: T["Cancel"]);
             if (result is null)
                 return;
         }
@@ -307,8 +315,20 @@ public class NodeViewModel(IPathApi api,
             var resp = await api.DeleteNode(node.Id);
             if (resp.IsSuccessful)
             {
-                IsEditing = false;
-                GoUp();
+                // if we delete the root node in edit mode => go back to group
+                if (IsRootNodeSelected && IsEditing)
+                {
+                    IsEditing = false;
+                    await GoUp();
+                }
+                else
+                {
+                    if (RootNode.ChildNodes.Contains(node))
+                    {
+                        RootNode.ChildNodes.Remove(node);
+                        OnChange();
+                    }
+                }
             }
             else
             {
@@ -323,7 +343,7 @@ public class NodeViewModel(IPathApi api,
         set { field = value; OnChange(); } 
     }
 
-    public bool EditDisabled => !appState.CanEditNode(SelectedNode) || IsEditing;
+    public bool EditDisabled => !appState.CanEditNode(SelectedNode);
 
     public async Task Edit(NodeDto? node = null)
     {
@@ -383,30 +403,41 @@ public class NodeViewModel(IPathApi api,
     public bool AttachFileDisabled => EditDisabled;
 
 
-    public async Task<NodeDto?> UploadFile(IBrowserFile f)
+    public async Task UploadFile(IBrowserFile f)
     {
         try
         {
-            if (RootNode is null) return null;
-
-            logger.LogInformation("starting file upload: " + f.Name);
-
-            long maxFileSize = 2L * 1024L * 1024L * 1024L;
-            if (f.Size > maxFileSize)
+            if (SelectedNode is null)
             {
-                snackbar.Add("File is larger then " + maxFileSize.Megabytes() + "MB");
-                return null;
+                snackbar.AddWarning("no node selected");
             }
+            else if (f.Size > IPathApi.MaxFileSize)
+            {
+                snackbar.Add("File is larger then " + IPathApi.MaxFileSize.Bytes().Megabytes);
+            }
+            else
+            {
+                logger.LogInformation("starting file upload: " + f.Name);
 
-            var stream = new Refit.StreamPart(f.OpenReadStream(), f.Name, f.ContentType);
-            var resp = await api.UploadNodeFile(stream, RootNode.Id);
-            return resp.Content;
+                var stream = new StreamPart(f.OpenReadStream(maxAllowedSize: IPathApi.MaxFileSize), f.Name, f.ContentType);
+                var resp = await api.UploadNodeFile(stream, SelectedNode.Id);
+                if (resp.IsSuccessful)
+                {
+                    // append to child nodes
+                    RootNode.ChildNodes.Add(resp.Content);
+                    OnChange();
+                }
+                else
+                {
+                    snackbar.AddWarning(resp.ErrorMessage);
+                }
+            }
         }
         catch (Exception ex)
         {
+            logger.LogError("Upload Error", ex);
             snackbar.AddError(ex.Message);
         }
-        return null;
     }
 
 

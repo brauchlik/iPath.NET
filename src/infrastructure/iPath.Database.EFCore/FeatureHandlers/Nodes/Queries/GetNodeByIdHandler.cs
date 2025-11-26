@@ -24,7 +24,6 @@ public class GetRootNodeByIdQueryHandler(iPathDbContext db, IUserSession sess, I
             sess.AssertInGroup(node.GroupId.Value);
 
             var dto = node.ToDto();
-
             return dto;
 
         }

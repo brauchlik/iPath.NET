@@ -6,7 +6,6 @@ public record CreateNodeCommand(Guid GroupId, string NodeType, NodeDescription? 
     , IEventInput
 {
     public string ObjectName => nameof(Node);
-
 }
 
 

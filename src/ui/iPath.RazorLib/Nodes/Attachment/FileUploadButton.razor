@@ -1,0 +1,19 @@
+﻿@namespace iPath.Blazor.Componenents.Nodes
+
+<MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="StartUpload"
+    MaxFileSize="@IPathApi.MaxFileSize" MaximumFileCount="@MaximumFileCount">
+    <ActivatorContent>
+        @if (uploading)
+        {
+            <MudProgressCircular Value="@progress" StrokeWidth="4" Size="Size.Medium">
+                <ChildContent>
+                    <MudText Typo="Typo.body2">@progText</MudText>
+                </ChildContent>
+            </MudProgressCircular>
+        }
+        else
+        {
+            <MudIconButton Icon="@Icon" Disabled="@Disabled" />
+        }
+    </ActivatorContent>
+</MudFileUpload>

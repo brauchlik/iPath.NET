@@ -63,6 +63,7 @@ public static class APIServicesRegistration
         services.AddScoped<IThumbImageService, ThumbImageService>();
 
         // file storage
+        services.AddTransient<IMimetypeService, MimetypeService>();
         services.AddTransient<IStorageService, LocalStorageService>();
         // TODO: services.AddSingleton<BackgroundUploadWorker>();
         // TODO: services.AddHostedService(p => p.GetRequiredService<BackgroundUploadWorker>());

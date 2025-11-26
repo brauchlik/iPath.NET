@@ -1,4 +1,5 @@
 ﻿@namespace iPath.Blazor.Componenents.Nodes
+@using System.Threading.Tasks
 
 @inherits NodeViewComponentBase
 
@@ -31,6 +32,8 @@ else
         <div class="ipath_header_actions">
             <MudTooltip Text="Sort Images">
                 <MudIcon Size="Size.Small" Icon="@Icons.Material.Rounded.PlaylistPlay" @onclick="ActivateSort" />
+            </MudTooltip>
+            <MudTooltip Text="Upload new Images">
                 <MudIcon Size="Size.Small" Icon="@Icons.Material.Rounded.AttachFile" @onclick="ActivateUpload" />
             </MudTooltip>
         </div>
@@ -44,7 +47,8 @@ else
         }
         else if (Uploading)
         {
-            <NodeGalleryUpload OnUploadFinished="SortingFinished" />
+            <NodeGalleryDropZone />
+            <MudButton Variant="Variant.Filled" OnClick="UploadingFinished" Class="my-4">Ok</MudButton>
         }
         else
         {
@@ -58,7 +62,6 @@ else
     public EventCallback<bool> OnShowingChildNode { get; set; }
 
     private bool Sorting;
-
     private bool Uploading;
 
     public void ActivateSort()
@@ -73,9 +76,15 @@ else
         Sorting = false;
     }
 
-    public void SortingFinished(bool sorted)
+    public async Task SortingFinished(bool sorted)
     {
         Sorting = false;
+        StateHasChanged();
+    }
+
+    public async Task UploadingFinished()
+    {
+        Uploading = false;
         StateHasChanged();
     }
 
@@ -83,4 +92,5 @@ else
     {
         StateHasChanged();
     }
+
 }

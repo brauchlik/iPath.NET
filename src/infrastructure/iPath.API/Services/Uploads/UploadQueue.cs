@@ -19,13 +19,13 @@ public class UploadQueue : IUploadQueue
 
     public int QueueSize => _channel.Reader.Count;
 
-    public ValueTask<Guid> DequeueAsync(CancellationToken cancellationToken)
+    public async ValueTask<Guid> DequeueAsync(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return await _channel.Reader.ReadAsync(cancellationToken);
     }
 
-    public ValueTask EnqueueAsync(Guid item)
+    public async ValueTask EnqueueAsync(Guid item)
     {
-        throw new NotImplementedException();
+        await _channel.Writer.WriteAsync(item);
     }
 }

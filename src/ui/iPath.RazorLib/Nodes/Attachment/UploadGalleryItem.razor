@@ -1,0 +1,28 @@
+﻿@namespace iPath.Blazor.Componenents.Nodes
+
+@if (Upload is not null)
+{
+    <MudPaper MaxWidth="120px" MaxHeight="90px" Elevation="0" Class="d-flex align-content-center">
+        @if (Upload.uploading)
+        {
+            <MudProgressCircular Indeterminate="true" Style="margin: auto;" />
+        }
+        else if (!string.IsNullOrEmpty(Upload.Error))
+        {
+            <MudTooltip Text="@Upload.Error">
+                <MudIcon Icon="@Icons.Material.Filled.Error" />
+            </MudTooltip>
+        }
+        else if (Upload.result is not null)
+        {
+            <MudImage src="@Upload.ThumbUrl" Alt="@Upload.Filename" Elevation="3" />
+        }
+        else
+        {
+            <MudIcon Icon="@Icons.Material.TwoTone.FileUpload" />
+        }
+    </MudPaper>
+    <div style="width: 100%; text-align: center;" class="overflow-hidden">
+        <MudText Typo="Typo.body2">@Upload.Filename.ShortenTo(12)</MudText>
+    </div>
+}

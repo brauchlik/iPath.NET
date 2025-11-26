@@ -1,4 +1,5 @@
 ﻿using iPath.Domain.Config;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -13,6 +14,7 @@ public class UploadNodeFileCommandHandler(iPathDbContext db,
     IThumbImageService srvThumb,
     IMediator mediator,
     IUploadQueue queue,
+    IMimetypeService srvMime,
     ILogger<UploadNodeFileCommandHandler> logger)
     : IRequestHandler<UploadNodeFileCommand, Task<NodeDto>>
 {
@@ -24,24 +26,26 @@ public class UploadNodeFileCommandHandler(iPathDbContext db,
         }
 
         // get root node
-        var rootNode = await db.Nodes.Include(n => n.ChildNodes).FirstOrDefaultAsync(n => n.Id == request.RootNodeId, ct);
-        Guard.Against.NotFound(request.RootNodeId, rootNode);
+        var rootNodeId = await db.Nodes.AsNoTracking()
+            .Where(n => n.Id == request.ParentNodeId)
+            .Select(n => n.RootNodeId)
+            .SingleOrDefaultAsync(ct);
 
-        // validate parent
-        if (request.RootNodeId != request.ParentNodeId)
-        {
-            var parentNode = rootNode.ChildNodes.FirstOrDefault(n => n.Id == request.ParentNodeId);
-            Guard.Against.NotFound(request.ParentNodeId, parentNode);
-        }
+        rootNodeId ??= request.ParentNodeId; // the specified parent is already the root
+        var rootNode = await db.Nodes.Include(n => n.ChildNodes).FirstOrDefaultAsync(n => n.Id == rootNodeId.Value, ct);
+        Guard.Against.NotFound(request.ParentNodeId, rootNode);
 
         // create entity
         var newNode = new Node
         {
-            RootNodeId = request.RootNodeId,
+            Id = Guid.CreateVersion7(),
+            RootNode = rootNode,
             ParentNodeId = request.ParentNodeId,
             CreatedOn = DateTime.UtcNow,
-            OwnerId = sess.User.Id
+            Owner = await db.Users.FindAsync(sess.User.Id, ct)
         };
+
+        // rootNode.ChildNodes.Add(newNode);
 
         newNode.SortNr = rootNode.ChildNodes.Where(n => n.ParentNodeId == request.ParentNodeId).Max(n => n.SortNr) + 1;
         newNode.SortNr ??= 0;
@@ -49,89 +53,60 @@ public class UploadNodeFileCommandHandler(iPathDbContext db,
         newNode.File = new()
         {
             Filename = request.filename,
-            MimeType = GetMimeType(request.filename),
+            MimeType = request.contenttype ?? MimeTypes.GetMimeType(request.filename),
         };
 
         // node type
         newNode.NodeType = newNode.File.MimeType.ToLower().StartsWith("image") ? "image" : "file";
 
         using var tran = await db.Database.BeginTransactionAsync(ct);
-
-        // save node to generate ID
         try
         {
+            // Save the file to local temp folder
+            var fn = Path.Combine(opts.Value.TempDataPath, newNode.Id.ToString());
+            logger.LogInformation("file upload, copy to: " + fn);
+
+            using (var fileStream = File.Create(fn))
+            {
+                request.fileStream.Seek(0, SeekOrigin.Begin);
+                await request.fileStream.CopyToAsync(fileStream, ct);
+            }
+
+            // generate thumbnail
+            if (newNode.File.MimeType.ToLower().StartsWith("image"))
+            {
+                newNode.NodeType = "image";
+                await srvThumb.UpdateNodeAsync(newNode.File, fn);
+            }
+
+            // insert the newNode into the DB
+            newNode.IsDraft = false;
             await db.Nodes.AddAsync(newNode);
+
+            // publish domain event
+            var evtinput = new UploadNodeFileInput(ParentNodeId: request.ParentNodeId, RootNodeId: rootNode.Id, filename: request.filename);
+            newNode.CreateEvent<ChildNodeCreatedEvent, UploadNodeFileInput>(evtinput, sess.User.Id);
+
             await db.SaveChangesAsync(ct);
+            await tran.CommitAsync(ct);
+
+            // copy to storage
+            await queue.EnqueueAsync(newNode.Id);
+
+            // return dto
+            var dto = newNode.ToDto();
+            return dto;
         }
         catch (Exception ex)
         {
+            await tran.RollbackAsync(ct);
             var msg = ex.InnerException is null ? ex.Message : ex.InnerException.Message;
             Console.WriteLine(msg);
             await tran.RollbackAsync();
             throw ex;
         }
-
-        // Save the file to local temp folder
-        var fn = Path.Combine(opts.Value.TempDataPath, newNode.Id.ToString());
-        logger.LogInformation("file upload, copy to: " + fn);
-
-        using (var fileStream = File.Create(fn))
-        {
-            request.fileStream.Seek(0, SeekOrigin.Begin);
-            await request.fileStream.CopyToAsync(fileStream, ct);
-        }
-
-        // generate thumbnail
-        if (newNode.File.MimeType.ToLower().StartsWith("image"))
-        {
-            newNode.NodeType = "image";
-            await srvThumb.UpdateNodeAsync(newNode.File, fn);
-            await db.SaveChangesAsync();
-        }
-
-        // publish domain event
-        var evtinput = new UploadNodeFileInput(ParentNodeId: request.ParentNodeId, RootNodeId: request.RootNodeId, filename: request.filename);
-        var evt = await db.CreateEventAsync<ChildNodeCreatedEvent, UploadNodeFileInput>(evtinput, newNode.Id, sess.User.Id);
-        evt.RootParentId = newNode.RootNodeId;
-
-        await db.SaveChangesAsync(ct);
-        await tran.CommitAsync(ct);
-
-        // copy to storage
-        await queue.EnqueueAsync(newNode.Id);
-
-        // publish domain event
-        await mediator.Publish(evt, ct);
-
-        // return dto
-        return newNode.ToDto();
     }
 
 
-
-    private static readonly List<string> ImageExtensions = new List<string> { ".JPG", ".JPEG", ".JPE", ".BMP", ".GIF", ".PNG" };
-
-    private bool IsImage(string Filename)
-    {
-        try
-        {
-            var fi = new FileInfo(Filename);
-            return ImageExtensions.Contains(fi.Extension.ToUpper());
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-        }
-        return false;
-    }
-
-    private string GetMimeType(string Filename)
-    {
-        if (MimeTypes.TryGetMimeType(Filename, out var mimeType))
-        {
-            return mimeType;
-        }
-        return "application/octet-stream";
-    }
 
 }

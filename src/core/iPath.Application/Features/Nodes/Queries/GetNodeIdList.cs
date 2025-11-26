@@ -21,4 +21,5 @@ public class GetNodeIdListQuery : PagedQuery<NodeListDto>
 
     public Guid? GroupId { get; set; }
     public Guid? OwnerId { get; set; }
+    public bool inclDrafts { get; set; } = false;
 }

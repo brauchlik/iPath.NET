@@ -79,21 +79,21 @@ public static class NodeEndpoints
             .Produces<bool>()
             .RequireAuthorization();
 
-        grp.MapPost("upload", async ([FromQuery] string rootNodeId, [FromQuery] string? parentNodeId, IFormFile upload, IMediator mediator, CancellationToken ct) =>
+        grp.MapPost("upload/{id}", async (string id, [FromForm] IFormFile file, 
+            [FromServices] IMediator mediator, CancellationToken ct) =>
         {
-            if (upload is not null)
+            if (file is not null)
             {
-                var fileName = upload.Name;
-                var fileSize = upload.Length;
+                var fileName = file.FileName;
+                var fileSize = file.Length;
+                var contentType = file.ContentType;
 
                 Guard.Against.Null(fileSize);
 
-                if (Guid.TryParse(rootNodeId, out var rootId))
+                if (Guid.TryParse(id, out var parentId))
                 {
-                    Guid parentId = parentNodeId is null ? rootId : Guid.Parse(parentNodeId);
-
-                    await using Stream stream = upload.OpenReadStream();
-                    var req = new UploadNodeFileCommand(RootNodeId: rootId, ParentNodeId: parentId, filename: fileName, fileSize: fileSize, fileStream: stream);
+                    await using Stream stream = file.OpenReadStream();
+                    var req = new UploadNodeFileCommand(ParentNodeId: parentId, filename: fileName, fileSize: fileSize, fileStream: stream, contenttype: contentType);
                     var node = await mediator.Send(req, ct);
                     return node is null ? Results.NoContent() : Results.Ok(node);
                 }

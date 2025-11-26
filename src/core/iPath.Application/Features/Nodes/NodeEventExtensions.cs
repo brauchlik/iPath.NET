@@ -6,7 +6,7 @@ namespace iPath.Application.Features.Nodes;
 
 public static class NodeEventExtensions
 {
-    internal static EventEntity CreateEvent<TEvent, TInput>(this Node node,
+    public static EventEntity CreateEvent<TEvent, TInput>(this Node node,
         TInput input,
         Guid? userId = null,
         CancellationToken ct = default)
@@ -24,11 +24,26 @@ public static class NodeEventExtensions
             Payload = JsonSerializer.Serialize(input),
             Node = node,
         };
+        node.LastModifiedOn = DateTime.UtcNow;
         node.AddEventEntity(e);
         return e;
     }
+
+
+    internal static NodeNofitication ToNotif(this NodeEvent e, eNodeEventType t, string msg)
+    {
+        return new NodeNofitication(
+            NodeId: e.ObjectId,
+            UserId: e.UserId,
+            OwnerId: e.Node?.OwnerId,
+            GroupId: e.Node?.GroupId,
+            EventDate: DateTime.UtcNow,
+            type: t,
+            msg);
+    }
 }
 
+/*
 public static class CreateNodeExtensions
 {
     public static Node CreateNode(CreateNodeCommand cmd, Guid userId)
@@ -49,18 +64,5 @@ public static class CreateNodeExtensions
         return node;
     }
 
-
-    internal static NodeNofitication ToNotif(this NodeEvent e, eNodeEventType t, string msg)
-    {
-        return new NodeNofitication(
-            NodeId: e.ObjectId,
-            UserId: e.UserId,
-            OwnerId: e.Node?.OwnerId,
-            GroupId: e.Node?.GroupId,
-            EventDate: DateTime.UtcNow,
-            type: t, 
-            msg);
-    }
-
-
 }
+*/

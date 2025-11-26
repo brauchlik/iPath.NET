@@ -11,11 +11,10 @@
     </div>
     <div class="ipath_header_toolbar">
         <MudToolBar>
-            <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="@(() => vm.Edit())" Disabled="vm.EditDisabled" />
+            <MudIconButton Icon="@EditIcon" OnClick="OnEditClick" Disabled="vm.EditDisabled" />
             <MudIconButton Icon="@Icons.Material.Outlined.Save" OnClick="@(() => vm.Save())" hidden="@hideSave" />
-            <MudIconButton Icon="@Icons.Material.Outlined.Cancel" OnClick="@(() => vm.CancelEdit())" hidden="@hideSave">Cancel</MudIconButton>
             <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => vm.Delete())" Disabled="vm.DeleteDisabled" />
-            <AttachmentToolstripButton />
+            <FileUploadButton Disabled="@vm.AttachFileDisabled" />
             <MudIconButton Icon="@Icons.Material.Outlined.Comment" OnClick="@(() => vm.Annotate())" Disabled="vm.AnnotateDisabled" />
         </MudToolBar>
     </div>
@@ -24,6 +23,17 @@
 
 @code {
     bool hideSave => !vm.IsEditing;
+
+    private string EditIcon => vm.IsEditing ? Icons.Material.Outlined.Cancel : Icons.Material.Outlined.Edit;
+
+    async Task OnEditClick()
+    {
+        if (vm.IsEditing)
+            await vm.CancelEdit();
+        else
+            await vm.Edit();
+    }
+
 
     string Title
     {

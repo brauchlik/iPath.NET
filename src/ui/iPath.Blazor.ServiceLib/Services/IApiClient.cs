@@ -104,8 +104,8 @@ public interface IPathApi
     Task<IApiResponse<bool>> UpdateNodeVisit(Guid id);
 
     [Multipart]
-    [Post("/api/v1/nodes/upload")]
-    Task<IApiResponse<NodeDto>> UploadNodeFile([AliasAs("upload")] StreamPart fileInfo, Guid rootNodeId, Guid? parentNodeId = null);
+    [Post("/api/v1/nodes/upload/{parentNodeId}")]
+    Task<IApiResponse<NodeDto>> UploadNodeFile([AliasAs("file")] StreamPart file, Guid parentNodeId);
 
 
     [Post("/api/v1/nodes/annotation")]
@@ -113,6 +113,9 @@ public interface IPathApi
 
     [Delete("/api/v1/nodes/annotation/{id}")]
     Task<IApiResponse<Guid>> DeleteAnnotation(Guid id);
+
+
+    const long MaxFileSize = 1024L * 1024L * 1024L;
 
     #endregion
 

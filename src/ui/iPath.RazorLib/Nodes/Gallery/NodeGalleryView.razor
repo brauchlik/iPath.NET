@@ -32,7 +32,7 @@
 						<b>Filename: </b>@c.GalleryCaption
 					</TooltipContent>
 					<ChildContent>
-						<GalleryImage Model="@c" />
+						<GalleryImage Model="@c" ShowCheckBox="@ShowCheckBox" />
 					</ChildContent>
 				</MudTooltip>
 			</div>
@@ -41,6 +41,9 @@
 }
 
 @code {
+	[Parameter]
+	public bool ShowCheckBox { get; set; }
+
 	async Task OnChildClick(NodeDto child)
 	{
 		await vm.SelectChilNode(child);

@@ -1,8 +1,11 @@
-﻿namespace iPath.Application.Features.Nodes;
+﻿using DispatchR.Abstractions.Send;
+using iPath.Application.Contracts;
+using Microsoft.Extensions.Logging;
+
+namespace iPath.Application.Features.Nodes;
 
 
-public record UploadNodeFileCommand(Guid RootNodeId, Guid ParentNodeId,
-    string filename, long fileSize, Stream fileStream)
+public record UploadNodeFileCommand(Guid ParentNodeId, string filename, long fileSize, Stream fileStream, string? contenttype = null)
     : IRequest<UploadNodeFileCommand, Task<NodeDto>>;
 
 

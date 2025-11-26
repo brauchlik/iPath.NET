@@ -1,0 +1,88 @@
+﻿@namespace iPath.Blazor.Componenents.Nodes
+
+<style>
+    .file-upload-input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 10;
+        opacity: 0;
+    }
+</style>
+
+@**** Gallery View **********************************************@
+
+<MudFileUpload T="IReadOnlyList<IBrowserFile>"
+               OnFilesChanged="OnInputFileChanged"
+               AppendMultipleFiles
+               Error="true"
+               MaximumFileCount="@MaximumFileCount"
+               MaxFileSize="@IPathApi.MaxFileSize"
+               Hidden="@false"
+               InputClass="file-upload-input"
+               @ondrop="@ClearDragClass" @ondragenter="@SetDragClass"
+               @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+    <ActivatorContent>
+        <MudPaper Class="@_dragClass" Style="min-height: 300px;" Outlined="true" Elevation="0">
+            <MudText Typo="Typo.h6">
+                Drag and drop files here or click (Maximum @MaximumFileCount Files)
+            </MudText>
+
+            <div id="gallery" class="gallery">
+                @foreach (var u in _uploads)
+                {
+                    <div class="gallery-item">
+                        <UploadGalleryItem Upload="@u" />
+                    </div>
+                }
+            </div>
+        </MudPaper>
+    </ActivatorContent>
+</MudFileUpload>
+
+
+
+
+@inject NodeViewModel vm
+@inject IPathApi api
+@code {
+    [Parameter, DefaultValue(25)]
+    public int MaximumFileCount { get; set; } = 25;
+
+    private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-2 mt-2 mud-width-full mud-height-full";
+    private string _dragClass = DefaultDragClass;
+    private void SetDragClass()
+        => _dragClass = $"{DefaultDragClass} mud-border-primary mud-background-gray";
+
+    private void ClearDragClass()
+        => _dragClass = DefaultDragClass;
+
+
+    private List<UploadTask> _uploads = new();
+
+
+    protected override void OnInitialized()
+    {
+        if (vm is not null && vm.SelectedNode is not null)
+        {
+            foreach (var c in vm.RootNode.ChildNodes.Where(n => n.ParentNodeId == vm.SelectedNode.Id).OrderBy(n => n.SortNr).ToList())
+            {
+                var t = new UploadTask(api);
+                t.FromNode(c);
+                _uploads.Add(t);
+            }
+        }
+    }
+
+
+    private void OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        foreach (var f in e.GetMultipleFiles(MaximumFileCount))
+        {
+            var t = new UploadTask(api);
+            t.Upload(f, vm.SelectedNode.Id);
+            _uploads.Add(t);
+        }
+    }
+}

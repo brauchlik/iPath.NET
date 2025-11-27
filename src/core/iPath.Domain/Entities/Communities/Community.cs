@@ -21,29 +21,6 @@ public class Community : AuditableEntity
     public int? ipath2_id { get; set; }
 }
 
-public class CommunityMember : BaseEntity
-{
-
-    public Guid CommunityId { get; set; }
-    public Community Community { get; set; } = null!;
-
-    public Guid UserId { get; set; }
-    public User User { get; set; } = null!;
-
-    public eMemberRole Role { get; set; }
-    public bool AllGroups { get; set; }
-
-    public int? iPath2_Id { get; set; }
-}
-
-public class CommunityGroup
-{
-    public Guid Id { get; set; }
-    public Guid CommunityId { get; set; }
-    public Community Community { get; set; } = null!;
-    public Guid GroupId { get; set; }
-    public Group Group { get; set; } = null!;
-}
 
 public enum eCommunityVisibility
 {
@@ -52,7 +29,6 @@ public enum eCommunityVisibility
     Hidden = 2,
     Inactive = 3
 }
-
 
 
 

@@ -4,9 +4,9 @@ using iPath.Application.Contracts;
 namespace iPath.EF.Core.FeatureHandlers.Communities.Commands;
 
 public class CreateCommunityHandler(iPathDbContext db, IUserSession sess)
-     : IRequestHandler<CreateCommunityInput, Task<CommunityListDto>>
+     : IRequestHandler<CreateCommunityCommand, Task<CommunityListDto>>
 {
-    public async Task<CommunityListDto> Handle(CreateCommunityInput request, CancellationToken ct)
+    public async Task<CommunityListDto> Handle(CreateCommunityCommand request, CancellationToken ct)
     {
         Guard.Against.NullOrEmpty(request.Name, "A name must be specified");
 
@@ -31,7 +31,7 @@ public class CreateCommunityHandler(iPathDbContext db, IUserSession sess)
         await db.SaveChangesAsync(ct);
 
         // create & save event
-        var evt = EventEntity.Create<CommunityCreatedEvent, CreateCommunityInput>(request, objectId: newEntity.Id, userId: sess.User.Id);
+        var evt = EventEntity.Create<CommunityCreatedEvent, CreateCommunityCommand>(request, objectId: newEntity.Id, userId: sess.User.Id);
         await db.EventStore.AddAsync(evt, ct);
         await db.SaveChangesAsync(ct);
 

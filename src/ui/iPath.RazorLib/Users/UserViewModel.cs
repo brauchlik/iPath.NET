@@ -1,4 +1,5 @@
-﻿using iPath.Domain.Entities;
+﻿using iPath.Blazor.ServiceLib.ApiClient;
+using iPath.Domain.Entities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -95,14 +96,30 @@ public class UserViewModel(IPathApi api,
         }
     }
 
-    public async Task<IEnumerable<UserListDto>> Search(string search, CancellationToken ct)
+    public async Task<IEnumerable<UserListDto>> Search(string? search, CancellationToken ct)
     {
-        var query = new GetUserListQuery { SearchString = search, Page = 0, PageSize = 1000 };
-        var resp = await api.GetUserList(query);
-        if (resp.IsSuccessful)
+        if (search is not null)
         {
-            return resp.Content.Items;
+            var query = new GetUserListQuery { SearchString = search, Page = 0, PageSize = 100 };
+            var resp = await api.GetUserList(query);
+            if (resp.IsSuccessful)
+            {
+                return resp.Content.Items;
+            }
         }
         return new List<UserListDto>();
+    }
+    public async Task<IEnumerable<OwnerDto>> SearchOwners(string? search, CancellationToken ct)
+    {
+        if (search is not null)
+        {
+            var query = new GetUserListQuery { SearchString = search, Page = 0, PageSize = 100 };
+            var resp = await api.GetUserList(query);
+            if (resp.IsSuccessful)
+            {
+                return resp.Content.Items.Select(u => new OwnerDto(Id: u.Id, Username: u.Username, Email: u.Email));
+            }
+        }
+        return new List<OwnerDto>();
     }
 }

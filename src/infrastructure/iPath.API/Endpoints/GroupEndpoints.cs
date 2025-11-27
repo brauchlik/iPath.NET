@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Update.Internal;
-
-namespace iPath.API;
+﻿namespace iPath.API;
 
 public static class GroupEndpoints
 {
@@ -26,9 +24,9 @@ public static class GroupEndpoints
             .RequireAuthorization("Admin");
 
 
-        grp.MapPost("create", (CreateGroupCommand cmd, IGroupService srv, CancellationToken ct)
-            => srv.CreateGroupAsync(cmd, ct))
-            .Produces<GroupDto>()
+        grp.MapPost("create", async (CreateGroupCommand cmd, IGroupService srv, CancellationToken ct)
+            => await srv.CreateGroupAsync(cmd, ct))
+            .Produces<GroupListDto>()
             .RequireAuthorization("Admin");
 
         grp.MapPut("update", (UpdateGroupCommand cmd, IGroupService srv, CancellationToken ct)

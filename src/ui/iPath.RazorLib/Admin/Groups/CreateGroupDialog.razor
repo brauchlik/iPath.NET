@@ -5,14 +5,15 @@
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
-            @T["create a new Group"]
+            @T["create a new group"]
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model" @ref="frm">
-            <MudTextField @bind-Value="@Model.Name" Label="Name" Required="true" Variant="Variant.Outlined" />
-            <MudTextField @bind-Value="@Model.Settings.Purpose" Label="Purpose" Variant="Variant.Outlined" Lines="5" AutoGrow="true" Required="true" />
-            <UserLookUp Label="Group Owner" Class="mt-4" @bind-SelectedUser="Model.Owner" />
+        <MudForm Model="@Model" @ref="frm" Spacing="4">
+            <MudTextField @bind-Value="@Model.Name" Label=@T["Name"] Required="true" Variant="Variant.Outlined" />
+            <MudTextField @bind-Value="@Model.Settings.Purpose" Label=@T["Purpose"] Variant="Variant.Outlined" Lines="5" AutoGrow="true" />
+            <OwnerLookup Label=@T["Group Owner"] Class="mt-4" @bind-Value="Model.Owner" />
+            <CommunityLookup Label=@T["Community"] @bind-Value="@Model.Community" />
         </MudForm>
         @if (!string.IsNullOrEmpty(ErrorMessage))
         {
@@ -32,7 +33,7 @@
     private IMudDialogInstance MudDialog { get; set; }
 
     [Parameter]
-    public GroupEditModel Model { get; set; }
+    public CreateGroupCommandModel Model { get; set;  } = new();
 
     MudForm frm;
     string ErrorMessage = string.Empty;
@@ -49,7 +50,12 @@
 
         if (Model.Owner is null)
         {
-            ErrorMessage = "please select a community owner.";
+            ErrorMessage = T["please select a groups owner."];
+            return;
+        }
+        if (Model.Name.Length < 4)
+        {
+            ErrorMessage = T["Name must have 3 or more characters."];
             return;
         }
 
@@ -59,8 +65,12 @@
         }
         else
         {
-            ErrorMessage = "Please fill all required fields.";
+            ErrorMessage = T["Please fill all required fields."];
         }
     }
+
+
+   
+
 
 }

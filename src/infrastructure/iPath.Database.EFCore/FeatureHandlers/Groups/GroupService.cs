@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using EFunc = Microsoft.EntityFrameworkCore.EF;
 
 namespace iPath.EF.Core.FeatureHandlers.Groups;
 
@@ -12,7 +13,7 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
 
         var community = await db.Groups.AsNoTracking()
             .Where(g => g.Id == GroupId)
-            .Select(g => new GroupDto(Id: g.Id, Name: g.Name, Settings: g.Settings,
+            .Select(g => new GroupDto(Id: g.Id, Name: g.Name, Visibility: g.Visibility, Owner: g.Owner.ToOwnerDto(), Settings: g.Settings,
                                       Members: g.Members.Select(m => new GroupMemberDto(UserId: m.User.Id, Username: m.User.UserName, Role: m.Role)).ToArray()))
             .FirstOrDefaultAsync(ct);
 
@@ -47,14 +48,14 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
         IQueryable<GroupListDto> dtoQuery;
         if (!request.IncludeCounts)
         {
-            dtoQuery = q.Select(x => new GroupListDto(x.Id, x.Name));
+            dtoQuery = q.Select(x => new GroupListDto(x.Id, x.Name, x.Visibility));
         }
         else
         {
             var minDate = DateTime.UtcNow.AddYears(-1);
             var uid = sess.User.Id;
 
-            dtoQuery = q.Select(x => new GroupListDto(x.Id, x.Name,
+            dtoQuery = q.Select(x => new GroupListDto(x.Id, x.Name, x.Visibility,
                 x.Nodes.Count(),
                 x.Nodes.Count(n => n.CreatedOn > minDate && !n.LastVisits.Any(v => v.UserId == uid)),
                 x.Nodes.Count(n => n.Annotations.Any(a => a.CreatedOn > minDate &&
@@ -70,6 +71,18 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
 
 
     #region "-- Commands --"
+    private async Task AssertNameNotExists(string name, Guid? id, CancellationToken ct)
+    {
+        var q = db.Groups
+            .Where(g => EFunc.Functions.Like(g.Name, name));
+
+        if (id.HasValue)
+            q = q.Where(g => g.Id != id.Value);
+
+        if (await q.AnyAsync(ct))
+            throw new ArgumentException("Group name exists already");
+    }
+
 
     public async Task<GroupAssignedToCommunityEvent> AssignGroupToCommunityAsync(AssignGroupToCommunityCommand request, CancellationToken ct = default)
     {
@@ -107,21 +120,11 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
             }
         }
 
-        await using var trans = await db.Database.BeginTransactionAsync(ct);
-        try
-        {
-            var evt = EventEntity.Create<GroupAssignedToCommunityEvent, AssignGroupToCommunityCommand>(request, objectId: group.Id, userId: sess.User.Id);
-            await db.EventStore.AddAsync(evt, ct);
+        var evt = EventEntity.Create<GroupAssignedToCommunityEvent, AssignGroupToCommunityCommand>(request, objectId: group.Id, userId: sess.User.Id);
+        await db.EventStore.AddAsync(evt, ct);
 
-            await db.SaveChangesAsync(ct);
-            await trans.CommitAsync(ct);
-            return evt;
-        }
-        catch (Exception ex)
-        {
-            await trans.RollbackAsync();
-        }
-        return null;
+        await db.SaveChangesAsync(ct);
+        return evt;
     }
 
     public Task AssignQuestionnaireToGroupAsync(AssignQuestionnaireToGroupCommand cmd, CancellationToken ct = default)
@@ -129,9 +132,29 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
         throw new NotImplementedException();
     }
 
-    public Task<GroupDto> CreateGroupAsync(CreateGroupCommand cmd, CancellationToken ct = default)
+    public async Task<GroupListDto> CreateGroupAsync(CreateGroupCommand cmd, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        Guard.Against.NullOrEmpty(cmd.Name);
+        await AssertNameNotExists(cmd.Name, null, ct);
+
+        var group = new Group
+        {
+            Id = Guid.CreateVersion7(),
+            Name = cmd.Name,
+            Settings = cmd.Settings,
+            OwnerId = cmd.OwnerId,
+            Visibility = cmd.Visibility ?? eGroupVisibility.MembersOnly,
+            CreatedOn = DateTime.UtcNow
+        };
+        await db.Groups.AddAsync(group, ct);
+        await db.SaveChangesAsync(ct);
+
+        if (cmd.CommunityId.HasValue)
+        {   
+            await AssignGroupToCommunityAsync(new AssignGroupToCommunityCommand(CommunityId: cmd.CommunityId.Value, GroupId: group.Id), ct);
+        }
+
+        return group.ToListDto();
     }
 
     public Task DeleteGroupAsync(DeleteGroupCommand cmd, CancellationToken ct = default)
@@ -141,9 +164,24 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
 
 
 
-    public Task UpdateGroupAsync(UpdateGroupCommand cmd, CancellationToken ct = default)
+    public async Task UpdateGroupAsync(UpdateGroupCommand cmd, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var group = await db.Groups.FirstOrDefaultAsync(g => g.Id == cmd.Id, ct);
+        Guard.Against.NotFound(cmd.Id, group);
+
+
+        if (cmd.Name != null)
+        {
+            await AssertNameNotExists(cmd.Name, group.Id, ct);
+            group.Name = cmd.Name;
+        }
+
+        if (cmd.Settings != null) group.Settings = cmd.Settings;    
+        if (cmd.Visibility.HasValue) group.Visibility = cmd.Visibility.Value;
+        if (cmd.OwnerId.HasValue) group.OwnerId = cmd.OwnerId.Value;
+
+        await db.SaveChangesAsync(ct);
     }
     #endregion
 }
+

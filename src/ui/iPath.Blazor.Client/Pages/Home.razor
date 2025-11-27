@@ -1,4 +1,7 @@
 ﻿@page "/"
+@using iPath.Application.Features
+@using iPath.Application.Features.Users
+@using iPath.Blazor.Componenents.Shared.Lookups
 
 <PageTitle>Home</PageTitle>
 
@@ -7,4 +10,34 @@
 
 <MudDivider Class="my-10" />
 
-more to follow here ... 
+more to follow here ...
+
+<MudDivider Class="my-10" />
+
+<!--
+<iPath.Blazor.Componenents.Communities.CommunitySelect Variant="Variant.Outlined" Label="Community" @bind-Value="c" />
+<div>selection: @c?.Id</div>
+-->
+
+<CommunityLookup Label="Community" Variant="Variant.Outlined" Dense="true"
+                 @bind-Value="c" Class="mt-10" />
+<div>selection: @c</div>
+
+
+<GroupLookup Label="Group" Variant="Variant.Outlined" Dense="true"
+             @bind-Value="g" Class="mt-10" Community="c" />
+<div>selection: @g</div>
+
+
+
+
+<UserLookup Label="User" Variant="Variant.Outlined" MinCharacters="3" ShowProgressIndicator="true"
+            @bind-Value="u" Class="mt-10" />
+<div>selection: @u?.Username - @u?.Id</div>
+
+@code {
+
+    CommunityListDto c;
+    GroupListDto g;
+    UserListDto u;
+}

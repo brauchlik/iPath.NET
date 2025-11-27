@@ -9,6 +9,7 @@ public record UserDto
     public UserProfile Profile { get; init; } = new();
 
     public ICollection<UserGroupMemberDto> GroupMembership { get; init; } = [];
+    public ICollection<CommunityMemberDto> CommunityMembership { get; init; } = [];
 
     public RoleDto[] Roles { get; init; } = [];
 

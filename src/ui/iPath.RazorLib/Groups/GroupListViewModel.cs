@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using iPath.Blazor.ServiceLib.ApiClient;
+using Microsoft.AspNetCore.Components;
 
 namespace iPath.Blazor.Componenents.Groups;
 
 public class GroupListViewModel(IPathApi api, ISnackbar snackbar, IDialogService dialog, NavigationManager nm) : IViewModel
 {
+    public CommunityListDto? SelectedCommunity {  get; set; }
     public string SearchString { get; set; }
 
     public async Task<GridData<GroupListDto>> GetListAsync(GridState<GroupListDto> state)
@@ -26,5 +28,24 @@ public class GroupListViewModel(IPathApi api, ISnackbar snackbar, IDialogService
         {
             nm.NavigateTo($"groups/{group.Id}");
         }
+    }
+
+
+    public async Task<IEnumerable<GroupListDto>> Search(string? search, Guid? CommunityId,  CancellationToken ct)
+    {
+        if (search is not null)
+        {
+            var query = new GetGroupListQuery { SearchString = search, Page = 0, PageSize = 100, CommunityId = CommunityId };
+            var resp = await api.GetGroupList(query);
+            if (resp.IsSuccessful)
+            {
+                return resp.Content.Items.OrderBy(g => g.Name);
+            }
+            else
+            {
+                snackbar.AddWarning(resp.ErrorMessage);
+            }
+        }
+        return new List<GroupListDto>();
     }
 }

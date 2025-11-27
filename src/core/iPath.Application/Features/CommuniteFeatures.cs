@@ -1,5 +1,4 @@
-﻿using iPath.Domain.Entities;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace iPath.Application.Features;
 
@@ -7,7 +6,7 @@ namespace iPath.Application.Features;
 #region "-- Queries --"
 
 public record CommunityListDto(Guid Id, string Name);
-public record CommunityDto(Guid Id, string Name, string Description, string BaseUrl, GroupListDto[] Groups, OwnerDto? Owner);
+public record CommunityDto(Guid Id, string Name, string Description, string BaseUrl, eCommunityVisibility Visibility, GroupListDto[] Groups, OwnerDto? Owner);
 
 
 public class GetCommunityListQuery : PagedQuery<CommunityListDto>
@@ -19,35 +18,41 @@ public record GetCommunityByIdQuery(Guid id)
     : IRequest<GetCommunityByIdQuery, Task<CommunityDto>>;
 
 
+public record GetCommunityMembersQuery(Guid id)
+    : IRequest<GetCommunityMembersQuery, Task<IEnumerable<CommunityMemberDto>>>;
+
+
 #endregion
 
 
 #region "-- Commands --"
 
-public record CreateCommunityInput(
+public record CreateCommunityCommand(
     [Required, MinLength(4)]
     string Name,
     Guid OwnerId,
+    eCommunityVisibility? Visibility = eCommunityVisibility.MembersOnly,
     string? Description = null,
     string? BaseUrl = null)
-    : IRequest<CreateCommunityInput, Task<CommunityListDto>>, IEventInput
+    : IRequest<CreateCommunityCommand, Task<CommunityListDto>>, IEventInput
 {
     public string ObjectName => "Community";
 }
 
-public record UpdateCommunityInput(
+public record UpdateCommunityCommand(
     Guid Id,
     string? Name,
     Guid? OwnerId,
+    eCommunityVisibility? Visibility = null,
     string? Description = null,
     string? BaseUrl = null)
-    : IRequest<UpdateCommunityInput, Task<CommunityListDto>>, IEventInput
+    : IRequest<UpdateCommunityCommand, Task<CommunityListDto>>, IEventInput
 {
     public string ObjectName => "Community";
 }
 
-public record DeleteCommunityInput(Guid Id)
-    : IRequest<DeleteCommunityInput, Task<Guid>>, IEventInput
+public record DeleteCommunityCommand(Guid Id)
+    : IRequest<DeleteCommunityCommand, Task<Guid>>, IEventInput
 {
     public string ObjectName => "Community";
 }

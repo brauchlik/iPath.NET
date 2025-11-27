@@ -1,4 +1,6 @@
-﻿namespace iPath.Application.Contracts;
+﻿using System.Collections.ObjectModel;
+
+namespace iPath.Application.Contracts;
 
 public interface IUserSession
 {
@@ -13,25 +15,19 @@ public static class UserSessionExtensions
         public bool IsAdmin => session.User.roles.Any(r => r.ToLower() == "admin");
         public bool IsModerator => session.User.roles.Any(r => r.ToLower() == "moderator");
 
-        public HashSet<Guid> GroupIds()
-        {
-            if (session.User is null || session.User.groups is null)
-            {
-                return [];
-            }
-            return session.User.groups.Select(g => g.GroupId).ToHashSet();
-        }
 
         public void AssertInGroup(Guid GroupId)
         {
             if (!session.IsAdmin)
             {
-                if (!session.User.groups.Any(g => g.GroupId == GroupId))
+                if (!session.User.groups.ContainsKey(GroupId))
                 {
                     throw new NotAllowedException();
                 }
             }
         }
+
+        public HashSet<Guid> GroupIds() => session.User.groups.Keys.ToHashSet();
 
         public void AssertInRole(string Role)
         {
@@ -43,7 +39,7 @@ public static class UserSessionExtensions
 
 
         public bool IsGroupModerator(Guid groupId)
-            => session.IsAuthenticated && session.User.groups.Any(g => g.GroupId == groupId && g.Role == eMemberRole.Moderator);
+            => session.IsAuthenticated && session.User.groups.ContainsKey(groupId) && session.User.groups[groupId] == eMemberRole.Moderator;
 
         // Admin or user himself
         public bool CanModifyUser(Guid UserId)

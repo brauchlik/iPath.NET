@@ -1,5 +1,4 @@
-﻿@using iPath.Blazor.Componenents.Users.Componenets
-<MudDialog Style="min-width: 500px;">
+﻿<MudDialog Style="min-width: 500px;">
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
@@ -7,11 +6,10 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model" @ref="frm">
+        <MudForm Model="@Model" @ref="frm" Spacing="2">
             <MudTextField @bind-Value="@Model.Name" Label="Name" Required="true" Variant="Variant.Outlined" />
-            <MudTextField @bind-Value="@Model.Settings.Purpose" Label="Description" Variant="Variant.Outlined" Lines="5" AutoGrow="true" Required="true" />
-
-            <UserLookUp Label="Group Owner" Class="mt-4" @bind-SelectedUser="Model.Owner" />
+            <MudTextField @bind-Value="@Model.Settings.Purpose" Label="Description" Variant="Variant.Outlined" Lines="5" AutoGrow="true" />
+            <OwnerLookup Label="Group Owner" Class="mt-4" @bind-Value="Model.Owner" />
         </MudForm>
         @if (!string.IsNullOrEmpty(ErrorMessage))
         {

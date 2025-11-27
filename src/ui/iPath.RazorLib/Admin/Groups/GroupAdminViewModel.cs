@@ -1,8 +1,10 @@
-﻿using iPath.Blazor.Componenents.Admin.Users;
+﻿using iPath.Blazor.ServiceLib.ApiClient;
 using iPath.Domain.Entities;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace iPath.Blazor.Componenents.Admin.Groups;
 
@@ -10,10 +12,13 @@ public class GroupAdminViewModel(IPathApi api,
     ISnackbar snackbar,
     IDialogService dialog,
     IMemoryCache cache,
+    IStringLocalizer T,
     ILogger<GroupAdminViewModel> logger)
     : IViewModel
-{
+{    
     public string SearchString { get; set; } = "";
+    public MudDataGrid<GroupListDto> grid;
+
     public async Task<GridData<GroupListDto>> GetListAsync(GridState<GroupListDto> state)
     {
         var query = state.BuildQuery(new GetGroupListQuery { AdminList = true, SearchString = this.SearchString });
@@ -41,7 +46,7 @@ public class GroupAdminViewModel(IPathApi api,
                 var resp = await api.GetGroupList(query);
                 if (resp.IsSuccessful)
                 {
-                    grouplist = resp.Content.Items;
+                    grouplist = resp.Content.Items.OrderBy(g => g.Name);
 
                     var opts = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15));
                     cache.Set(groupListCacheKey, grouplist, opts);
@@ -65,6 +70,20 @@ public class GroupAdminViewModel(IPathApi api,
     {
         cache.Remove(groupListCacheKey);
     }
+
+    public async Task<IEnumerable<GroupListDto>> Search(string? term, Guid? communityId, CancellationToken ct)
+    {
+        var list = await GetAllAsync();
+        if (string.IsNullOrEmpty(term))
+        {
+            return list;
+        }
+        else
+        {
+            return list.Where(g => g.Name.ToLower().StartsWith(term.ToLower()));
+        }
+    }
+
 
 
 
@@ -107,27 +126,21 @@ public class GroupAdminViewModel(IPathApi api,
 
     public async Task Create()
     {
-        var p = new DialogParameters<CreateGroupDialog> { { x => x.Model, new GroupEditModel() } };
         DialogOptions opts = new() { MaxWidth = MaxWidth.Medium, FullWidth = false, NoHeader = false };
-        var dlg = await dialog.ShowAsync<CreateGroupDialog>("Create a new group", options: opts, parameters: p);
+        var dlg = await dialog.ShowAsync<CreateGroupDialog>(T["Create a new group"], options: opts);
         var res = await dlg.Result;
-        var m = res?.Data as GroupEditModel;
-        if (m != null)
+        var cmd = res?.Data as CreateGroupCommand;
+        if (cmd != null)
         {
-            var cmd = new CreateGroupCommand
-            {
-                Name = m.Name,
-                OwnerId = m.Owner.Id,
-                Settings = m.Settings,
-                Visibility = eGroupVisibility.MembersOnly
-            };
             var resp = await api.CreateGroup(cmd);
             if (!resp.IsSuccessful)
             {
                 snackbar.AddWarning(resp.ErrorMessage);
             }
+            await grid.ReloadServerData();
         }
     }
+
 
     public async Task Edit()
     {
@@ -138,11 +151,12 @@ public class GroupAdminViewModel(IPathApi api,
                 Id = SelectedGroup.Id,
                 Name = SelectedGroup.Name,
                 Settings = SelectedGroup.Settings,
+                Owner = SelectedGroup.Owner
             };
 
             var p = new DialogParameters<EditGroupDialog> { { x => x.Model, m } };
             DialogOptions opts = new() { MaxWidth = MaxWidth.Medium, FullWidth = false, NoHeader = false };
-            var dlg = await dialog.ShowAsync<EditGroupDialog>("Edit groups", options: opts, parameters: p);
+            var dlg = await dialog.ShowAsync<EditGroupDialog>(T["Edit group"], options: opts, parameters: p);
             var res = await dlg.Result;
             var r = res?.Data as GroupEditModel;
             if (r != null && r.Id.HasValue)
@@ -159,6 +173,7 @@ public class GroupAdminViewModel(IPathApi api,
                 {
                     snackbar.AddWarning(resp.ErrorMessage);
                 }
+                await grid.ReloadServerData();
             }
         }
     }
@@ -190,5 +205,37 @@ public class GroupEditModel
     [Required]
     public string Name { get; set; } = "";
     public GroupSettings Settings { get; set; } = new();
-    public UserListDto? Owner { get; set; }
+    public OwnerDto? Owner { get; set; }
+    public CommunityListDto? Community { get; set; }
+}
+
+
+public class CreateGroupCommandModel : CreateGroupCommand
+{
+    public OwnerDto Owner { 
+        get; 
+        set
+        {
+            field = value;
+            if (value is not null)
+            {
+                OwnerId = value.Id;
+            }
+        } 
+    }
+    public CommunityListDto? Community {
+        get; 
+        set
+        {
+            field = value;
+            CommunityId = value?.Id;
+        }
+    }
+
+    //public CreateGroupCommand ToCommand()
+    //{
+    //    OwnerId = Owner.Id;
+    //    CommunityId = Community?.Id;
+    //    return (CreateGroupCommand)this.MemberwiseClone();
+    //}
 }

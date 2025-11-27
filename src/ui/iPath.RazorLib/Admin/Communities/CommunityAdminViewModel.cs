@@ -1,7 +1,20 @@
-﻿namespace iPath.Blazor.Componenents.Admin.Communities;
+﻿using iPath.Blazor.Componenents.Admin.Groups;
+using iPath.Blazor.ServiceLib.ApiClient;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
 
-public class CommunityAdminViewModel(IPathApi api, ISnackbar snackbar, IDialogService dialog) : IViewModel
+namespace iPath.Blazor.Componenents.Admin.Communities;
+
+public class CommunityAdminViewModel(IPathApi api, 
+    ISnackbar snackbar, 
+    IDialogService dialog,
+    IStringLocalizer T,
+    ILogger<CommunityAdminViewModel> logger)
+    : IViewModel
 {
+    public MudDataGrid<CommunityListDto> grid;
+
     public async Task<GridData<CommunityListDto>> GetListAsync(GridState<CommunityListDto> state)
     {
         var query = state.BuildQuery(new GetCommunityListQuery());
@@ -62,38 +75,133 @@ public class CommunityAdminViewModel(IPathApi api, ISnackbar snackbar, IDialogSe
     }
 
 
+
     public async Task Create()
     {
-        if (SelectedItem != null)
+        var p = new DialogParameters<CreateCommunityDialog> { { x => x.Model, new CommunityEditModel() } };
+        DialogOptions opts = new() { MaxWidth = MaxWidth.Medium, FullWidth = false, NoHeader = false };
+        var dlg = await dialog.ShowAsync<CreateCommunityDialog>(T["Create a new community"], options: opts, parameters: p);
+        var res = await dlg.Result;
+        var m = res?.Data as CommunityEditModel;
+        if (m != null)
         {
-            snackbar.AddWarning("not implemented yet");
+            var cmd = new CreateCommunityCommand(Name: m.Name, OwnerId: m.Owner.Id, Description: m.Description, BaseUrl: m.BaseUrl);
+            var resp = await api.CreateCommunity(cmd);
+            if (!resp.IsSuccessful)
+            {
+                snackbar.AddWarning(resp.ErrorMessage);
+            }
+            await grid.ReloadServerData();
         }
     }
 
     public async Task Edit()
     {
-        if (SelectedItem != null)
+        if (SelectedCommunity != null)
         {
-            snackbar.AddWarning("not implemented yet");
+            var m = new CommunityEditModel
+            {
+                Id = SelectedCommunity.Id,
+                Name = SelectedCommunity.Name,
+                Description = SelectedCommunity.Description,
+                BaseUrl = SelectedCommunity.BaseUrl
+            };
+
+            var p = new DialogParameters<EditCommunityDialog> { { x => x.Model, m } };
+            DialogOptions opts = new() { MaxWidth = MaxWidth.Medium, FullWidth = false, NoHeader = false };
+            var dlg = await dialog.ShowAsync<EditCommunityDialog>(T["Edit communiy"], options: opts, parameters: p);
+            var res = await dlg.Result;
+            var r = res?.Data as CommunityEditModel;
+            if (r != null && r.Id.HasValue)
+            {
+                var cmd = new UpdateCommunityCommand(Id: r.Id.Value, Name: r.Name, OwnerId: r.Owner.Id, Description: r.Description, BaseUrl: r.BaseUrl);
+                var resp = await api.UpdateCommunity(cmd);
+                if (!resp.IsSuccessful)
+                {
+                    snackbar.AddWarning(resp.ErrorMessage);
+                }
+                await grid.ReloadServerData();
+            }
         }
     }
 
     public async Task Delete()
     {
-        if (SelectedItem != null)
+        throw new NotImplementedException();
+    }
+
+    public async Task CreateGroup()
+    {
+        if (SelectedCommunity != null)
         {
-            snackbar.AddWarning("not implemented yet");
+            var p = new DialogParameters<CreateGroupDialog> { { d => d.Model, new CreateGroupCommandModel { Community = this.SelectedItem } } };
+            DialogOptions opts = new() { MaxWidth = MaxWidth.Medium, FullWidth = false, NoHeader = false };
+            var dlg = await dialog.ShowAsync<CreateGroupDialog>(T["Create a new group"], options: opts, parameters: p);
+            var res = await dlg.Result;
+            var cmd = res?.Data as CreateGroupCommand;
+            if (cmd != null)
+            {
+                var resp = await api.CreateGroup(cmd);
+                if (!resp.IsSuccessful)
+                {
+                    snackbar.AddWarning(resp.ErrorMessage);
+                }
+                else
+                {
+                    await LoadCommunity(SelectedItem.Id);
+                }
+            }
         }
     }
 
 
-    public async Task AddGroups(GroupListDto group)
+    public async Task AddGroup(GroupListDto group)
     {
-        snackbar.AddWarning("not implemented yet");
+        if (SelectedCommunity != null) {
+            var cmd = new AssignGroupToCommunityCommand(CommunityId: SelectedCommunity.Id, GroupId: group.Id, Remove: false);
+            var resp = await api.AssignGroupToCommunity(cmd);
+
+            if (resp.IsSuccessful)
+            {
+                await LoadCommunity(SelectedItem.Id);
+            }
+            else
+            {
+                snackbar.AddWarning(resp.ErrorMessage);
+            }
+        }
     }
 
-    public async Task RemnoveGroups(GroupListDto group)
+    public async Task RemnoveGroup(GroupListDto group)
     {
-        snackbar.AddWarning("not implemented yet");
+        if (SelectedCommunity != null)
+        {
+            var cmd = new AssignGroupToCommunityCommand(CommunityId: SelectedCommunity.Id, GroupId: group.Id, Remove: true);
+            var resp = await api.AssignGroupToCommunity(cmd);
+
+            if (resp.IsSuccessful)
+            {
+                await LoadCommunity(SelectedItem.Id);
+            }
+            else
+            {
+                snackbar.AddWarning(resp.ErrorMessage);
+            }
+        }
     }
+}
+
+
+
+public class CommunityEditModel
+{
+    public Guid? Id { get; set; }
+
+    [Required]
+    public string Name { get; set; } = "";
+
+    public string Description { get; set; } = "";
+    public string BaseUrl { get; set; } = "";
+
+    public UserListDto? Owner { get; set; }
 }

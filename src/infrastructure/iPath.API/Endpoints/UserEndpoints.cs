@@ -25,6 +25,11 @@ public static class UserEndpoints
             .RequireAuthorization();
 
         // Commands
+        grp.MapPost("create", (CreateUserCommand cmd, IMediator mediator, CancellationToken ct)
+            => mediator.Send(cmd, ct))
+            .Produces<OwnerDto>()
+            .RequireAuthorization("Admin");
+
         grp.MapPut("role", (UpdateUserRoleCommand cmd, IMediator mediator, CancellationToken ct)
             => mediator.Send(cmd, ct))
             .Produces<Guid>()
@@ -40,6 +45,9 @@ public static class UserEndpoints
             .Produces<Guid>()
             .RequireAuthorization("Admin");
 
+        grp.MapPut("assign/community", (AssignUserToCommunityCommand cmd, IMediator mediator , CancellationToken ct)
+            => mediator.Send(cmd, ct))
+            .RequireAuthorization("Admin");
 
 
         grp.MapPut("profile", (UpdateUserProfileCommand cmd, IMediator mediator, CancellationToken ct)

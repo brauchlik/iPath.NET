@@ -1,0 +1,19 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C#: iPath Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+https?://\\S",
+                "uriFormat": "http://localhost:5000"
+            },
+            "projectPath": "${workspaceFolder}/src/ui/iPath.Blazor.Server/iPath.Blazor.Server.csproj"
+        }
+    ]
+}

@@ -19,6 +19,7 @@ public interface IDomainEvent : INotification
 
 public interface IEventInput  
 {
+    [JsonIgnore]
     string ObjectName { get; }
 }
 

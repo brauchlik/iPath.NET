@@ -10,4 +10,6 @@ public class GroupSettings
     public string DescriptionTemplate { get; set; } = "";
 
     public bool AnnotationsHide { get; set; } = false;
+
+    public GroupSettings Clone() => (GroupSettings)MemberwiseClone();
 }

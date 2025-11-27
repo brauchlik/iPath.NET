@@ -51,7 +51,7 @@ public class GetNodesQueryHandler(iPathDbContext db, IUserSession sess)
                 NodeType = n.NodeType,
                 CreatedOn = n.CreatedOn,
                 OwnerId = n.OwnerId,
-                Owner = new OwnerDto(n.OwnerId, n.Owner.UserName),
+                Owner = new OwnerDto(n.OwnerId, n.Owner.UserName, n.Owner.Email),
                 GroupId = n.GroupId,
                 Description = n.Description
             });
@@ -64,7 +64,7 @@ public class GetNodesQueryHandler(iPathDbContext db, IUserSession sess)
                 NodeType = n.NodeType,
                 CreatedOn = n.CreatedOn,
                 OwnerId = n.OwnerId,
-                Owner = new OwnerDto(n.OwnerId, n.Owner.UserName),
+                Owner = new OwnerDto(n.OwnerId, n.Owner.UserName, n.Owner.Email),
                 GroupId = n.GroupId,
                 Description = n.Description,
                 AnnotationCount = n.Annotations.Count(),

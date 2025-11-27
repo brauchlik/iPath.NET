@@ -18,20 +18,24 @@ public static class CommunityEndpoints
             .Produces<CommunityDto>()
             .RequireAuthorization();
 
+        grp.MapGet("members/{id}", (string id, IMediator mediator, CancellationToken ct)
+            => mediator.Send(new GetCommunityMembersQuery(Guid.Parse(id)), ct))
+            .Produces<CommunityDto>()
+            .RequireAuthorization();
 
 
-        grp.MapPost("create", ([FromBody] CreateCommunityInput request, IMediator mediator, CancellationToken ct)
+        grp.MapPost("create", ([FromBody] CreateCommunityCommand request, IMediator mediator, CancellationToken ct)
             => mediator.Send(request, ct))
             .Produces<CommunityListDto>()
             .RequireAuthorization();
 
-        grp.MapPut("update", ([FromBody] UpdateCommunityInput request, IMediator mediator, CancellationToken ct)
+        grp.MapPut("update", ([FromBody] UpdateCommunityCommand request, IMediator mediator, CancellationToken ct)
             => mediator.Send(request, ct))
             .Produces<CommunityListDto>()
             .RequireAuthorization();
 
         grp.MapDelete("{id}", (string id, IMediator mediator, CancellationToken ct)
-            => mediator.Send(new DeleteCommunityInput(Guid.Parse(id)), ct))
+            => mediator.Send(new DeleteCommunityCommand(Guid.Parse(id)), ct))
             .Produces<Guid>()
             .RequireAuthorization();
 

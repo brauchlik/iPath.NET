@@ -1,18 +1,19 @@
 ﻿@page "/admin/communities"
 
-@inject CommunityAdminViewModel vm;
-
-<iPath.Blazor.Componenents.Shared.IPathHeader Title="Community Administration">
-    <ActionContent>
-        <MudFab StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="vm.Create" />
-    </ActionContent>
-</iPath.Blazor.Componenents.Shared.IPathHeader>
+@inject CommunityAdminViewModel vm
+@inject IStringLocalizer T
 
 
-<MudGrid>
-    <MudItem xs="12" sm="8">
-
-        <MudDataGrid T="CommunityListDto" ServerData="vm.GetListAsync"
+<MudGrid Spacing="2">
+    <MudItem xs="12" sm="8" md="7">
+        <IPathHeader Title=@T["Community Administration"]>
+            <ActionContent>
+                <MudTooltip Text=@T["Create a new community"]>
+                    <MudFab StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="vm.Create" />
+                </MudTooltip>
+            </ActionContent>
+        </IPathHeader>
+        <MudDataGrid T="CommunityListDto" ServerData="vm.GetListAsync" @ref="vm.grid"
                      RowClick="@(async args => await vm.SetSelectedItem(args.Item))"
                      RowStyleFunc="vm.SelectedRowStyle"
                      Dense>
@@ -24,22 +25,59 @@
             </PagerContent>
         </MudDataGrid>
     </MudItem>
-    <MudItem xs="12" sm="4">
-        @if (vm.SelectedCommunity is not null)
-        {
-            <MudText Typo="Typo.h5">@vm.SelectedCommunity.Name</MudText>
-            <p><b>Base URL</b>: @vm.SelectedCommunity.BaseUrl</p>
-            <p class="py-2">
-                @((MarkupString) vm.SelectedCommunity.Description)
-            </p>
-            <MudDivider Class="my-2" />
-            <MudText Typo="Typo.h6">Groups</MudText>
-            @foreach (var g in vm.SelectedCommunity.Groups)
+    <MudItem xs="12" sm="4" md="5">
+        <IPathHeader Title="@vm.SelectedCommunity?.Name">
+            <ActionContent>
+                <MudTooltip Text=@T["edit this community"]>
+                    <MudFab StartIcon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="vm.Edit" />
+                </MudTooltip>
+            </ActionContent>
+        </IPathHeader>
+        <MudPaper Elevation="1" Style="min-height: 10em;" Class="pa-2">
+            @if (vm.SelectedCommunity is null)
             {
-                <p>@g.Name</p>
-            }            
-            <MudDivider Class="my-2" />
-            <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="vm.Edit">Edit</MudButton>
-        } 
+                <MudText>nothing selected</MudText>
+            }
+            else
+            {
+                <MudStack Row Style="border-bottom: 1px solid;">
+                    <MudText Typo="Typo.h6">@T["Community groups"]</MudText>
+                    <MudSpacer />
+                    <MudTooltip Text=@T["add a new group"]>
+                        <MudFab StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="vm.CreateGroup" />
+                    </MudTooltip>
+                </MudStack>
+
+                <MudStack Row AlignItems="AlignItems.Center" Class="mt-2">
+                    <GroupAdminLookup Label=@T["select exiting group"] @bind-Value="selectedGroupToAdd" Dense="true" Variant="Variant.Outlined" />
+                    <MudTooltip Text=@T["add a new group"]>
+                        <MudIconButton Icon="@Icons.Material.Filled.Send" Size="Size.Small" OnClick="AddGroup" />
+                    </MudTooltip>
+                </MudStack>
+                <MudDataGrid Items="@vm.SelectedCommunity.Groups" Dense="true" Class="mt-4">
+                    <Columns>
+                        <PropertyColumn Property="g => g.Name" />
+                        <TemplateColumn CellClass="d-flex justify-end">
+                            <CellTemplate>
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick=@(() => vm.RemnoveGroup(context.Item)) />
+                            </CellTemplate>
+                        </TemplateColumn>
+                    </Columns>
+                </MudDataGrid>
+            }
+        </MudPaper>
     </MudItem>
 </MudGrid>
+
+@code {
+    GroupListDto selectedGroupToAdd;
+
+    async Task AddGroup()
+    {
+        if (selectedGroupToAdd != null)
+        {
+            await vm.AddGroup(selectedGroupToAdd);
+            selectedGroupToAdd = null;
+        }
+    }
+}

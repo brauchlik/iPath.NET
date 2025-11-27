@@ -6,7 +6,7 @@ using iPath.Application.Querying;
 using iPath.Domain.Entities;
 using Refit;
 
-namespace iPath.Blazor.ServiceLib.Services;
+namespace iPath.Blazor.ServiceLib.ApiClient;
 
 [Headers("accept: application/json")]
 public interface IPathApi
@@ -45,6 +45,11 @@ public interface IPathApi
     [Put("/api/v1/users/profile")]
     Task<IApiResponse<Guid>> UpdateProfile(UpdateUserProfileCommand command);
 
+    [Post("/api/v1/users/create")]
+    Task<IApiResponse<OwnerDto>> CreateUser(CreateUserCommand command);
+
+    [Put("/api/v1/users/assign/community")]
+    Task<IApiResponse> AssignUserToCommunity(AssignUserToCommunityCommand command);
     #endregion
 
 
@@ -62,6 +67,13 @@ public interface IPathApi
     [Put("/api/v1/groups/update")]
     Task<IApiResponse> UpdateGroup(UpdateGroupCommand command);
 
+
+    [Put("/api/v1/groups/community/assign")]
+    Task<IApiResponse> AssignGroupToCommunity(AssignGroupToCommunityCommand command);
+
+    [Put("/api/v1/groups/asignquestionnaire")]
+    Task<IApiResponse> AssignQuestionnaireToCommunity(AssignQuestionnaireToGroupCommand command);
+
     #endregion
 
 
@@ -75,10 +87,10 @@ public interface IPathApi
 
 
     [Post("/api/v1/communities/create")]
-    Task<IApiResponse<CommunityListDto>> CreateCommunity(CreateCommunityInput input);
+    Task<IApiResponse<CommunityListDto>> CreateCommunity(CreateCommunityCommand input);
 
     [Put("/api/v1/communities/update")]
-    Task<IApiResponse<CommunityListDto>> UpdateCommunity(UpdateCommunityInput input);
+    Task<IApiResponse<CommunityListDto>> UpdateCommunity(UpdateCommunityCommand input);
 
     [Delete("/api/v1/communities/{id}")]
     Task<IApiResponse<CommunityListDto>> DeleteCommunity(Guid id);

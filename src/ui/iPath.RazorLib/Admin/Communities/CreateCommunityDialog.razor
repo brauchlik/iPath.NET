@@ -1,0 +1,66 @@
+﻿@using iPath.Blazor.Componenents.Users.Componenets
+@inject IStringLocalizer T
+
+<MudDialog Style="min-width: 500px;">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+            @T["Create a new community"]
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@Model" @ref="frm">
+            <MudTextField @bind-Value="@Model.Name" Label=@T["Name"] Required="true" Variant="Variant.Outlined" />
+            <MudTextField @bind-Value="@Model.Description" Label=@T["Description"] Variant="Variant.Outlined" Lines="5" AutoGrow="true" />
+            <UserLookup Label=@T["Community Owner"] Class="mt-4" @bind-Value="Model.Owner" />
+        </MudForm>
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-3">
+                @ErrorMessage
+            </MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
+        <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public CommunityEditModel Model { get; set; }
+
+    MudForm frm;
+    string ErrorMessage = string.Empty;
+
+    private void Cancel() => MudDialog.Cancel();
+
+
+    private async Task Save()
+    {
+        ErrorMessage = "";
+        StateHasChanged();
+
+        await frm.Validate();
+
+        if (Model.Owner is null)
+        {
+            ErrorMessage = T["please select a community owner."];
+            return;
+        }
+
+        if (frm.IsValid)
+        {
+            MudDialog.Close(DialogResult.Ok(Model));
+        }
+        else
+        {
+            ErrorMessage = T["Please fill all required fields."];
+        }
+    }
+
+}

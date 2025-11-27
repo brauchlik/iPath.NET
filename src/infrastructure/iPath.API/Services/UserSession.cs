@@ -47,9 +47,13 @@ public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemory
 
         var groups = await db.Set<GroupMember>()
             .Where(m => m.UserId == user.Id)
-            .Select(m => new UserGroupMemberDto(m.GroupId, m.Group.Name, m.Role)).ToArrayAsync();
+            .ToDictionaryAsync(m => m.GroupId, m => m.Role);
+
+        var communities = await db.Set<CommunityMember>()
+            .Where(m => m.UserId == user.Id)
+            .ToDictionaryAsync(m => m.CommunityId, m => m.Role);
 
         return new SessionUserDto(Id: user.Id, Username: user.UserName, Email: user.Email, Initials: user.Profile?.Initials,
-            groups: groups, roles: roles.ToArray());
+            groups: groups, communities: communities, roles: roles.ToArray());
     }
 }

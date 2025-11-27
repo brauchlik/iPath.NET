@@ -1,4 +1,4 @@
-﻿using iPath.Domain.Entities;
+﻿using iPath.Blazor.ServiceLib.ApiClient;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -96,12 +96,21 @@ public class UserAdminViewModel(IPathApi api,
 
     #region "-- Action --"
 
-    public bool CreateDisable => true;
+    public bool CreateDisable => false;
     public async Task Create()
     {
-        if (SelectedItem != null)
+        DialogOptions opts = new() { MaxWidth = MaxWidth.Medium, FullWidth = false, NoHeader = false };
+        var dlg = await dialog.ShowAsync<CreateUserDialog>(T["Create a new user"], options: opts);
+        var res = await dlg.Result;
+        var cmd = res?.Data as CreateUserCommand;
+        if (cmd != null)
         {
-            snackbar.AddWarning("not implemented yet");
+            var resp = await api.CreateUser(cmd);
+            if (!resp.IsSuccessful)
+            {
+                snackbar.AddWarning(resp.ErrorMessage);
+            }
+            await grid.ReloadServerData();
         }
     }
 

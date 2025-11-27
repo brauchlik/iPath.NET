@@ -1,4 +1,5 @@
 ﻿@namespace iPath.Blazor.Componenents.Nodes
+@using iPath.Blazor.ServiceLib.ApiClient
 
 <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="StartUpload"
     MaxFileSize="@IPathApi.MaxFileSize" MaximumFileCount="@MaximumFileCount">

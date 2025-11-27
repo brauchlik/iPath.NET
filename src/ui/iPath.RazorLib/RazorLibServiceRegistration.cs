@@ -2,14 +2,17 @@
 using iPath.Blazor.Componenents.Admin.Communities;
 using iPath.Blazor.Componenents.Admin.Groups;
 using iPath.Blazor.Componenents.Admin.Users;
+using iPath.Blazor.Componenents.Communities;
 using iPath.Blazor.Componenents.Groups;
 using iPath.Blazor.Componenents.Nodes;
-using iPath.Blazor.Componenents.Users;
 using iPath.Blazor.Componenents.Shared;
+using iPath.Blazor.Componenents.Users;
+using iPath.Blazor.ServiceLib.ApiClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Refit;
 using System.Data;
+using System.Text.Json;
 
 namespace iPath.RazorLib;
 
@@ -17,8 +20,17 @@ public static class RazorLibServiceRegistration
 {
     public static IServiceCollection AddRazorLibServices(this IServiceCollection services, string baseAddress)
     {
-        services.AddRefitClient<IPathApi>()
+        var jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString,
+        };
+        var refitSetting = new RefitSettings { 
+            ContentSerializer = new SystemTextJsonContentSerializer(jsonOptions) 
+        };
+        services.AddRefitClient<IPathApi>(refitSetting)
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseAddress));
+            // .AddHttpMessageHandler<HttpLoggingHandler>();
 
         services.AddMemoryCache();
         services.AddViewModels();
@@ -44,6 +56,7 @@ public static class RazorLibServiceRegistration
         services.AddScoped<MailBoxViewModel>();
 
         // users
+        services.AddScoped<CommunityViewModel>();
         services.AddScoped<GroupListViewModel>();
         services.AddScoped<GroupIndexViewModel>();
         services.AddScoped<NodeListViewModel>();

@@ -4,9 +4,9 @@ using iPath.Application.Contracts;
 namespace iPath.EF.Core.FeatureHandlers.Communities.Commands;
 
 public class UpdateCommunityHandler(iPathDbContext db, IUserSession sess)
-    : IRequestHandler<UpdateCommunityInput, Task<CommunityListDto>>
+    : IRequestHandler<UpdateCommunityCommand, Task<CommunityListDto>>
 {
-    public async Task<CommunityListDto> Handle(UpdateCommunityInput request, CancellationToken ct)
+    public async Task<CommunityListDto> Handle(UpdateCommunityCommand request, CancellationToken ct)
     {
         var community = await db.Communities.FindAsync(request.Id, ct);
         Guard.Against.NotFound(request.Id, community);
@@ -34,7 +34,7 @@ public class UpdateCommunityHandler(iPathDbContext db, IUserSession sess)
         db.Communities.Update(community);
 
         // create & save event
-        var evt = EventEntity.Create<CommunityUpdatedEvent, UpdateCommunityInput>(request, objectId: community.Id, userId: sess.User.Id);
+        var evt = EventEntity.Create<CommunityUpdatedEvent, UpdateCommunityCommand>(request, objectId: community.Id, userId: sess.User.Id);
         await db.EventStore.AddAsync(evt, ct);
 
         await db.SaveChangesAsync(ct);

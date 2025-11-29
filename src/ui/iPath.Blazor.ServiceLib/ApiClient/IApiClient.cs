@@ -171,4 +171,17 @@ public interface IPathApi
     [Get("/api/v1/admin/roles")]
     Task<IEnumerable<RoleDto>> GetRoles();
     #endregion
+
+
+    #region "-- Questionnaires --"
+    [Get("/api/v1/questionnaires/{id}")]
+    Task<IApiResponse<Questionnaire>> GetQuestionnaireById(Guid id);
+
+    [Post("/api/v1/questionnaires/list")]
+    Task<IApiResponse<PagedResultList<QuestionnaireListDto>>> GetQuestionnnaires(GetQuestionnaireListQuery query);
+
+    [Post("/api/v1/questionnaires/create")]
+    Task<IApiResponse<Guid>> CreateQuestionnaire(CreateQuestionnaireCommand cmd);
+
+    #endregion
 }

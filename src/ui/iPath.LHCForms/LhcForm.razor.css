@@ -1,0 +1,13 @@
+﻿.form {
+    border: 1px solid;
+    padding: 1em;
+    margin: 1em;
+    background-image: url('background.png');
+}
+
+.error {
+    border: 2px solid red;
+    padding: 1em;
+    margin: 1em;
+    background-color: antiquewhite;
+}

@@ -1,0 +1,12 @@
+﻿<AuthorizeView>
+    <NotAuthorized>
+        <MudNavLink Href="Account/Login" Icon="@Icons.Material.Filled.Login">Login</MudNavLink>
+        <MudNavLink Href="Account/Register" Icon="@Icons.Material.Filled.AppRegistration">Register</MudNavLink>
+    </NotAuthorized>
+    <Authorized>
+        <MudNavLink Href="user/groups" Icon="@Icons.Material.Filled.Groups">My Groups</MudNavLink>
+        <MudNavLink Href="user/cases" Icon="@Icons.Material.Filled.Folder">My Cases</MudNavLink>
+        <MudNavLink Href="user/profile" Icon="@Icons.Material.Filled.ManageAccounts">My Profile</MudNavLink>
+        <MudNavLink Href="Account/Logout" Icon="@Icons.Material.Filled.Logout">Logout</MudNavLink>
+    </Authorized>
+</AuthorizeView>

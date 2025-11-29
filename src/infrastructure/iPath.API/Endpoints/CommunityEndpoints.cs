@@ -10,33 +10,33 @@ public static class CommunityEndpoints
         var grp = route.MapGroup("communities")
             .WithTags("Communities");
 
-        grp.MapPost("list", (GetCommunityListQuery query, IMediator mediator, CancellationToken ct)
-            => mediator.Send(query, ct))
+        grp.MapPost("list", async (GetCommunityListQuery query, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(query, ct))
             .Produces<PagedResultList<CommunityListDto>>();
 
-        grp.MapGet("{id}", (string id, IMediator mediator, CancellationToken ct)
-            => mediator.Send(new GetCommunityByIdQuery(Guid.Parse(id)), ct))
+        grp.MapGet("{id}", async (string id, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new GetCommunityByIdQuery(Guid.Parse(id)), ct))
             .Produces<CommunityDto>()
             .RequireAuthorization();
 
-        grp.MapPost("members", (string id, IMediator mediator, CancellationToken ct)
-            => mediator.Send(new GetCommunityMembersQuery { CommunityId = Guid.Parse(id) }, ct))
+        grp.MapPost("members", async (string id, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new GetCommunityMembersQuery { CommunityId = Guid.Parse(id) }, ct))
             .Produces<PagedResultList<CommunityMemberDto>>()
             .RequireAuthorization();
 
 
-        grp.MapPost("create", ([FromBody] CreateCommunityCommand request, IMediator mediator, CancellationToken ct)
-            => mediator.Send(request, ct))
+        grp.MapPost("create", async ([FromBody] CreateCommunityCommand request, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(request, ct))
             .Produces<CommunityListDto>()
             .RequireAuthorization();
 
-        grp.MapPut("update", ([FromBody] UpdateCommunityCommand request, IMediator mediator, CancellationToken ct)
-            => mediator.Send(request, ct))
+        grp.MapPut("update", async ([FromBody] UpdateCommunityCommand request, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(request, ct))
             .Produces<CommunityListDto>()
             .RequireAuthorization();
 
-        grp.MapDelete("{id}", (string id, IMediator mediator, CancellationToken ct)
-            => mediator.Send(new DeleteCommunityCommand(Guid.Parse(id)), ct))
+        grp.MapDelete("{id}", async (string id, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new DeleteCommunityCommand(Guid.Parse(id)), ct))
             .Produces<Guid>()
             .RequireAuthorization();
 

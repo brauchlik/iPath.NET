@@ -10,24 +10,24 @@ public static class GroupEndpoints
         var grp = route.MapGroup("groups")
             .WithTags("Groups");
 
-        grp.MapPost("list", (GetGroupListQuery query, IGroupService srv, CancellationToken ct)
-            => srv.GetGroupListAsync(query, ct))
+        grp.MapPost("list", async (GetGroupListQuery query, IGroupService srv, CancellationToken ct)
+            => await srv.GetGroupListAsync(query, ct))
             .Produces<PagedResultList<GroupListDto>>()
             .RequireAuthorization();
 
-        grp.MapGet("{id}", (string id, IGroupService srv, CancellationToken ct)
-            => srv.GetGroupByIdAsync(Guid.Parse(id), ct))
+        grp.MapGet("{id}", async (string id, IGroupService srv, CancellationToken ct)
+            => await srv.GetGroupByIdAsync(Guid.Parse(id), ct))
             .Produces<GroupDto>()
             .RequireAuthorization();
 
-        grp.MapPost("members", (GetGroupMembersQuery query, IGroupService srv, CancellationToken ct)
-            => srv.GetGroupMembersAsync(query, ct))
+        grp.MapPost("members", async (GetGroupMembersQuery query, IGroupService srv, CancellationToken ct)
+            => await srv.GetGroupMembersAsync(query, ct))
             .Produces<PagedResultList<GroupMemberDto>>()
             .RequireAuthorization();
 
 
-        grp.MapPut("community/assign", (AssignGroupToCommunityCommand request, IGroupService srv, CancellationToken ct)
-            => srv.AssignGroupToCommunityAsync(request, ct))
+        grp.MapPut("community/assign", async (AssignGroupToCommunityCommand request, IGroupService srv, CancellationToken ct)
+            => await srv.AssignGroupToCommunityAsync(request, ct))
             .Produces<GroupAssignedToCommunityEvent>()
             .RequireAuthorization("Admin");
 
@@ -37,12 +37,12 @@ public static class GroupEndpoints
             .Produces<GroupListDto>()
             .RequireAuthorization("Admin");
 
-        grp.MapPut("update", (UpdateGroupCommand cmd, IGroupService srv, CancellationToken ct)
-            => srv.UpdateGroupAsync(cmd, ct))
+        grp.MapPut("update", async (UpdateGroupCommand cmd, IGroupService srv, CancellationToken ct)
+            => await srv.UpdateGroupAsync(cmd, ct))
             .RequireAuthorization("Admin");
 
-        grp.MapDelete("delete/{id}", (Guid id, IGroupService srv, CancellationToken ct)
-            => srv.DeleteGroupAsync(new DeleteGroupCommand(id), ct))
+        grp.MapDelete("delete/{id}", async (Guid id, IGroupService srv, CancellationToken ct)
+            => await srv.DeleteGroupAsync(new DeleteGroupCommand(id), ct))
             .RequireAuthorization("Admin");
 
 

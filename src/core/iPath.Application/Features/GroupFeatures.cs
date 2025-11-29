@@ -5,12 +5,22 @@ namespace iPath.Application.Features;
 
 
 #region "-- DTO --"
-public record GroupListDto(Guid Id, string Name, eGroupVisibility Visibility, int? TotalNodes = null, int? NewNodes = null, int? NewAnnotation = null);
-public record GroupDto(Guid Id, string Name, eGroupVisibility Visibility, OwnerDto Owner, GroupSettings Settings, GroupMemberDto[]? Members, CommunityListDto[]? Communities);
+public record GroupListDto(Guid Id, string Name, eGroupVisibility Visibility,
+    int? TotalNodes = null, int? NewNodes = null, int? NewAnnotation = null);
+
+public record GroupDto(Guid Id, string Name, eGroupVisibility Visibility, OwnerDto Owner, 
+    GroupSettings Settings, 
+    GroupMemberDto[]? Members, 
+    CommunityListDto[]? Communities,
+    QuestionnaireForGroupDto[]? Questionnaires);
 
 public record UserGroupMemberDto(Guid GroupId, string Groupname, eMemberRole Role);
 
 public record GroupMemberDto(Guid UserId, string Username, eMemberRole Role);
+
+
+public record QuestionnaireForGroupDto(Guid QuestionnaireId, eQuestionnaireUsage Usage, int? ExplicitVersion = null);
+
 #endregion
 
 
@@ -125,7 +135,8 @@ public static class GroupExtensions
         return new GroupDto(Id: group.Id, Name: group.Name, Visibility: group.Visibility, Owner: group.Owner.ToOwnerDto(), Settings: group.Settings,
 
             Members: group.Members?.Select(m => new GroupMemberDto(UserId: m.UserId, Role: m.Role, Username: m.User?.UserName)).ToArray(),
-            Communities: group.Communities.Select(c => new CommunityListDto(Id: c.Community.Id, Name: c.Community.Name)).ToArray());
+            Communities: group.Communities.Select(c => new CommunityListDto(Id: c.Community.Id, Name: c.Community.Name)).ToArray(),
+            Questionnaires: group.Quesionnaires.Select(q => new QuestionnaireForGroupDto(QuestionnaireId: q.QuestionnaireId, Usage: q.Usage, ExplicitVersion: q.ExplicitVersion)).ToArray());
     }
     
     public static GroupListDto ToListDto(this Group group)

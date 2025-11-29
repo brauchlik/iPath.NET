@@ -8,13 +8,13 @@
     </TitleContent>
     <DialogContent>
         <MudForm Model="@Model" @ref="frm" Spacing="2">
-            <MudTextField @bind-Value="@Model.Name" Label="Name" Required="true" Variant="Variant.Text" />
-            <OwnerLookup Label="Group Owner" Class="mt-4" @bind-Value="Model.Owner" />
+            <MudTextField @bind-Value="@Model.Name" Label="Name" Required="true" Variant="Variant.Outlined" />
+            <OwnerLookup Label="Group Owner" Class="mt-4" @bind-Value="Model.Owner" Variant="Variant.Outlined" />
             <GroupSettingsForm Model="@Model.Settings" Variant="Variant.Outlined" />
         </MudForm>
         @if (!string.IsNullOrEmpty(ErrorMessage))
         {
-            <MudAlert Severity="Severity.Error" Class="mt-3">
+            <MudAlert Severity="Severity.Error" Class="mt-2">
                 @ErrorMessage
             </MudAlert>
         }

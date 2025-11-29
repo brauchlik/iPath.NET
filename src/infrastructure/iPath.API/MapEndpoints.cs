@@ -18,6 +18,7 @@ public static class MapEndpoints
             .MapGroupsApi()
             .MapNodeEndpoints()
             .MapNotificationApi()
+            .MapQuesionnairesApi()
             .MapTestApi()
             .MapIPathHubs();
 

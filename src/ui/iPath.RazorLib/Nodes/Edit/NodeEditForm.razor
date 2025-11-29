@@ -1,18 +1,20 @@
 ﻿@namespace iPath.Blazor.Componenents.Nodes
+@using Tizzani.MudBlazor.HtmlEditor
 
+@inject NodeViewModel vm;
 @inject IStringLocalizer T
 
 <MudForm Model="Model" Class="@Class">
     <MudGrid Spacing="1">
-        <MudItem xs="12">
+        <MudItem xs="12" sm="8">
             <MudTextField Label=@T["Title"] @bind-Value="Model.Title" Variant="Variant" Margin="@Margin"
                           AutoFocus="true" />
         </MudItem>
-        <MudItem xs="12">
-            <MudTextField Label=@T["Subtitle"] @bind-Value="Model.Subtitle" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
+        <MudItem xs="12" sm="4">
+            <MudTextField Label=@T["Case Type"] @bind-Value="Model.CaseType" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
         </MudItem>
         <MudItem xs="12" sm="8">
-            <MudTextField Label=@T["Case Type"] @bind-Value="Model.CaseType" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
+            <MudTextField Label=@T["Subtitle"] @bind-Value="Model.Subtitle" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
         </MudItem>
         <MudItem xs="12" sm="4">
             <MudTextField Label=@T["Accession No"] @bind-Value="Model.AccessionNo" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
@@ -23,11 +25,13 @@
 
                 @if (useQuestionnaire)
                 {
-                    @* <iPath.LHCForms.LhcForm @ref="lhcForm" /> *@
+                    <iPath.LHCForms.LhcForm @ref="lhcForm" />
                 }
                 else if (useHtmlEditor)
                 {
-                    <MudExRichTextEditor.MudExRichTextEdit @bind-Value="Model.Text" />
+                    <MudHtmlEditor @bind-Html="Model.Text" style="min-height: 12em;">
+                        <MudHtmlToolbarOptions InsertImage="false" /> 
+                    </MudHtmlEditor>
                 }
                 else
                 {
@@ -52,6 +56,24 @@
     [Parameter]
     public Margin Margin { get; set; } = Margin.Dense;
 
+    private iPath.LHCForms.LhcForm lhcForm;
+
     bool useQuestionnaire;
     bool useHtmlEditor = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && lhcForm != null)
+        {
+            var q = vm.ActiveGroup.Questionnaires.FirstOrDefault(q => q.Usage == eQuestionnaireUsage.CaseDescription || q.Usage == eQuestionnaireUsage.Any);
+            if (q is not null)
+            {
+                var qResource = await vm.GetQuesiotnnaire(q.QuestionnaireId);
+                if (!string.IsNullOrEmpty(qResource))
+                {
+                    await lhcForm.LoadFormAsync(qResource, "");
+                }
+            }
+        }
+    }
 }

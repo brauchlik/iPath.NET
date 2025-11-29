@@ -16,7 +16,8 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
             .Where(g => g.Id == GroupId)
             .Select(g => new GroupDto(Id: g.Id, Name: g.Name, Visibility: g.Visibility, Owner: g.Owner.ToOwnerDto(), Settings: g.Settings,
                                       Members: g.Members.Select(m => new GroupMemberDto(UserId: m.User.Id, Username: m.User.UserName, Role: m.Role)).ToArray(),
-                                      Communities: g.Communities.Select(c => new CommunityListDto(Id: c.Community.Id, Name: c.Community.Name)).ToArray()))
+                                      Communities: g.Communities.Select(c => new CommunityListDto(Id: c.Community.Id, Name: c.Community.Name)).ToArray(),
+                                      Questionnaires: g.Quesionnaires.Select(q => new QuestionnaireForGroupDto(QuestionnaireId: q.QuestionnaireId, Usage: q.Usage, ExplicitVersion: q.ExplicitVersion)).ToArray()))
             .FirstOrDefaultAsync(ct);
 
         Guard.Against.NotFound(GroupId, group);

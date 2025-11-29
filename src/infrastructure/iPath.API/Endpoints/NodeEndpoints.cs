@@ -13,18 +13,18 @@ public static class NodeEndpoints
 
         // Queries
 
-        grp.MapGet("{id}", (string id, IMediator mediator, CancellationToken ct)
-            => mediator.Send(new GetRootNodeByIdQuery(Guid.Parse(id)), ct))
+        grp.MapGet("{id}", async (string id, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new GetRootNodeByIdQuery(Guid.Parse(id)), ct))
             .Produces<NodeDto>()
             .RequireAuthorization();
 
-        grp.MapPost("list", (GetNodesQuery request, IMediator mediator, CancellationToken ct)
-            => mediator.Send(request, ct))
+        grp.MapPost("list", async (GetNodesQuery request, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(request, ct))
             .Produces<PagedResultList<NodeListDto>>()
             .RequireAuthorization();
 
-        grp.MapPost("idlist", (GetNodeIdListQuery request, IMediator mediator, CancellationToken ct)
-            => mediator.Send(request, ct))
+        grp.MapPost("idlist", async (GetNodeIdListQuery request, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(request, ct))
             .Produces<IReadOnlyList<Guid>>()
             .RequireAuthorization();
 
@@ -54,28 +54,28 @@ public static class NodeEndpoints
 
 
         // Commands
-        grp.MapPost("create", (CreateNodeCommand request, IMediator mediator, CancellationToken ct)
-            => mediator.Send(request, ct))
+        grp.MapPost("create", async (CreateNodeCommand request, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(request, ct))
             .Produces<NodeDto>()
             .RequireAuthorization();
 
-        grp.MapDelete("{id}", (string id, IMediator mediator, CancellationToken ct)
-            => mediator.Send(new DeleteNodeCommand(Guid.Parse(id)), ct))
+        grp.MapDelete("{id}", async (string id, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new DeleteNodeCommand(Guid.Parse(id)), ct))
             .Produces<NodeDeletedEvent>()
             .RequireAuthorization();
 
-        grp.MapPut("update", (UpdateNodeCommand request, IMediator mediator, CancellationToken ct)
-            => mediator.Send(request, ct))
+        grp.MapPut("update", async (UpdateNodeCommand request, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(request, ct))
             .Produces<bool>()
             .RequireAuthorization();
 
-        grp.MapPut("order", (UpdateChildNodeSortOrderCommand request, IMediator mediator, CancellationToken ct)
-            => mediator.Send(request, ct))
+        grp.MapPut("order", async (UpdateChildNodeSortOrderCommand request, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(request, ct))
             .Produces<ChildNodeSortOrderUpdatedEvent>()
             .RequireAuthorization();
 
-        grp.MapPost("visit/{id}", (string id, IMediator mediator, CancellationToken ct)
-            => mediator.Send(new UpdateNodeVisitCommand(Guid.Parse(id)), ct))
+        grp.MapPost("visit/{id}", async (string id, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new UpdateNodeVisitCommand(Guid.Parse(id)), ct))
             .Produces<bool>()
             .RequireAuthorization();
 
@@ -109,13 +109,13 @@ public static class NodeEndpoints
             .RequireAuthorization();
 
 
-        grp.MapPost("annotation", (CreateNodeAnnotationCommand request, IMediator mediator, CancellationToken ct)
-            => mediator.Send(request, ct))
+        grp.MapPost("annotation", async (CreateNodeAnnotationCommand request, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(request, ct))
             .Produces<AnnotationDto>()
             .RequireAuthorization();
 
-        grp.MapDelete("annotation/{id}", (string id, IMediator mediator, CancellationToken ct)
-            => mediator.Send(new DeleteNodeAnnotationCommand(Guid.Parse(id)), ct))
+        grp.MapDelete("annotation/{id}", async (string id, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new DeleteNodeAnnotationCommand(Guid.Parse(id)), ct))
             .Produces<Guid>()
             .RequireAuthorization();
 

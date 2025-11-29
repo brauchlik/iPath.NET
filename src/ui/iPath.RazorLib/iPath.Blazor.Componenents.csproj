@@ -21,15 +21,16 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.0" />
     <PackageReference Include="MudBlazor" Version="8.15.0" />
-    <PackageReference Include="MudExRichTextEditor" Version="8.14.0" />
     <PackageReference Include="Refit" Version="8.0.0" />
     <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
+    <PackageReference Include="Tizzani.MudBlazor.HtmlEditor" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\core\iPath.Application\iPath.Application.csproj" />
     <ProjectReference Include="..\..\core\iPath.Domain\iPath.Domain.csproj" />
     <ProjectReference Include="..\iPath.Blazor.ServiceLib\iPath.Blazor.ServiceLib.csproj" />
+    <ProjectReference Include="..\iPath.LHCForms\iPath.LHCForms.csproj" />
   </ItemGroup>
 
   <ItemGroup>

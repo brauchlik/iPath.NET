@@ -1,0 +1,31 @@
+﻿@page "/admin/questionnaires"
+
+
+<IPathHeader Title=@T["Questionnaires"]>
+    <ActionContent>
+        <MudFab StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="Create" />
+    </ActionContent>
+</IPathHeader>
+
+
+<MudDataGrid T="QuestionnaireListDto" ServerData="GetData" Dense Striped @ref="grid">
+    <Columns>
+        <PropertyColumn Property="q => q.QuestionnaireId" Title="Id" />
+        <PropertyColumn Property="q => q.Version" />
+        <TemplateColumn>
+            <CellTemplate>
+                <MudCheckBox ReadOnly="true" Value="@context.Item.IsActive" />
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn>
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick=@(() => Edit(context.Item)) />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="QuestionnaireListDto" />
+    </PagerContent>
+</MudDataGrid>
+
+

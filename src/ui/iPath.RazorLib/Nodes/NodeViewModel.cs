@@ -19,6 +19,7 @@ public class NodeViewModel(IPathApi api,
     IDialogService srvDialog, 
     IStringLocalizer T,
     NavigationManager nm,
+    QuestionnaireCache qCache,
     ILogger<NodeViewModel> logger)
     : IViewModel
 {
@@ -34,6 +35,8 @@ public class NodeViewModel(IPathApi api,
 
     public NodeDto RootNode { get; private set; }
     public NodeDto? SelectedNode { get; private set; }
+    public GroupDto? ActiveGroup {  get; private set; }
+
     public bool IsRootNodeSelected
     {
         get
@@ -85,16 +88,24 @@ public class NodeViewModel(IPathApi api,
     public async Task LoadNode(Guid id)
     {
         OnLoadingStarted?.Invoke();
-        var resp = await api.GetNodeById(id);
-        if (resp.IsSuccessful)
+        var respN = await api.GetNodeById(id);
+        if (respN.IsSuccessful)
         {
-            RootNode = resp.Content;
+            RootNode = respN.Content;
             // after loading a new root node (Case) => select the root node
             await SelectChilNode(RootNode);
+
+            // load Group
+            if (RootNode.GroupId.HasValue && (ActiveGroup is null || ActiveGroup.Id != RootNode.GroupId))
+            {
+                var respG = await api.GetGroup(RootNode.GroupId.Value);
+                if (respG.IsSuccessful)
+                    ActiveGroup = respG.Content;
+            }
         }
         else
         {
-            snackbar.AddWarning(resp.ErrorMessage);
+            snackbar.AddWarning(respN.ErrorMessage);
         }
         OnLoadingFinished?.Invoke();
     }
@@ -520,5 +531,11 @@ public class NodeViewModel(IPathApi api,
 
 
     #endregion
+
+
+    public async Task<string> GetQuesiotnnaire(Guid Id)
+    {
+        return await qCache.GetQuestionnaireResourceAsync(Id);
+    }
 }
 

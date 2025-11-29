@@ -1,0 +1,79 @@
+﻿@inject IStringLocalizer T
+
+<MudDialog Style="min-width: 500px;">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@icon" Class="mr-3 mb-n1" />
+            @title
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@Model" @ref="frm" Spacing="4">
+            <MudTextField @bind-Value="@Model.QuestionnaireId" Label=@T["Id"] Required="true" Variant="Variant.Outlined" Disabled="IdDisabled" />
+            <MudTextField @bind-Value="@Model.Resource" Label=@T["FHIR Resource"] Variant="Variant.Outlined" Lines="10" AutoGrow="true" />
+        </MudForm>
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-3">
+                @ErrorMessage
+            </MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
+        <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public EditQuestionnaireModel Model { get; set; } = new();
+
+    MudForm frm;
+    string ErrorMessage = string.Empty;
+    string title => Model is null || Model.Version == 0 ? T["Create a new questionnaire"] : T["Edit questionnaire"];
+    string icon => Model is null || Model.Version == 0 ? Icons.Material.Filled.Add : Icons.Material.Filled.Edit;
+    bool IdDisabled => Model is not null && Model.Version > 0;
+
+    private void Cancel() => MudDialog.Cancel();
+
+
+    private async Task Save()
+    {
+        ErrorMessage = "";
+        StateHasChanged();
+
+        await frm.Validate();
+
+        if (Model.QuestionnaireId.Length < 4)
+        {
+            ErrorMessage = T["Id Must habe 4 ore more characters"];
+            return;
+        }
+        if (Model.Resource.Length < 4)
+        {
+            ErrorMessage = T["Please specify a FHIR Resource."];
+            return;
+        }
+
+        if (frm.IsValid)
+        {
+            MudDialog.Close(DialogResult.Ok(Model));
+        }
+        else
+        {
+            ErrorMessage = T["Please fill all required fields."];
+        }
+    }
+
+    public class EditQuestinnaireModel
+    {
+        public Guid? Id { get; init; }
+        public int Version { get; init; }
+        public string QuestionnaireId { get; set; }
+        public string Resource { get; set; }
+    }
+}

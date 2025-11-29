@@ -3,40 +3,8 @@
 
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
 
-    <AuthorizeView>
-        <NotAuthorized>
-            <MudNavLink Href="Account/Login" Icon="@Icons.Material.Filled.Login">Login</MudNavLink>
-            <MudNavLink Href="Account/Register" Icon="@Icons.Material.Filled.AppRegistration">Register</MudNavLink>
-        </NotAuthorized>
-        <Authorized>
-            <MudNavGroup Title="@username" Expanded="true">
-                <MudNavLink Href="user/groups" Icon="@Icons.Material.Filled.Groups">My Groups</MudNavLink>
-                <MudNavLink Href="user/cases" Icon="@Icons.Material.Filled.Folder">My Cases</MudNavLink>
-                <MudNavLink Href="user/profile" Icon="@Icons.Material.Filled.ManageAccounts">My Profile</MudNavLink>
-                <MudNavLink Href="Account/Logout" Icon="@Icons.Material.Filled.Logout">Logout</MudNavLink>
-            </MudNavGroup>
-        </Authorized>
-    </AuthorizeView>
-
-    <AuthorizeView Roles="Admin">
-        <Authorized>
-            <MudNavGroup Title="Admin" Expanded="true">
-                <MudNavLink Href="admin/users">Users</MudNavLink>
-                <MudNavLink Href="admin/groups">Groups</MudNavLink>
-                <MudNavLink Href="admin/communities">Communities</MudNavLink>
-                <MudNavLink Href="admin/system">System</MudNavLink>
-            </MudNavGroup>
-        </Authorized>
-    </AuthorizeView>
-
-    <AuthorizeView Roles="Developer"> 
-        <Authorized>
-            <MudNavGroup Title="Developers" Expanded="true">
-                <MudNavLink Href="admin/mailbox" Icon="@Icons.Material.Filled.Mail">Mailbox</MudNavLink>
-                <MudNavLink Href="scalar" Target="_blank" Icon="@Icons.Material.Filled.Api">API</MudNavLink>
-            </MudNavGroup>
-        </Authorized>
-    </AuthorizeView>
+    <iPath.Blazor.Componenents.Users.UserNavMenu />
+    <iPath.Blazor.Componenents.Admin.AdminNavMenu />
 
 </MudNavMenu>
 
@@ -49,15 +17,5 @@
     {
         var state = await asp.GetAuthenticationStateAsync();
         username = state.User.Identity.Name;
-        /*
-        if (state.User.Identity.IsAuthenticated)
-        {
-            await appState.LoadSession();
-        }
-        else
-        {
-            await appState.UnloadSession();
-        }
-        */
     }
 }

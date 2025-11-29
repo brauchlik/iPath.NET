@@ -1,0 +1,55 @@
+@using System.Text.Json
+@using Microsoft.JSInterop
+
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+
+<div id="lhcform" class="form"><span>loading ...</span></div>
+
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <div class="error">@ErrorMessage</div>
+}
+
+
+@code {
+    lhcformsJsInterop interop;
+    string ErrorMessage;
+
+    protected override void OnInitialized() 
+    {
+        interop = new lhcformsJsInterop(JS);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await interop.DisposeAsync();
+    }
+
+    public async Task LoadFormAsync(string questionnaire, string questionnaireResponse = "")
+    {
+        try
+        {
+            await interop.LoadDataAsync(questionnaire, questionnaireResponse, "lhcform");
+        }
+        catch(Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }   
+    }
+
+    public async Task<string?> GetDataAsync()
+    {
+        try
+        {
+            return await interop.GetDataAsync("lhcform");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        return null;
+    }
+
+}

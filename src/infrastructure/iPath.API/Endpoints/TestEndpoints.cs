@@ -12,9 +12,8 @@ public static class TestEndpoints
         var test = route.MapGroup("test")
                 .WithTags("Test");
 
-        test.MapPost("notify",
-            async (TestEvent evt, IMediator mediator, CancellationToken ct)
-                => mediator.Publish(evt, ct))
+        test.MapPost("notify", async (TestEvent evt, IMediator mediator, CancellationToken ct)
+                => await mediator.Publish(evt, ct))
                 .RequireAuthorization();
 
 

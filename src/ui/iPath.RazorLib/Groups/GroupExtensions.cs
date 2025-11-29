@@ -1,4 +1,6 @@
-﻿namespace iPath.Blazor.Componenents.Groups;
+﻿using iPath.Domain.Entities;
+
+namespace iPath.Blazor.Componenents.Groups;
 
 public static class GroupExtensions
 {
@@ -10,6 +12,20 @@ public static class GroupExtensions
 
         public bool HasNewAnnotation => dto.NewAnnotation.HasValue && dto.NewAnnotation.Value > 0;
         public string NewAnnotationIcon => dto.HasNewAnnotation ? 
-            Icons.Material.TwoTone.Comment : string.Empty;  
+            Icons.Material.TwoTone.Comment : string.Empty;
+
+
+    }
+
+    extension(GroupDto dto)
+    {
+        public bool HasQuestionnaire(eQuestionnaireUsage usage)
+        {
+            if (dto.Questionnaires is null || !dto.Questionnaires.Any())
+                return false;
+            if (dto.Questionnaires.Any(q => q.Usage == eQuestionnaireUsage.Any))
+                return true;
+            return dto.Questionnaires.Any(q => q.Usage == usage);
+        }
     }
 }

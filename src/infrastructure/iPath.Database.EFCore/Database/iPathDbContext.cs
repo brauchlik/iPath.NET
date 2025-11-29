@@ -16,6 +16,8 @@ public class iPathDbContext(DbContextOptions<iPathDbContext> options, IMediator 
     public DbSet<NodeImport> NodeImports { get; set; }
     public DbSet<NodeLastVisit> NodeLastVisits { get; set; }
 
+    public DbSet<Questionnaire> Questionnaires { get; set; }
+
     public DbSet<Notification> NotificationQueue { get; set; }
     public DbSet<EmailMessage> EmailStore { get; set; }
     public DbSet<EventEntity> EventStore { get; set; }

@@ -41,6 +41,8 @@ public static class RazorLibServiceRegistration
         services.AddSingleton<IStringLocalizer>(p => p.GetRequiredService<LocalizationService>());
         services.AddLocalization();
 
+        services.AddSingleton<QuestionnaireCache>();
+
         services.AddScoped<AppState>();
 
         return services;

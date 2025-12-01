@@ -1,0 +1,72 @@
+﻿@namespace iPath.Blazor.Componenents.Admin.Users
+
+@inject UserAdminViewModel vm
+@inject IStringLocalizer T
+@inject ISnackbar snackbar
+
+<IPathHeader Title="Roles" Typo="Typo.h6" />
+
+<MudForm Model="User">
+    <MudTextField Label="Username" Value="User.Username" ReadOnly="true" />
+    <MudTextField Label="Username" Value="User.Email" ReadOnly="true" />
+    <MudCheckBox Label="active" @bind-Value="IsActive" />
+
+    <MudToggleGroup T="RoleDto" SelectionMode="SelectionMode.MultiSelection"
+                    @bind-Values="selectedRoles" Outlined="true" Color="Color.Primary"
+                    Class="my-8">
+        @foreach (var r in allRoles)
+        {
+            <MudToggleItem T="RoleDto" Value="@r">@r.Name</MudToggleItem>
+        }
+    </MudToggleGroup>
+
+
+    <IPathHeader Title="Profile" Typo="Typo.h6" Class="mt-8" />
+    <UserProfileForm Model="Profile" HideSaveButton="true" @ref="frm" />
+
+    <MudStack Row Class="mt-8">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary">Save</MudButton>
+    </MudStack>
+</MudForm>
+
+
+@code {
+    [Parameter]
+    public UserDto User { get; set; }
+
+    private UserProfileForm frm;
+
+    private IEnumerable<RoleDto> allRoles = [];
+    private IEnumerable<RoleDto> selectedRoles = [];
+    private UserProfile Profile;
+    private bool IsActive { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (User != null)
+        {
+            allRoles = await vm.GetRoles();
+            selectedRoles = User.Roles.ToList();
+            Profile = User.Profile.Clone();
+            IsActive = User.IsActive;
+        }
+    }
+
+    async Task Save()
+    {
+        await frm.ValidateForm();
+
+        var cmd = new UpdateUserAccountCommand { UserId = User.Id };
+        if (IsActive != User.IsActive)
+            cmd.IsActive = IsActive;
+
+        if (!Profile.Equals(User.Profile))
+            cmd.Profile = Profile;
+
+        cmd.Roles = selectedRoles.Select(r => r.Id);
+        if (await vm.SaveUserAccount(cmd))
+        {
+            snackbar.Add("User Profile saved", Severity.Success);
+        }
+    }
+}

@@ -1,0 +1,35 @@
+﻿@namespace iPath.Blazor.Componenents.Admin.Users
+
+<MudDataGrid T="GroupMemberModel" Items="displayedMembers" Dense="true" Striped="true" Hover="true"
+             FixedHeader="true" Height="600px">
+    <ToolBarContent>
+        <MudText>Filter</MudText>
+        <MudSpacer />
+        <MudSwitch @bind-Value="ShowActiveOnly" Label="active memberships only" />
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.GroupName" Title="Group" Editable="false" />
+        <TemplateColumn Title="User">
+            <CellTemplate>
+                <MudCheckBox @bind-Value="context.Item.IsUser" />
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Guest">
+            <CellTemplate>
+                <MudCheckBox @bind-Value="context.Item.IsGuest" />
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Moderator">
+            <CellTemplate>
+                <MudCheckBox @bind-Value="context.Item.IsModerator" />
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Banned">
+            <CellTemplate>
+                <MudCheckBox @bind-Value="context.Item.IsBanned" />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid>
+
+

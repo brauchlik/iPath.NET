@@ -1,0 +1,59 @@
+﻿@page "/admin/users"
+
+@inject UserAdminViewModel vm;
+@inject IStringLocalizer T
+
+<iPath.Blazor.Componenents.Shared.IPathHeader Title=@T["User Administration"]>
+    <ActionContent>
+        <MudFab Disabled="vm.CreateDisable" OnClick="vm.Create" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" />
+    </ActionContent>
+</iPath.Blazor.Componenents.Shared.IPathHeader>
+
+<p class="mt-4" />
+
+<MudTable T="UserListDto" ServerData="vm.GetTableDataAsync" @ref="vm.table" 
+             RowStyleFunc="vm.SelectedRowStyle" Class="ipath_table" Dense>
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">@T["Users"]</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="vm.SearchString" @bind-Value:after="@(() => vm.table.ReloadServerData())"
+                      Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>@T["Username"]</MudTh>
+        <MudTh>@T["Email"]</MudTh>
+        <MudTh>@T["Roles"]</MudTh>
+        <MudTh>@T["Active"]</MudTh>
+        <MudTh>@T["Confirmed"]</MudTh>
+        <MudTh>@T["Actions"]</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd Class="ipath_table">
+            <MudLink Href=@($"admin/users/{context.Id}")>
+                <MudHighlighter Text="@context.Username" HighlightedText="@vm.SearchString" />
+            </MudLink>
+        </MudTd>
+        <MudTd Class="ipath_table"> 
+            <MudHighlighter Text="@context.Email" HighlightedText="@vm.SearchString" />
+        </MudTd>
+        <MudTd Class="ipath_table">@context.Roles.ToCSV()</MudTd>
+        <MudTd Class="ipath_table">
+            <MudCheckBox Value="@context.IsActive" ReadOnly="true" />
+        </MudTd>
+        <MudTd Class="ipath_table">
+            <MudCheckBox Value="@context.EmailConfirmed" ReadOnly="true" />
+        </MudTd>
+        <MudTd Class="ipath_table d-flex justify-end">
+            <MudIconButton Href=@($"admin/users/{context.Id}/members") Size="Size.Small"
+                           Icon="@Icons.Material.Filled.Person" />
+            <MudIconButton Href=@($"admin/users/{context.Id}/groups") Size="Size.Small"
+                           Icon="@Icons.Material.Filled.Groups" />
+            <MudIconButton Href=@($"admin/users/{context.Id}/communities") Size="Size.Small"
+                           Icon="@Icons.Material.Filled.Groups" />
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>

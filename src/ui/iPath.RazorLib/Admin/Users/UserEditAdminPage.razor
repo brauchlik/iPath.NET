@@ -1,0 +1,46 @@
+﻿@page "/admin/users/{id}"
+@page "/admin/users/{id}/groups"
+@page "/admin/users/{id}/communities"
+
+@inject IStringLocalizer T
+@inject UserAdminViewModel vm
+
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true"
+         PanelClass="pa-6" Color="Color.Info" IconColor="Color.Surface"
+         @bind-ActivePanelIndex="panelIndex">
+    <MudTabPanel Text=@T["Profile"] Icon="@Icons.Material.Filled.Settings">
+        <UserProfileAdmin User="@vm.SelectedUser" />
+    </MudTabPanel>
+    <MudTabPanel Text=@T["Groups"] Icon="@Icons.Material.Filled.Groups">
+        <UserGroupMembershipGrid />
+    </MudTabPanel>
+    <MudTabPanel Text=@T["Communities"] Icon="@Icons.Material.Filled.Person">
+    </MudTabPanel>
+</MudTabs>
+
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+
+    [Parameter]
+    public string panel { get; set; } = "";
+
+    int panelIndex = 0;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        panelIndex = panel switch
+        {
+            "groups" => 1,
+            "communities" => 2,
+            _ => 0
+        };
+
+        if (Guid.TryParse(id, out var userid))
+        {
+            await vm.LoadUser(userid);
+        }
+    }
+}

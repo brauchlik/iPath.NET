@@ -1,6 +1,4 @@
-﻿using iPath.Blazor.ServiceLib.ApiClient;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Localization;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace iPath.Blazor.Componenents.Admin.Users;
@@ -16,6 +14,8 @@ public class UserAdminViewModel(IPathApi api,
 
     public string SearchString { get; set; } = "";
 
+
+    public MudDataGrid<UserListDto> grid;
     public async Task<GridData<UserListDto>> GetListAsync(GridState<UserListDto> state)
     {
         var query = state.BuildQuery(new GetUserListQuery { SearchString = this.SearchString });
@@ -27,7 +27,20 @@ public class UserAdminViewModel(IPathApi api,
         return new GridData<UserListDto>();
     }
 
-    public MudDataGrid<UserListDto> grid;
+
+
+    public MudTable<UserListDto> table;
+    public async Task<TableData<UserListDto>> GetTableDataAsync(TableState state, CancellationToken ct)
+    {
+        var query = state.BuildQuery(new GetUserListQuery { SearchString = this.SearchString });
+        var resp = await api.GetUserList(query);
+
+        if (resp.IsSuccessful) return resp.Content.ToTableData();
+
+        snackbar.AddWarning(resp.ErrorMessage);
+        return new TableData<UserListDto>();
+    }
+
 
 
     public UserListDto? SelectedItem { get; private set; }
@@ -49,7 +62,7 @@ public class UserAdminViewModel(IPathApi api,
 
 
     public UserDto? SelectedUser { get; private set; }
-    private async Task LoadUser(Guid? id)
+    public async Task LoadUser(Guid? id)
     {
         if (!id.HasValue)
         {

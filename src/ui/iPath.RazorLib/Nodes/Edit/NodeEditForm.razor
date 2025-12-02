@@ -4,11 +4,12 @@
 @inject NodeViewModel vm;
 @inject IStringLocalizer T
 
-<MudForm Model="Model" Class="@Class">
+<MudForm Model="Model" Class="@Class" @ref="frm">
     <MudGrid Spacing="1">
         <MudItem xs="12" sm="8">
-            <MudTextField Label=@T["Title"] @bind-Value="Model.Title" Variant="Variant" Margin="@Margin"
-                          AutoFocus="true" />
+            <MudTextField Label=@T["Title"] @bind-Value="Model.Title" For="@(() => Model.Title)"
+                          Variant="Variant" Margin="@Margin"
+                          AutoFocus="true" Required="true" />
         </MudItem>
         <MudItem xs="12" sm="4">
             <MudTextField Label=@T["Case Type"] @bind-Value="Model.CaseType" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
@@ -30,7 +31,7 @@
                 else if (useHtmlEditor)
                 {
                     <MudHtmlEditor @bind-Html="Model.Text" style="min-height: 12em;">
-                        <MudHtmlToolbarOptions InsertImage="false" /> 
+                        <MudHtmlToolbarOptions InsertImage="false" />
                     </MudHtmlEditor>
                 }
                 else
@@ -61,6 +62,8 @@
     bool useQuestionnaire;
     bool useHtmlEditor = true;
 
+    private MudForm frm;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && lhcForm != null)
@@ -76,4 +79,6 @@
             }
         }
     }
+
+    public bool IsValid => frm.IsValid;
 }

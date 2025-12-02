@@ -1,7 +1,8 @@
 ﻿@namespace iPath.Blazor.Componenents.Nodes
 
-<MudTable T="NodeListDto" ServerData="vm.GetNodeListAsync"
-          @ref="table" Class="ipath_table"
+<MudTable T="NodeListDto" ServerData="vm.GetNodeListAsync" @ref="table"
+          OnRowClick=@((e) => vm.GotoNode(e.Item))
+          HeaderClass="ipath_table_header"
           RowsPerPage="25" Bordered="false" Dense="true" Hover="true">
     <ToolBarContent>
         <MudToolBar>
@@ -22,25 +23,25 @@
     </ToolBarContent>
     <HeaderContent>
         <MudTh Style="width: 60%;"><MudTableSortLabel SortLabel="Description.Title" T="NodeListDto">Title</MudTableSortLabel></MudTh>
-        <MudTh Style="min-width: 60px;"></MudTh>
+        <MudTh Style="min-width: 50px;"></MudTh>
         <MudTh Style="width: 8rem;"><MudTableSortLabel SortLabel="Description.CaseType" T="NodeListDto">Type</MudTableSortLabel></MudTh>
         <MudTh Style="width: 8rem;"><MudTableSortLabel SortLabel="Owner" T="NodeListDto">Sender</MudTableSortLabel></MudTh>
         <MudTh Style="width: 10rem;"><MudTableSortLabel SortLabel="CreatedOn" T="NodeListDto" InitialDirection="SortDirection.Descending">Date</MudTableSortLabel></MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Title" Class="ipath_node_title2">
-            <MudLink Href=@($"/node/{context.Id}")>
+            <MudLink Href=@($"node/{context.Id}")>
                 <MudHighlighter Text="@context.Title" HighlightedText="@vm.SearchString" Style="font-weight: bold;" />
             </MudLink>
             <div><MudHighlighter Text="@context.SubTitle" HighlightedText="@vm.SearchString" /></div>
         </MudTd>
-        <MudTd Class="ipath_node_title2">
-            <MudStack Row>
+        <MudTd>
+            <div class="d-flex justify-end flex-grow-1">
                 <MudIcon Icon=@context.IsNewIcon />
                 <MudIcon Icon=@context.HasNewAnnotationIcon />
-            </MudStack>
+            </div>
         </MudTd>
-        <MudTd DataLabel="CaseType">
+        <MudTd DataLabel="CaseType" Class="ipath_node_type2">
             <MudHighlighter Text="@context.Description.CaseType" HighlightedText="@vm.SearchString" />
         </MudTd>
         <MudTd DataLabel="Owner" Class="ipath_node_sender2">

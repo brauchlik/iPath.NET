@@ -85,6 +85,7 @@ else
     public async Task UploadingFinished()
     {
         Uploading = false;
+        await vm.ReloadNode();
         StateHasChanged();
     }
 

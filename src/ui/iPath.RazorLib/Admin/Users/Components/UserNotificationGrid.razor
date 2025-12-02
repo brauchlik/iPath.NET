@@ -3,15 +3,15 @@
 @inject IStringLocalizer T
 
 
-<MudTable Items="Items" Dense="true" Striped="true" Elevation="0">
+<MudTable Items="Items" Dense="true" Elevation="0" CustomHeader="true">
     <HeaderContent>
-        <MudTHeadRow IgnoreCheckbox="true">
-            <MudTh></MudTh>
-            <MudTh colspan="2" Style="border-left: 1px solid;"><i>@T["Notify as"]</i></MudTh>
-            <MudTh colspan="4" Style="border-left: 1px solid;"><i>@T["Notify on"]</i></MudTh>
-        </MudTHeadRow>
-        <MudTHeadRow>
+        <MudTHeadRow IgnoreCheckbox="true" Class="ipath_table">
             <MudTh>@T["Group"]</MudTh>
+            <MudTh colspan="2" Style="border-left: 1px solid;">@T["Notify as"]</MudTh>
+            <MudTh colspan="4" Style="border-left: 1px solid;">@T["Notify on"]</MudTh>
+        </MudTHeadRow>
+        <MudTHeadRow IgnoreCheckbox="true" Class="ipath_table" Style="font-style: italic">
+            <MudTh></MudTh>
             <MudTh Style="border-left: 1px solid;">@T["In App"]</MudTh>
             <MudTh>@T["Email"]</MudTh>
             <MudTh Style="border-left: 1px solid;">@T["New case"]</MudTh>

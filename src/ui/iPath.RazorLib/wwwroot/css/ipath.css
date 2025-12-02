@@ -50,20 +50,8 @@
 
 
 /*** Tables ****/
-.ipath_table {
+.ipath_table_header {
     background-color: var(--mud-palette-background-gray);
-}
-
-    .ipath_table tr {
-        vertical-align: top;
-    }
-    .ipath_table td {
-        background-color: var(--mud-palette-background);
-    }
-
-.ipath_table_cell {
-    background-color: var(--mud-palette-background);
-    padding: 0px;
 }
 
 .ipath_table_fixed {
@@ -155,9 +143,13 @@
 
 .ipath_node_title2 {
     grid-column-start: 1;
-    background-color: var(--mud-palette-background);
 }
 
+
+.ipath_node_type2 {
+    grid-column-start: 2;
+    background-color: #ffc;
+}
 
 .ipath_node_sender2 {
     grid-column-start: 3;

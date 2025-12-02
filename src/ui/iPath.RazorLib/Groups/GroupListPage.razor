@@ -9,8 +9,8 @@
 
 <MudTable T="GroupListDto" ServerData="vm.GetTableAsync"
           OnRowClick=@((e) => vm.GotoGroup(e.Item))
-          Dense="true" Hover="true"
-          Class="ipath_table">
+          HeaderClass="ipath_table_header"
+          Dense="true" Hover="true">
     <HeaderContent>
         <MudTh><MudTableSortLabel T="GroupListDto" SortLabel="Name">Name</MudTableSortLabel></MudTh>
         <MudTh></MudTh>
@@ -32,3 +32,16 @@
         </MudTd>
     </RowTemplate>
 </MudTable>
+
+<MudAlert Severity="Severity.Info" Class="mt-8 px-4" NoIcon>
+    <MudStack Row AlignItems="AlignItems.Center">
+        <MudIcon Icon="@Icons.Material.TwoTone.CreateNewFolder" /> 
+        @T["New cases in group"]<br />
+        <MudSpacer />
+    </MudStack>
+    <MudStack Row AlignItems="AlignItems.Center">
+        <MudIcon Icon="@Icons.Material.TwoTone.Comment" />
+        @T["New annotations in group"]
+        <MudSpacer />
+    </MudStack>
+</MudAlert>

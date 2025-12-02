@@ -1,8 +1,4 @@
-﻿using iPath.Application.Features.Nodes;
-using iPath.Blazor.Componenents.Nodes;
-using iPath.Blazor.ServiceLib.ApiClient;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
+﻿using iPath.Blazor.Componenents.Nodes;
 
 namespace iPath.Blazor.Componenents.Nodes;
 
@@ -51,6 +47,9 @@ public class NodeListViewModel(IPathApi api,
         }
     }
 
+
+    public void GotoNode(NodeListDto node)
+        => nm.NavigateTo($"node/{node.Id}");
 
 
     public bool CreateNewCaseDisabled => !GroupId.HasValue;

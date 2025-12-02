@@ -1,0 +1,33 @@
+﻿@* @page "/groups"
+@page "/user/groups" *@
+
+@inject GroupListViewModel vm
+@inject IStringLocalizer T
+
+
+<IPathHeader Title=@T["My Groups"] />
+
+<MudDataGrid T="GroupListDto" ServerData="vm.GetGridAsync" Dense
+             RowClick=@(c => vm.GotoGroup(c.Item)) 
+             SortMode="SortMode.Single">
+    <ColGroup>
+        <col style="widtGrid0%;" />
+        <col style="width: 60px;" />
+        <col style="width: 120px; text-align: end; align-content: flex-end"/>
+    </ColGroup>
+    <Columns>
+        <PropertyColumn Property="x => x.Name" Sortable="true" />
+        <TemplateColumn CellClass="d-flex justify-end" Sortable="false">
+            <CellTemplate>
+                <MudStack Row>
+                    <MudIcon Icon=@context.Item.NewNodeIcon />
+                    <MudIcon Icon=@context.Item.NewAnnotationIcon />
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="x => x.TotalNodes" Title=@T["# Cases"] Sortable="false" />
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="GroupListDto" />
+    </PagerContent>
+</MudDataGrid>

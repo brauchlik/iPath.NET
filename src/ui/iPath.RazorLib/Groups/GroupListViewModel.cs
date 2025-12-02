@@ -8,7 +8,7 @@ public class GroupListViewModel(IPathApi api, ISnackbar snackbar, IDialogService
     public CommunityListDto? SelectedCommunity {  get; set; }
     public string SearchString { get; set; }
 
-    public async Task<GridData<GroupListDto>> GetListAsync(GridState<GroupListDto> state)
+    public async Task<GridData<GroupListDto>> GetGridAsync(GridState<GroupListDto> state)
     {
         var query = state.BuildQuery(new GetGroupListQuery { IncludeCounts = true });
         var resp = await api.GetGroupList(query);
@@ -20,7 +20,21 @@ public class GroupListViewModel(IPathApi api, ISnackbar snackbar, IDialogService
         snackbar.AddError(resp.ErrorMessage);
         return new GridData<GroupListDto>();
     }
-    
+
+
+    public async Task<TableData<GroupListDto>> GetTableAsync(TableState state, CancellationToken ct)
+    {
+        var query = state.BuildQuery(new GetGroupListQuery { IncludeCounts = true });
+        var resp = await api.GetGroupList(query);
+        if (resp.IsSuccessful)
+        {
+            return resp.Content.ToTableData();
+        }
+
+        snackbar.AddError(resp.ErrorMessage);
+        return new TableData<GroupListDto>();
+    }
+
 
     public void GotoGroup(GroupListDto group)
     {

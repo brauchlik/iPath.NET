@@ -5,19 +5,20 @@
 
 <MudTable Items="Items" Dense="true" Striped="true" Elevation="0">
     <HeaderContent>
-        <MudTh><br />@T["Group"]</MudTh>
-        <MudTh Style="border-left: 1px solid;">
-            <i>@T["Notify as"]</i><br />
-            @T["In App"]
-        </MudTh>
-        <MudTh><br />@T["Email"]</MudTh>
-        <MudTh Style="border-left: 1px solid;">
-            <i>@T["Notify on"]</i><br />
-            @T["New case"]
-        </MudTh>
-        <MudTh><br />@T["Annotation on any case"]</MudTh>
-        <MudTh><br />@T["Annotation on my case"]</MudTh>
-        <MudTh></MudTh>
+        <MudTHeadRow IgnoreCheckbox="true">
+            <MudTh></MudTh>
+            <MudTh colspan="2" Style="border-left: 1px solid;"><i>@T["Notify as"]</i></MudTh>
+            <MudTh colspan="4" Style="border-left: 1px solid;"><i>@T["Notify on"]</i></MudTh>
+        </MudTHeadRow>
+        <MudTHeadRow>
+            <MudTh>@T["Group"]</MudTh>
+            <MudTh Style="border-left: 1px solid;">@T["In App"]</MudTh>
+            <MudTh>@T["Email"]</MudTh>
+            <MudTh Style="border-left: 1px solid;">@T["New case"]</MudTh>
+            <MudTh>@T["Annotation on any case"]</MudTh>
+            <MudTh>@T["Annotation on my case"]</MudTh>
+            <MudTh></MudTh>
+        </MudTHeadRow>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Group">@context.Groupname</MudTd>

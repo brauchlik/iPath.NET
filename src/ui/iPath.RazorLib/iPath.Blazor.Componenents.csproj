@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Groups\GroupListPage.razor.cs" />
+    <Compile Remove="Groups\GroupListPage - Copy.razor.cs" />
   </ItemGroup>
 
 
@@ -31,10 +31,6 @@
     <ProjectReference Include="..\..\core\iPath.Domain\iPath.Domain.csproj" />
     <ProjectReference Include="..\iPath.Blazor.ServiceLib\iPath.Blazor.ServiceLib.csproj" />
     <ProjectReference Include="..\iPath.LHCForms\iPath.LHCForms.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Groups\GroupListPage.razor.cs" />
   </ItemGroup>
 
   <ItemGroup>

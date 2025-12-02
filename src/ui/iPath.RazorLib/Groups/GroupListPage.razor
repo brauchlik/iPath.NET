@@ -4,30 +4,31 @@
 @inject GroupListViewModel vm
 @inject IStringLocalizer T
 
-<iPath.Blazor.Componenents.Shared.IPathHeader Title=@T["My Groups"] />
 
-<MudDataGrid T="GroupListDto" ServerData="vm.GetListAsync" Dense
-             RowClick=@(c => vm.GotoGroup(c.Item)) 
-             SortMode="SortMode.Single">
-    <ColGroup>
-        <col style="width: 90%;" />
-        <col style="width: 60px;" />
-        <col style="width: 120px; text-align: end; align-content: flex-end"/>
-    </ColGroup>
-    <Columns>
-        <PropertyColumn Property="x => x.Name" Sortable="true" />
-        <TemplateColumn CellClass="d-flex justify-end" Sortable="false">
-            <CellTemplate>
-                <MudStack Row>
-                    <MudIcon Icon=@context.Item.NewNodeIcon />
-                    <MudIcon Icon=@context.Item.NewAnnotationIcon />
-                </MudStack>
-            </CellTemplate>
-        </TemplateColumn>
-        <PropertyColumn Property="x => x.TotalNodes" Title=@T["# Cases"] Sortable="false" />
-    </Columns>
-    <PagerContent>
-        <MudDataGridPager T="GroupListDto" />
-    </PagerContent>
-</MudDataGrid>
+<IPathHeader Title=@T["My Groups"] />
 
+<MudTable T="GroupListDto" ServerData="vm.GetTableAsync"
+          OnRowClick=@((e) => vm.GotoGroup(e.Item))
+          Dense="true" Hover="true"
+          Class="ipath_table">
+    <HeaderContent>
+        <MudTh><MudTableSortLabel T="GroupListDto" SortLabel="Name">Name</MudTableSortLabel></MudTh>
+        <MudTh></MudTh>
+        <MudTh Style="text-align: right;">@T["# Cases"]</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd Style="width: 75%">
+            <MudLink Href=@($"groups/{context.Id}")>@context.Name</MudLink>
+        </MudTd>
+        <MudTd Style="width: 3em;">
+            <MudStack Row>
+                <MudSpacer />
+                <MudIcon Icon=@context.NewNodeIcon />
+                <MudIcon Icon=@context.NewAnnotationIcon />
+            </MudStack>
+        </MudTd>
+        <MudTd Style="text-align: right; width: 5em;">
+            @context.TotalNodes
+        </MudTd>
+    </RowTemplate>
+</MudTable>

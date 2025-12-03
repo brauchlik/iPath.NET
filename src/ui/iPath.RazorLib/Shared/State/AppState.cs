@@ -1,5 +1,4 @@
 ﻿using iPath.Application.Contracts;
-using iPath.Blazor.ServiceLib.ApiClient;
 
 namespace iPath.Blazor.Componenents.Shared;
 
@@ -19,7 +18,7 @@ public class AppState(IPathApi api) : IUserSession
         }
     }
 
-    public async Task UnloadSession()
+    public void ReloadUser(Guid userId)
     {
         _user = SessionUserDto.Anonymous;
     }

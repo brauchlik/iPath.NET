@@ -1,12 +1,17 @@
-using Humanizer;
+using iPath.Blazor.Componenents.Admin.Users;
 
-namespace iPath.Blazor.Componenents.Admin.Users;
+namespace iPath.Blazor.Componenents.Users;
 
-public partial class UserNotificationGrid(UserAdminViewModel vm, IPathApi api, ISnackbar snackbar, IDialogService dialog)
+public partial class UserNotificationGrid(UserAdminViewModel vm, IPathApi api, IStringLocalizer T, ISnackbar snackbar, IDialogService dialog)
 {
     [Parameter]
     public UserDto? User { get; set; }
 
+    [Parameter]
+    public string CancelText { get; set; } = T["Back"];
+
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
 
     List<UserNotificationModel> Items = new();
 
@@ -20,7 +25,7 @@ public partial class UserNotificationGrid(UserAdminViewModel vm, IPathApi api, I
     { 
         if (User is not null)
         {
-            var resp = await api.GetUserNotification(vm.SelectedUser.Id);
+            var resp = await api.GetUserNotification(User.Id);
             if( !resp.IsSuccessful )
             {
                 snackbar.AddError(resp.ErrorMessage);
@@ -33,10 +38,14 @@ public partial class UserNotificationGrid(UserAdminViewModel vm, IPathApi api, I
 
     async Task Save()
     {
-        var dtos = Items.Select(n => n.ToDto()).ToArray();
-        var cmd = new UpdateUserNotificationsCommand(vm.SelectedUser.Id, dtos);
-        await vm.UpdateNotifications(cmd);
-        await LoadData();
+        if (User is not null)
+        {
+            var dtos = Items.Select(n => n.ToDto()).ToArray();
+            var cmd = new UpdateUserNotificationsCommand(User.Id, dtos);
+            await vm.UpdateNotifications(cmd);
+            await LoadData();
+            await OnSaved.InvokeAsync();
+        }
     }
 
     async Task ShowSettings(UserNotificationModel model)
@@ -50,7 +59,6 @@ public partial class UserNotificationGrid(UserAdminViewModel vm, IPathApi api, I
             StateHasChanged();
         }
     }
-
 
     Color SaveButtonColor => Items.Any(m => m.HasChange) ? Color.Primary : Color.Default;
 }

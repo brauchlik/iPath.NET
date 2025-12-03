@@ -1,7 +1,7 @@
 ﻿
 namespace iPath.EF.Core.FeatureHandlers.Users.Commands;
 
-public class AssignUserToGroupsCommandHandler(iPathDbContext db)
+public class AssignUserToGroupsCommandHandler(iPathDbContext db, IUserSession sess)
     : IRequestHandler<AssignUserToGroupCommand, Task>
 {
     public async Task Handle(AssignUserToGroupCommand request, CancellationToken cancellationToken)
@@ -22,5 +22,8 @@ public class AssignUserToGroupsCommandHandler(iPathDbContext db)
             user.GroupMembership.Add(new GroupMember { User = user, Group = group, Role = eMemberRole.User });
             await db.SaveChangesAsync(cancellationToken);
         }
+
+        // Refresh the cache
+        sess.ReloadUser(request.userId);
     }
 }

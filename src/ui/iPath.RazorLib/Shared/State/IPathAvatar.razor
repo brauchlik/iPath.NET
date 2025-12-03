@@ -10,6 +10,7 @@
         </ActivatorContent>
         <ChildContent>
             <MudMenuItem Label=@T["Profile"] Icon="@Icons.Material.Filled.ManageAccounts" Href="/user/profile" />
+            <MudMenuItem Label=@T["Notification Settings"] Icon="@Icons.Material.Filled.Settings" OnClick="vm.ShowUserNotifications" />
             <MudMenuItem Label=@T["My Cases"] Icon="@Icons.Material.Filled.Folder" Href="/user/cases" />
             <MudMenuItem Label=@T["My Groups"] Icon="@Icons.Material.Filled.Groups" Href="/user/groups" />
         </ChildContent>
@@ -20,7 +21,8 @@ else
     <MudAvatar />
 }
 
-@inject AppState appState;
+@inject AppState appState
+@inject UserViewModel vm
 @inject IStringLocalizer T
 
 @code {

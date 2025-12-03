@@ -1,7 +1,4 @@
-﻿using iPath.Blazor.ServiceLib.ApiClient;
-using iPath.Domain.Entities;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Localization;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace iPath.Blazor.Componenents.Users;
@@ -129,5 +126,16 @@ public class UserViewModel(IPathApi api,
             }
         }
         return new List<OwnerDto>();
+    }
+
+
+
+    public async Task ShowUserNotifications()
+    {
+        var sess = await GetCurrentSessionAsync();
+        var user = await GetUserAsync(sess.Id);
+        var p = new DialogParameters<UserNotificationsDialog> { { x => x.User, user } };
+        var d = await srvDialog.ShowAsync<UserNotificationsDialog>("notifications", parameters: p);
+        var r = await d.Result;
     }
 }

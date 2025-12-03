@@ -35,6 +35,9 @@ public class UpdateUserProfileHandler(iPathDbContext db, IUserSession sess)
             throw ex;
         }
 
+        // Refresh the cache
+        sess.ReloadUser(user.id);
+
         return user.Id;
     }
 }

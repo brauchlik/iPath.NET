@@ -1,0 +1,23 @@
+﻿@page "/user/profile1"
+
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <IPathHeader Title=@T["My Profile"] />
+
+    <AuthorizeView>
+        <Authorized>
+            <UserProfileForm Model="Model" RedirectUrl="/" />
+        </Authorized>
+        <NotAuthorized>
+            <RedirectToLogin />
+        </NotAuthorized>
+    </AuthorizeView>
+</MudContainer>
+
+@inject UserViewModel vm
+@inject IStringLocalizer T
+
+@code {
+    UserProfile Model = new();
+    SessionUserDto sess;
+}

@@ -1,4 +1,4 @@
-﻿@namespace iPath.Blazor.Componenents.Admin.Users
+﻿@namespace iPath.Blazor.Componenents.Users
 
 @inject IStringLocalizer T
 
@@ -37,5 +37,5 @@
 <MudStack Row Class="mt-8">
     <ProgressButton ProcessingText=@T["saving ..."] OnClick="Save" Text=@T["Save"]
                     Color="@SaveButtonColor" Icon="@Icons.Material.Filled.Save" />
-    <MudButton Variant="Variant.Filled" Href="admin/users">Back</MudButton>
+    <MudButton Variant="Variant.Filled" Href="admin/users">@CancelText</MudButton>
 </MudStack>

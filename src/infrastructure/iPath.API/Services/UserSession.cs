@@ -38,6 +38,10 @@ public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemory
         }
     }
 
+    public void ReloadUser(Guid userId)
+    {
+        cache.Remove(userId);
+    }
 
     private async Task<SessionUserDto?> LoadUser(Guid userid)
     {

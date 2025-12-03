@@ -48,5 +48,8 @@ public class UpdateUserAccountCommandHandler(UserManager<User> um, RoleManager<R
                 }
             }
         }
+
+        // Refresh the cache
+        sess.ReloadUser(user.Id);
     }
 }

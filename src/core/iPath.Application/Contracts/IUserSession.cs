@@ -1,11 +1,11 @@
-﻿using System.Collections.ObjectModel;
-
-namespace iPath.Application.Contracts;
+﻿namespace iPath.Application.Contracts;
 
 public interface IUserSession
 {
     SessionUserDto? User { get; }
+    void ReloadUser(Guid userId);
 }
+
 
 public static class UserSessionExtensions
 {

@@ -1,0 +1,41 @@
+﻿@namespace iPath.Blazor.Componenents.Users
+@using iPath.Blazor.Componenents.Admin.Users
+
+@inject UserAdminViewModel avm
+@inject UserViewModel vm
+@inject NavigationManager nm
+@inject IStringLocalizer T
+
+
+<MudDialog>
+	<TitleContent>
+		<MudText Typo="Typo.h6">Notifications for @User.Username</MudText>
+	</TitleContent>
+	<DialogContent>
+		<UserNotificationGrid User="@User" OnSaved="OnSavedHandler" CancelText=@T["Cancel"] />
+	</DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public UserDto User { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProfile();
+    }
+
+    async Task LoadProfile()
+    {
+
+    }
+
+    void OnSavedHandler()
+    {
+        MudDialog.Close(true);
+    }
+}

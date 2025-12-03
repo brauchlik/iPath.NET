@@ -66,6 +66,9 @@ public class UpdateGroupMembershipHandler(iPathDbContext db, IMediator mediator,
 
         await db.SaveChangesAsync(ct);
 
+        // Refresh the cache
+        sess.ReloadUser(request.UserId);
+
         return await mediator.Send(new GetUserByIdQuery(user.Id), ct);
     }
 }

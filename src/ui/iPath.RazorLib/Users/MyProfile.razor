@@ -1,23 +1,57 @@
-﻿@page "/user/profile1"
+﻿@page "/user/profile"
+
 
 
 <MudContainer MaxWidth="MaxWidth.Medium">
     <IPathHeader Title=@T["My Profile"] />
-
-    <AuthorizeView>
-        <Authorized>
-            <UserProfileForm Model="Model" RedirectUrl="/" />
-        </Authorized>
-        <NotAuthorized>
-            <RedirectToLogin />
-        </NotAuthorized>
-    </AuthorizeView>
+    @if (Model != null)
+    {
+        <AuthorizeView>
+            <Authorized>
+                <UserProfileForm Model="Model" OnValidSubmit="OnSubmit" RedirectUrl="/"/>
+            </Authorized>
+            <NotAuthorized>
+                <RedirectToLogin />
+            </NotAuthorized>
+        </AuthorizeView>
+    }
+    else
+    {
+        <MudProgressCircular Indeterminate="true" Size="Size.Small" />    
+        <p>loading ... </p>
+    }
 </MudContainer>
 
 @inject UserViewModel vm
 @inject IStringLocalizer T
 
 @code {
-    UserProfile Model = new();
+    UserProfile? Model;
     SessionUserDto sess;
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadProfile();
+            StateHasChanged();
+        }
+    }
+
+    async Task LoadProfile()
+    {
+        sess = await vm.GetCurrentSessionAsync();
+        vm.ClearProfileCache(sess.Id); // make sure we reload from DB
+        var tmp = await vm.GetProfileAsync(sess.Id);
+        Model = tmp.Clone();
+    }
+
+    private async Task OnSubmit()
+    {
+        await vm.UpdateProfile(sess.Id, Model, true);
+    }
 }

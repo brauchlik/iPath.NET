@@ -30,6 +30,9 @@ public class UpdateUserRoleHandler(UserManager<User> um, RoleManager<Role> rm, I
             logger.LogWarning($"Failed to {(request.allow ? "add" : "remove")} role '{role.Name}' for user '{user.Id}': {errors}");
         }
 
+        // Refresh the cache
+        sess.ReloadUser(user.Id);
+
         return user.Id;
     }
 }

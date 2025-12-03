@@ -22,4 +22,7 @@
     <PackageReference Include="MudBlazor" Version="8.15.0" />
   </ItemGroup>
 
+	<ItemGroup>
+		<Content Update="appsettings*.json" CopyToPublishDirectory="Never" />
+	</ItemGroup>
 </Project>

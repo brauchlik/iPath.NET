@@ -14,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-builder.WebHost.UseStaticWebAssets();
+// builder.WebHost.UseStaticWebAssets();
 
 // Add MudBlazor services
 builder.Services.AddMudServices();

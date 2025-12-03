@@ -7,6 +7,8 @@ public class AppState(IPathApi api) : IUserSession
     private SessionUserDto _user;
 
     public SessionUserDto? User => _user;
+    public bool IsAuthenticated => _user is not null && _user.Id != Guid.Empty;
+
 
     public async Task ReloadSession()
     {

@@ -1,6 +1,8 @@
-﻿using iPath.EF.Core.Database;
+﻿using iPath.Application.Features.Notifications;
+using iPath.EF.Core.Database;
 using iPath.EF.Core.FeatureHandlers.Emails;
 using iPath.EF.Core.FeatureHandlers.Groups;
+using iPath.EF.Core.FeatureHandlers.Notifications;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +44,7 @@ public static class PersistanceServiceRegistration
 
         services.AddScoped<DbSeeder>();
         services.AddScoped<IEmailRepository, EmailRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IGroupService, GroupService>();
 
         return services;

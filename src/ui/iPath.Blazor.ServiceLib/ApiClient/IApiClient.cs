@@ -1,5 +1,6 @@
 ﻿using iPath.Application.Features;
 using iPath.Application.Features.Nodes;
+using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Users;
 using iPath.Application.Localization;
 using iPath.Application.Querying;
@@ -181,6 +182,15 @@ public interface IPathApi
 
     [Post("/api/v1/mail/send")]
     Task<IApiResponse<EmailMessage>> SendMail(EmailDto email);
+    #endregion
+
+
+    #region "-- Notifications --"
+    [Get("/api/v1/notifications/list")]
+    Task<IApiResponse<PagedResultList<NotificationDto>>> GetNotifications(int page, int pageSize, eNotificationTarget target);
+
+    [Delete("/api/v1/notifications/all")]
+    Task<IApiResponse> DeleteAllNotifications();
     #endregion
 
 

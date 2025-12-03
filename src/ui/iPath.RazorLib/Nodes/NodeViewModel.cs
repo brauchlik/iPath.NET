@@ -410,7 +410,7 @@ public class NodeViewModel(IPathApi api,
 
     public async Task Save()
     {
-        if (!SaveDisabled && IsEditing)
+        if (RootNode !=null && !SaveDisabled && IsEditing)
         {
             var cmd = new UpdateNodeCommand(RootNode.Id, RootNode.Description, false);
             var resp = await api.UpdateNode(cmd);
@@ -423,6 +423,7 @@ public class NodeViewModel(IPathApi api,
                 nm.NavigateTo($"node/{RootNode.Id}");
             }
             IsEditing = false;
+
             OnChange();
         }
     }

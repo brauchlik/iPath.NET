@@ -1,12 +1,13 @@
-﻿using System.Threading.Channels;
+﻿using iPath.Application.Contracts;
+using System.Threading.Channels;
 
 namespace iPath.Application.Features.Notifications;
 
-public class NotificationEventQueue
+public class NodeNotificationEventQueue : INodeNotificationEventQueue
 {
     private readonly Channel<IHasNodeNotification> _channel;
 
-    public NotificationEventQueue(int maxQueueSize)
+    public NodeNotificationEventQueue(int maxQueueSize)
     {
         _channel = Channel.CreateBounded<IHasNodeNotification>(new BoundedChannelOptions(maxQueueSize)
         {

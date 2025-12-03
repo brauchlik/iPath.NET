@@ -1,0 +1,34 @@
+﻿@page "/admin/notifications"
+
+@using iPath.Application.Features.Notifications
+@inject IStringLocalizer T
+
+<IPathHeader Title=@T["Notifications"]>
+    <ActionContent>
+        <MudFab StartIcon="@Icons.Material.TwoTone.Refresh"
+                Size="Size.Small" IconSize="Size.Small"
+                OnClick=@(() => grid.ReloadServerData()) />
+        <MudFab StartIcon="@Icons.Material.TwoTone.DeleteForever"
+                Size="Size.Small" IconSize="Size.Small"
+                OnClick="DeleteAll" />
+    </ActionContent>
+</IPathHeader>
+
+<MudDataGrid T="NotificationDto" ServerData="GetData" @ref="grid"
+             Hover="true" Dense="true">
+    <Columns>
+        <HierarchyColumn T="NotificationDto" />
+        <PropertyColumn Property="e => e.Username" Title=@T["User"] />
+        <PropertyColumn Property="e => e.EventType" Title=@T["Event Type"] />
+        <PropertyColumn Property="e => e.Target" Title=@T["Notification Type"] />
+        <PropertyColumn Property="e => e.Date" Format="d" Title=@T["Date"] />
+    </Columns>
+    <ChildRowContent>
+        <pre>@context.Item.payload</pre>
+    </ChildRowContent>
+    <PagerContent>
+        <MudDataGridPager T="NotificationDto" />
+    </PagerContent>
+</MudDataGrid>
+
+        

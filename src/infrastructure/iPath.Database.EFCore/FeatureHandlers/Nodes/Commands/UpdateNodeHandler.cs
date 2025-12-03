@@ -1,8 +1,10 @@
 ﻿
+using DispatchR;
+
 namespace iPath.EF.Core.FeatureHandlers.Nodes.Commands;
 
 
-public class UpdateNodeHandler(iPathDbContext db, IUserSession sess)
+public class UpdateNodeHandler(iPathDbContext db, IMediator mediator, IUserSession sess)
     : IRequestHandler<UpdateNodeCommand, Task<bool>>
 {
     public async Task<bool> Handle(UpdateNodeCommand request, CancellationToken ct)
@@ -27,6 +29,10 @@ public class UpdateNodeHandler(iPathDbContext db, IUserSession sess)
 
         node.UpdateNode(request, sess.User.Id);
         await db.SaveChangesAsync(ct);
+
+        // update user NodeVisit
+        await mediator.Send(new UpdateNodeVisitCommand(node.Id), ct);
+
         return true;
     }
 }

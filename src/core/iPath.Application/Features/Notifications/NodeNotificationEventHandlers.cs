@@ -1,6 +1,8 @@
-﻿namespace iPath.Application.Features.Notifications;
+﻿using iPath.Application.Contracts;
 
-public class NotificationEventHandler(NotificationEventQueue queue)
+namespace iPath.Application.Features.Notifications;
+
+public class NotificationEventHandler(INodeNotificationEventQueue queue)
     : INotificationHandler<EventEntity>
 {
     public async ValueTask Handle(EventEntity evt, CancellationToken cancellationToken)

@@ -12,10 +12,11 @@ public record NodeNofitication(
 
 public enum eNodeEventType
 {
-    NewNode = 0,
-    NodePublished = 1,
-    NewAttachment = 2,
-    NodeDeleted = 3,
+    None = 0,
+    NodeCreated = 1,
+    NodePublished = 2,
+    NewAttachment = 3,
+    NodeDeleted = 4,
     NewAnnotation = 10,
     AnnotationDeleted = 11,
     Test = 99

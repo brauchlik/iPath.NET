@@ -18,7 +18,7 @@ public class UpdateNodeVisitCommandHandler(iPathDbContext db, IUserSession sess)
         }
         else
         {
-            v = NodeLastVisit.Create(userId: sess.User.Id, nodeId: request.NodeId, date: DateTime.UtcNow);
+           v = NodeLastVisit.Create(userId: sess.User.Id, nodeId: request.NodeId, date: DateTime.UtcNow);
            await db.Set<NodeLastVisit>().AddAsync(v, ct);
         }
         await db.SaveChangesAsync(ct);

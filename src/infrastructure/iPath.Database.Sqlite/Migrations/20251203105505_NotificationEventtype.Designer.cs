@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using iPath.EF.Core.Database;
 
@@ -10,9 +11,11 @@ using iPath.EF.Core.Database;
 namespace iPath.EF.Sqlite.Migrations
 {
     [DbContext(typeof(iPathDbContext))]
-    partial class iPathDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251203105505_NotificationEventtype")]
+    partial class NotificationEventtype
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

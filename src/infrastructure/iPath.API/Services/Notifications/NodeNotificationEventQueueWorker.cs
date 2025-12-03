@@ -1,26 +1,21 @@
-﻿using iPath.Application.Features.Notifications;
-using iPath.EF.Core.Database;
+﻿using iPath.API.Services.Notifications.Processors;
+using iPath.Application.Features.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace iPath.API.Services.Notifications;
 
-public class NotificationQueueWorker(NotificationEventQueue queue,
+public class NotificationQueueWorker(INodeNotificationEventQueue queue,
     ILogger<NotificationQueueWorker> logger,
     IServiceProvider services)
     : BackgroundService
 {
     private IServiceScope scope;
-    private IMediator mediator;
-    private iPathDbContext db;
-
 
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
         scope = services.CreateScope();
-        db = scope.ServiceProvider.GetRequiredService<iPathDbContext>();
-        mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         await base.StartAsync(cancellationToken);
     }
 
@@ -42,9 +37,27 @@ public class NotificationQueueWorker(NotificationEventQueue queue,
         while (!stoppingToken.IsCancellationRequested)
         {
             var evt = await queue.DequeueAsync(stoppingToken);
-            logger.LogTrace("processing event");
+            var n = evt.ToNotification();
+            logger.LogTrace("processing event type {0}", n.type);
 
-            await Task.Delay(500);
+            var processor = scope.ServiceProvider.GetService<INodeEventProcessor>();
+            if (processor != null)
+            {
+                try
+                {
+                    await processor.ProcessEvent(n, stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("Node Event Processing error: {Message}", ex.Message, ex);
+                }
+            }
+            else
+            {
+                logger.LogTrace("no event to notification processor for {0}", n.type);
+            }
+
+            await Task.Delay(100);
         }
     }
 }

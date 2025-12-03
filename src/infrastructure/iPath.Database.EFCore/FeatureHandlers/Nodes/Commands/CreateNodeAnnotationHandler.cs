@@ -21,6 +21,9 @@ public class CreateNodeAnnotationCommandHandler(iPathDbContext db, IMediator med
         db.Nodes.Update(node);
         await db.SaveChangesAsync(ct);
 
+        // update user NodeVisit
+        await mediator.Send(new UpdateNodeVisitCommand(node.Id), ct);
+
         return a.ToDto();
     }
 }

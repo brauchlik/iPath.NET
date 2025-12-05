@@ -1,11 +1,16 @@
 ﻿using DispatchR.Abstractions.Notification;
 using iPath.API.Hubs;
-using iPath.Domain.Notificxations;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace iPath.API;
 
+
+
+// This is an experimental SignalR Hub
+// NodeEvents are directly passed to the SignalR Client
+// This has to be refactored and attached to the NotificatoinQueue for InApp Notifications
 
 public class DomainEventHandler(IHubContext<NodeNotificationsHub> hub,
     IUserSession sess,
@@ -14,9 +19,10 @@ public class DomainEventHandler(IHubContext<NodeNotificationsHub> hub,
 {
     public async ValueTask Handle(EventEntity evt, CancellationToken ct)
     {
-        if (evt is INodeNotificationEvent ne)
+        if (evt is NodeEvent ne)
         {
-            var msg = new NotificationMessage(evt.EventDate, ne.EventType);
+            string payload = JsonSerializer.Serialize(ne);
+            var msg = new NotificationMessage(evt.EventDate, ne.GetType().Name, payload);
             await hub.Clients.All.SendAsync("NodeEvent", msg);
         }
         else 
@@ -26,4 +32,4 @@ public class DomainEventHandler(IHubContext<NodeNotificationsHub> hub,
     }
 }
 
-public record NotificationMessage(DateTime Date, eNodeEventType EventType);
+public record NotificationMessage(DateTime Date, string eventType, string payload);

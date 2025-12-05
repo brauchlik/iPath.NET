@@ -64,9 +64,9 @@ public static class APIServicesRegistration
 
 
         // Notification Handling
-        services.AddSingleton<INodeNotificationEventQueue>(ctx => new NodeNotificationEventQueue(100));
+        services.AddSingleton<IEventNotificationDispatcherQueue>(ctx => new EventNotificationDispatcherQueue(100));
         services.AddSingleton<INotificationQueue>(ctx => new NotificationQueue(100));
-        services.AddHostedService<NotificationQueueWorker>();
+        services.AddHostedService<EventNotificationDispatcher>();
         services.AddScoped<INodeEventProcessor, RootNodeEventProcessor>();
 
 

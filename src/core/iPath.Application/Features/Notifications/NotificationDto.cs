@@ -2,5 +2,5 @@
 
 namespace iPath.Application.Features.Notifications;
 
-public record NotificationDto(Guid Id, DateTime Date, eNodeEventType EventType, eNotificationTarget Target, string Username, string? payload = null);
+public record NotificationDto(Guid Id, DateTime Date, eNodeNotificationType EventType, eNotificationTarget Target, string Username, string? payload = null);
 

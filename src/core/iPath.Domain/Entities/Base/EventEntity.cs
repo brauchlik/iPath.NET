@@ -52,14 +52,7 @@ public class EventEntity : IDomainEvent
 }
 
 
-
 public class TestEvent : INotification
 {
     public string Message { get; set; }
-}
-
-public interface INodeNotificationEvent : INodeEvent
-{
-    eNodeEventType EventType { get; }
-    NodeEvent Event { get; }
 }

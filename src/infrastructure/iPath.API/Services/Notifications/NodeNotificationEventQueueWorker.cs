@@ -5,8 +5,15 @@ using Microsoft.Extensions.Logging;
 
 namespace iPath.API.Services.Notifications;
 
-public class NotificationQueueWorker(INodeNotificationEventQueue queue,
-    ILogger<NotificationQueueWorker> logger,
+/*
+ * The EventNotificationDispatcher is a background worker that reads the 
+ * EventNotificationDispatcherQueue and transforms the events to notifications
+ * with the help of an instance of INodeEventProcessor
+ * 
+ */
+
+public class EventNotificationDispatcher(IEventNotificationDispatcherQueue queue,
+    ILogger<EventNotificationDispatcher> logger,
     IServiceProvider services)
     : BackgroundService
 {
@@ -37,7 +44,7 @@ public class NotificationQueueWorker(INodeNotificationEventQueue queue,
         {
             var evt = await queue.DequeueAsync(stoppingToken);
 
-            logger.LogTrace("processing event type {0}", evt.EventType);
+            logger.LogTrace("processing event type {0}", evt.GetType().Name);
 
             var processor = scope.ServiceProvider.GetService<INodeEventProcessor>();
             if (processor != null)
@@ -53,7 +60,7 @@ public class NotificationQueueWorker(INodeNotificationEventQueue queue,
             }
             else
             {
-                logger.LogTrace("no event to notification processor for {0}", evt.EventType);
+                logger.LogTrace("no event to notification processor for {0}", evt.GetType().Name);
             }
 
             await Task.Delay(100);

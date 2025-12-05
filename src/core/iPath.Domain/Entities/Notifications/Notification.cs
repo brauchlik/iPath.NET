@@ -12,7 +12,7 @@ public class Notification : BaseEntity
     public Guid UserId {  get; private set; }
     public User User { get; private set; }
 
-    public eNodeEventType EventType { get; private set; } = eNodeEventType.None;
+    public eNodeNotificationType EventType { get; private set; } = eNodeNotificationType.None;
     public eNotificationTarget Target { get; private set; } = eNotificationTarget.None;
     public bool DailySummary { get; private set; }
 
@@ -26,7 +26,7 @@ public class Notification : BaseEntity
 
 
 
-    public static Notification Create(eNodeEventType type, eNotificationTarget target, bool dailySummary, Guid userId, string data)
+    public static Notification Create(eNodeNotificationType type, eNotificationTarget target, bool dailySummary, Guid userId, string data)
     {
         return new Notification
         {
@@ -41,7 +41,7 @@ public class Notification : BaseEntity
         };
     }
 
-    public static Notification Create(eNodeEventType type, eNotificationTarget target, bool dailySummary, Guid userId, INodeNotificationEvent n)
+    public static Notification Create(eNodeNotificationType type, eNotificationTarget target, bool dailySummary, Guid userId, NodeEvent evt)
     {
         var options = new JsonSerializerOptions
         {
@@ -50,7 +50,7 @@ public class Notification : BaseEntity
         };
 
         var context = new NodeNofiticationSerializerContext(options);
-        var json = JsonSerializer.Serialize(n.Event, typeof(NodeEvent), context);
+        var json = JsonSerializer.Serialize(evt, typeof(NodeEvent), context);
 
         return new Notification
         {

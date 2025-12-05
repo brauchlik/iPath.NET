@@ -2,9 +2,7 @@
 
 namespace iPath.Application.Features.Nodes;
 
-public class AnnotationCreatedEvent : NodeEvent, INotification, INodeNotificationEvent
+public class AnnotationCreatedEvent : NodeEvent, INotification
 {
-    public eNodeEventType EventType => eNodeEventType.NewAnnotation;
-
     public NodeEvent Event => this;
 }

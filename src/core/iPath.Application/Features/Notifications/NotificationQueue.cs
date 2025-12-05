@@ -3,6 +3,14 @@ using System.Threading.Channels;
 
 namespace iPath.Application.Features.Notifications;
 
+
+/*
+ * This queue is user to buffer the notifications for delivery to the user
+ * ... place then on email queue or send over signalR to the client
+ * 
+ */
+
+
 public class NotificationQueue : INotificationQueue
 {
     private readonly Channel<Notification> _channel;

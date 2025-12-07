@@ -9,7 +9,7 @@
 @inject IHttpClientFactory httpFactory
 
 
-@if (!vm.IsRootNodeSelected && !vm.SelectedNode.ChildNodes.Any())
+@if (!vm.IsRootNodeSelected && vm.SelectedNode is not null && !vm.SelectedNode.ChildNodes.Any())
 {
     OnShowingChildNode.InvokeAsync(true);
     <div class="ipath_image">

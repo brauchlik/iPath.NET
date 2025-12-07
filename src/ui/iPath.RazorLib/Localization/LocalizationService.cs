@@ -1,5 +1,4 @@
 ﻿using iPath.Application.Localization;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Encodings.Web;
@@ -8,7 +7,8 @@ using System.Text.Unicode;
 
 namespace iPath.RazorLib.Localization;
 
-public class LocalizationService(IOptions<LocalizationSettings> opts, ILogger<LocalizationService> logger) : IStringLocalizer
+public class LocalizationService(IOptions<LocalizationSettings> opts, ILogger<LocalizationService> logger) 
+    : IStringLocalizer
 {
     // private static Dictionary<string, Dictionary<string, LocalizedString>>? _translations = null!;
 
@@ -18,21 +18,30 @@ public class LocalizationService(IOptions<LocalizationSettings> opts, ILogger<Lo
     {
         if (!_translationsData.ContainsKey(locale))
         {
-            string fileName = Path.Combine(opts.Value.LocalesRoot, $"{locale}.json");
-
-            if (!File.Exists(fileName))
+            // check directory
+            if (!System.IO.Directory.Exists(opts.Value.LocalesRoot))
             {
-                TranslationData newItem = new();
-                newItem.locale = locale;
-                newItem.ModifiedOn = DateTime.Now;
-                newItem.Words = new();
-                _translationsData.Add(locale, newItem);
-                if (opts.Value.AutoSave) SaveTranslation(newItem);
+                logger.LogWarning("Locales directory not found: {0}", opts.Value.LocalesRoot);
+                _translationsData.Add(locale, new TranslationData());
             }
             else
             {
-                var data = JsonSerializer.Deserialize<TranslationData>(File.ReadAllText(fileName));
-                _translationsData.Add(locale, data);
+                string fileName = Path.Combine(opts.Value.LocalesRoot, $"{locale}.json");
+
+                if (!File.Exists(fileName))
+                {
+                    TranslationData newItem = new();
+                    newItem.locale = locale;
+                    newItem.ModifiedOn = DateTime.Now;
+                    newItem.Words = new();
+                    _translationsData.Add(locale, newItem);
+                    if (opts.Value.AutoSave) SaveTranslation(newItem);
+                }
+                else
+                {
+                    var data = JsonSerializer.Deserialize<TranslationData>(File.ReadAllText(fileName));
+                    _translationsData.Add(locale, data);
+                }
             }
         }
         return _translationsData[locale];

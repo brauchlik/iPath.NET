@@ -49,10 +49,11 @@
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
+    private bool wasm => false;
 
-    private IComponentRenderMode? PageRenderMode => HttpContext.AcceptsInteractiveRouting() ?
-        new InteractiveWebAssemblyRenderMode(prerender: false) : 
-        null;
+    private IComponentRenderMode irm => wasm ?
+        new InteractiveWebAssemblyRenderMode(prerender: false) :
+        new InteractiveServerRenderMode(prerender: true);
 
-    // private IComponentRenderMode? PageRenderMode => HttpContext.AcceptsInteractiveRouting() ? InteractiveAuto : null;
+    private IComponentRenderMode? PageRenderMode => HttpContext.AcceptsInteractiveRouting() ? irm :  null;
 }

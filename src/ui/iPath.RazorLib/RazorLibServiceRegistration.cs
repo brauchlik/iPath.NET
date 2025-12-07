@@ -8,6 +8,7 @@ using iPath.Blazor.Componenents.Nodes;
 using iPath.Blazor.Componenents.Questionaiires;
 using iPath.Blazor.Componenents.Shared;
 using iPath.Blazor.Componenents.Users;
+using iPath.Blazor.Server;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Refit;
@@ -30,8 +31,8 @@ public static class RazorLibServiceRegistration
             ContentSerializer = new SystemTextJsonContentSerializer(jsonOptions) 
         };
         services.AddRefitClient<IPathApi>(refitSetting)
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseAddress));
-            // .AddHttpMessageHandler<HttpLoggingHandler>();
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseAddress))
+            .AddHttpMessageHandler<baseAuthDelegationHandler>();
 
         services.AddMemoryCache();
         services.AddViewModels();

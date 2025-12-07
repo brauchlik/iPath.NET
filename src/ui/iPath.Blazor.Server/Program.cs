@@ -1,4 +1,5 @@
 using iPath.API;
+using iPath.Blazor.Server;
 using iPath.Blazor.Server.Components;
 using iPath.Blazor.Server.Components.Account;
 using iPath.Domain.Config;
@@ -47,6 +48,9 @@ builder.Services.AddRazorLibServices(baseAddress);
 builder.Services.AddSingleton<NotificationService>();
 
 builder.Services.AddAntiforgery();
+
+
+builder.Services.AddTransient<baseAuthDelegationHandler, ForwardCookiesHandler>();
 
 
 builder.Services.Configure<iPathConfig>(builder.Configuration.GetSection(iPathConfig.ConfigName));

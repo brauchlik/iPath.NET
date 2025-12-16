@@ -8,6 +8,7 @@ internal class NodeLastVisitConfiguration : IEntityTypeConfiguration<NodeLastVis
         b.HasKey(x => new { x.UserId, x.NodeId });
         b.HasIndex(x => x.Date);
 
+        b.HasOne(x => x.User).WithMany(u => u.NodeVisitis).HasForeignKey(x => x.UserId);
         b.HasOne(v => v.Node).WithMany(n => n.LastVisits).HasForeignKey(v => v.NodeId);
         b.HasIndex(x => x.NodeId);
     }

@@ -26,8 +26,7 @@ public static class PersistanceServiceRegistration
                 //cfg.UseNpgsql(
                 //    config.GetConnectionString(DBProvider.Postgres.Name),
                 //    x => x.MigrationsAssembly(Postgres.Assembly)
-                //)
-                // .UseSnakeCaseNamingConvention();
+                //);
             }
             if (provider == DBProvider.Sqlite.Name)
             {
@@ -35,8 +34,7 @@ public static class PersistanceServiceRegistration
                 cfg.UseSqlite(
                     config.GetConnectionString(DBProvider.Sqlite.Name),
                     x => x.MigrationsAssembly(DBProvider.Sqlite.Assembly)
-                )
-                .UseSnakeCaseNamingConvention();
+                );
             }
         });
 

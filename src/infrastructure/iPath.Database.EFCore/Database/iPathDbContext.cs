@@ -3,9 +3,15 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace iPath.EF.Core.Database;
 
-public class iPathDbContext(DbContextOptions<iPathDbContext> options, IMediator mediator)
-    : IdentityDbContext<User, Role, Guid>(options)
+public class iPathDbContext : IdentityDbContext<User, Role, Guid>
 {
+    public iPathDbContext(DbContextOptions<iPathDbContext> options, IMediator mediator) : base(options)
+    {
+        _mediator = mediator;
+    }
+
+    private readonly IMediator _mediator;
+
 
     public DbSet<Community> Communities { get; set; }
     public DbSet<Group> Groups { get; set; }
@@ -22,6 +28,14 @@ public class iPathDbContext(DbContextOptions<iPathDbContext> options, IMediator 
     public DbSet<EventEntity> EventStore { get; set; }
 
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        // don't user SnakeCase as this is disturbing with Json mapping
+        // optionsBuilder.UseSnakeCaseNamingConvention();
+        base.OnConfiguring(optionsBuilder);
+    }
+
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         // builder.UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -34,6 +48,8 @@ public class iPathDbContext(DbContextOptions<iPathDbContext> options, IMediator 
         builder.Entity<User>(b =>
         {
             b.ToTable("users");
+            b.ComplexProperty(u => u.Profile, b => b.ToJson("profile"));
+            /*
             b.OwnsOne(x => x.Profile, pb =>
             {
                 pb.ToJson(); //.HasColumnType("jsonb");
@@ -42,6 +58,7 @@ public class iPathDbContext(DbContextOptions<iPathDbContext> options, IMediator 
                     cdb.OwnsOne(cd => cd.Address);
                 });
             });
+            */
             b.HasMany(e => e.Roles).WithMany().UsingEntity<IdentityUserRole<Guid>>();
         });
 
@@ -140,7 +157,7 @@ public class iPathDbContext(DbContextOptions<iPathDbContext> options, IMediator 
 
         foreach (var domainEvent in events)
         {
-            await mediator.Publish(domainEvent, cancellationToken);
+            await _mediator.Publish(domainEvent, cancellationToken);
         }
 
 

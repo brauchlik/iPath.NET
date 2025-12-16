@@ -13,4 +13,6 @@ public class iPathConfig
     public bool ExportNodeJson { get; set; }
 
     public int ThumbSize { get; set; } = 100;
+
+    public string RenderMode { get; set; } = "Auto";
 }

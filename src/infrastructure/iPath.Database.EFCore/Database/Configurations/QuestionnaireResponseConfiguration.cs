@@ -6,6 +6,7 @@ internal class QuestionnaireResponseConfiguration : IEntityTypeConfiguration<Que
     {
         b.ToTable("questionnaire_responses");
         b.HasKey(r => r.Id);
+        b.Property(x => x.Id).HasColumnName("id");
 
         b.HasOne(r => r.Questionnaire)
             .WithMany()
@@ -17,12 +18,12 @@ internal class QuestionnaireResponseConfiguration : IEntityTypeConfiguration<Que
             .IsRequired(true);
 
         b.HasOne(r => r.Node)
-            .WithMany().
-            HasForeignKey(r => r.NodeId)
+            .WithMany(n => n.QuestionnaireResponses)
+            .HasForeignKey(r => r.NodeId)
             .IsRequired(false);
 
         b.HasOne(r => r.Annotation)
-            .WithMany()
+            .WithMany(a => a.QuestionnaireResponses)
             .HasForeignKey(r => r.AnnotationId)
             .IsRequired(false);
 

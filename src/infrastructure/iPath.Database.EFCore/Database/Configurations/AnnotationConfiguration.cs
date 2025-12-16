@@ -8,8 +8,9 @@ internal class AnnotationConfiguration : IEntityTypeConfiguration<Annotation>
 {
     public void Configure(EntityTypeBuilder<Annotation> b)
     {
-        // b.ToTable("annotations");
+        b.ToTable("annotations");
         b.HasKey(x => x.Id);
+        b.Property(x => x.Id).HasColumnName("id");
 
         b.HasOne(x => x.Owner).WithMany().HasForeignKey(x => x.OwnerId).IsRequired().OnDelete(DeleteBehavior.NoAction);
         b.HasMany(x => x.QuestionnaireResponses).WithOne(r => r.Annotation).IsRequired(false);

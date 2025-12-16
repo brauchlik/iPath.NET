@@ -18,12 +18,35 @@
 	<div class="ipath_annotations">
 		@foreach (var a in vm.RootNode.Annotations.OrderByDirection(Sort, a => a.CreatedOn))
 		{
-			<AnnotationItemView Item="a" OnDelete="OnDelete" />
+			@if (ShowAnnotations)
+			{
+				<AnnotationItemView Item="a" OnDelete="OnDelete" />				
+			}
+			else
+			{
+				<AnnotationSkeleton />
+			}
 		}
 	</div>
 }
 
+
+@inject AppState appState
+
 @code {
+	bool ShowAnnotations
+	{
+		get
+		{
+			// OPtion Hide Annotaiton not active => show annotations
+			if (!vm.ActiveGroup.Settings.AnnotationsHide) return true;
+
+			// Show annotations only when current user has already written an annotation
+			return vm.RootNode.Annotations.Any(a => a.OwnerId == appState.User?.Id);
+		}
+	}
+
+
 	async Task OnDelete(AnnotationDto item)
 	{
 		await vm.DeleteAnnotation(item);

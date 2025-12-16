@@ -5,3 +5,5 @@ namespace iPath.Domain.Entities;
 public class Role : IdentityRole<Guid>
 {
 }
+
+// public class UserRole : IdentityUserRole<Guid> { }

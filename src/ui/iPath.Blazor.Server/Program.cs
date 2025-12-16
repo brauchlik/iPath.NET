@@ -13,6 +13,17 @@ using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configuration
+if (!string.IsNullOrEmpty(builder.Configuration["CONFIG_PATH"]))
+{
+    var cfgFile = System.IO.Path.Combine(builder.Configuration["CONFIG_PATH"], "appsettings.json");
+    if (System.IO.File.Exists(cfgFile))
+    {
+        builder.Configuration.AddJsonFile(cfgFile);
+    }
+}
+
+
 builder.AddServiceDefaults();
 
 // builder.WebHost.UseStaticWebAssets();
@@ -77,7 +88,7 @@ else
 }
 
 // DB Migrations & Seeding
-app.UpdateDatabase();
+await app.UpdateDatabase();
 
 
 // Configure static file caching

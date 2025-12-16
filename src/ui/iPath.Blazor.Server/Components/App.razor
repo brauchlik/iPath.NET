@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.Extensions.Options
+@using iPath.Domain.Config
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -45,15 +47,19 @@
 
 </html>
 
+@inject IOptions<iPathConfig> opts
+
 @code {
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
-    private bool wasm => false;
 
-    private IComponentRenderMode irm => wasm ?
-        new InteractiveWebAssemblyRenderMode(prerender: false) :
-        new InteractiveServerRenderMode(prerender: true);
+    private IComponentRenderMode interactiveRenderMode => opts.Value.RenderMode.ToLower() switch
+    {
+        "auto" => new InteractiveAutoRenderMode(prerender: false),
+        "server" => new InteractiveServerRenderMode(prerender: false),
+        _ => new InteractiveWebAssemblyRenderMode(prerender: false)
+    };
 
-    private IComponentRenderMode? PageRenderMode => HttpContext.AcceptsInteractiveRouting() ? irm :  null;
+    private IComponentRenderMode? PageRenderMode => HttpContext.AcceptsInteractiveRouting() ? interactiveRenderMode :  null;
 }

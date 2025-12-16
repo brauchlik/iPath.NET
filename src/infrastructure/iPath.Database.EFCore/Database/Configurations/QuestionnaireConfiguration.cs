@@ -6,6 +6,7 @@ internal class QuestionnaireConfiguration : IEntityTypeConfiguration<Questionnai
     {
         b.ToTable("questionnaires");
         b.HasKey(q => q.Id);
+        b.Property(x => x.Id).HasColumnName("id");
 
         b.HasIndex(q => new { q.QuestionnaireId, q.Version }).IsUnique();
         b.HasIndex(q => new { q.QuestionnaireId, q.IsActive });

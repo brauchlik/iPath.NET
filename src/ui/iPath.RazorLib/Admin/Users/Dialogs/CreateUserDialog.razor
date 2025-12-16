@@ -12,7 +12,7 @@
     </TitleContent>
     <DialogContent>
         <MudForm Model="@Model" @ref="frm">
-            <MudTextField @bind-Value="@Model.Username" Label=@T["Username"] Variant="Variant.Outlined" />
+            <MudTextField @bind-Value="@Model.Username" Label=@T["Username"] Variant="Variant.Outlined" AutoFocus="true"/>
             <MudTextField @bind-Value="@Model.Email" Label=@T["Email"] Variant="Variant.Outlined" />
             <CommunityLookup @bind-Value="@Model.Community" Label=@T["Community"] Immediate="true" />
         </MudForm>

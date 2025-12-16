@@ -4,6 +4,7 @@ namespace iPath.Domain.Entities;
 public class NodeLastVisit : IEntity
 {
     public Guid UserId { get; set; }
+    public User User { get; set; }
 
     public Guid NodeId { get; set; }
     public Node Node { get; set; } = null!;

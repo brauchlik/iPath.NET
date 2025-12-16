@@ -4,11 +4,15 @@ internal class CommunityMemberConfiguration : IEntityTypeConfiguration<Community
 {
     void IEntityTypeConfiguration<CommunityMember>.Configure(EntityTypeBuilder<CommunityMember> b)
     {
-        // b.ToTable("community_group_members");
+        b.ToTable("community_group_members");
         b.HasKey(x => x.Id);
+        b.Property(x => x.Id).HasColumnName("id");
 
-        b.HasOne(x => x.Community).WithMany(c => c.Members).HasForeignKey(x => x.CommunityId).IsRequired();
+        b.Property(x => x.UserId).HasColumnName("user_id");
         b.HasOne(x => x.User).WithMany(u => u.CommunityMembership).HasForeignKey(x => x.UserId).IsRequired();
+
+        b.Property(x => x.CommunityId).HasColumnName("community_id");
+        b.HasOne(x => x.Community).WithMany(c => c.Members).HasForeignKey(x => x.CommunityId).IsRequired();
 
         b.HasIndex(builder => new { builder.UserId, builder.CommunityId }).IsUnique();
     }

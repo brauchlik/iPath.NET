@@ -10,4 +10,8 @@
     <ProjectReference Include="..\iPath.Database.EFCore\iPath.Database.EFCore.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

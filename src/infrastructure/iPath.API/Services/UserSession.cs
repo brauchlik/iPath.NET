@@ -3,11 +3,12 @@ using iPath.EF.Core.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 namespace iPath.API.Services;
 
-public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemoryCache cache, IHttpContextAccessor acc)
+public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemoryCache cache, IHttpContextAccessor acc, ILogger<UserSession> logger)
     : IUserSession
 {
     private SessionUserDto? _user;
@@ -45,8 +46,18 @@ public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemory
 
     private async Task<SessionUserDto?> LoadUser(Guid userid)
     {
-        var user = await um.FindByIdAsync(userid.ToString());
-        if (user is null) return null;
+        User? user = null;
+        try
+        {
+            user = await um.FindByIdAsync(userid.ToString());
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Cannot load user {0}", userid);
+        }
+
+        if (user is null) return SessionUserDto.Anonymous;
+
         var roles = await um.GetRolesAsync(user);
 
         var groups = await db.Set<GroupMember>()

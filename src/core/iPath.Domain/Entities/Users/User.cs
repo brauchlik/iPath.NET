@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 
 namespace iPath.Domain.Entities;
@@ -13,7 +14,7 @@ public class User : IdentityUser<Guid>, IBaseEntity
     public ICollection<GroupMember> GroupMembership { get; set; } = [];
     public ICollection<CommunityMember> CommunityMembership { get; set; } = [];
 
-    public ICollection<Node> OwnedNodes { get; set; } = [];
+    public ICollection<Node> OwnedNodes { get; set; } = [];    
     public ICollection<NodeLastVisit> NodeVisitis { get; set; } = [];
 
     public ICollection<Role> Roles { get; set; } = [];

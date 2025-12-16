@@ -6,6 +6,8 @@ internal class QuestionnaireForGroupConfiguration : IEntityTypeConfiguration<Que
     {
         b.ToTable("questionnaire_groups");
         b.HasKey(x => x.Id);
+        b.Property(x => x.Id).HasColumnName("id");
+
         b.HasOne(x => x.Questionnaire).WithMany(q => q.Groups).HasForeignKey(g => g.QuestionnaireId).IsRequired(true);
         b.HasOne(x => x.Group).WithMany(q => q.Quesionnaires).HasForeignKey(g => g.GroupId).IsRequired(true);
     }

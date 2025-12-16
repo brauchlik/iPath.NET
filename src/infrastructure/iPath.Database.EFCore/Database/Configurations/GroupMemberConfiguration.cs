@@ -6,11 +6,12 @@ internal class GroupMemberConfiguration : IEntityTypeConfiguration<GroupMember>
     {
         b.ToTable("group_members");
         b.HasKey(x => x.Id);
+        b.Property(x => x.Id).HasColumnName("id");
 
         b.HasOne(x => x.Group).WithMany(g => g.Members).HasForeignKey(x => x.GroupId).IsRequired();
         b.HasOne(x => x.User).WithMany(u => u.GroupMembership).HasForeignKey(x => x.UserId).IsRequired();
 
-        b.OwnsOne(x => x.NotificationSettings, b => b.ToJson());
+        b.ComplexProperty(x => x.NotificationSettings, b => b.ToJson());
 
         b.HasIndex(builder => new { builder.UserId, builder.GroupId }).IsUnique();
     }

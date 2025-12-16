@@ -43,6 +43,14 @@ public class UserAdminViewModel(IPathApi api,
         return new TableData<UserListDto>();
     }
 
+    async Task ReloadServerData()
+    {
+        if (grid is not null)
+            await grid.ReloadServerData();
+        if (table is not null)
+            await table.ReloadServerData();
+    }
+
 
 
     public UserListDto? SelectedItem { get; private set; }
@@ -150,7 +158,7 @@ public class UserAdminViewModel(IPathApi api,
             {
                 snackbar.AddWarning(resp.ErrorMessage);
             }
-            await grid.ReloadServerData();
+            await ReloadServerData();
         }
     }
 
@@ -167,7 +175,7 @@ public class UserAdminViewModel(IPathApi api,
             var res = await dlg.Result;
             if (res != null)
             {
-                await grid.ReloadServerData();
+                await ReloadServerData();
             }
         }
     }

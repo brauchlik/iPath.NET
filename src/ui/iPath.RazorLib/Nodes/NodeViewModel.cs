@@ -201,12 +201,12 @@ public class NodeViewModel(IPathApi api,
             // otherwhise go up
             await GoUp();
         }
-        else
+        else if (SelectedNode is not null)
         {
             // find index of current child Node in parents child list
             var list = RootNode.ChildNodes.Where(n => n.ParentNodeId == SelectedNode.ParentNodeId).OrderBy(n => n.SortNr).ToList();
             var idx = list.IndexOf(SelectedNode);
-            if (idx < list.Count() - 1)
+            if (IdList != null && idx < list.Count() - 1)
             {
                 // there is one more in list => select
                 nm.NavigateTo($"node/{IdList[idx - 1]}");
@@ -287,7 +287,7 @@ public class NodeViewModel(IPathApi api,
         if (resp.IsSuccessful)
         {
             RootNode = resp.Content;
-            SelectChilNode(RootNode);
+            await SelectChilNode(RootNode);
             IsEditing = true;
         }
         else

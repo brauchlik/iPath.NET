@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using DispatchR.Extensions;
 
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
@@ -17,6 +18,8 @@ else
 {
     throw new Exception("No configuration 'importsetting.json' found");
 }
+
+builder.Services.AddDispatchR(cfg => cfg.Assemblies.Add(typeof(iPath.Application.Meta).Assembly));
 
 builder.Services.AddPersistance(builder.Configuration);
 builder.Services.AddIPathAuthentication(builder.Configuration);

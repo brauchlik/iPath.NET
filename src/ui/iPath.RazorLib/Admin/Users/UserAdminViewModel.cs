@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using FluentResults;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Refit;
 using System.Runtime.CompilerServices;
@@ -194,6 +195,26 @@ public class UserAdminViewModel(IPathApi api,
         return true;
     }
 
+    public async Task ResetPassword()
+    {
+        var p = new DialogParameters<UserPasswordDialog> { { x => x.User, SelectedUser } };
+        var d = await dialog.ShowAsync<UserPasswordDialog>("Reset Password", parameters: p);
+        await d.Result;
+    }
+
+    public async Task<Result> UpdateUserPassword(UpdateUserPasswordCommand cmd)
+    {
+        var resp = await api.UpdateUserPassword(cmd);
+        if (resp.IsSuccessful)
+        {
+            if (resp.Content.IsSuccess)
+            {
+                snackbar.AddInfo("Password has been reset");
+            }
+            return resp.Content;
+        }
+        return Result.Fail(resp.ErrorMessage);
+    }
 
 
     public async Task EditGroupMembership(UserListDto user)

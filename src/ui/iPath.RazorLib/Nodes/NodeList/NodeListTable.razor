@@ -10,7 +10,10 @@
                                OnClick="vm.CreateNewCase" Disabled="vm.CreateNewCaseDisabled" />
             </MudTooltip>
             <MudTooltip Text="export data">
-                <MudIconButton Icon="@Icons.Material.Outlined.Save" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Save" @Disabled=@(!gvm.IsModerator) />
+            </MudTooltip>
+            <MudTooltip Text="Group Settings">
+                <MudIconButton Icon="@Icons.Material.Outlined.Settings" OnClick="gvm.EditSettings" @Disabled=@(!gvm.IsModerator) />
             </MudTooltip>
         </MudToolBar>
         <MudSpacer />
@@ -63,6 +66,7 @@
 </MudTable>
 
 @inject NodeListViewModel vm
+@inject GroupIndexViewModel gvm
 
 @code {
     [Parameter]

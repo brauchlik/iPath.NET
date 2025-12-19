@@ -36,6 +36,10 @@ public static class UserEndpoints
             => await mediator.Send(cmd, ct))
             .RequireAuthorization("Admin");
 
+        grp.MapPut("password", async (UpdateUserPasswordCommand cmd, IMediator mediator, CancellationToken ct)
+            => await mediator.Send(cmd, ct))
+            .RequireAuthorization("Admin");
+
         grp.MapPut("profile", async (UpdateUserProfileCommand cmd, IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .Produces<Guid>()

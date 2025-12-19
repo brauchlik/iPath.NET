@@ -1,12 +1,9 @@
 using Cyrillic.Convert;
 using EFCore.BulkExtensions;
 using Humanizer;
-using iPath.Domain.Entities;
 using iPath.EF.Core.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.IO;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
 

@@ -11,7 +11,10 @@
             <MudItem xs="12" sm="8">
                 <MudTextField Label="Username" Value="User.Username" ReadOnly="true" />
                 <MudTextField Label="Username" Value="User.Email" ReadOnly="true" />
-                <MudCheckBox Label="active" @bind-Value="IsActive" />
+                <MudStack Row Spacing="4">
+                    <MudCheckBox Label="active" @bind-Value="IsActive" />
+                    <MudButton StartIcon="@Icons.Material.Filled.Password" Variant="Variant.Outlined" OnClick="vm.ResetPassword">@T["Password"]</MudButton>
+                </MudStack>
             </MudItem>
             <MudItem xs="12" sm="4">
                 <MudToggleGroup T="RoleDto" SelectionMode="SelectionMode.MultiSelection" Vertical="true"

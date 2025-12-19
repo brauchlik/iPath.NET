@@ -8,10 +8,10 @@
     "ipath_old_local": "Server=127.0.0.1;Database=ipath2;Uid=ipath;Pwd=1cePath;Charset=latin1;"
   },
   "ImportConfig": {
-    "BulkSize": 1000,
+    "BulkSize": 10000,
     "ImportUsers": false,
-    "ImportCommunities": true,
-    "ImportGroups": true,
+    "ImportCommunities": false,
+    "ImportGroups": false,
     "ImportNodes": true,
     "ImportNodeStats": true
   }

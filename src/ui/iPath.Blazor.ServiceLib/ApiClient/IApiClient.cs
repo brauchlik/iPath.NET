@@ -1,4 +1,5 @@
-﻿using iPath.Application.Features;
+﻿using FluentResults;
+using iPath.Application.Features;
 using iPath.Application.Features.Nodes;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Users;
@@ -38,6 +39,9 @@ public interface IPathApi
 
     [Put("/api/v1/users/account")]
     Task<IApiResponse> UpdateUserAccount(UpdateUserAccountCommand command);
+
+    [Put("/api/v1/users/password")]
+    Task<IApiResponse<Result>> UpdateUserPassword(UpdateUserPasswordCommand command);
 
     [Put("/api/v1/users/profile")]
     Task<IApiResponse<Guid>> UpdateProfile(UpdateUserProfileCommand command);

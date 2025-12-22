@@ -8,9 +8,12 @@ using iPath.API.Services.Thumbnail;
 using iPath.API.Services.Uploads;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Localization;
+using iPath.EF.Core.Database;
+using iPath.Google;
 using iPath.RazorLib.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Text.Json.Serialization;
 
 namespace iPath.API;
@@ -94,6 +97,8 @@ public static class APIServicesRegistration
         services.Configure<LocalizationSettings>(config.GetSection(LocalizationSettings.ConfigName));
         services.AddTransient<LocalizationFileService>();
 
+        // Google Workspace
+        services.AddGoogleServices(config);
 
         // Configure JSON options for OpenAPI
         services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>

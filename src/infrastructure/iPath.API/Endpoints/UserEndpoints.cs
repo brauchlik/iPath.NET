@@ -11,69 +11,69 @@ public static class UserEndpoints
             .WithTags("Users");
 
         // Queries
-        grp.MapPost("list", async (GetUserListQuery query, IMediator mediator, CancellationToken ct)
+        grp.MapPost("list", async (GetUserListQuery query, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(query, ct))
             .Produces<PagedResultList<UserListDto>>()
             .RequireAuthorization();
 
-        grp.MapGet("{id}", async (string id, IMediator mediator, CancellationToken ct)
+        grp.MapGet("{id}", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(new GetUserByIdQuery(Guid.Parse(id)), ct))
             .Produces<UserDto>()
             .RequireAuthorization();
 
         // Commands
-        grp.MapPost("create", async (CreateUserCommand cmd, IMediator mediator, CancellationToken ct)
+        grp.MapPost("create", async (CreateUserCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .Produces<OwnerDto>()
             .RequireAuthorization("Admin");
 
-        grp.MapPut("role", async (UpdateUserRoleCommand cmd, IMediator mediator, CancellationToken ct)
+        grp.MapPut("role", async (UpdateUserRoleCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .Produces<Guid>()
             .RequireAuthorization("Admin");
 
-        grp.MapPut("account", async (UpdateUserAccountCommand cmd, IMediator mediator, CancellationToken ct)
+        grp.MapPut("account", async (UpdateUserAccountCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .RequireAuthorization("Admin");
 
-        grp.MapPut("password", async (UpdateUserPasswordCommand cmd, IMediator mediator, CancellationToken ct)
+        grp.MapPut("password", async (UpdateUserPasswordCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .RequireAuthorization("Admin");
 
-        grp.MapPut("profile", async (UpdateUserProfileCommand cmd, IMediator mediator, CancellationToken ct)
+        grp.MapPut("profile", async (UpdateUserProfileCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .Produces<Guid>()
             .RequireAuthorization();
 
 
         // communities
-        grp.MapPut("communities", async (UpdateCommunityMembershipCommand cmd, IMediator mediator, CancellationToken ct)
+        grp.MapPut("communities", async (UpdateCommunityMembershipCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .Produces<Guid>()
             .RequireAuthorization("Admin");
 
-        grp.MapPut("assign/community", async (AssignUserToCommunityCommand cmd, IMediator mediator , CancellationToken ct)
+        grp.MapPut("assign/community", async (AssignUserToCommunityCommand cmd, [FromServices] IMediator mediator , CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .RequireAuthorization("Admin");
 
 
         // groups
-        grp.MapPut("assign/group", async (AssignUserToGroupCommand cmd, IMediator mediator, CancellationToken ct)
+        grp.MapPut("assign/group", async (AssignUserToGroupCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .RequireAuthorization("Admin");
 
-        grp.MapPut("groups", async (UpdateGroupMembershipCommand cmd, IMediator mediator, CancellationToken ct)
+        grp.MapPut("groups", async (UpdateGroupMembershipCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .Produces<Guid>()
             .RequireAuthorization("Admin");
 
 
         // notifications
-        grp.MapGet("{id}/notifications", async (string id, IMediator mediator, CancellationToken ct)
+        grp.MapGet("{id}/notifications", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(new GetUserNotificationsQuery(Guid.Parse(id)), ct))
             .RequireAuthorization();            
         
-        grp.MapPost("notifications", async (UpdateUserNotificationsCommand cmd, IMediator mediator, CancellationToken ct)
+        grp.MapPost("notifications", async (UpdateUserNotificationsCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .RequireAuthorization();
 

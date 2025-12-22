@@ -16,7 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Configuration
 if (!string.IsNullOrEmpty(builder.Configuration["CONFIG_PATH"]))
 {
-    var cfgFile = System.IO.Path.Combine(builder.Configuration["CONFIG_PATH"], "appsettings.json");
+    var cfgFile = System.IO.Path.Combine(builder.Configuration["CONFIG_PATH"]!, "appsettings.json");
+    Console.WriteLine("Loading Configuration from {0}", cfgFile);
     if (System.IO.File.Exists(cfgFile))
     {
         builder.Configuration.AddJsonFile(cfgFile);

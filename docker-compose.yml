@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: src/ui/iPath.Blazor.Server/Dockerfile
+    image: ipath_blazor_server:latest
+    ports:
+      - "5000:5000" # Host port 5000 -> container 5000
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      # The app reads connection string via Configuration.GetConnectionString("mistral")
+      # Use the ConnectionStrings__<Name> environment variable form so ASP.NET Core binds it.
+      - CONFIG_PATH=/opt/ipath/config
+      - ConnectionStrings__Postgres=Host=db;Port=5432;Database=ipath;Username=ipathuser;Password=ChangeMe!
+    depends_on:
+      - db
+    # Persistent host-accessible folder mounted into container at /opt/ipath
+    # This uses a bind mount so the data is directly accessible from the host (./ipath_data).
+    volumes:
+      - C:/Daten/ipath_podman:/opt/ipath:rw
+    # Ensure the directory exists and is writable by the process that starts the app.
+    # We create the directory (if missing) and set permissive mode so the .NET process has full write access.
+    # entrypoint: ["/bin/sh", "-c", "mkdir -p /opt/ipath && chmod -R 0777 /opt/ipath && exec dotnet iPath.Blazor.Server.dll"]
+
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=ipath
+      - POSTGRES_USER=ipathuser
+      - POSTGRES_PASSWORD=ChangeMe!
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  pgdata:

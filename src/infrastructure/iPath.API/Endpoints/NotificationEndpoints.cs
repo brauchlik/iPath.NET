@@ -7,7 +7,7 @@ public static class NotificationEndpoints
 {
     public static IEndpointRouteBuilder MapNotificationApi(this IEndpointRouteBuilder route)
     {
-        route.MapGet("food", (NotificationService srv, CancellationToken ct) =>
+        route.MapGet("food", ([FromServices] NotificationService srv, CancellationToken ct) =>
             TypedResults.ServerSentEvents(srv.GetEvent(ct), eventType: "myevent"))
             .WithTags("Notifications");
 

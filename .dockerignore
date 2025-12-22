@@ -1,0 +1,15 @@
+# Exclude artifacts and files not needed for build
+**/bin/
+**/obj/
+**/.vs/
+**/.git/
+**/.gitignore
+**/UserSecrets/
+**/secrets.json
+**/appsettings.Development.json
+**/.env
+**/*.user
+**/*.suo
+.idea/
+.vscode/
+*.md

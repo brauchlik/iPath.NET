@@ -1,0 +1,75 @@
+﻿@page "/"
+@using Microsoft.SemanticKernel
+@using Microsoft.SemanticKernel.ChatCompletion
+@using Microsoft.SemanticKernel.Connectors.Ollama
+@using iPath.Ollama.UI.Plugins
+
+<PageTitle>Home</PageTitle>
+
+<MudStack Row>
+    <MudTextField @bind-Value="prompt" Label="Prompt" />
+    <MudButton OnClick="Go" Variant="Variant.Filled" Disabled="thinking">go</MudButton>
+</MudStack>
+<MudText Typo="Typo.body2">@lastprompt</MudText>
+
+<MudTextField Class="mt-10" Variant="Variant.Filled" @bind-Value="answer" Label="Answer" Lines="5" AutoGrow="true" ReadOnly="true" />
+
+<MudDivider Class="my-8" />
+<MudStack Row>
+    @foreach(var l in lights)
+    {
+        <MudButton StartIcon=@LightIcon(l.IsOn) Variant="Variant.Filled" Style=@($"background-color: {l.Color}")
+        OnClick=@(() => ToggleLight(l))>@l.Name</MudButton>
+    }
+    </MudStack>
+
+
+@inject Kernel kernel
+@inject List<LightModel> lights;
+
+@code{
+    string prompt;
+    string lastprompt;
+    string answer;
+
+    IChatCompletionService chatService;
+    ChatHistory history;
+    OllamaPromptExecutionSettings settings;
+
+    string LightIcon(bool? on) => on.HasValue && on.Value ? Icons.Material.Filled.Lightbulb : Icons.Material.Filled.DarkMode;
+
+    void ToggleLight(LightModel l)
+    {
+        l.IsOn = !(l.IsOn.HasValue && l.IsOn.Value);
+        StateHasChanged();
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        history = new();
+        chatService = kernel.GetRequiredService<IChatCompletionService>();
+        settings = new OllamaPromptExecutionSettings { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto() };
+        await base.OnInitializedAsync();
+    }
+
+
+    bool thinking;   
+
+    async Task Go()
+    {
+        thinking = true;
+        answer = "...";
+        history.AddUserMessage(prompt);
+
+        ChatMessageContent chatResult = await chatService.GetChatMessageContentAsync(history, settings, kernel);
+        history.AddMessage(chatResult.Role, chatResult.Content);
+
+        answer = chatResult.Content;
+        lastprompt = prompt;
+        prompt = "";
+        thinking = false;
+        StateHasChanged();
+    }
+
+}

@@ -17,28 +17,28 @@ public static class AdminEndpoints
             .WithTags("Internal Mailbox");
 
         mail.MapGet("list", 
-            ([DefaultValue(0)] int page, [DefaultValue(10)] int pagesize, IEmailRepository repo, CancellationToken ct)
+            ([DefaultValue(0)] int page, [DefaultValue(10)] int pagesize, [FromServices] IEmailRepository repo, CancellationToken ct)
             => repo.GetPage(new PagedQuery<EmailMessage> { Page = page, PageSize = pagesize }, ct))
             .Produces<PagedResult<EmailMessage>>()
             .RequireAuthorization("Admin");
 
-        mail.MapDelete("{id}", (string id, IEmailRepository repo, CancellationToken ct)
+        mail.MapDelete("{id}", (string id, [FromServices] IEmailRepository repo, CancellationToken ct)
             => repo.Delete(Guid.Parse(id), ct))
             .RequireAuthorization("Admin");
 
-        mail.MapDelete("all", (IEmailRepository repo, CancellationToken ct)
+        mail.MapDelete("all", ([FromServices] IEmailRepository repo, CancellationToken ct)
             => repo.DeleteAll(ct))
             .RequireAuthorization("Admin");
 
-        mail.MapPut("read/{id}", (string id, IEmailRepository repo, CancellationToken ct)
+        mail.MapPut("read/{id}", (string id, [FromServices] IEmailRepository repo, CancellationToken ct)
             => repo.SetReadState(Guid.Parse(id), true, ct))
             .RequireAuthorization("Admin");
 
-        mail.MapPut("unread/{id}", (string id, IEmailRepository repo, CancellationToken ct)
+        mail.MapPut("unread/{id}", (string id, [FromServices] IEmailRepository repo, CancellationToken ct)
             => repo.SetReadState(Guid.Parse(id), false, ct))
             .RequireAuthorization("Admin");
 
-        mail.MapPost("send", async (EmailDto msg, IEmailRepository repo, CancellationToken ct)
+        mail.MapPost("send", async (EmailDto msg, [FromServices] IEmailRepository repo, CancellationToken ct)
             => await repo.Create(msg.Address, msg.Subject, msg.Body, ct))
             .Produces<EmailMessage>()
             .RequireAuthorization("Admin");
@@ -50,32 +50,32 @@ public static class AdminEndpoints
             .WithTags("Notifications");
 
         notify.MapGet("list",
-            ([DefaultValue(0)] int page, [DefaultValue(10)] int pagesize, eNotificationTarget target, INotificationRepository repo, CancellationToken ct)
+            ([DefaultValue(0)] int page, [DefaultValue(10)] int pagesize, eNotificationTarget target, [FromServices] INotificationRepository repo, CancellationToken ct)
             => repo.GetPage(new GetNotificationsQuery { Page = page, PageSize = pagesize, Target = target }, ct))
             .Produces<PagedResult<NotificationDto>>()
             .RequireAuthorization("Admin");
 
-        notify.MapDelete("all", (INotificationRepository repo, CancellationToken ct)
+        notify.MapDelete("all", ([FromServices] INotificationRepository repo, CancellationToken ct)
             => repo.DeleteAll(ct))
             .RequireAuthorization("Admin");
         #endregion "-- Notifications --"
 
 
 
-        route.MapGet("admin/roles", (IMediator mediator, CancellationToken ct)
+        route.MapGet("admin/roles", ([FromServices] IMediator mediator, CancellationToken ct)
             => mediator.Send(new GetRolesQuery(), ct))
             .Produces<IEnumerable<RoleDto>>()
             .WithTags("Admin")
             .RequireAuthorization("Admin");
 
 
-        route.MapGet("session", (IUserSession sess) => sess.User)
+        route.MapGet("session", ([FromServices] IUserSession sess) => sess.User)
             .Produces<SessionUserDto>()
             .WithTags("Session")
             .RequireAuthorization();
 
 
-        route.MapGet("translations/{lang}", (string lang, LocalizationFileService srv)
+        route.MapGet("translations/{lang}", (string lang, [FromServices] LocalizationFileService srv)
             => srv.GetTranslationData(lang))
             .Produces<TranslationData>()
             .WithTags("Localization");
@@ -85,9 +85,9 @@ public static class AdminEndpoints
         var mailbox = route.MapGroup("mailbox")
             .WithTags("External Mailbox");
 
-        mailbox.MapGet("all", (IMailBox srv) => srv.GetAllMails())
+        mailbox.MapGet("all", ([FromServices] IMailBox srv) => srv.GetAllMails())
             .RequireAuthorization("Admin");
-        mailbox.MapGet("unread", (IMailBox srv) => srv.GetUnreadMails())
+        mailbox.MapGet("unread", ([FromServices] IMailBox srv) => srv.GetUnreadMails())
             .RequireAuthorization("Admin");
 
         return route;

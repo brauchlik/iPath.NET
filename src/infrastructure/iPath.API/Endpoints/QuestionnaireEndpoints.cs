@@ -9,7 +9,7 @@ public static class QuesionnaireEndpoints
         var qr = route.MapGroup("questionnaires")
             .WithTags("Questionnaires");
 
-        qr.MapGet("{id}", async (string id, int? Version, IMediator mediator, CancellationToken ct)
+        qr.MapGet("{id}", async (string id, int? Version, [FromServices] IMediator mediator, CancellationToken ct)
             =>
         {
             if (Guid.TryParse(id, out var guid))
@@ -24,13 +24,13 @@ public static class QuesionnaireEndpoints
             .Produces<Questionnaire>();
 
 
-        qr.MapPost("list", async (GetQuestionnaireListQuery query, IMediator mediator, CancellationToken ct)
+        qr.MapPost("list", async (GetQuestionnaireListQuery query, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(query, ct))
             .Produces<PagedResultList<QuestionnaireListDto>>()
             .RequireAuthorization("Admin");
 
 
-        qr.MapPost("create", async (CreateQuestionnaireCommand cmd, IMediator mediator, CancellationToken ct)
+        qr.MapPost("create", async (CreateQuestionnaireCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .RequireAuthorization("Admin");
 

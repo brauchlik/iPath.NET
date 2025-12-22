@@ -12,12 +12,12 @@ public static class TestEndpoints
         var test = route.MapGroup("test")
                 .WithTags("Test");
 
-        test.MapPost("notify", async (TestEvent evt, IMediator mediator, CancellationToken ct)
+        test.MapPost("notify", async (TestEvent evt, [FromServices] IMediator mediator, CancellationToken ct)
                 => await mediator.Publish(evt, ct))
                 .RequireAuthorization();
 
 
-        test.MapPost("upload", async (IFormFile file, int id = 2, IOptions<iPathConfig> opts = null) =>
+        test.MapPost("upload", async (IFormFile file, int id = 2, [FromServices] IOptions<iPathConfig> opts = null) =>
         {
             if (!System.IO.Directory.Exists(opts.Value.TempDataPath))
                 return Results.BadRequest();

@@ -1,12 +1,11 @@
 ﻿using iPath.Application.Localization;
-using iPath.Blazor.ServiceLib.ApiClient;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using System.Reflection.Metadata.Ecma335;
+
 
 namespace iPath.Blazor.ServiceLib.Services;
 
-public class LocalizationService(IPathApi api, ILogger<LocalizationService> logger) : IStringLocalizer
+public class LocalizationService(ILocalizationDataProvider data, ILogger<LocalizationService> logger) : IStringLocalizer
 {
     private Dictionary<string, TranslationData> _translationsData = new();
 
@@ -24,10 +23,10 @@ public class LocalizationService(IPathApi api, ILogger<LocalizationService> logg
         {
             try
             {
-                var resp = await api.GetTranslations(locale);
-                if (resp.IsSuccessful)
+                var resp = await data.GetTranslationDataAsync(locale);
+                if (resp.IsSuccess)
                 {
-                    _translationsData.Add(locale, resp.Content);
+                    _translationsData.Add(locale, resp.Value);
                 }
                 else
                 {

@@ -7,7 +7,7 @@ services:
       dockerfile: src/ui/iPath.Blazor.Server/Dockerfile
     image: ipath/ipath_server:latest
     ports:
-      - "5001:5000" # Host port 5001 -> container 5000
+      - "5000:8080" # Host port 5000 -> container 5000
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - CONFIG_PATH=/opt/ipath/config

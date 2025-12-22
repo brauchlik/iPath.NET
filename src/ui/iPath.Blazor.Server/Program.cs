@@ -54,7 +54,7 @@ builder.Services.AddIPathAPI(builder.Configuration);
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 var baseAddress = builder.Configuration["BaseAddress"] ?? "http://localhost:5000/";
-builder.Services.AddRazorLibServices(baseAddress);
+builder.Services.AddRazorLibServices(baseAddress, false);
 
 // testing SSE
 builder.Services.AddSingleton<NotificationService>();

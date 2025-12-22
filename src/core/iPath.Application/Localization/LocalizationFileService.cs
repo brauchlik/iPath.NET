@@ -1,11 +1,10 @@
-﻿using iPath.Application.Localization;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
 
-namespace iPath.RazorLib.Localization;
+namespace iPath.Application.Localization;
 
 public class LocalizationFileService(IOptions<LocalizationSettings> opts, ILogger<LocalizationFileService> logger)
 {
@@ -59,4 +58,19 @@ public class LocalizationFileService(IOptions<LocalizationSettings> opts, ILogge
         return false;
     }
 
+}
+
+public class FileLocalizaitonProvider(LocalizationFileService srv) : ILocalizationDataProvider
+{
+    public async Task<Result<TranslationData>> GetTranslationDataAsync(string locale)
+    {
+        try
+        {
+            return new Result<TranslationData>().WithValue(srv.GetTranslationData(locale));
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail(ex.Message);
+        }
+    }
 }

@@ -13,6 +13,6 @@ builder.Services.AddAuthenticationStateDeserialization();
 
 builder.Services.AddTransient<baseAuthDelegationHandler>();
 
-builder.Services.AddRazorLibServices(builder.HostEnvironment.BaseAddress);
+builder.Services.AddRazorLibServices(builder.HostEnvironment.BaseAddress, true);
 
 await builder.Build().RunAsync();

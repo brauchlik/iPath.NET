@@ -1,4 +1,5 @@
-﻿using iPath.Blazor.Componenents.Admin;
+﻿using iPath.Application.Localization;
+using iPath.Blazor.Componenents.Admin;
 using iPath.Blazor.Componenents.Admin.Communities;
 using iPath.Blazor.Componenents.Admin.Groups;
 using iPath.Blazor.Componenents.Admin.Questionnaires;
@@ -19,7 +20,7 @@ namespace iPath.RazorLib;
 
 public static class RazorLibServiceRegistration
 {
-    public static IServiceCollection AddRazorLibServices(this IServiceCollection services, string baseAddress)
+    public static IServiceCollection AddRazorLibServices(this IServiceCollection services, string baseAddress, bool WasmClient)
     {
         // Refit client with json serialization options => enums as int
         var jsonOptions = new JsonSerializerOptions
@@ -38,7 +39,17 @@ public static class RazorLibServiceRegistration
         services.AddViewModels();
 
         // Localization
-        services.AddSingleton<LocalizationService>();
+        if (WasmClient)
+        {
+            // get locaization data from API
+            services.AddScoped<ILocalizationDataProvider, ApiLocalizationProvider>();
+        }
+        else
+        {
+            services.AddScoped<ILocalizationDataProvider, FileLocalizaitonProvider>();
+        }
+
+        services.AddScoped<LocalizationService>();
         // register the same singleton for use as IStringLocalizer
         services.AddSingleton<IStringLocalizer>(p => p.GetRequiredService<LocalizationService>());
         services.AddLocalization();

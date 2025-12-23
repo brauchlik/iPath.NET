@@ -134,7 +134,6 @@ public static class GroupExtensions
     public static GroupDto ToDto(this Group group)
     {
         return new GroupDto(Id: group.Id, Name: group.Name, Visibility: group.Visibility, Owner: group.Owner.ToOwnerDto(), Settings: group.Settings,
-
             Members: group.Members?.Select(m => new GroupMemberDto(UserId: m.UserId, Role: m.Role, Username: m.User?.UserName)).ToArray(),
             Communities: group.Communities.Select(c => new CommunityListDto(Id: c.Community.Id, Name: c.Community.Name)).ToArray(),
             Questionnaires: group.Quesionnaires.Select(q => new QuestionnaireForGroupDto(QuestionnaireId: q.QuestionnaireId, QuestinnaireName: q.Questionnaire.QuestionnaireId, Usage: q.Usage, ExplicitVersion: q.ExplicitVersion)).ToArray());

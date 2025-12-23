@@ -36,24 +36,29 @@ public static class RazorLibServiceRegistration
             .AddHttpMessageHandler<baseAuthDelegationHandler>();
 
         services.AddMemoryCache();
+        services.AddSingleton<GroupCache>();
         services.AddViewModels();
 
         // Localization
         if (WasmClient)
         {
             // get locaization data from API
-            services.AddScoped<ILocalizationDataProvider, ApiLocalizationProvider>();
+            services.AddSingleton<ILocalizationDataProvider, ApiLocalizationProvider>();
         }
         else
         {
-            services.AddScoped<ILocalizationDataProvider, FileLocalizaitonProvider>();
+            services.AddSingleton<ILocalizationDataProvider, FileLocalizaitonProvider>();
         }
 
-        services.AddScoped<LocalizationService>();
+        services.AddSingleton<StringLocalizerService>();
         // register the same singleton for use as IStringLocalizer
-        services.AddSingleton<IStringLocalizer>(p => p.GetRequiredService<LocalizationService>());
+        services.AddSingleton<IStringLocalizer>(p => p.GetRequiredService<StringLocalizerService>());
         services.AddLocalization();
 
+
+        // FHIR: coding & questionnaires
+        services.AddHttpClient<CodingService>(cfg => cfg.BaseAddress = new Uri(baseAddress));
+        // services.AddScoped<CodingService>();
         services.AddSingleton<QuestionnaireCache>();
 
         services.AddScoped<AppState>();

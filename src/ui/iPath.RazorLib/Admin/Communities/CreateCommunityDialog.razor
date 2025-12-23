@@ -11,8 +11,8 @@
     <DialogContent>
         <MudForm Model="@Model" @ref="frm">
             <MudTextField @bind-Value="@Model.Name" Label=@T["Name"] Required="true" Variant="Variant.Outlined" />
-            <MudTextField @bind-Value="@Model.Description" Label=@T["Description"] Variant="Variant.Outlined" Lines="5" AutoGrow="true" />
-            <UserLookup Label=@T["Community Owner"] Class="mt-4" @bind-Value="Model.Owner" />
+            <MudTextField @bind-Value="@Model.Settings.Description" Label=@T["Description"] Variant="Variant.Outlined" Lines="5" AutoGrow="true" />
+            <OwnerLookup Label=@T["Community Owner"] Class="mt-4" @bind-Value="Model.Owner" />
         </MudForm>
         @if (!string.IsNullOrEmpty(ErrorMessage))
         {

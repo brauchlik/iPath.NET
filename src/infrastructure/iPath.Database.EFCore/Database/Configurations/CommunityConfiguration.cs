@@ -11,7 +11,8 @@ internal class CommunityConfiguration : IEntityTypeConfiguration<Community>
         b.Property(x => x.Id).HasColumnName("id");
 
         b.Property(x => x.Name).HasMaxLength(200).HasColumnName("name");
-        b.Property(x => x.Description).HasMaxLength(500).HasColumnName("description");
+
+        b.ComplexProperty(x => x.Settings, pb => pb.ToJson());
 
         b.HasOne(x => x.Owner).WithMany().HasForeignKey(x => x.OwnerId).IsRequired();
 

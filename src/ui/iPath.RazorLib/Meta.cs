@@ -9,6 +9,8 @@ global using Microsoft.Extensions.Localization;
 global using iPath.Blazor.Componenents.Groups;
 global using iPath.Blazor.ServiceLib.ApiClient;
 global using iPath.Domain.Entities;
+global using Task = System.Threading.Tasks.Task;
+global using iPath.Razorlib.Coding;
 
 
 namespace iPath.RazorLib;

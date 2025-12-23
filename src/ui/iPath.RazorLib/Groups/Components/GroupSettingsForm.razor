@@ -15,9 +15,10 @@
     <MudSwitch Label=@T["Allow HTML in case description"] @bind-Value="Model.DescriptionAllowHtml"
                Color="Color.Info" />
 
-    <MudTextField Label=@T["Template for case Dexription"] @bind-Value="Model.DescriptionTemplate"
-                  Variant="@Variant" Lines="5" />
+    <MudTextField Label=@T["Template for case description"] @bind-Value="Model.DescriptionTemplate"
+                  Variant="@Variant" Lines="3" />
 
+    <MudTextField Label=@T["Case types"] @bind-Value="CaseTypeList" @bind-Value:after="ReadCaseTypes" Lines="8" Variant="@Variant" />
 </MudForm>
 
 @code {
@@ -29,4 +30,17 @@
 
     [Parameter]
     public int Spacing { get; set; }
+
+
+    private string CaseTypeList = "";
+
+    protected override void OnParametersSet()
+    {
+        CaseTypeList = string.Join(Environment.NewLine, Model.CaseTypes);
+    }
+
+    public void ReadCaseTypes()
+    {
+        Model.CaseTypes = CaseTypeList.Split("\n").Select(x => x.Trim()).ToList();
+    }
 }

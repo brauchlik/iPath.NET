@@ -1,0 +1,85 @@
+﻿@inject CodingService srv
+
+<MudGrid>
+    <MudItem sm="12" md="6">
+        <MudSelect T="Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent"
+                   ToStringFunc=@(x => x is null ? "" : $"{x.Display} [{x.Code}]")
+                   Variant="@Variant" Label="Organ System"
+                   Dense="true" ShrinkLabel="true"
+                   @bind-Value="GroupCode" @bind-Value:after="OnGroupChanged">
+            @foreach (var gr in groups.OrderBy(x => x.Code))
+            {
+                <MudSelectItem T="Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent" Value="gr">
+                    @gr.Display [@gr.Code]
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+    <MudItem sm="12" md="6">
+        <MudSelect T="Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent"
+                   ToStringFunc=@(x => x is null ? "" :$"{x.Display} [{x.Code}]")
+                   Variant="@Variant" Label="@Label"
+                   Dense="true" ShrinkLabel="true"
+                   @bind-Value="Code" @bind-Value:after="OnCodeChanged">
+            @foreach (var c in groupCodes.OrderBy(x => x.Code))
+            {
+                <MudSelectItem T="Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent" Value="c">
+                    @c.Display [@c.Code]
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+</MudGrid>
+
+
+@code {
+    [Parameter]
+    public Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent GroupCode { get; set; }
+
+    [Parameter]
+    public Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent Code
+    {
+        get => _code;
+        set
+        {
+            _code = value;
+            /*
+             * todo: load group if current code is not alrey in this group
+            */
+        }
+    }
+
+    private Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent _code;
+
+    [Parameter]
+    public EventCallback<Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent> CodeChanged { get; set; }
+
+    async Task OnCodeChanged()
+    {
+        CodeChanged.InvokeAsync(Code);
+    }
+
+    async Task OnGroupChanged()
+    {
+        if (Code != null && GroupCode != null && !Code.Code.StartsWith(GroupCode.Code))
+        {
+            Code = null;
+        }
+        groupCodes = await srv.GetTopoCodeForGroup(GroupCode?.Code);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        groups = await srv.GetTopoGroups();
+    }
+
+    private IEnumerable<Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent> groups = [];
+    private IEnumerable<Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent> groupCodes = [];
+
+
+    [Parameter]
+    public string Label { get; set; } = "Topography";
+
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Outlined;
+}

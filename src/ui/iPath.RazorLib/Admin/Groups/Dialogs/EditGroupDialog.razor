@@ -1,15 +1,15 @@
 ﻿@namespace iPath.Blazor.Componenents.Admin.Groups
 
 @using iPath.Blazor.Componenents.Groups
-<MudDialog Style="min-width: 700px;">
+<MudDialog Style="min-width: 800px;">
     <TitleContent>
         <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-3 mb-n1" />
+            <MudIcon Icon="@Icons.Material.Filled.Edit" Class="mr-3 mb-n1" />
             Update Group @Model.Name
         </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm Model="@Model" @ref="frm" Spacing="2">
+        <MudForm Model="@Model" @ref="frm" Spacing="2" Style="min-width: 800px;">
             <MudTextField @bind-Value="@Model.Name" Label="Name" Required="true" Variant="Variant.Outlined" />
             <OwnerLookup Label="Group Owner" Class="mt-4" @bind-Value="Model.Owner" Variant="Variant.Outlined" />
             <GroupSettingsForm Model="@Model.Settings" Variant="Variant.Outlined" />

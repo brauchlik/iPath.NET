@@ -5,8 +5,8 @@ namespace iPath.Application.Features;
 
 #region "-- Queries --"
 
-public record CommunityListDto(Guid Id, string Name);
-public record CommunityDto(Guid Id, string Name, string Description, string BaseUrl, eCommunityVisibility Visibility, GroupListDto[] Groups, OwnerDto? Owner);
+public record CommunityListDto(Guid Id, string Name, CommunitySettings? Settings = null);
+public record CommunityDto(Guid Id, string Name, CommunitySettings Settings, eCommunityVisibility Visibility, GroupListDto[] Groups, OwnerDto? Owner);
 
 
 public class GetCommunityListQuery : PagedQuery<CommunityListDto>
@@ -47,8 +47,7 @@ public record UpdateCommunityCommand(
     string? Name,
     Guid? OwnerId,
     eCommunityVisibility? Visibility = null,
-    string? Description = null,
-    string? BaseUrl = null)
+    CommunitySettings? Settings = null)
     : IRequest<UpdateCommunityCommand, Task<CommunityListDto>>, IEventInput
 {
     public string ObjectName => "Community";

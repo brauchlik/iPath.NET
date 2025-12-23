@@ -11,5 +11,7 @@ public class GroupSettings
 
     public bool AnnotationsHide { get; set; } = false;
 
+    public ICollection<string> CaseTypes { get; set; } = [];
+
     public GroupSettings Clone() => (GroupSettings)MemberwiseClone();
 }

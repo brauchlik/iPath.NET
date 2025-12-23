@@ -6,7 +6,7 @@
 <NodeHeader />
 @if (vm.RootNode != null)
 {
-    <NodeEditForm Model="vm.RootNode.Description" Variant="Variant.Outlined" Class="my-8 z-50" @ref="frm"/>
+    <NodeEditForm Model="vm.RootNode.Description" GroupId="vm.RootNode.GroupId.Value" Variant="Variant.Outlined" Class="my-8 z-50" @ref="frm"/>
 
     <NodeGalleryDropZone />
 

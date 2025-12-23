@@ -1,0 +1,30 @@
+﻿@inject CodingService srv
+
+<MudAutocomplete Label="@Label" Variant="Variant"
+                 T="Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent"
+                 @bind-Value="Code"
+                 @bind-Value:after="OnCodeChanged"
+                 ToStringFunc=@(x => $"{x.Display} [{x.Code}]")
+                 SearchFunc="srv.FindMorphoCodes">
+
+
+</MudAutocomplete>
+
+@code {
+    [Parameter]
+    public Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent Code { get; set; }
+
+    [Parameter]
+    public EventCallback<Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent> CodeChanged { get; set; }
+
+    async Task OnCodeChanged()
+    {
+        CodeChanged.InvokeAsync(Code);
+    }
+
+    [Parameter]
+    public string Label { get; set; } = "Morphology";
+
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Outlined;
+}

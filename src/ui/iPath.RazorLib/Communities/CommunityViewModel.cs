@@ -1,7 +1,5 @@
 ﻿using iPath.Blazor.Componenents.Admin.Groups;
-using iPath.Blazor.ServiceLib.ApiClient;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace iPath.Blazor.Componenents.Communities;

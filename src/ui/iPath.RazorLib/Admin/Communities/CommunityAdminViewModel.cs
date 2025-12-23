@@ -83,7 +83,7 @@ public class CommunityAdminViewModel(IPathApi api,
         var m = res?.Data as CommunityEditModel;
         if (m != null)
         {
-            var cmd = new CreateCommunityCommand(Name: m.Name, OwnerId: m.Owner.Id, Description: m.Description, BaseUrl: m.BaseUrl);
+            var cmd = new CreateCommunityCommand(Name: m.Name, OwnerId: m.Owner.Id, Description: m.Settings.Description, BaseUrl: m.Settings.BaseUrl);
             var resp = await api.CreateCommunity(cmd);
             if (!resp.IsSuccessful)
             {
@@ -97,12 +97,14 @@ public class CommunityAdminViewModel(IPathApi api,
     {
         if (SelectedCommunity != null)
         {
+            await LoadCommunity(SelectedCommunity.Id);
+
             var m = new CommunityEditModel
             {
                 Id = SelectedCommunity.Id,
                 Name = SelectedCommunity.Name,
-                Description = SelectedCommunity.Description,
-                BaseUrl = SelectedCommunity.BaseUrl
+                Owner = SelectedCommunity.Owner,
+                Settings = SelectedCommunity.Settings.Clone()
             };
 
             var p = new DialogParameters<EditCommunityDialog> { { x => x.Model, m } };
@@ -112,7 +114,7 @@ public class CommunityAdminViewModel(IPathApi api,
             var r = res?.Data as CommunityEditModel;
             if (r != null && r.Id.HasValue)
             {
-                var cmd = new UpdateCommunityCommand(Id: r.Id.Value, Name: r.Name, OwnerId: r.Owner.Id, Description: r.Description, BaseUrl: r.BaseUrl);
+                var cmd = new UpdateCommunityCommand(Id: r.Id.Value, Name: r.Name, OwnerId: r.Owner.Id, Settings: r.Settings);
                 var resp = await api.UpdateCommunity(cmd);
                 if (!resp.IsSuccessful)
                 {
@@ -170,7 +172,7 @@ public class CommunityAdminViewModel(IPathApi api,
         }
     }
 
-    public async Task RemnoveGroup(GroupListDto group)
+    public async Task RemoveGroup(GroupListDto group)
     {
         if (SelectedCommunity != null)
         {
@@ -198,8 +200,7 @@ public class CommunityEditModel
     [Required]
     public string Name { get; set; } = "";
 
-    public string Description { get; set; } = "";
-    public string BaseUrl { get; set; } = "";
+    public CommunitySettings Settings { get; set; }
 
-    public UserListDto? Owner { get; set; }
+    public OwnerDto? Owner { get; set; }
 }

@@ -7,8 +7,7 @@ public class GetCommunityByIdQueryHandler(iPathDbContext db)
     {
         var community = await db.Communities.AsNoTracking()
             .Where(c => c.Id == request.id)
-            .Select(c => new CommunityDto(Id: c.Id, Name: c.Name, Description: c.Description, 
-                BaseUrl: c.BaseUrl, Visibility: c.Visibility,
+            .Select(c => new CommunityDto(Id: c.Id, Name: c.Name, Settings: c.Settings, Visibility: c.Visibility,
                 Groups: c.Groups.Select(g => new GroupListDto(g.Group.Id, g.Group.Name, Visibility: g.Group.Visibility)).ToArray(),
                 Owner: c.Owner.ToOwnerDto()))
             .FirstOrDefaultAsync(cancellationToken);

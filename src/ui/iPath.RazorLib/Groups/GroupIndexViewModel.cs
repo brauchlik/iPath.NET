@@ -26,14 +26,15 @@ public class GroupIndexViewModel(IPathApi api,
     }
 
 
-    public bool IsModerator => appState.IsGroupModerator(Model.Id);
+    public bool IsModerator => Model is not null && appState.IsGroupModerator(Model.Id);
 
     public async Task EditSettings()
     {
         if (Model is not null)
         {
             var p = new DialogParameters<GroupSettingsDialog> { { x => x.Model, Model.Settings } };
-            var d = await dialog.ShowAsync<GroupSettingsDialog>("Group Settings", parameters: p);
+            DialogOptions opts = new() { MaxWidth = MaxWidth.Medium, FullWidth = false, NoHeader = false };
+            var d = await dialog.ShowAsync<GroupSettingsDialog>("Group Settings", parameters: p, options: opts);
             var r = await d.Result;
             if (r?.Data is GroupSettings m)
             {

@@ -25,9 +25,8 @@ public class UpdateCommunityHandler(iPathDbContext db, IUserSession sess)
             community.Owner = Guard.Against.NotFound(request.OwnerId.Value.ToString(), user);
         }
 
-        if (request.Description is not null) community.Description = request.Description;
-        if (request.BaseUrl is not null) community.BaseUrl = request.BaseUrl;
-
+        if (request.Settings is not null) 
+            community.Settings = request.Settings;
 
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
 

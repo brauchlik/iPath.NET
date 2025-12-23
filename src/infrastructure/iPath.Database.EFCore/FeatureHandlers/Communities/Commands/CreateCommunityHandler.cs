@@ -23,8 +23,11 @@ public class CreateCommunityHandler(iPathDbContext db, IUserSession sess)
             Id = Guid.CreateVersion7(),
             Name = request.Name,
             OwnerId = user.Id,
-            Description = request.Description,
-            BaseUrl = request.BaseUrl
+            Settings = new CommunitySettings
+            {
+                Description = request.Description,
+                BaseUrl = request.BaseUrl
+            }
         };
 
         await db.Communities.AddAsync(newEntity, ct);

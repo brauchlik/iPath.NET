@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace iPath.Blazor.ServiceLib.Services;
 
-public class LocalizationService(ILocalizationDataProvider data, ILogger<LocalizationService> logger) : IStringLocalizer
+public class StringLocalizerService(ILocalizationDataProvider data, ILogger<StringLocalizerService> logger) : IStringLocalizer
 {
     private Dictionary<string, TranslationData> _translationsData = new();
 

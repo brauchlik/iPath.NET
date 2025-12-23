@@ -5,22 +5,14 @@
 @inject IStringLocalizer T
 
 <MudForm Model="Model" Class="@Class" @ref="frm">
-    <MudGrid Spacing="1">
+    <MudGrid>
         <MudItem xs="12" sm="8">
             <MudTextField Label=@T["Title"] @bind-Value="Model.Title" For="@(() => Model.Title)"
                           Variant="Variant" Margin="@Margin"
                           AutoFocus="true" Required="true" />
-        </MudItem>
-        <MudItem xs="12" sm="4">
-            <MudTextField Label=@T["Case Type"] @bind-Value="Model.CaseType" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
-        </MudItem>
-        <MudItem xs="12" sm="8">
+
             <MudTextField Label=@T["Subtitle"] @bind-Value="Model.Subtitle" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
-        </MudItem>
-        <MudItem xs="12" sm="4">
-            <MudTextField Label=@T["Accession No"] @bind-Value="Model.AccessionNo" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
-        </MudItem>
-        <MudItem xs="12">
+
             <MudPaper Elevation="0" Class="mt-4 mb-2">
                 <MudText Typo="Typo.subtitle2">@T["Desciption"]</MudText>
 
@@ -41,12 +33,26 @@
                 }
             </MudPaper>
         </MudItem>
+        <MudItem xs="12" sm="4">
+            <!--
+            <MudTextField Label=@T["Case Type"] @bind-Value="Model.CaseType" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
+            -->
+            <CaseTypeLookup Label=@T["Case Type"] GroupId="GroupId" @bind-Value="Model.CaseType" Variant="Variant"
+                            Clearable="true" Dense="true" CoerceValue="true" Margin="@Margin" ShrinkLabel="true" />
+            <MudTextField Label=@T["Accession No"] @bind-Value="Model.AccessionNo" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
+
+            <TopoLookup />
+            <TopoDetailLookup />
+        </MudItem>
     </MudGrid>
 </MudForm>
 
 @code {
     [Parameter, EditorRequired]
     public NodeDescription Model { get; set; }
+
+    [Parameter, EditorRequired]
+    public Guid GroupId { get; set; }
 
     [Parameter]
     public string Class { get; set; }

@@ -14,10 +14,12 @@ public class Annotation : AuditableEntity
     public User Owner { get; set; } = null!;
     public string? Text { get; set; }
 
+    public AnnotationData? Data { get; set; }
+
     public ICollection<QuestionnaireResponse> QuestionnaireResponses { get; set; } = [];
 
 
-    public static Annotation Create(Node node, Guid ownerId, string text)
+    public static Annotation Create(Node node, Guid ownerId, string text, AnnotationData data)
     {
         var ret = new Annotation
         {
@@ -25,11 +27,17 @@ public class Annotation : AuditableEntity
             CreatedOn = DateTime.UtcNow,
             NodeId = node.Id,
             OwnerId = ownerId,
-            Text = text
+            Text = text,
+            Data = data
         };
 
         // create event
 
         return ret;
     }
+}
+
+public class AnnotationData
+{
+    public CodedConcept Morphology { get; set; }
 }

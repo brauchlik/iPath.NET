@@ -6,17 +6,19 @@
                   Lines="4" AutoGrow="true" />
 
     <MudText Typo="Typo.h6" Class="mt-4">@T["Annotations"]</MudText>
-    <MudSwitch Label=@T["Hide annotations"] @bind-Value="Model.AnnotationsHide"
-               Color="Color.Info"/>
+    <MudSwitch Label=@T["Hide annotations"] @bind-Value="Model.AnnotationsHide" Color="Color.Info" />
+    <MudSwitch Label=@T["Annotations with morphology code"] @bind-Value="Model.AnnotationHasMoprhoogy"  Color="Color.Info" />
 
 
     <MudText Typo="Typo.h6" Class="mt-4">@T["Case display"]</MudText>
 
-    <MudSwitch Label=@T["Allow HTML in case description"] @bind-Value="Model.DescriptionAllowHtml"
-               Color="Color.Info" />
+    <MudSwitch Label=@T["Allow HTML in case description"] @bind-Value="Model.DescriptionAllowHtml"   Color="Color.Info" />
 
     <MudTextField Label=@T["Template for case description"] @bind-Value="Model.DescriptionTemplate"
                   Variant="@Variant" Lines="3" />
+
+    <MudSwitch Label=@T["Body Site input active"] @bind-Value="Model.DescriptionWithBodySite" Color="Color.Info" />
+    <MudSwitch Label=@T["Use grouped Body Site input"] @bind-Value="Model.DescriptionGroupedBodySiteInput" Color="Color.Info" />
 
     <MudTextField Label=@T["Case types"] @bind-Value="CaseTypeList" @bind-Value:after="ReadCaseTypes" Lines="8" Variant="@Variant" />
 </MudForm>

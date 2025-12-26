@@ -7,6 +7,7 @@ public record AnnotationDto
     public Guid OwnerId { get; init; }
     public required OwnerDto Owner { get; init; }
     public string? Text { get; init; }
+    public AnnotationData? Data { get; init; }
 
     public ICollection<QuestionnaireResponse> QuestionnaireResponses { get; init; } = [];
 }
@@ -23,6 +24,7 @@ public static class AnnotationExtensions
             OwnerId = item.OwnerId,
             Owner = item.Owner.ToOwnerDto(),
             Text = item.Text,
+            Data = item.Data,
             QuestionnaireResponses = item.QuestionnaireResponses
         };
     }

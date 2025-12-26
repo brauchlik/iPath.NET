@@ -11,7 +11,7 @@ public static class UserSessionExtensions
 {
     extension(IUserSession session)
     {
-        public bool IsAuthenticated => session.User is not null;
+        public bool IsAuthenticated => session.User is not null && session.User.Id != Guid.Empty;
         public bool IsAdmin => session.User.roles.Any(r => r.ToLower() == "admin");
         public bool IsModerator => session.User.roles.Any(r => r.ToLower() == "moderator");
 

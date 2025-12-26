@@ -2,7 +2,7 @@
 
 namespace iPath.Application.Features.Nodes;
 
-public record CreateNodeAnnotationCommand(Guid NodeId, string? Text, string? QuestionnaireResponse)
+public record CreateNodeAnnotationCommand(Guid NodeId, string? Text, AnnotationData? Data, string? QuestionnaireResponse)
     : IRequest<CreateNodeAnnotationCommand, Task<AnnotationDto>>
     , IEventInput
 {
@@ -17,6 +17,7 @@ public static partial class NodeCommandExtensions
         var a = new Annotation
         {
             Text = request.Text,
+            Data = request.Data,
             OwnerId = userId,
             CreatedOn = DateTime.UtcNow,
         };

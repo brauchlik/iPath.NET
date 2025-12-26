@@ -494,21 +494,35 @@ public class NodeViewModel(IPathApi api,
     }
 
 
+    public bool AnnotationsHide => ActiveGroup is not null && ActiveGroup.Settings.AnnotationsHide;
 
     public bool AnnotateDisabled => IsEditing;
 
     public async Task Annotate()
     {
-        var parameters = new DialogParameters<NodeAddAnnotationDialog> { };
+        if (AnnotateDisabled) return;
+
+        var model = new AnnotationEditModel();
+        model.AskMorphology = ActiveGroup.Settings.AnnotationHasMoprhoogy;
+        var parameters = new DialogParameters<NodeAddAnnotationDialog> { { x => x.Model, model } };
         var dialog = await srvDialog.ShowAsync<NodeAddAnnotationDialog>("New Annotation", parameters);
         var result = await dialog.Result;
-        if (!result.Canceled && result.Data != null)
+        if (!result.Canceled && result.Data is AnnotationEditModel data)
         {
-            var text = result.Data.ToString().Trim();
-
-            if (string.IsNullOrEmpty(text)) return;
-
-            var cmd = new CreateNodeAnnotationCommand(RootNode.Id, text, null);
+            if (string.IsNullOrEmpty(data.Text))
+            {
+                // Use Morphology Text if not comments is entered
+                if (data.Data.Morphology is not null)
+                {
+                    data.Text = data.Data.Morphology.Display;
+                }
+                else
+                {
+                    return;
+                }
+            }    
+                        
+            var cmd = new CreateNodeAnnotationCommand(RootNode.Id, data.Text, data.Data, null);
 
             var resp = await api.CreateAnnotation(cmd);
             if (resp.IsSuccessful)

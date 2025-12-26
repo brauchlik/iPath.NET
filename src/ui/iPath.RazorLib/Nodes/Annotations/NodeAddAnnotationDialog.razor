@@ -1,13 +1,18 @@
 ﻿<MudFocusTrap DefaultFocus="DefaultFocus.FirstChild">
-    <MudDialog ContentStyle="width: 720px; height: 300px;">
+    <MudDialog ContentStyle="width: 720px; min-height: 350px;">
         <TitleContent>
             <MudText Typo="Typo.h6">Annotation</MudText>
         </TitleContent>
         <DialogContent>
-            <MudTextField AutoGrow="true" @bind-Value="annotationText" Immediate="true"
-                          Lines="14" Variant="Variant.Outlined"
+            <MudTextField AutoGrow="true" @bind-Value="Model.Text" Immediate="true"
+                          Lines="12" Variant="Variant.Outlined"
                           Label="Annotation"
-                          Style="width: 100%; height: 100%" />
+                          Style="width: 100%;" />
+
+            @if (Model.AskMorphology)
+            {
+                <MorphoLookup Label="Morphology" @bind-Code="Model.Data.Morphology" Variant="Variant.Outlined" />
+            }
         </DialogContent>
         <DialogActions>
             <MudButton Color="Color.Primary" OnClick="@Save" Variant="Variant.Filled">
@@ -25,9 +30,11 @@
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; }
 
-    string annotationText = default!;
+    [Parameter]
+    public AnnotationEditModel Model { get; set; } = new();
 
-    private void Save() => MudDialog.Close(DialogResult.Ok(annotationText));
+
+    private void Save() => MudDialog.Close(DialogResult.Ok(Model));
 
 	private void Cancel() => MudDialog.Cancel();
 }

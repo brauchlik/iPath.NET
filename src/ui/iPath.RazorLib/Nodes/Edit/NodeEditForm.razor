@@ -41,7 +41,8 @@
                             Clearable="true" Dense="true" CoerceValue="true" Margin="@Margin" ShrinkLabel="true" />
             <MudTextField Label=@T["Accession No"] @bind-Value="Model.AccessionNo" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
 
-            <TopoLookup @bind-Code="Model.BodySite" />
+            
+            <NodeDescriptionBodySite Model="Model" Group="vm.ActiveGroup" />
         </MudItem>
     </MudGrid>
 </MudForm>

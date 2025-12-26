@@ -55,4 +55,10 @@
             await vm.Save();            
         }
     }
+
+    protected override void OnDisposed()
+    {
+        if (vm.IsEditing)
+            vm.CancelEdit();
+    }
 }

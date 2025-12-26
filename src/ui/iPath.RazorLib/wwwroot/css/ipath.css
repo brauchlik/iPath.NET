@@ -222,15 +222,17 @@
     max-width: 720px;
 }
 
-
-
-
+.morphology_code {
+    font-style: italic;
+    border: 1px dashed gray;
+    margin: 2px;
+    padding: 0 4px 0 4px;
+}
 
 
 
 
 /**** Gallery *******************************************************************/
-
 .gallery {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));

@@ -4,7 +4,7 @@
                  T="CodedConcept"
                  @bind-Value="Code"
                  @bind-Value:after="OnCodeChanged"
-                 ToStringFunc=@(x => x is null ? "" : $"{x.Display} [{x.Code}]")
+                 ToStringFunc=@(x => x.ToDisplay())
                  SearchFunc="srv.FindTopoConcetps" />
 
 @code {

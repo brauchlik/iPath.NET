@@ -46,7 +46,7 @@
 		get
 		{
 			// Option Hide Annotaiton not active => show annotations
-			if (!vm.ActiveGroup.Settings.AnnotationsHide) return true;
+			if (!vm.AnnotationsHide) return true;
 
 			// Show annotations only when current user has already written an annotation
 			return vm.RootNode.Annotations.Any(a => a.OwnerId == appState.User?.Id);

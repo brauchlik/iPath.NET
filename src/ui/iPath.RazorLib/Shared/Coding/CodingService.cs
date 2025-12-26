@@ -1,6 +1,5 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 
@@ -9,6 +8,8 @@ namespace iPath.Razorlib.Coding;
 
 public class CodingService(HttpClient http)
 {
+    const string CodingBaseUrl = "_content/iPath.Blazor.Componenents";
+
     private Hl7.Fhir.Model.CodeSystem topoCS = null;
 
     private async Task<bool> InitTopo()
@@ -17,7 +18,7 @@ public class CodingService(HttpClient http)
         {
             try
             {
-                var resp = await http.GetAsync("_content/iPath.Blazor.Componenents/icdo-topo.fhir");
+                var resp = await http.GetAsync($"{CodingBaseUrl}/icdo-topo.fhir");
                 var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector);
                 topoCS = JsonSerializer.Deserialize<CodeSystem>(resp.Content.ReadAsStream(), options); 
             }
@@ -53,6 +54,16 @@ public class CodingService(HttpClient http)
         return topoCS.Concept.Where(x => !x.Code.Contains(".")).OrderBy(x => x.Display).ToArray();
     }
 
+    public async Task<IEnumerable<CodedConcept>> GetTopoGroupConcepts(CancellationToken ct = default)
+    {
+        if (!await InitTopo())
+            return new List<CodedConcept>();
+        // groups have no . in the code
+        return topoCS.Concept.Where(x => !x.Code.Contains(".")).OrderBy(x => x.Display).Select(x => x.ToConcept()).ToArray();
+    }
+
+
+
     public async Task<IEnumerable<CodeSystem.ConceptDefinitionComponent>> GetTopoCodeForGroup(string groupCode, CancellationToken ct = default)
     {
         if (!await InitTopo())
@@ -60,18 +71,25 @@ public class CodingService(HttpClient http)
         return topoCS.Concept.Where(x => x.Code.StartsWith(groupCode + ".")).OrderBy(x => x.Display).ToArray();
     }
 
+    public async Task<IEnumerable<CodedConcept>> GetTopoConceptsForGroup(string groupCode, CancellationToken ct = default)
+    {
+        if (!await InitTopo())
+            return new List<CodedConcept>();
+        return topoCS.Concept.Where(x => x.Code.StartsWith(groupCode + ".")).OrderBy(x => x.Display).Select(x => x.ToConcept()).ToArray();
+    }
+
 
 
 
 
     private Hl7.Fhir.Model.CodeSystem morphoCS = null;
-    private async Task InitMorpho()
+    private async Task<bool> InitMorpho()
     {
         if (morphoCS == null)
         {
             try
             {
-                var resp = await http.GetAsync("_content/iPath.RazorLib/icdo-morpho.fhir");
+                var resp = await http.GetAsync($"{CodingBaseUrl}/icdo-morpho.fhir");
                 var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector);
                 morphoCS = JsonSerializer.Deserialize<CodeSystem>(resp.Content.ReadAsStream(), options);
             }
@@ -80,30 +98,23 @@ public class CodingService(HttpClient http)
                 Console.WriteLine(ex.Message);
             }
         }
+        return morphoCS != null;
     }
 
     public async Task<IEnumerable<CodeSystem.ConceptDefinitionComponent>> FindMorphoCodes(string search, CancellationToken ct = default)
     {
-        await InitMorpho();
+        if (!await InitMorpho())
+            return new List<CodeSystem.ConceptDefinitionComponent>();
         search = search.ToLower();
         return morphoCS.Concept.Where(x => x.Display.ToLower().Contains(search)).ToArray();
     }
-}
 
 
-
-
-
-
-
-
-public static class CodingExtensions
-{
-    public static CodedConcept ToConcept(this CodeSystem.ConceptDefinitionComponent code)
+    public async Task<IEnumerable<CodedConcept>> FindMorphoConcepts(string search, CancellationToken ct = default)
     {
-        return new CodedConcept { Code = code.Code, Display = code.Display };
+        if (!await InitMorpho())
+            return new List<CodedConcept>();
+        search = search.ToLower();
+        return morphoCS.Concept.Where(x => x.Display.ToLower().Contains(search)).Select(x => x.ToConcept()).ToArray();
     }
-
-    public static string ToAppend(this CodedConcept? concept)
-        => concept is null ? "" : $"- {concept.Display} [{concept.Code}]";
 }

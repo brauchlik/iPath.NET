@@ -1,21 +1,21 @@
 ﻿@inject CodingService srv
 
 <MudAutocomplete Label="@Label" Variant="Variant"
-                 T="Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent"
+                 T="CodedConcept" MaxItems="100"
                  @bind-Value="Code"
                  @bind-Value:after="OnCodeChanged"
-                 ToStringFunc=@(x => $"{x.Display} [{x.Code}]")
-                 SearchFunc="srv.FindMorphoCodes">
+                 ToStringFunc=@(x => x is null ? "" : $"{x.Display} [{x.Code}]")
+                 SearchFunc="srv.FindMorphoConcepts">
 
 
 </MudAutocomplete>
 
 @code {
     [Parameter]
-    public Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent Code { get; set; }
+    public CodedConcept Code { get; set; }
 
     [Parameter]
-    public EventCallback<Hl7.Fhir.Model.CodeSystem.ConceptDefinitionComponent> CodeChanged { get; set; }
+    public EventCallback<CodedConcept> CodeChanged { get; set; }
 
     async Task OnCodeChanged()
     {

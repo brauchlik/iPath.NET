@@ -1,0 +1,21 @@
+﻿@namespace iPath.Blazor.Componenents.Nodes
+
+@if (Group is not null && Group.Settings.DescriptionWithBodySite)
+{
+    @if (Group.Settings.DescriptionGroupedBodySiteInput)
+    {
+        <TopoDetailLookup @bind-Code="Model.BodySite" />
+    }
+    else
+    {
+        <TopoLookup @bind-Code="Model.BodySite" />
+    }
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public GroupDto Group { get; set; }
+
+    [Parameter, EditorRequired]
+    public NodeDescription Model { get; set; }
+}

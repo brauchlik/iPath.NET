@@ -11,6 +11,10 @@
 	<MudChatBubble @onmouseenter="@(() => Hovering = true)"
 	@onmouseleave="@(() => Hovering = false)">
 		@((MarkupString)Item.Text)
+		@if (Item.Data?.Morphology is not null)
+		{
+			<div class="morphology_code">@Item.Data.Morphology.ToDisplay()</div>
+		}
 		<MudPopover Open="@Hovering" Class="hoverarea"
 		AnchorOrigin="Origin.CenterRight"
 		TransformOrigin="Origin.BottomRight"

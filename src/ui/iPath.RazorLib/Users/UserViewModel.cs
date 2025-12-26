@@ -17,7 +17,7 @@ public class UserViewModel(IPathApi api,
         if (profile == null || srvDialog == null) return;
 
         var parameters = new DialogParameters<UserProfileDialog> { { x => x.Profile, profile } };
-        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var options = new DialogOptions { CloseOnEscapeKey = true, BackdropClick = true };
         var dialog = await srvDialog.ShowAsync<UserProfileDialog>("User Profile", parameters: parameters, options: options);
         var result = await dialog.Result;
     }

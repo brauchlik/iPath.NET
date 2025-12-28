@@ -11,6 +11,7 @@
 	<!-- Default image name and tag used by Visual Studio container targets -->
 	<DockerDefaultImageName>ipath_server</DockerDefaultImageName>
 	<DockerDefaultImageTag>latest</DockerDefaultImageTag>
+	  <ContainerRepository>ipath-server-image</ContainerRepository>
   </PropertyGroup>
 
 

@@ -357,6 +357,17 @@ public class NodeViewModel(IPathApi api,
     public async Task CreateNewNode(Guid GroupId)
     {
         ClearData();
+
+        // set active group (templates, options, etc)
+        var grpResp = await api.GetGroup(GroupId);
+        if (!grpResp.IsSuccessful)
+        {
+            snackbar.AddError(grpResp.ErrorMessage);
+            return;
+        }
+        ActiveGroup = grpResp.Content;
+
+        // Create new Node
         var resp = await api.CreateNode(new CreateNodeCommand(GroupId: GroupId, NodeType: "Case"));
         if (resp.IsSuccessful)
         {
@@ -397,8 +408,8 @@ public class NodeViewModel(IPathApi api,
             var resp = await api.DeleteNode(node.Id);
             if (resp.IsSuccessful)
             {
-                // if we delete the root node in edit mode => go back to group
-                if (IsRootNodeSelected && IsEditing)
+                // if we delete the root node => end edit and go back to group
+                if (IsRootNodeSelected)
                 {
                     IsEditing = false;
                     await GoUp();
@@ -510,9 +521,19 @@ public class NodeViewModel(IPathApi api,
 
             if (RootNode.IsDraft)
             {
-                // when cancelling a draft, save current state ...
-                var cmd = new UpdateNodeCommand(RootNode.Id, RootNode.Description, false);
-                var resp = await api.UpdateNode(cmd);
+                IApiResponse resp;
+                // if title is empty => delete draft
+                if (string.IsNullOrEmpty(RootNode.Description.Title))
+                {
+                    resp = await api.DeleteNode(RootNode.Id);
+                }
+                else
+                {
+                    // when cancelling a draft, save current state ...
+                    var cmd = new UpdateNodeCommand(RootNode.Id, RootNode.Description, false);
+                    resp = await api.UpdateNode(cmd);
+                }
+
                 // and go up
                 await GoUp();
             }

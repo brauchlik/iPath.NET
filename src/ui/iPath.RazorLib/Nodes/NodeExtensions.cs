@@ -8,7 +8,7 @@ public static class NodeExtensions
 {
     extension(NodeListDto dto)
     {
-        public string? Title => dto?.Description?.Title ?? "[untitled]";
+        public string? Title =>  string.IsNullOrEmpty(dto?.Description?.Title) ? "[Draft]" : dto?.Description?.Title;
         public string? SubTitle => dto?.Description?.Subtitle;
         public string? AccessionNo => dto?.Description?.AccessionNo;
 

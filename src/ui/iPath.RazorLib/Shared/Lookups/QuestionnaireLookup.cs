@@ -20,7 +20,7 @@ public class QuestionnaireLookup(IPathApi api)
 
     protected override void OnInitialized()
     {  
-        this.ToStringFunc = u => u is null ? "" : $"{u.QuestionnaireId}";
+        this.ToStringFunc = u => u is null ? "" : $"{u.Name} [{u.QuestionnaireId}]";
         this.SearchFunc = Search; // (string? term, CancellationToken ct) => Search(term, ct);
         base.OnInitialized();
     }
@@ -29,7 +29,7 @@ public class QuestionnaireLookup(IPathApi api)
     {
         if (!string.IsNullOrWhiteSpace(term))
         {
-            return items.Where(x => x.QuestionnaireId.ToLower().Contains(term.ToLower())).ToArray();
+            return items.Where(x => x.QuestionnaireId.ToLower().Contains(term.ToLower()) || x.Name.ToLower().Contains(term.ToLower())).ToArray();
         }
         return items;
     }

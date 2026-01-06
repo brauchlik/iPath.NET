@@ -1,7 +1,7 @@
 ﻿namespace iPath.Application.Features;
 
 
-public record QuestionnaireListDto (Guid Id, string QuestionnaireId, int Version, bool IsActive);
+public record QuestionnaireListDto (Guid Id, string QuestionnaireId, string Name, int Version, bool IsActive);
 
 
 public record GetQuestionnaireByIdQuery(Guid Id)
@@ -19,5 +19,5 @@ public class GetQuestionnaireListQuery : PagedQuery<Questionnaire>
 }
 
 
-public record CreateQuestionnaireCommand(string QuestionnaireId, string Resource)
+public record CreateQuestionnaireCommand(string QuestionnaireId, string Name, string Resource)
     : IRequest<CreateQuestionnaireCommand, Task<Guid>>;

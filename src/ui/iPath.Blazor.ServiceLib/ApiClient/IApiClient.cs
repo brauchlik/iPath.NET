@@ -98,7 +98,7 @@ public interface IPathApi
     [Put("/api/v1/groups/community/assign")]
     Task<IApiResponse> AssignGroupToCommunity(AssignGroupToCommunityCommand command);
 
-    [Put("/api/v1/groups/asignquestionnaire")]
+    [Put("/api/v1/groups/questionnaire/assign")]
     Task<IApiResponse> AssignQuestionnaireToGroup(AssignQuestionnaireToGroupCommand command);
 
     #endregion

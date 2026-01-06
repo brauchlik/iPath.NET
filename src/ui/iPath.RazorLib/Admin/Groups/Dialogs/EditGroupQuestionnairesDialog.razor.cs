@@ -23,10 +23,10 @@ public partial class EditGroupQuestionnairesDialog(IPathApi api, IStringLocalize
     {
         foreach (var q in Model.Questionnaires)
         {
-            var item = Items.FirstOrDefault(x => x.QuestionnaireId == q.QuestionnaireId);
+            var item = Items.FirstOrDefault(x => x.QuestionnaireId == q.qId);
             if (item is null)
             {
-                item = new GroupQuestionnareModel(q.QuestionnaireId, q.QuestinnaireName, Model.Id);
+                item = new GroupQuestionnareModel(q.qId, q.QuestinnaireId, q.QuestinnaireName, Model.Id);
             }
             item.Usage[q.Usage] = true;
         }
@@ -39,7 +39,7 @@ public partial class EditGroupQuestionnairesDialog(IPathApi api, IStringLocalize
             var item = Items.FirstOrDefault(x => x.QuestionnaireId == selectedQ.Id);
             if (item is null)
             {
-                item = new GroupQuestionnareModel(selectedQ.Id, selectedQ.QuestionnaireId, Model.Id);
+                item = new GroupQuestionnareModel(selectedQ.Id, selectedQ.QuestionnaireId, selectedQ.Name , Model.Id);
                 Items.Add(item);
             }
             selectedQ = null;

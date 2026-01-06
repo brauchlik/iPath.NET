@@ -15,16 +15,16 @@ else
         <ToolBarContent>
             <MudText Typo="Typo.h6">Questionnaires</MudText>
             <MudSpacer />
-            <QuestionnaireLookup @bind-Value="selectedQ" @bind-Value:after="OnQuestionaireSelected" />
+            <QuestionnaireLookup @bind-Value="selectedQ" @bind-Value:after="OnQuestionaireSelected" Clearable="true" @ref="lookup" />
         </ToolBarContent>
         <Columns>
-            <PropertyColumn Property="q => q.Name" Title="Id" />
+            <PropertyColumn Property="q => q.NameAndId" Title="Name" />
             @foreach (var e in Usages)
             {
                 <TemplateColumn Title="@e.ToString()">
                     <CellTemplate>
                         <MudCheckBox @bind-Value="@context.Item.Usage[e]"
-                                     @bind-Value:after="@(() => Save(context.Item, e))" />
+                                     @bind-Value:after="@(() => vm.SaveQuestionnaireUsage(context.Item, e))" />
                     </CellTemplate>
                 </TemplateColumn>
             }
@@ -39,9 +39,10 @@ else
     public GroupDto Model { get; set; }
 
     List<GroupQuestionnareModel> Items = new();
-    QuestionnaireListDto selectedQ;
+    QuestionnaireListDto? selectedQ;
     bool saving;
 
+    QuestionnaireLookup lookup;
 
     eQuestionnaireUsage[] Usages => QuestionnairesViewModel.Usages;
 
@@ -51,43 +52,30 @@ else
         {
             foreach (var q in Model.Questionnaires)
             {
-                var item = Items.FirstOrDefault(x => x.QuestionnaireId == q.QuestionnaireId);
+                var item = Items.FirstOrDefault(x => x.QuestionnaireId == q.qId);
                 if (item is null)
                 {
-                    item = new GroupQuestionnareModel(q.QuestionnaireId, q.QuestinnaireName, Model.Id);
+                    item = new GroupQuestionnareModel(q.qId, q.QuestinnaireId, q.QuestinnaireName, Model.Id);
+                    Items.Add(item);
                 }
                 item.Usage[q.Usage] = true;
             }
         }
     }
 
-    void OnQuestionaireSelected()
+    async Task OnQuestionaireSelected()
     {
         if (selectedQ is not null)
         {
             var item = Items.FirstOrDefault(x => x.QuestionnaireId == selectedQ.Id);
             if (item is null)
             {
-                item = new GroupQuestionnareModel(selectedQ.Id, selectedQ.QuestionnaireId, Model.Id);
+                item = new GroupQuestionnareModel(selectedQ.Id, selectedQ.QuestionnaireId, selectedQ.Name, Model.Id);
                 Items.Add(item);
             }
             selectedQ = null;
+            await lookup.ClearAsync();
             StateHasChanged();
         }
-    }
-
-    private async Task Save(GroupQuestionnareModel model, eQuestionnaireUsage change)
-    {
-        saving = true;
-        try
-        {
-            bool remove = !model.Usage[change];
-            var cmd = new AssignQuestionnaireToGroupCommand(model.QuestionnaireId, model.GrouppId, change, remove);
-            var resp = await api.AssignQuestionnaireToGroup(cmd);
-        }
-        catch (Exception ex)
-        {
-        }
-        saving = false;
     }
 }

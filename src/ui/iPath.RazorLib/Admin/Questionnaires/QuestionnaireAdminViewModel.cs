@@ -1,5 +1,5 @@
-﻿using iPath.Blazor.Componenents.Questionaiires;
-using MudBlazor;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using System.ComponentModel.DataAnnotations;
 
 namespace iPath.Blazor.Componenents.Admin.Questionnaires;
 
@@ -26,7 +26,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
         if (res?.Data is EditQuestionnaireModel)
         {
             var m = (EditQuestionnaireModel)res.Data;
-            var resp = await api.CreateQuestionnaire(new CreateQuestionnaireCommand(m.QuestionnaireId, m.Resource));
+            var resp = await api.CreateQuestionnaire(new CreateQuestionnaireCommand(m.QuestionnaireId, m.Name, m.Resource));
             await grid.ReloadServerData();
         }
     }
@@ -43,6 +43,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
                 {
                     Id = resp.Content.Id,
                     QuestionnaireId = resp.Content.QuestionnaireId,
+                    Name = resp.Content.Name,
                     Version = resp.Content.Version,
                     Resource = resp.Content.Resource
                 };
@@ -55,7 +56,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
 
                     if (v1 != r.Resource)
                     {
-                        var resp2 = await api.CreateQuestionnaire(new CreateQuestionnaireCommand(r.QuestionnaireId, r.Resource));
+                        var resp2 = await api.CreateQuestionnaire(new CreateQuestionnaireCommand(r.QuestionnaireId, r.Name, r.Resource));
                         await grid.ReloadServerData();
                         snackbar.Add("Questionnaire updated", Severity.Success);
                     }
@@ -95,6 +96,16 @@ public class EditQuestionnaireModel
 {
     public Guid? Id { get; init; }
     public int Version { get; init; }
+
+    [Required]
     public string QuestionnaireId { get; set; }
-    public string Resource { get; set; }
+
+    [Required]
+    public string Name { get; set; }
+
+
+    public IBrowserFile? ResourceFile { get; set; }
+    public string ResourceFileName { get; set; }
+
+    public string? Resource { get; set; }
 }

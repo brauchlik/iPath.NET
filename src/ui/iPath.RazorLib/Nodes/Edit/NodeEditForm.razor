@@ -77,7 +77,7 @@
             var q = vm.ActiveGroup.Questionnaires.FirstOrDefault(q => q.Usage == eQuestionnaireUsage.CaseDescription || q.Usage == eQuestionnaireUsage.Any);
             if (q is not null)
             {
-                var qResource = await vm.GetQuesiotnnaire(q.QuestionnaireId);
+                var qResource = await vm.GetQuesiotnnaire(q.qId);
                 if (!string.IsNullOrEmpty(qResource))
                 {
                     await lhcForm.LoadFormAsync(qResource, "");

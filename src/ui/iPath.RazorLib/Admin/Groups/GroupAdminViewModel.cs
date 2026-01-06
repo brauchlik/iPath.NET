@@ -1,7 +1,5 @@
 ﻿using iPath.Blazor.Componenents.Questionaiires;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
 namespace iPath.Blazor.Componenents.Admin.Groups;
@@ -121,7 +119,7 @@ public class GroupAdminViewModel(IPathApi api,
 
 
 
-    public GroupDto SelectedGroup { get; private set; }
+    public GroupDto? SelectedGroup { get; private set; }
     public bool IsLoading;
     public async Task LoadGroup(Guid? id)
     {
@@ -136,7 +134,10 @@ public class GroupAdminViewModel(IPathApi api,
                 {
                     SelectedGroup = resp.Content;
                 }
-                snackbar.AddError(resp.ErrorMessage);
+                else
+                {
+                    snackbar.AddError(resp.ErrorMessage);
+                }
             }
             catch(Exception ex)
             {
@@ -303,6 +304,26 @@ public class GroupAdminViewModel(IPathApi api,
         }
     }
 
+
+    public async Task SaveQuestionnaireUsage(GroupQuestionnareModel model, eQuestionnaireUsage change)
+    {
+        try
+        {
+            bool remove = !model.Usage[change];
+            var cmd = new AssignQuestionnaireToGroupCommand(model.QuestionnaireId, model.GrouppId, change, remove);
+            var resp = await api.AssignQuestionnaireToGroup(cmd);
+            if (resp.IsSuccessful) return;
+            
+            snackbar.AddError(resp.ErrorMessage);
+        }
+        catch (Exception ex)
+        {
+            snackbar.AddError(ex.Message);
+        }
+
+        // on error => reset Usage
+        model.Usage[change] = !model.Usage[change];
+    }
 }
 
 
@@ -341,14 +362,20 @@ public class CreateGroupCommandModel : CreateGroupCommand
 public class GroupQuestionnareModel
 {
     public Guid QuestionnaireId { get; init; }
+
+    public string Id { get; init; }
     public string Name { get; init; }
+
+    public string NameAndId => $"{Name} [{Id}]";
+
     public Guid GrouppId { get; init; }
 
     public Dictionary<eQuestionnaireUsage, bool> Usage = new();
 
-    public GroupQuestionnareModel(Guid QuestionnaireId, string Name, Guid GroupId)
+    public GroupQuestionnareModel(Guid QuestionnaireId, string Id, string Name, Guid GroupId)
     {
         this.QuestionnaireId = QuestionnaireId;
+        this.Id = Id;
         this.Name = Name;
         this.GrouppId = GroupId;
 

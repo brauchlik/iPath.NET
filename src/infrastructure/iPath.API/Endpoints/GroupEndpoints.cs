@@ -47,7 +47,7 @@ public static class GroupEndpoints
             .RequireAuthorization("Admin");
 
 
-        grp.MapPost("asignquestionnaire", async (AssignQuestionnaireToGroupCommand cmd, [FromServices] IGroupService srv, CancellationToken ct)
+        grp.MapPut("questionnaire/assign", async (AssignQuestionnaireToGroupCommand cmd, [FromServices] IGroupService srv, CancellationToken ct)
             => await srv.AssignQuestionnaireToGroupAsync(cmd, ct))
             .RequireAuthorization("Admin");
 

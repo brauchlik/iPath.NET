@@ -5,7 +5,8 @@
                  @bind-Value="Code"
                  @bind-Value:after="OnCodeChanged"
                  ToStringFunc=@(x => x.ToDisplay())
-                 SearchFunc="srv.FindTopoConcetps" />
+                 SearchFunc="srv.FindTopoConcetps" 
+                 Clearable="true" />
 
 @code {
     [Parameter]

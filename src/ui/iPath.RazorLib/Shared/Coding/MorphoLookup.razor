@@ -5,9 +5,8 @@
                  @bind-Value="Code"
                  @bind-Value:after="OnCodeChanged"
                  ToStringFunc=@(x => x is null ? "" : $"{x.Display} [{x.Code}]")
-                 SearchFunc="srv.FindMorphoConcepts">
-
-
+                 SearchFunc="srv.FindMorphoConcepts"
+                 Clearable="true">
 </MudAutocomplete>
 
 @code {

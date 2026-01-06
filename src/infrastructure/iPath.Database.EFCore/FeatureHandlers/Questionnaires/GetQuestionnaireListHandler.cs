@@ -1,5 +1,4 @@
-﻿
-namespace iPath.EF.Core.FeatureHandlers.Questionnaires;
+﻿namespace iPath.EF.Core.FeatureHandlers.Questionnaires;
 
 public class GetQuestionnaireListHandler(iPathDbContext db)
      : IRequestHandler<GetQuestionnaireListQuery, Task<PagedResultList<QuestionnaireListDto>>>
@@ -18,7 +17,7 @@ public class GetQuestionnaireListHandler(iPathDbContext db)
 
         q.ApplyQuery(request);
 
-        var projected = q.Select(x => new QuestionnaireListDto(x.Id, x.QuestionnaireId, x.Version, x.IsActive));
+        var projected = q.Select(x => new QuestionnaireListDto(x.Id, x.QuestionnaireId, x.Name, x.Version, x.IsActive));
         return await projected.ToPagedResultAsync(request, ct);    
     }
 }

@@ -4,7 +4,7 @@
     <MudSelect T="CodedConcept"
                ToStringFunc=@(x => x.ToDisplay())
                Variant="@Variant" Label="Organ System"
-               Dense="true" ShrinkLabel="true"
+               Dense="true" ShrinkLabel="true" Clearable="true"
                @bind-Value="GroupCode" @bind-Value:after="OnGroupChanged">
         @foreach (var gr in groups.OrderBy(x => x.Code))
         {
@@ -16,7 +16,7 @@
     <MudSelect T="CodedConcept"
                ToStringFunc=@(x => x.ToDisplay())
                Variant="@Variant" Label="@Label"
-               Dense="true" ShrinkLabel="true"
+               Dense="true" ShrinkLabel="true" Clearable="true"
                @bind-Value="Code" @bind-Value:after="OnCodeChanged">
         @foreach (var c in groupCodes.OrderBy(x => x.Code))
         {

@@ -8,6 +8,8 @@ public class Questionnaire : AuditableEntity
     [Required]
     public required string QuestionnaireId { get; set; }
 
+    public required string Name { get; set; }
+
     public int Version { get; set; }
     public bool IsActive { get; set; }
 

@@ -32,6 +32,7 @@ public class CreateQuestionnaireInputHandler(iPathDbContext db, IUserSession ses
                 OwnerId = sess.User.Id,
                 CreatedOn = DateTime.UtcNow,
                 QuestionnaireId = request.QuestionnaireId,
+                Name = request.Name,
                 Version = maxVersion + 1,
                 Resource = request.Resource,
                 IsActive = true

@@ -354,7 +354,7 @@ public class NodeViewModel(IPathApi api,
 
     public bool CreateNewDisabled => false;
 
-    public async Task CreateNewNode(Guid GroupId)
+    public async Task CreateNewNode(Guid GroupId, string? QuestionaireId = null)
     {
         ClearData();
 
@@ -372,6 +372,7 @@ public class NodeViewModel(IPathApi api,
         if (resp.IsSuccessful)
         {
             RootNode = resp.Content;
+            RootNode.Description.QuestionnaireId = QuestionaireId;
             SelectChilNode(RootNode);
             IsEditing = true;
         }
@@ -653,9 +654,18 @@ public class NodeViewModel(IPathApi api,
     #endregion
 
 
-    public async Task<string> GetQuesiotnnaire(Guid Id)
+    public async Task<string?> GetQuesiotnnaire(NodeDescription model)
     {
-        return await qCache.GetQuestionnaireResourceAsync(Id);
+        if (!string.IsNullOrEmpty(model.QuestionnaireId))
+        {
+            return await qCache.GetQuestionnaireResourceAsync(model.QuestionnaireId, model.QuestionnaireVersion);
+        }
+        return null;
+    }
+
+    public async Task<string?> GetQuesiotnnaire(string questionnaireId, int? version = null)
+    {
+        return await qCache.GetQuestionnaireResourceAsync(questionnaireId, version);
     }
 }
 

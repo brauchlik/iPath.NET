@@ -11,6 +11,11 @@ public class NodeDescription
     public string? Title { get; set; } = string.Empty!;
     public string? Text { get; set; } = string.Empty!;
 
+
+    public string? QuestionnaireId { get; set; }
+    public int? QuestionnaireVersion { get; set; } = null;
+
+
     public CodedConcept? BodySite { get; set; }
 
     public NodeDescription Clone() => (NodeDescription)MemberwiseClone();

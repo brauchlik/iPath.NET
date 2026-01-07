@@ -65,19 +65,19 @@
 
     private iPath.LHCForms.LhcForm lhcForm;
 
-    bool useQuestionnaire;
+    bool useQuestionnaire => !string.IsNullOrEmpty(Model?.QuestionnaireId);
     bool useHtmlEditor = true;
 
     private MudForm frm;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && lhcForm != null)
+        if (firstRender && useQuestionnaire)
         {
-            var q = vm.ActiveGroup.Questionnaires.FirstOrDefault(q => q.Usage == eQuestionnaireUsage.CaseDescription || q.Usage == eQuestionnaireUsage.Any);
+            var q = vm.GetQuesiotnnaire(Model);
             if (q is not null)
             {
-                var qResource = await vm.GetQuesiotnnaire(q.qId);
+                var qResource = await vm.GetQuesiotnnaire(Model);
                 if (!string.IsNullOrEmpty(qResource))
                 {
                     await lhcForm.LoadFormAsync(qResource, "");

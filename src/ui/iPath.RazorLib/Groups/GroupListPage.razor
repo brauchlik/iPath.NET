@@ -33,15 +33,24 @@
     </RowTemplate>
 </MudTable>
 
-<MudAlert Severity="Severity.Info" Class="mt-8 px-4" NoIcon>
-    <MudStack Row AlignItems="AlignItems.Center">
-        <MudIcon Icon="@Icons.Material.TwoTone.CreateNewFolder" /> 
-        @T["New cases in group"]<br />
-        <MudSpacer />
-    </MudStack>
-    <MudStack Row AlignItems="AlignItems.Center">
-        <MudIcon Icon="@Icons.Material.TwoTone.Comment" />
-        @T["New annotations in group"]
-        <MudSpacer />
-    </MudStack>
-</MudAlert>
+@if (vm.GroupCount == 0)
+{
+    <MudAlert Severity="Severity.Warning" Class="mt-8 pa-4">
+        @T["You are not member of any group yet. Please contect a group or community moderator to join a collaboration group"]
+    </MudAlert>
+}
+else
+{
+    <MudAlert Severity="Severity.Info" Class="mt-8 px-4" NoIcon>
+        <MudStack Row AlignItems="AlignItems.Center">
+            <MudIcon Icon="@Icons.Material.TwoTone.CreateNewFolder" /> 
+            @T["New cases in group"]<br />
+            <MudSpacer />
+        </MudStack>
+        <MudStack Row AlignItems="AlignItems.Center">
+            <MudIcon Icon="@Icons.Material.TwoTone.Comment" />
+            @T["New annotations in group"]
+            <MudSpacer />
+        </MudStack>
+    </MudAlert>
+}

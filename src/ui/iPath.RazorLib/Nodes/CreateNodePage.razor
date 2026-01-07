@@ -84,7 +84,7 @@ else
     async Task CreateCase(QuestionnaireForGroupDto? q)
     {
         SelectedQuestionnaire = q;
-        await vm.CreateNewNode(Group.Id);
+        await vm.CreateNewNode(Group.Id, SelectedQuestionnaire?.QuestinnaireId);
         SaveText = T["Publish"];
         Title = T["New Case"];
         vm.IsEditing = true;

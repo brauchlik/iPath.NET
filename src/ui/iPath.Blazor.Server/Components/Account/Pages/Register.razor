@@ -5,6 +5,7 @@
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.Extensions.Localization
 @using Microsoft.Extensions.Options
 @using iPath.Domain.Config
 
@@ -17,6 +18,7 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 @inject IConfiguration config
+@inject IStringLocalizer T
 
 
 <PageTitle>Register</PageTitle>
@@ -34,8 +36,13 @@
             <MudGrid>
                 <MudItem md="12">
                     <MudStaticTextField For="@(() => Input.Email)" @bind-Value="Input.Email"
-                                        Label="Email" Placeholder="name@example.com"
-                                        UserAttributes="@(new() { { "autocomplete", "username" }, { "aria-required", "true" } } )" />
+                                        Label=@T["Email"] Placeholder="name@example.com"
+                                        UserAttributes="@(new() { { "autocomplete", "email" }, { "aria-required", "true" } } )" />
+                </MudItem>
+                <MudItem md="12">
+                    <MudStaticTextField For="@(() => Input.Username)" @bind-Value="Input.Username"
+                                        Label=@T["Username"] Placeholder="Username" HelperText=@T["optional username. email will be used when empty"]
+                                        UserAttributes="@(new() { { "autocomplete", "username" } })" />
                 </MudItem>
                 <MudItem md="12">
                     <MudStaticTextField For="@(() => Input.Password)" @bind-Value="Input.Password"
@@ -75,7 +82,8 @@
         var user = CreateUser();
         user.IsActive = true;
 
-        await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+        var username = string.IsNullOrEmpty(Input.Username) ? Input.Email : Input.Username;
+        await UserStore.SetUserNameAsync(user, username, CancellationToken.None);
         var emailStore = GetEmailStore();
         await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
         var result = await UserManager.CreateAsync(user, Input.Password);
@@ -138,6 +146,9 @@
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; } = "";
+
+        [Display(Name = "Username")]
+        public string? Username { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]

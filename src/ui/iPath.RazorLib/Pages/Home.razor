@@ -1,0 +1,31 @@
+﻿@page "/"
+@using iPath.Application.Features
+@using iPath.Application.Features.Users
+@using iPath.Blazor.Componenents.Shared.Lookups
+
+<PageTitle>Home</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">iPath.NET</MudText>
+<MudText Class="mb-8">Welcome to your new iPath app, powered by .NET 10</MudText>
+
+
+@if (MyProfile is not null)
+{
+    @if (!MyProfile.IsComplete())
+    {
+        <MudAlert Severity="Severity.Warning" Class="my-8 pa-2">
+            <MudText Typo="Typo.body1">
+                @T["You have not yet completed your Profile. Please fill in your data"]
+            </MudText>
+            <MudButton Class="mt-2" StartIcon="@Icons.Material.Filled.Person" Href="user/profile" Variant="Variant.Filled" Color="Color.Secondary">@T["My Profile"]</MudButton>
+        </MudAlert>
+    }
+}
+
+
+<MudPaper Width="100%" Class="mt-8 pa-8" Elevation="4">
+    more to follow here ...
+</MudPaper>
+
+<MudDivider Class="my-10" />
+

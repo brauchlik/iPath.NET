@@ -28,12 +28,15 @@ public class GroupListViewModel(IPathApi api, GroupCache cache, ISnackbar snackb
         var resp = await api.GetGroupList(query);
         if (resp.IsSuccessful)
         {
+            GroupCount = resp.Content.TotalItems;
             return resp.Content.ToTableData();
         }
 
         snackbar.AddError(resp.ErrorMessage);
         return new TableData<GroupListDto>();
     }
+
+    public int GroupCount { get; set; }
 
 
     public void GotoGroup(Guid groupId)

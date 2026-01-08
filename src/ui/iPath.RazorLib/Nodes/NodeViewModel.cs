@@ -598,37 +598,46 @@ public class NodeViewModel(IPathApi api,
     {
         if (AnnotateDisabled) return;
 
-        var model = new AnnotationEditModel();
-        model.AskMorphology = ActiveGroup.Settings.AnnotationHasMoprhoogy;
+        var model = CreateNewAnnotationInput(ChildNodeId);
         var parameters = new DialogParameters<NodeAddAnnotationDialog> { { x => x.Model, model } };
         var dialog = await srvDialog.ShowAsync<NodeAddAnnotationDialog>("New Annotation", parameters);
         var result = await dialog.Result;
         if (!result.Canceled && result.Data is AnnotationEditModel data)
         {
-            if (string.IsNullOrEmpty(data.Text))
+            if (data.ValidateInput())
             {
-                // Use Morphology Text if not comments is entered
-                if (data.Data.Morphology is not null)
-                {
-                    data.Text = data.Data.Morphology.Display;
-                }
-                else
-                {
-                    return;
-                }
-            }    
-                        
-            var cmd = new CreateNodeAnnotationCommand(RootNode.Id, data.Text, data.Data, ChildNodeId, null);
+                await SubmitAnnotation(data);
+            }
+        }
+    }
 
-            var resp = await api.CreateAnnotation(cmd);
-            if (resp.IsSuccessful)
+    public AnnotationEditModel CreateNewAnnotationInput(Guid? ChildNodeId = null)
+    {
+        var model = new AnnotationEditModel();
+        if (RootNode is not null)
+        {
+            model.RootNodeId = RootNode.Id;
+            model.ChildNodeId = ChildNodeId;
+            if (ActiveGroup is not null)
             {
-                await ReloadNode();
+                model.AskMorphology = ActiveGroup.Settings.AnnotationHasMoprhoogy;
             }
-            else
-            {
-                snackbar.AddError(resp.ErrorMessage);
-            }
+        }
+        return model;
+    }
+
+    public async Task SubmitAnnotation(AnnotationEditModel data)
+    {
+        var cmd = new CreateNodeAnnotationCommand(data.RootNodeId, data.Text, data.Data, data.ChildNodeId, null);
+
+        var resp = await api.CreateAnnotation(cmd);
+        if (resp.IsSuccessful)
+        {
+            await ReloadNode();
+        }
+        else
+        {
+            snackbar.AddError(resp.ErrorMessage);
         }
     }
 

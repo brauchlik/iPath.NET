@@ -11,7 +11,7 @@
 
             @if (Model.AskMorphology)
             {
-                <MorphoLookup Label="Morphology" @bind-Code="Model.Data.Morphology" Variant="Variant.Outlined" />
+                <MorphoLookup Label="Morphology" @bind-Value="Model.Data.Morphology" Dense="true" ShrinkLabel="true" Variant="Variant.Outlined" />
             }
         </DialogContent>
         <DialogActions>

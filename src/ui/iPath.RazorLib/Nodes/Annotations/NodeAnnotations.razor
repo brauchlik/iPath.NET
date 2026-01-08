@@ -9,7 +9,7 @@
 		<div class="ipath_header_actions">
 			<MudTooltip Text="Add Annotation">
 				<MudIcon Size="Size.Small" Icon=@SortIcon @onclick="ToggleSort" />
-				<MudIcon Size="Size.Small" Icon="@Icons.Material.Rounded.Add" @onclick="@(() => vm.Annotate())" Disabled="vm.AnnotateDisabled" />
+				<MudIcon Size="Size.Small" Icon="@Icons.Material.Rounded.Add" @onclick="StartAnnotation" Disabled="vm.AnnotateDisabled" />
 			</MudTooltip>
 		</div>
 	</div>
@@ -23,6 +23,25 @@
 	}
 
 	<div class="ipath_annotations">
+		@if (NewAnnotation is not null)
+		{
+			<div class="mb-10">
+				<MudForm Model="NewAnnotation" @ref="AnnotationForm">
+				<MudTextField Label=@T["Annotation"] @bind-Value="NewAnnotation.Text" Immediate="true"
+							Lines="4" AutoGrow="true" Variant="Variant.Outlined"  />
+				@if (NewAnnotation.AskMorphology)
+				{
+					<MorphoLookup Label="Morphology" @bind-Value="NewAnnotation.Data.Morphology" Variant="Variant.Outlined" />
+				}
+			</MudForm>
+			<MudStack Row>
+				<MudButton OnClick="OnSubmit" Variant="Variant.Filled" Color="Color.Primary">Submit</MudButton>
+				<MudButton OnClick="Reset" Variant="Variant.Filled">Calcel</MudButton>
+			</MudStack>
+			</div>
+		}
+
+
 		@foreach (var a in vm.RootNode.Annotations.OrderByDirection(Sort, a => a.CreatedOn))
 		{
 			@if (ShowAnnotations)
@@ -66,5 +85,34 @@
 	void ToggleSort()
 	{
 		Sort = (Sort == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
+	}
+
+
+
+
+	MudForm? AnnotationForm;
+	AnnotationEditModel? NewAnnotation = null;
+
+	void StartAnnotation()
+	{
+		NewAnnotation = vm.CreateNewAnnotationInput();
+	}
+
+	async Task OnSubmit()
+	{
+		if (NewAnnotation != null && AnnotationForm != null)
+		{
+			await AnnotationForm.Validate();
+			if (NewAnnotation.ValidateInput())
+			{
+				await vm.SubmitAnnotation(NewAnnotation);				
+			}
+			NewAnnotation = null;
+		}
+	}
+
+	void Reset()
+	{
+		NewAnnotation = null;
 	}
 }

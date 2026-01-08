@@ -36,13 +36,19 @@ public class CodingService(HttpClient http)
             return new List<CodeSystem.ConceptDefinitionComponent>();
 
         search = search is null ? "" : search.ToLower();
-        return topoCS.Concept.Where(x => x.Display.ToLower().Contains(search)).OrderBy(x => x.Display).ToArray();
+        return topoCS.Concept
+            // .Where(x => x.Display.ToLower().Contains(search))
+            .Where(x => x.ContainsWordsStartingWith(search))
+            .OrderBy(x => x.Display)
+            .ToArray();
     }
 
     public async Task<IEnumerable<CodedConcept>> FindTopoConcetps(string search, CancellationToken ct = default)
     {
         var codes = await FindTopoCodes(search, ct);
-        return codes.Select(c => c.ToConcept()).ToArray();
+        return codes.Select(c => c.ToConcept())
+            .OrderBy(x => x.Display)
+            .ToArray();
     }
 
 
@@ -51,7 +57,10 @@ public class CodingService(HttpClient http)
         if (!await InitTopo())
             return new List<CodeSystem.ConceptDefinitionComponent>();
         // groups have no . in the code
-        return topoCS.Concept.Where(x => !x.Code.Contains(".")).OrderBy(x => x.Display).ToArray();
+        return topoCS.Concept
+            .Where(x => !x.Code.Contains("."))
+            .OrderBy(x => x.Display)
+            .ToArray();
     }
 
     public async Task<IEnumerable<CodedConcept>> GetTopoGroupConcepts(CancellationToken ct = default)
@@ -59,7 +68,11 @@ public class CodingService(HttpClient http)
         if (!await InitTopo())
             return new List<CodedConcept>();
         // groups have no . in the code
-        return topoCS.Concept.Where(x => !x.Code.Contains(".")).OrderBy(x => x.Display).Select(x => x.ToConcept()).ToArray();
+        return topoCS.Concept
+            .Where(x => !x.Code.Contains("."))
+            .OrderBy(x => x.Display)
+            .Select(x => x.ToConcept())
+            .ToArray();
     }
 
 
@@ -68,14 +81,21 @@ public class CodingService(HttpClient http)
     {
         if (!await InitTopo())
             return new List<CodeSystem.ConceptDefinitionComponent>();
-        return topoCS.Concept.Where(x => x.Code.StartsWith(groupCode + ".")).OrderBy(x => x.Display).ToArray();
+        return topoCS.Concept
+            .Where(x => x.Code.StartsWith(groupCode + "."))
+            .OrderBy(x => x.Display)
+            .ToArray();
     }
 
     public async Task<IEnumerable<CodedConcept>> GetTopoConceptsForGroup(string groupCode, CancellationToken ct = default)
     {
         if (!await InitTopo())
             return new List<CodedConcept>();
-        return topoCS.Concept.Where(x => x.Code.StartsWith(groupCode + ".")).OrderBy(x => x.Display).Select(x => x.ToConcept()).ToArray();
+        return topoCS.Concept
+            .Where(x => x.Code.StartsWith(groupCode + "."))
+            .OrderBy(x => x.Display)
+            .Select(x => x.ToConcept())
+            .ToArray();
     }
 
 
@@ -103,18 +123,27 @@ public class CodingService(HttpClient http)
 
     public async Task<IEnumerable<CodeSystem.ConceptDefinitionComponent>> FindMorphoCodes(string search, CancellationToken ct = default)
     {
-        if (!await InitMorpho())
+        if (!await InitMorpho() || search is null)
             return new List<CodeSystem.ConceptDefinitionComponent>();
         search = search.ToLower();
-        return morphoCS.Concept.Where(x => x.Display.ToLower().Contains(search)).ToArray();
+        return morphoCS.Concept
+            //.Where(x => x.Display.ToLower().Contains(search))
+            .Where(x => x.ContainsWordsStartingWith(search))
+            .OrderBy(x => x.Display)
+            .ToArray();
     }
 
 
     public async Task<IEnumerable<CodedConcept>> FindMorphoConcepts(string search, CancellationToken ct = default)
     {
-        if (!await InitMorpho())
+        if (!await InitMorpho() || search is null)
             return new List<CodedConcept>();
         search = search.ToLower();
-        return morphoCS.Concept.Where(x => x.Display.ToLower().Contains(search)).Select(x => x.ToConcept()).ToArray();
+        return morphoCS.Concept
+            // .Where(x => x.Display.ToLower().Contains(search))
+            .Where(x => x.ContainsWordsStartingWith(search))
+            .Select(x => x.ToConcept())
+            .OrderBy(x => x.Display)
+            .ToArray();
     }
 }

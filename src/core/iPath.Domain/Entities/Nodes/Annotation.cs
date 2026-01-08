@@ -44,4 +44,8 @@ public class Annotation : AuditableEntity
 public class AnnotationData
 {
     public CodedConcept? Morphology { get; set; }
+
+    public string? QuestionnaireId { get; set; }
+    public string? QuestionnaireResponse { get; set; }
+
 }

@@ -31,12 +31,12 @@
 							Lines="4" AutoGrow="true" Variant="Variant.Outlined"  />
 				@if (NewAnnotation.AskMorphology)
 				{
-					<MorphoLookup Label="Morphology" @bind-Value="NewAnnotation.Data.Morphology" Variant="Variant.Outlined" />
+					<MorphoLookup Label=@T["Morphology"] @bind-Value="NewAnnotation.Data.Morphology" Variant="Variant.Outlined" />
 				}
 			</MudForm>
 			<MudStack Row>
-				<MudButton OnClick="OnSubmit" Variant="Variant.Filled" Color="Color.Primary">Submit</MudButton>
-				<MudButton OnClick="Reset" Variant="Variant.Filled">Calcel</MudButton>
+				<MudButton OnClick="OnSubmit" Variant="Variant.Filled" Color="Color.Primary">@T["Submit"]</MudButton>
+				<MudButton OnClick="Reset" Variant="Variant.Filled">@T["Cancel"]</MudButton>
 			</MudStack>
 			</div>
 		}

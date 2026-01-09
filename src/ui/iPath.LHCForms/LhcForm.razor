@@ -50,7 +50,8 @@
     {
         try
         {
-            return await interop.GetDataAsync(id);
+            var res = await interop.GetDataAsync(id);
+            return res;
         }
         catch (Exception ex)
         {

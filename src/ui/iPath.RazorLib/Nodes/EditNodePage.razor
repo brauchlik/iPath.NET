@@ -11,7 +11,7 @@
 
     <MudStack Row Spacing="4">
         <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save"
-                    OnClick="OnSave">@SaveText</MudButton>
+                    OnClick=@(() => vm.Save())>@SaveText</MudButton>
         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Cancel"
                     OnClick=@(() => vm.CancelEdit())>Cancel</MudButton>
         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete">Delete</MudButton>
@@ -28,6 +28,19 @@
     string SaveText = "Save";
     string Title = "New Case";
 
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        vm.OnBeforeSaveEvent += OnBeforeSaveEventHandler;
+    }
+
+    protected override void OnDisposed()
+    {
+        if (vm.IsEditing) vm.CancelEdit();
+        vm.OnBeforeSaveEvent -= OnBeforeSaveEventHandler;    
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         if (Guid.TryParse(id, out var nodeId))
@@ -39,18 +52,9 @@
         vm.IsEditing = true;
     }
 
-    async Task OnSave()
+    async Task OnBeforeSaveEventHandler(object sender)
     {
         await frm.Validate();
-        if (frm.IsValid)
-        {
-            await vm.Save();            
-        }
     }
 
-    protected override void OnDisposed()
-    {
-        if (vm.IsEditing)
-            vm.CancelEdit();
-    }
 }

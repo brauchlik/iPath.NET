@@ -499,8 +499,14 @@ public class NodeViewModel(IPathApi api,
 
     public bool SaveDisabled => !IsEditing;
 
+    public delegate Task BeforeSaveEventHandler(object? sender);
+    public event BeforeSaveEventHandler? OnBeforeSaveEvent;
+
     public async Task Save()
     {
+        if (OnBeforeSaveEvent is not null)
+            await OnBeforeSaveEvent.Invoke(this);  
+
         if (RootNode != null && !SaveDisabled && IsEditing)
         {
             var cmd = new UpdateNodeCommand(RootNode.Id, RootNode.Description, false);

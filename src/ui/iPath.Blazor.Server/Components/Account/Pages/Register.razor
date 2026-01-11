@@ -5,7 +5,6 @@
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
-@using Microsoft.Extensions.Localization
 @using Microsoft.Extensions.Options
 @using iPath.Domain.Config
 
@@ -23,45 +22,49 @@
 
 <PageTitle>Register</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Register</MudText>
+<MudText Typo="Typo.h6" GutterBottom="true">@T["User Registration"]</MudText>
 
 <MudGrid>
-    <MudItem md="6">
-        <StatusMessage Message="@Message" />
-        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
-            <DataAnnotationsValidator />
+    <MudItem sm="12" md="6">
+        <MudCard Style="width: 100%;">
+            <MudCardHeader Class="mud-theme-info">
+                <MudText Typo="Typo.subtitle1">@T["Create a new account"]</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <StatusMessage Message="@Message" />
+                <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
+                    <DataAnnotationsValidator />
 
-            <MudText Typo="Typo.body1" GutterBottom="true">Create a new account.</MudText>
-
-            <MudGrid>
-                <MudItem md="12">
-                    <MudStaticTextField For="@(() => Input.Email)" @bind-Value="Input.Email"
-                                        Label=@T["Email"] Placeholder="name@example.com"
-                                        UserAttributes="@(new() { { "autocomplete", "email" }, { "aria-required", "true" } } )" />
-                </MudItem>
-                <MudItem md="12">
-                    <MudStaticTextField For="@(() => Input.Username)" @bind-Value="Input.Username"
-                                        Label=@T["Username"] Placeholder="Username" HelperText=@T["optional username. email will be used when empty"]
-                                        UserAttributes="@(new() { { "autocomplete", "username" } })" />
-                </MudItem>
-                <MudItem md="12">
-                    <MudStaticTextField For="@(() => Input.Password)" @bind-Value="Input.Password"
-                                        Label="Password" InputType="InputType.Password" Placeholder="password"
-                                        UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } } )" />
-                </MudItem>
-                <MudItem md="12">
-                    <MudStaticTextField For="@(() => Input.ConfirmPassword)" @bind-Value="Input.ConfirmPassword"
-                                        Label="Confirm Password" InputType="InputType.Password" Placeholder="confirm password"
-                                        UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } } )" />
-                </MudItem>
-                <MudItem md="12">
-                    <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" FormAction="FormAction.Submit">Register</MudStaticButton>
-                </MudItem>
-            </MudGrid>
-        </EditForm>
+                    <MudGrid>
+                        <MudItem sm="12">
+                            <MudStaticTextField For="@(() => Input.Email)" @bind-Value="Input.Email"
+                                                Label=@T["Email"] Placeholder="name@example.com"
+                                                UserAttributes="@(new() { { "autocomplete", "email" }, { "aria-required", "true" } })" />
+                        </MudItem>
+                        <MudItem sm="12">
+                            <MudStaticTextField For="@(() => Input.Username)" @bind-Value="Input.Username"
+                                                Label=@T["Username"] Placeholder="Username" HelperText=@T["optional username. email will be used when empty"]
+                                                UserAttributes="@(new() { { "autocomplete", "username" } })" />
+                        </MudItem>
+                        <MudItem sm="12">
+                            <MudStaticTextField For="@(() => Input.Password)" @bind-Value="Input.Password"
+                                                Label="Password" InputType="InputType.Password" Placeholder="password"
+                                                UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } })" />
+                        </MudItem>
+                        <MudItem sm="12">
+                            <MudStaticTextField For="@(() => Input.ConfirmPassword)" @bind-Value="Input.ConfirmPassword"
+                                                Label="Confirm Password" InputType="InputType.Password" Placeholder="confirm password"
+                                                UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } })" />
+                        </MudItem>
+                        <MudItem sm="12">
+                            <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" FormAction="FormAction.Submit">Register</MudStaticButton>
+                        </MudItem>
+                    </MudGrid>
+                </EditForm>
+            </MudCardContent>
+        </MudCard>
     </MudItem>
-    <MudItem md="6">
-        <MudText Typo="Typo.body1" GutterBottom="true">Use another service to register.</MudText>
+    <MudItem sm="12" md="6">
         <ExternalLoginPicker />
     </MudItem>
 </MudGrid>

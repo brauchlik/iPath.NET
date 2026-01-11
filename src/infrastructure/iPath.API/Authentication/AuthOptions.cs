@@ -4,6 +4,7 @@ public class AuthOptions
 {
     public bool RequireConfirmedAccount { get; set; } = true;
     public bool RequireUniqueEmail { get; set; } = true;
+    public bool ReconfirmExternalEmail { get; set; } = false;
 
     public string AllowedUserNameCharacters { get; set; } = @"+-.0123456789@ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyzäçèéïöüčėţūŽžơưҲị";
 

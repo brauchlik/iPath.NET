@@ -1,4 +1,6 @@
-﻿namespace iPath.Application.Localization;
+﻿using System.Collections.Concurrent;
+
+namespace iPath.Application.Localization;
 
 public class TranslationData
 {
@@ -7,4 +9,4 @@ public class TranslationData
     public TranslationDict Words { get; set; }
 }
 
-public class TranslationDict : Dictionary<string, string>;
+public class TranslationDict : ConcurrentDictionary<string, string>;

@@ -13,7 +13,7 @@ public static class AthenticationServiceRegistration
     {
         var opts = new AuthOptions();
         config.GetSection(nameof(AuthOptions)).Bind(opts);
-
+        services.Configure<AuthOptions>(config.GetSection(nameof(AuthOptions)));
 
         var authBuilder = services.AddAuthentication(options =>
         {

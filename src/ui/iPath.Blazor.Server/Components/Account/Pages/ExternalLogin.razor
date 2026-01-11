@@ -16,34 +16,54 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<ExternalLogin> Logger
+@inject IOptions<AuthOptions> opts
+@inject IStringLocalizer T
+
 
 <PageTitle>Register</PageTitle>
 
-<StatusMessage Message="@message" />
-<h1>Register</h1>
+<IPathHeader Typo="Typo.h6" Title="Register" />
 <h2>Associate your @ProviderDisplayName account.</h2>
 <MudDivider />
 
+<MudAlert Severity="Severity.Info" Class="my-4">
+    @T["You've successfully authenticated with {0}. Please enter a username that you want to use for this site and click the Register button to finish the registration", ProviderDisplayName]
+</MudAlert>
+<!--
 <div  class="alert alert-info">
     You've successfully authenticated with <strong>@ProviderDisplayName</strong>.
     Please enter an email address for this site below and click the Register button to finish
     logging in.
 </div>
+-->
 
 <div class="row">
     <div class="col-md-4">
         <EditForm Model="Input" OnValidSubmit="OnValidSubmitAsync" FormName="confirmation" method="post">
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert" />
+
+            <MudStaticTextField For="@(() => Input.Email)" @bind-Value="Input.Email"
+                                Label=@T["Email"] Variant="Variant.Outlined" ReadOnly="true" />
+            <MudStaticTextField For="@(() => Input.Username)" @bind-Value="Input.Username"
+                                Label=@T["Username"] Variant="Variant.Outlined" />
+
+            <StatusMessage Class="my-4" Message="@message" />
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit">@T["Register"]</MudButton>
+
+            <!--
             <div class="form-floating mb-3">
                 <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="email" placeholder="Please enter your email." />
                 <label for="Input.Email" class="form-label">Email</label>
                 <ValidationMessage For="() => Input.Email" />
             </div>
             <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+            -->
         </EditForm>
     </div>
 </div>
+
 
 @code {
     public const string LoginCallbackAction = "LoginCallback";
@@ -128,6 +148,11 @@
         if (externalLoginInfo.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
         {
             Input.Email = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email) ?? "";
+            Input.Username = Input.Email;
+        }
+        if (externalLoginInfo.Principal.HasClaim(c => c.Type == ClaimTypes.Name))
+        {
+            Input.Username = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Name) ?? Input.Email;
         }
     }
 
@@ -141,7 +166,7 @@
         var emailStore = GetEmailStore();
         var user = CreateUser();
 
-        await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+        await UserStore.SetUserNameAsync(user, Input.Username, CancellationToken.None);
         await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
         var result = await UserManager.CreateAsync(user);
@@ -152,19 +177,30 @@
             {
                 Logger.LogInformation("User created an account using {Name} provider.", externalLoginInfo.LoginProvider);
 
-                var userId = await UserManager.GetUserIdAsync(user);
-                var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-                var callbackUrl = NavigationManager.GetUriWithQueryParameters(
-                    NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
-                    new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
-                await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
-
-                // If account confirmation is required, we need to show the link if we don't have a real email sender
-                if (UserManager.Options.SignIn.RequireConfirmedAccount)
+                // Reconfirm External Email?
+                if (opts.Value.ReconfirmExternalEmail)
                 {
-                    RedirectManager.RedirectTo("Account/RegisterConfirmation", new() { ["email"] = Input.Email });
+                    var userId = await UserManager.GetUserIdAsync(user);
+                    var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+                    var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+                        NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
+                        new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
+                    await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
+
+                    // If account confirmation is required, we need to show the link if we don't have a real email sender
+                    if (UserManager.Options.SignIn.RequireConfirmedAccount)
+                    {
+                        RedirectManager.RedirectTo("Account/RegisterConfirmation", new() { ["email"] = Input.Email });
+                    }
+                }
+                else
+                {
+                    // set user to confirmed and active
+                    user.IsActive = true;
+                    user.EmailConfirmed = true;
+                    await UserManager.UpdateAsync(user);
                 }
 
                 await SignInManager.SignInAsync(user, isPersistent: false, externalLoginInfo.LoginProvider);
@@ -202,5 +238,8 @@
         [Required]
         [EmailAddress]
         public string Email { get; set; } = "";
+
+        [Required]
+        public string Username { get; set; } = "";
     }
 }

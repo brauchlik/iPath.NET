@@ -7,28 +7,39 @@
 @inject SignInManager<User> SignInManager
 @inject IdentityRedirectManager RedirectManager
 
-@if (externalLogins.Length == 0)
+@if (externalLogins.Any())
 {
-    <MudAlert Variant="Variant.Text" Severity="Severity.Warning">There are no external authentication services configured.</MudAlert>
-    <MudText Typo="Typo.body1" Class="pt-4">
-        See <MudLink Target="_blank" Href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</MudLink>
-        about setting up this ASP.NET application to support logging in via external services
-    </MudText>
-}
-else
-{
-    <form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
-        <div>
-            <AntiforgeryToken />
-            <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
-            <p>
-                @foreach (var provider in externalLogins)
-                {
-                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                }
-            </p>
-        </div>
-    </form>
+
+    <MudCard Style="width: 100%;">
+        <MudCardHeader Class="mud-theme-info">
+            <MudText Typo="Typo.subtitle1">Register with an external account</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+            <form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
+                <div>
+                    <AntiforgeryToken />
+                    <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
+                    <p>
+                        @foreach (var provider in externalLogins)
+                        {
+                            <MudButton StartIcon=@AuthIcon(provider.Name) ButtonType="ButtonType.Submit" Variant="Variant.Filled"
+                                       title=@($"Log in using your {provider.DisplayName} account")
+                                       name="provider" value="@provider.Name" >
+                                @provider.DisplayName
+                            </MudButton>
+                            <!--
+                            <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name"
+                                    title="Log in using your @provider.DisplayName account">
+                                <MudIcon Icon=@AuthIcon(provider.Name) Size="Size.Small" />
+                                @provider.DisplayName
+                            </button>
+                            -->
+                        }
+                    </p>
+                </div>
+            </form>
+        </MudCardContent>
+    </MudCard>
 }
 
 @code {
@@ -41,4 +52,13 @@ else
     {
         externalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToArray();
     }
+
+    string AuthIcon(string providerName) => providerName.ToLower() switch
+    {
+        "google" => Icons.Custom.Brands.Google,
+        "facebook" => Icons.Custom.Brands.Facebook,
+        "twitter" => Icons.Custom.Brands.Twitter,
+        "microsoft" => Icons.Custom.Brands.Microsoft,
+        _ => Icons.Material.Filled.AccountCircle
+    };
 }

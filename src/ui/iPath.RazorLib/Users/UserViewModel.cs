@@ -92,13 +92,13 @@ public class UserViewModel(IPathApi api,
         var resp = await api.UpdateProfile(new UpdateUserProfileCommand(userId, profile));
         if (!resp.IsSuccessful)
         {
-            ClearProfileCache(userId);
             snackbar.AddWarning(resp.ErrorMessage);
         }
         else if (showSuccess) 
         { 
             snackbar.Add(T["Profile has been saved"], Severity.Success);
         }
+        ClearProfileCache(userId);
     }
 
     public async Task<IEnumerable<UserListDto>> Search(string? search, CancellationToken ct)

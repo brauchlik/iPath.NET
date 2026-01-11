@@ -3,27 +3,42 @@
 @using iPath.Application.Features.Users
 @using iPath.Blazor.Componenents.Shared.Lookups
 
-<PageTitle>Home</PageTitle>
+<PageTitle>iPath.NET</PageTitle>
 
 <MudText Typo="Typo.h3" GutterBottom="true">iPath.NET</MudText>
 
-@if (MyProfile is not null)
-{
-    @if (!MyProfile.IsComplete())
+
+<MudPaper Width="100%" Elevation="0">
+    @if (RendererInfo.IsInteractive)
     {
-        <MudAlert Severity="Severity.Warning" Class="my-8 pa-2">
-            <MudText Typo="Typo.body1">
-                @T["You have not yet completed your Profile. Please fill in your data"]
-            </MudText>
-            <MudButton Class="mt-2" StartIcon="@Icons.Material.Filled.Person" Href="user/profile" Variant="Variant.Filled" Color="Color.Secondary">@T["My Profile"]</MudButton>
-        </MudAlert>
+        @if (MyProfile is not null)
+        {
+            @if (!MyProfile.IsComplete())
+            {
+                <MudAlert Severity="Severity.Warning" Class="my-8 pa-2">
+                    <MudText Typo="Typo.body1">
+                        @T["You have not yet completed your Profile. Please fill in your data"]
+                    </MudText>
+                    <MudButton Class="mt-2" StartIcon="@Icons.Material.Filled.Person" Href="user/profile" Variant="Variant.Filled" Color="Color.Secondary">@T["My Profile"]</MudButton>
+                </MudAlert>
+            }
+            <div class="mt-10">more to follow here ...</div>
+        }
+        else
+        {
+            <MudButton StartIcon="@Icons.Material.Filled.Login" Href="Account/Login" Variant="Variant.Filled" Color="Color.Primary">@T["Login"]</MudButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Person" Href="Account/Register" Variant="Variant.Filled" Color="Color.Primary">@T["Sign Up"]</MudButton>
+        }
+
     }
-}
-
-
-<MudPaper Width="100%" Class="my-8 pa-8" Elevation="4">
-    more to follow here ...
-</MudPaper>
+    else
+    {
+        <div>
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Medium" Thickness="6" />
+            loading ...
+        </div>
+    }
+    </MudPaper>
 
 
 <MudText Typo="Typo.h6" Class="mt-15" GutterBottom="true">Version Information</MudText>

@@ -73,7 +73,7 @@ public class StringLocalizerService(ILocalizationDataProvider data, ILogger<Stri
                 {
                     try
                     {
-                        data.Words.Add(key, "");
+                        data.Words.TryAdd(key, "");
                         IsModified = true;
                     }
                     catch (Exception ex)

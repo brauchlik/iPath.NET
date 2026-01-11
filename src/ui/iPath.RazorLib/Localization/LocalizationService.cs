@@ -109,7 +109,7 @@ public class LocalizationService(IOptions<LocalizationSettings> opts, ILogger<Lo
             }
             else if (opts.Value.AddMissingStrings)
             {
-                data.Words.Add(key, "");
+                data.Words.TryAdd(key, "");
                 if (opts.Value.AutoSave) SaveTranslation(data);
             }
         }

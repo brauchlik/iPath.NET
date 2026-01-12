@@ -5,7 +5,7 @@ public interface IEntity
 {
 }
 
-public interface IBaseEntity
+public interface IBaseEntity : IEntity
 {
     Guid Id { get; set; }
 }

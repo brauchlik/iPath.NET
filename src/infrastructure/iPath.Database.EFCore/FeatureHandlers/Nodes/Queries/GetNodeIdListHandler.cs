@@ -24,7 +24,8 @@ public class GetNodeIdListHandler(iPathDbContext db, IUserSession sess)
         }
 
         // Filter out drafts & private cases
-        q = q.VisibilityFilter(sess);
+        var spec = new NodeIsVisibleSpecifications(sess.IsAuthenticated ? sess.User.Id : null);
+        q = q.Where(spec.ToExpression());
 
 
         // filter & sort

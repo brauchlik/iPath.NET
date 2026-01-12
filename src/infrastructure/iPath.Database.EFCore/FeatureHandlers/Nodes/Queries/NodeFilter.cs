@@ -46,25 +46,4 @@ public static class NodeFilterExtensions
         return q;
     }
 
-
-    public static IQueryable<Node> VisibilityFilter(this IQueryable<Node> q, IUserSession sess)
-    {
-        if (!sess.IsAdmin)
-        {
-            if (sess.IsAuthenticated)
-            {
-                // filter out private cases
-                q = q.Where(n => n.OwnerId == sess.User.Id || n.Visibility != eNodeVisibility.Private); 
-
-                // filter out drafts
-                q = q.Where(n => n.OwnerId == sess.User.Id || !n.IsDraft);
-            }
-            else
-            {
-                // published cases only 
-                q = q.Where(n => n.Visibility == eNodeVisibility.Public);
-            }
-        }
-        return q;
-    }
 }

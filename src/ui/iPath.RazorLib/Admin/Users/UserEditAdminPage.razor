@@ -18,7 +18,7 @@
         <UserCommunityMembershipGrid User="@vm.SelectedUser" />
     </MudTabPanel>
     <MudTabPanel Text=@T["Groups"] Icon="@Icons.Material.Filled.Groups">
-        <UserGroupMembershipGrid User="@vm.SelectedUser" />
+        <UserGroupMembershipTable User="@vm.SelectedUser" />
     </MudTabPanel>
     <MudTabPanel Text=@T["Notifications"] Icon="@Icons.Material.Filled.Person">
         <UserNotificationGrid User="@vm.SelectedUser" />

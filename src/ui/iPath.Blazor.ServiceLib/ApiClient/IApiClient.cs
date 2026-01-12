@@ -62,7 +62,7 @@ public interface IPathApi
 
     // groups
     [Put("/api/v1/users/assign/group")]
-    Task<IApiResponse> AssignUserToGroup(AssignUserToGroupCommand command);
+    Task<IApiResponse<GroupMemberDto>> AssignUserToGroup(AssignUserToGroupCommand command);
 
     [Put("/api/v1/users/groups")]
     Task<IApiResponse<UserDto>> UpdateGroupMemberships(UpdateGroupMembershipCommand command);

@@ -13,7 +13,7 @@
         <GroupAdminSettings Model="@vm.SelectedGroup" />
     </MudTabPanel>
     <MudTabPanel Text=@T["Members"] Icon="@Icons.Material.Filled.Person">
-        <GroupAdminMembers Model="@vm.SelectedGroup" />
+        <GroupAdminMembersTable Model="@vm.SelectedGroup" />
     </MudTabPanel>
     <MudTabPanel Text=@T["Communities"] Icon="@Icons.Material.Filled.Groups">
         <GroupAdminCommunities Model="@vm.SelectedGroup" />

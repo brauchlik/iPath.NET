@@ -1,10 +1,11 @@
-﻿using iPath.Blazor.Componenents.Questionaiires;
+﻿using iPath.Blazor.Componenents.Admin.Users;
+using iPath.Blazor.Componenents.Questionaiires;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace iPath.Blazor.Componenents.Admin.Groups;
 
-public class GroupAdminViewModel(IPathApi api, 
+public class GroupAdminViewModel(IPathApi api,
     ISnackbar snackbar,
     IDialogService dialog,
     IMemoryCache cache,
@@ -111,7 +112,7 @@ public class GroupAdminViewModel(IPathApi api,
 
     public string SelectedRowStyle(GroupListDto item, int rowIndex)
     {
-        if (item is not null && SelectedItem is not null && item.Id == SelectedItem.Id )
+        if (item is not null && SelectedItem is not null && item.Id == SelectedItem.Id)
             return "background-color: var(--mud-palette-background-gray)";
 
         return "";
@@ -126,7 +127,7 @@ public class GroupAdminViewModel(IPathApi api,
         IsLoading = true;
         SelectedGroup = null;
         if (id.HasValue)
-        { 
+        {
             try
             {
                 var resp = await api.GetGroup(id.Value);
@@ -139,7 +140,7 @@ public class GroupAdminViewModel(IPathApi api,
                     snackbar.AddError(resp.ErrorMessage);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 snackbar.AddError(ex.Message);
             }
@@ -252,7 +253,7 @@ public class GroupAdminViewModel(IPathApi api,
 
     public string MemberSearchString { get; set; }
 
-    public async Task<GridData<GroupMemberDto>> GetMembersAsync(GridState<GroupMemberDto> state)
+    public async Task<GridData<GroupMemberDto>> GetMembersGridAsync(GridState<GroupMemberDto> state)
     {
         if (SelectedGroup is not null)
         {
@@ -266,16 +267,39 @@ public class GroupAdminViewModel(IPathApi api,
         return new GridData<GroupMemberDto>();
     }
 
-
-    public async Task AddGroupMember(OwnerDto owner)
+    public async Task<List<GroupMemberModel>> GetMembersAsync(CancellationToken ct = default)
     {
         if (SelectedGroup is not null)
         {
-            var cmd = new AssignUserToGroupCommand(userId: owner.Id, groupId: SelectedGroup.Id);
+            var query = new GetGroupMembersQuery { GroupId = SelectedGroup.Id, PageSize = null };
+            var resp = await api.GetGrouMembers(query);
+
+            if (resp.IsSuccessful)
+            {
+                return resp.Content.Items.Select(m => new GroupMemberModel(m, SelectedGroup.Id, SelectedGroup.Name)).ToList();
+            }
+            snackbar.AddWarning(resp.ErrorMessage);
+        }
+        return new List<GroupMemberModel>();
+    }
+
+
+    public async Task<GroupMemberModel?> AddGroupMember(OwnerDto owner)
+    {
+        if (SelectedGroup is not null)
+        {
+            var cmd = new AssignUserToGroupCommand(userId: owner.Id, groupId: SelectedGroup.Id, role: eMemberRole.User);
             var resp = await api.AssignUserToGroup(cmd);
             if (!resp.IsSuccessful)
+            {
                 snackbar.AddError(resp.ErrorMessage);
+            }
+            else
+            {
+                return new GroupMemberModel(resp.Content, SelectedGroup.Id, SelectedGroup.Name);
+            }
         }
+        return null;
     }
 
     public async Task RemoveGroupMember(GroupMemberDto member)
@@ -290,6 +314,23 @@ public class GroupAdminViewModel(IPathApi api,
             if (!resp.IsSuccessful)
                 snackbar.AddError(resp.ErrorMessage);
         }
+    }
+
+    public async Task UpdateMember(GroupMemberModel m)
+    {
+        if (m.Role == eMemberRole.None)
+        {
+            await RemoveGroupMember(m.ToGroupMemberDto());
+        }
+        else
+        {
+            var cmd = new AssignUserToGroupCommand(groupId: m.GroupId, userId: m.UserId, role: m.Role);
+
+            var resp = await api.AssignUserToGroup(cmd);
+            if (!resp.IsSuccessful)
+                snackbar.AddError(resp.ErrorMessage);
+        }
+        OnChange?.Invoke();
     }
 
 
@@ -313,7 +354,7 @@ public class GroupAdminViewModel(IPathApi api,
             var cmd = new AssignQuestionnaireToGroupCommand(model.QuestionnaireId, model.GrouppId, change, remove);
             var resp = await api.AssignQuestionnaireToGroup(cmd);
             if (resp.IsSuccessful) return;
-            
+
             snackbar.AddError(resp.ErrorMessage);
         }
         catch (Exception ex)
@@ -329,8 +370,9 @@ public class GroupAdminViewModel(IPathApi api,
 
 public class CreateGroupCommandModel : CreateGroupCommand
 {
-    public OwnerDto Owner { 
-        get; 
+    public OwnerDto Owner
+    {
+        get;
         set
         {
             field = value;
@@ -338,10 +380,11 @@ public class CreateGroupCommandModel : CreateGroupCommand
             {
                 OwnerId = value.Id;
             }
-        } 
+        }
     }
-    public CommunityListDto? Community {
-        get; 
+    public CommunityListDto? Community
+    {
+        get;
         set
         {
             field = value;

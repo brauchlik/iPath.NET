@@ -1,0 +1,138 @@
+﻿@namespace iPath.Blazor.Componenents.Admin.Groups
+@using iPath.Blazor.Componenents.Admin.Users
+
+
+@inject GroupAdminViewModel vm
+@inject IStringLocalizer T
+@inject NavigationManager nm
+
+@if (Model is null)
+{
+    <LoadingMessage />
+}
+else
+{
+    <MudTable T="GroupMemberModel" Items="@Items" @ref="table"
+              Dense="true" Striped="true" Hover="true"
+              FixedHeader="true" Height="400px" Elevation="0">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">@T["Filter"]</MudText>
+            <MudSpacer />
+            <OwnerLookup Label=@T["Search user"] Dense="true" Clearable="true"
+                         @bind-Value="selectedUser" @bind-Value:after="OnUserSelected"
+                         Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>@T["Username"]</MudTh>
+            <MudTh>@T["User"]</MudTh>
+            <MudTh>@T["Guest"]</MudTh>
+            <MudTh>@T["Moderator"]</MudTh>
+            <MudTh>@T["Banned"]</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Username">@context.Username</MudTd>
+            <MudTd DataLabel="User">
+                <MudCheckBox @bind-Value="context.IsUser" @bind-Value:after=@(async () => await UpdateMember(context))
+                             StopClickPropagation="true" />
+            </MudTd>
+            <MudTd DataLabel="Guest">
+                <MudCheckBox @bind-Value="context.IsGuest" @bind-Value:after=@(async () => await UpdateMember(context))
+                             StopClickPropagation="true" />
+            </MudTd>
+            <MudTd DataLabel="Moderator">
+                <MudCheckBox @bind-Value="context.IsModerator" @bind-Value:after=@(async () => await UpdateMember(context))
+                             StopClickPropagation="true" />
+            </MudTd>
+            <MudTd DataLabel="Banned">
+                <MudCheckBox @bind-Value="context.IsBanned" @bind-Value:after=@(async () => await UpdateMember(context))
+                             StopClickPropagation="true" Color="Color.Warning" />
+            </MudTd>
+            <MudTd DataLabel="Progress">
+                @if (context.Saving)
+                {
+                    <MudProgressCircular Indeterminate="true" Color="Color.Info" Size="Size.Small" />
+                }
+                else if (context.HasChange)
+                {
+                    <MudIcon Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.Check" />
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+
+    <MudButton Href="admin/groups" Variant="Variant.Filled" Class="mt-10">Ok</MudButton>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public GroupDto Model { get; set; }
+
+    List<GroupMemberModel> AllItems = new();
+    List<GroupMemberModel> Items = new();
+    MudTable<GroupMemberModel> table;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        if (vm.SelectedGroup is not null)
+        {
+            AllItems = await vm.GetMembersAsync();
+            Items = AllItems;
+        }
+    }
+
+    OwnerDto selectedUser;
+
+    private async Task OnUserSelected()
+    {
+        if (selectedUser != null)
+        {
+            var item = AllItems.FirstOrDefault(x => x.UserId == selectedUser.Id);
+            if (item is not null)
+            {
+                // if user exists, filter to that user
+                Items = new List<GroupMemberModel>() { item };
+            }
+            else
+            {
+                // new entry
+                item = new GroupMemberModel(groupId: Model.Id, userId: selectedUser.Id, username: selectedUser.Username);
+                Items = new List<GroupMemberModel>() { item };
+            }
+        }
+        else
+        {
+            Items = new();
+            table.Loading = true;
+            await LoadData();
+            table.Loading = false;
+        }
+    }
+
+    private async Task UpdateMember(GroupMemberModel m)
+    {
+        try
+        {
+            m.Saving = true;
+            StateHasChanged();
+            await vm.UpdateMember(m);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            m.Saving = false;
+        }
+        StateHasChanged();
+    }
+
+}

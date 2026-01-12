@@ -26,7 +26,7 @@
         <OwnerLookup Label=@T["select user"] Dense="true" @bind-Value="userToAdd" />
         <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="AddUser" />
     </MudStack>
-    <MudDataGrid T="GroupMemberDto" ServerData="vm.GetMembersAsync" Dense="true" Class="mt-4" @ref="memberGrid">
+    <MudDataGrid T="GroupMemberDto" ServerData="vm.GetMembersGridAsync" Dense="true" Class="mt-4" @ref="memberGrid">
         <Columns>
             <PropertyColumn Property="g => g.Username" />
             <PropertyColumn Property="g => g.Role" />

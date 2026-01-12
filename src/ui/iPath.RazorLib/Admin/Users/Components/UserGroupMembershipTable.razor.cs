@@ -2,7 +2,7 @@ using iPath.Blazor.Componenents.Admin.Groups;
 
 namespace iPath.Blazor.Componenents.Admin.Users;
 
-public partial class UserGroupMembershipGrid(GroupAdminViewModel gvm, UserAdminViewModel uvm, IPathApi api)
+public partial class UserGroupMembershipTable(GroupAdminViewModel gvm, UserAdminViewModel uvm, IPathApi api)
 {
     [Parameter]
     public UserDto? User { get; set; }
@@ -16,7 +16,7 @@ public partial class UserGroupMembershipGrid(GroupAdminViewModel gvm, UserAdminV
     List<GroupMemberModel>? allMemberShips = null;
     List<GroupMemberModel>? activeMemberShips = null;
 
-    Color SaveButtonColor => allMemberShips.Any(m => m.HasChange) ? Color.Primary : Color.Default;
+    Color SaveButtonColor => allMemberShips is not null && allMemberShips.Any(m => m.HasChange) ? Color.Primary : Color.Default;
 
     private CommunityDto community;
 

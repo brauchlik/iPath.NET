@@ -27,7 +27,7 @@ public class Group : AuditableEntity
     public int? ipath2_id { get; set; }
 
 
-    private Group()
+    public Group()
     {   
     }
 

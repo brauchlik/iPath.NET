@@ -21,7 +21,7 @@ public class Community : AuditableEntity
     
     public int? ipath2_id { get; set; }
 
-    private Community()
+    public Community()
     {   
     }
 
@@ -35,6 +35,18 @@ public class Community : AuditableEntity
             CreatedOn = DateTime.UtcNow,
             Name = Name,
             Owner = Owner,  
+        };
+    }
+
+    public static Community Create(string Name, Guid OwnerId)
+    {
+        Guard.Against.NullOrEmpty(Name);
+        return new Community
+        {
+            Id = Guid.CreateVersion7(),
+            CreatedOn = DateTime.UtcNow,
+            Name = Name,
+            OwnerId = OwnerId,
         };
     }
 }

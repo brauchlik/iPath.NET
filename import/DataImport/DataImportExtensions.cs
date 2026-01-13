@@ -293,7 +293,7 @@ public static class DataImportExtensions
 
     public static Community ToNewEntity(this i2community o)
     {
-        var n = new Community()
+        var n = new Community
         {
             Id = Guid.CreateVersion7(),
             ipath2_id = o.id,

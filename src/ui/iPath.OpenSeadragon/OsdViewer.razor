@@ -1,0 +1,53 @@
+﻿@inject IJSRuntime JSRuntime
+@inject NavigationManager nm
+
+<div id="openseadragon1" style="@Style"></div>
+
+<!--
+    <div class="my-2">
+        <a href="@FullPath">@ImagePath</a>
+    </div>
+
+    <button class="btn btn-primary mt-4" @onclick="LoadImage">Load Image</button>
+-->
+
+@code
+{
+    [Parameter, EditorRequired]
+    public string ImagePath { get; set; }
+
+    [Parameter]
+    public string Style { get; set; } = "width: 800px; height: 600px; background: black;";
+
+
+    OsdInterop interop;
+    string FullPath;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && RendererInfo.IsInteractive)
+        {
+            await LoadImage();
+        }
+        StateHasChanged();
+    }
+
+    protected async Task LoadImage()
+    {
+        if (interop is null)
+        {
+            interop = new OsdInterop(JSRuntime);
+            await interop.LoadJS();
+        }
+
+
+        if (!string.IsNullOrEmpty(ImagePath))
+        {
+            FullPath = ImagePath;
+            await JSRuntime.InvokeVoidAsync("svs.loadImage", FullPath);
+        }
+    }
+
+}
+

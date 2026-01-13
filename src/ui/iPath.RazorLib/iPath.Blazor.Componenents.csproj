@@ -33,6 +33,7 @@
     <ProjectReference Include="..\..\core\iPath.Domain\iPath.Domain.csproj" />
     <ProjectReference Include="..\iPath.Blazor.ServiceLib\iPath.Blazor.ServiceLib.csproj" />
     <ProjectReference Include="..\iPath.LHCForms\iPath.LHCForms.csproj" />
+    <ProjectReference Include="..\iPath.OpenSeadragon\iPath.OpenSeadragon.csproj" />
   </ItemGroup>
 
   <ItemGroup>

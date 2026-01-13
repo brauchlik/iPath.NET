@@ -31,7 +31,7 @@ public class DbSeeder(iPathDbContext db,
                 throw new Exception("No connection to database", ex);
             }
         }
-        if (opts.Value.DbSeedingAvtice)
+        if (opts.Value.DbSeedingActive)
         {
             await SeedData();
         }

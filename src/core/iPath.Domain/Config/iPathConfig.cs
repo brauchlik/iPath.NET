@@ -4,7 +4,7 @@ public class iPathConfig
 {
     public const string ConfigName = "iPathConfig";
 
-    public bool DbSeedingAvtice { get; set; }
+    public bool DbSeedingActive { get; set; }
     public bool DbAutoMigrate { get; set; }
 
     public string DataRoot { get; set; } = string.Empty;

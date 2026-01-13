@@ -49,8 +49,10 @@ public static class NodeEndpoints
             }
 
             return Results.BadRequest();
-        })
-            .RequireAuthorization();
+        });
+           // .RequireAuthorization();
+
+
 
 
         // Commands

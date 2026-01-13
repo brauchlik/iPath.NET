@@ -139,12 +139,28 @@ public static class NodeExtensions
 
         public bool IsImage => node.NodeType == "image";
 
+        public string FileExtension
+        {
+            get
+            {
+                if (node is not null && node.File is not null && !string.IsNullOrEmpty(node.File.Filename))
+                {
+                    var fi = new FileInfo(node.File.Filename);
+                    return fi.Extension;
+                }
+                return string.Empty;
+            }
+        }
+
         public string FileIcon
         {
             get
             {
-                if (node.File != null && node.File.MimeType.ToLower().EndsWith("pdf"))
+                if (node.FileExtension == ".pdf")
                     return Icons.Custom.FileFormats.FilePdf;
+
+                if (node.FileExtension == ".svs")
+                    return Icons.Custom.FileFormats.FileImage;
 
                 if (node.NodeType.ToLower() == "folder")
                     return Icons.Material.Filled.FolderOpen;

@@ -15,9 +15,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ipath_data\**" />
     <Compile Remove="logs\**" />
+    <Content Remove="ipath_data\**" />
     <Content Remove="logs\**" />
+    <EmbeddedResource Remove="ipath_data\**" />
     <EmbeddedResource Remove="logs\**" />
+    <None Remove="ipath_data\**" />
     <None Remove="logs\**" />
   </ItemGroup>
 

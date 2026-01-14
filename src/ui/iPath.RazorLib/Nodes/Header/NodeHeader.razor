@@ -61,8 +61,15 @@
                 return T["loading ..."];
             else if (vm.RootNode.IsDraft)
                 return T["New Case"];
-            else
-                return vm.RootNode.Title;
+
+            var ret = vm.RootNode.Title;
+
+            if (!vm.IsRootNodeSelected && vm.SelectedNode is not null)
+            {
+                ret += " >> " + vm.SelectedNode.NodeTitle;
+            }
+
+            return ret;
         }
     }
 }

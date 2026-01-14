@@ -1,7 +1,14 @@
 ﻿@inject IJSRuntime JSRuntime
 @inject NavigationManager nm
 
-<div id="openseadragon1" style="@Style"></div>
+<div id="svsviewer" style="@Style"></div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <MudAlert Severity="Severity.Warning">
+    @errorMessage
+    </MudAlert>
+}
 
 <!--
     <div class="my-2">
@@ -11,6 +18,7 @@
     <button class="btn btn-primary mt-4" @onclick="LoadImage">Load Image</button>
 -->
 
+
 @code
 {
     [Parameter, EditorRequired]
@@ -19,9 +27,8 @@
     [Parameter]
     public string Style { get; set; } = "width: 800px; height: 600px; background: black;";
 
-
-    OsdInterop interop;
     string FullPath;
+    string errorMessage;
 
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -35,17 +42,17 @@
 
     protected async Task LoadImage()
     {
-        if (interop is null)
-        {
-            interop = new OsdInterop(JSRuntime);
-            await interop.LoadJS();
-        }
-
-
         if (!string.IsNullOrEmpty(ImagePath))
         {
-            FullPath = ImagePath;
-            await JSRuntime.InvokeVoidAsync("svs.loadImage", FullPath);
+            try
+            {
+                FullPath = nm.ToAbsoluteUri(ImagePath).AbsoluteUri;
+                var dim = await JSRuntime.InvokeAsync<string>("svs.loadImage", "svsviewer", FullPath);
+            }
+            catch(Exception ex)
+            {
+                errorMessage = ex.Message;
+            }
         }
     }
 

@@ -12,7 +12,6 @@ using Microsoft.Extensions.Options;
 using MudBlazor.Services;
 using Serilog;
 using System.Net;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 
 var builder = WebApplication.CreateBuilder(args);

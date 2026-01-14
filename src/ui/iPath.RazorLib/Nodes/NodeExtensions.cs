@@ -126,7 +126,7 @@ public static class NodeExtensions
             {
                 if (!node.ipath2_id.HasValue)
                 {
-                    return $"/api/v1/nodes/file/{node.Id}";
+                    return $"/api/v1/nodes/file/{node.Id}/{node.File.Filename}";
                 }
                 else if (node.ipath2_id.HasValue)
                 {

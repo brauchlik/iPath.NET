@@ -28,7 +28,7 @@ public static class NodeEndpoints
             .Produces<IReadOnlyList<Guid>>()
             .RequireAuthorization();
 
-        grp.MapGet("file/{id}", async (string id, [FromServices] IMediator mediator, HttpContext ctx, CancellationToken ct) =>
+        grp.MapGet("file/{id}/{filename}", async (string id, string? filename, [FromServices] IMediator mediator, HttpContext ctx, CancellationToken ct) =>
         {
             if (Guid.TryParse(id, out var nodeId))
             {
@@ -49,8 +49,8 @@ public static class NodeEndpoints
             }
 
             return Results.BadRequest();
-        });
-           // .RequireAuthorization();
+        })
+           .RequireAuthorization();
 
 
 

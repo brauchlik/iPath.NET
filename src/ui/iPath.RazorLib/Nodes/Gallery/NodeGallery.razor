@@ -17,7 +17,7 @@
         {
             <img src="@vm.SelectedNode.FileUrl" @onclick="@vm.GoNext" />
         }
-        else if (vm.SelectedNode.FileExtension == ".svs")
+        else if (false && vm.SelectedNode.FileExtension == ".svs")
         {
             <iPath.OpenSeadragon.OsdViewer Style="width: 90%; max-height: 70vh; height: 70vh; background-color: black;" ImagePath="@vm.SelectedNode.FileUrl" />
         }

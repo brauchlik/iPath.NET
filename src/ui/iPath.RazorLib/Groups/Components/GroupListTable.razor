@@ -1,19 +1,8 @@
-﻿@page "/groups"
-@page "/user/groups"
-
-@attribute [Authorize]
-
-@inject GroupListViewModel vm
+﻿@namespace iPath.Blazor.Componenents.Groups
 @inject IStringLocalizer T
 
-
-<IPathHeader Title=@T["My Groups"] />
-
-<GroupListTable ServerData="vm.GetTableAsync" OnRowClick=@((e) => vm.GotoGroup(e.Item)) ShowLegend="false" />
-
-    <!--
-<MudTable T="GroupListDto" ServerData="vm.GetTableAsync"
-          OnRowClick=@((e) => vm.GotoGroup(e.Item))
+<MudTable T="GroupListDto" ServerData="ServerData"
+          OnRowClick="OnRowClick"
           HeaderClass="ipath_table_header"
           Dense="true" Hover="true">
     <HeaderContent>
@@ -37,15 +26,8 @@
         </MudTd>
     </RowTemplate>
 </MudTable>
--->
 
-@if (vm.GroupCount == 0)
-{
-    <MudAlert Severity="Severity.Warning" Class="mt-8 pa-4">
-        @T["You are not member of any group yet. Please contect a group or community moderator to join a collaboration group"]
-    </MudAlert>
-}
-else
+@if (ShowLegend)
 {
     <MudAlert Severity="Severity.Info" Class="mt-8 px-4" NoIcon>
         <MudStack Row AlignItems="AlignItems.Center">
@@ -59,4 +41,15 @@ else
             <MudSpacer />
         </MudStack>
     </MudAlert>
+}
+
+@code{
+    [Parameter, EditorRequired]
+    public bool ShowLegend { get; set; }
+
+    [Parameter, EditorRequired]
+    public Func<TableState, CancellationToken, Task<TableData<GroupListDto>>> ServerData { get; set; }
+
+    [Parameter]
+    public EventCallback<TableRowClickEventArgs<GroupListDto>> OnRowClick { get; set; }
 }

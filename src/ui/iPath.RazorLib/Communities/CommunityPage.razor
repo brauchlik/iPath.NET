@@ -1,0 +1,32 @@
+﻿@page "/community/{id}"
+
+@inject CommunityViewModel vm
+
+@if( vm.SelectedCommunity is not null)
+{
+    <IPathHeader Title="@vm.SelectedCommunity.Name" />
+    <MudText>
+        @vm.SelectedCommunity.Settings.Description
+    </MudText>
+
+
+    <IPathHeader Title="Groups" Typo="Typo.h6" Class="mt-10" />
+    <GroupListTable ServerData="vm.GetGroupTableAsync" OnRowClick=@((e) => vm.GotoGroup(e.Item.Id)) ShowLegend="false" />
+}
+
+
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (Guid.TryParse(id, out var cid))
+        {
+            await vm.LoadCommunity(cid);
+        }
+    }
+}

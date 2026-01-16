@@ -277,7 +277,7 @@ public class CommunityAdminViewModel(IPathApi api,
 
             if (resp.IsSuccessful)
             {
-                await LoadCommunity(SelectedItem.Id);
+                await LoadCommunity(SelectedCommunity.Id);
             }
             else
             {

@@ -38,6 +38,10 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
             // only admins can get the full list
             sess.AssertInRole("Admin");
         }
+        else if (request.CommunityId.HasValue)
+        {
+            q = q.Where(g => g.CommunityId == request.CommunityId.Value || g.ExtraCommunities.Any(cg => cg.CommunityId == request.CommunityId.Value));
+        }
         else if (sess.User is not null)
         {
             // users group list

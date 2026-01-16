@@ -9,6 +9,7 @@ public class CommunityViewModel(IPathApi api,
     IDialogService dialog,
     IMemoryCache cache,
     IStringLocalizer T,
+    NavigationManager nm,
     ILogger<GroupAdminViewModel> logger)
     : IViewModel
 {
@@ -51,4 +52,52 @@ public class CommunityViewModel(IPathApi api,
         cache.Remove(communityListCacheKey);
     }
 
+
+
+    public CommunityDto? SelectedCommunity { get; private set; }
+
+    public async Task<CommunityDto?> LoadCommunity(Guid? id)
+    {
+        SelectedCommunity = null;
+        if (id.HasValue)
+        {
+            var resp = await api.GetCommunity(id.Value);
+            if (resp.IsSuccessful)
+            {
+                SelectedCommunity = resp.Content;
+            }
+            else
+            {
+                snackbar.AddError(resp.ErrorMessage);
+            }
+        }
+        return SelectedCommunity;
+    }
+
+
+
+
+    public async Task<TableData<GroupListDto>> GetGroupTableAsync(TableState state, CancellationToken ct)
+    {
+        if (SelectedCommunity is not null)
+        {
+            var query = state.BuildQuery(new GetGroupListQuery { CommunityId = SelectedCommunity.Id, IncludeCounts = true });
+            var resp = await api.GetGroupList(query);
+            if (resp.IsSuccessful)
+            {
+                return resp.Content.ToTableData();
+            }
+
+            snackbar.AddError(resp.ErrorMessage);
+        }
+        return new TableData<GroupListDto>();
+    }
+
+    public void GotoGroup(Guid groupId)
+    {
+        if (groupId != Guid.Empty)
+        {
+            nm.NavigateTo($"groups/{groupId}");
+        }
+    }
 }

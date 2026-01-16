@@ -12,7 +12,16 @@
             <MudMenuItem Label=@T["Profile"] Icon="@Icons.Material.Filled.ManageAccounts" Href="/user/profile" />
             <MudMenuItem Label=@T["Notification Settings"] Icon="@Icons.Material.Filled.Settings" OnClick="vm.ShowUserNotifications" />
             <MudMenuItem Label=@T["My Cases"] Icon="@Icons.Material.Filled.Folder" Href="/user/cases" />
-            <MudMenuItem Label=@T["My Groups"] Icon="@Icons.Material.Filled.Groups" Href="/user/groups" />
+            <MudMenuItem Label=@T["My Groups"] Icon="@Icons.Material.Filled.Group" Href="/user/groups" />
+            <MudMenu Label=@T["Community"] StartIcon="@Icons.Material.Filled.Groups">
+                @if (user is not null)
+                {
+                    foreach( var c in user.CommunityMembership)
+                    {
+                        <MudMenuItem Label=@c.Communityname Icon="@Icons.Material.Filled.Group" Href=@($"community/{c.CommunityId}") />
+                    }
+                }
+            </MudMenu>
         </ChildContent>
     </MudMenu>
     }
@@ -26,9 +35,11 @@ else
 @inject IStringLocalizer T
 
 @code {
+    UserDto user;
+
     protected override async Task OnInitializedAsync()
     {
-        // await appState.ReloadSession();
+        await base.OnInitializedAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -36,6 +47,7 @@ else
         if (firstRender)
         {
             await appState.ReloadSession();
+            user = await vm.GetUserAsync(appState.User.Id);
             StateHasChanged();
         }
     }

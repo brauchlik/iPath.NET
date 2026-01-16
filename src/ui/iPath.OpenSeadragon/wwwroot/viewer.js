@@ -4,6 +4,13 @@ svs = {}
 svs.hasError = false;
 
 
+/**
+ * GeoTIFF plugin is using multiple partial loadfing reuests in parallel
+ * make sure that the servers security (e.g. mod_evasive in apache) do not
+ * block such requests with temproal 403 errors
+ */
+
+
 svs.loadImage = async (elemId, url) => {
     var elem = document.getElementById(elemId);
     if (!elem) {

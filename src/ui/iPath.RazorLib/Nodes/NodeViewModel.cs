@@ -3,8 +3,7 @@ using iPath.Application;
 using iPath.Application.Contracts;
 using iPath.Blazor.Componenents.Nodes.Annotations;
 using iPath.Blazor.Componenents.Shared;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.Extensions.Logging;
+using iPath.Domain.Config;
 using Refit;
 
 namespace iPath.Blazor.Componenents.Nodes;
@@ -16,6 +15,7 @@ public class NodeViewModel(IPathApi api,
     IStringLocalizer T,
     NavigationManager nm,
     QuestionnaireCache qCache,
+    IOptions<iPathConfig> opts,
     ILogger<NodeViewModel> logger)
     : IViewModel
 {
@@ -571,7 +571,7 @@ public class NodeViewModel(IPathApi api,
 
     public bool AttachFileDisabled => EditDisabled;
 
-    public UploadTask CreateUploadTask() => new UploadTask(api);
+    public UploadTask CreateUploadTask() => new UploadTask(api, opts.Value.MaxFileSizeBytes);
 
     public async Task UploadFile(IBrowserFile f)
     {
@@ -581,9 +581,9 @@ public class NodeViewModel(IPathApi api,
             {
                 snackbar.AddWarning("no node selected");
             }
-            else if (f.Size > IPathApi.MaxFileSize)
+            else if (f.Size > opts.Value.MaxFileSizeBytes)
             {
-                snackbar.Add("File is larger then " + IPathApi.MaxFileSize.Bytes().Megabytes);
+                snackbar.Add("File is larger then " + opts.Value.MaxFileSize);
             }
             else
             {

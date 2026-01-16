@@ -1,7 +1,8 @@
 ﻿@namespace iPath.Blazor.Componenents.Nodes
-@using iPath.Blazor.ServiceLib.ApiClient
+@using iPath.Domain.Config
 
 @inherits NodeViewComponentBase
+@inject IOptions<iPathConfig> opts
 
 <style>
     .file-upload-input {
@@ -21,7 +22,7 @@
                AppendMultipleFiles
                Error="true"
                MaximumFileCount="@MaximumFileCount"
-               MaxFileSize="@IPathApi.MaxFileSize"
+               MaxFileSize="@opts.Value.MaxFileSizeBytes"
                Hidden="@false"
                InputClass="file-upload-input"
                @ondrop="@ClearDragClass" @ondragenter="@SetDragClass"

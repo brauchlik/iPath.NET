@@ -104,6 +104,15 @@ if (!string.IsNullOrEmpty(cfg.ReverseProxyAddresse) && IPAddress.TryParse(cfg.Re
     builder.Services.Configure<ForwardedHeadersOptions>(o => o.KnownProxies.Add(proxyIP));
 }
 
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = cfg.MaxFileSizeBytes;
+});
+
+
+
+
 var app = builder.Build();
 var opts = app.Services.GetRequiredService<IOptions<iPathConfig>>();
 

@@ -1,4 +1,5 @@
 ﻿using FluentResults;
+using Humanizer;
 using iPath.Application.Features;
 using iPath.Application.Features.Nodes;
 using iPath.Application.Features.Notifications;
@@ -164,8 +165,6 @@ public interface IPathApi
     [Delete("/api/v1/nodes/annotation/{id}")]
     Task<IApiResponse<Guid>> DeleteAnnotation(Guid id);
 
-
-    const long MaxFileSize = 1024L * 1024L * 1024L;
 
     #endregion
 

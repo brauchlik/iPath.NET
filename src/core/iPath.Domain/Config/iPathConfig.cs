@@ -1,4 +1,6 @@
-﻿namespace iPath.Domain.Config;
+﻿using Humanizer;
+
+namespace iPath.Domain.Config;
 
 public class iPathConfig
 {
@@ -22,4 +24,9 @@ public class iPathConfig
     public string ReverseProxyAddresse { get; set; }
 
     public bool WsiViewerActive { get; set; }
+
+    public string MaxFileSize { get; set; } = "10 MB";
+
+
+    public long MaxFileSizeBytes => (long)(ByteSize.TryParse(MaxFileSize, out var size) ? size.Bytes : 10.Megabytes().Bytes);
 }

@@ -19,5 +19,5 @@ public class GetQuestionnaireListQuery : PagedQuery<QuestionnaireEntity>
 }
 
 
-public record CreateQuestionnaireCommand(string QuestionnaireId, string Name, string Resource)
-    : IRequest<CreateQuestionnaireCommand, Task<Guid>>;
+public record UpdateQuestionnaireCommand(string QuestionnaireId, string Name, string Resource, bool insert)
+    : IRequest<UpdateQuestionnaireCommand, Task<Guid>>;

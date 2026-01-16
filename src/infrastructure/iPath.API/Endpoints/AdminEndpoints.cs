@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using System.ComponentModel;
 using System.Linq.Dynamic.Core;
+using iPath.API.EndpointFilters;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace iPath.API;
 
@@ -19,6 +21,8 @@ public static class AdminEndpoints
         #region "-- Internal Mailbox --"
         var mail = route.MapGroup("mail")
             .WithTags("Internal Mailbox");
+
+        mail.AddEndpointFilterPipeline();
 
         mail.MapGet("list", 
             ([DefaultValue(0)] int page, [DefaultValue(10)] int pagesize, [FromServices] IEmailRepository repo, CancellationToken ct)
@@ -73,13 +77,8 @@ public static class AdminEndpoints
             .RequireAuthorization("Admin");
 
 
-        route.MapGet("session", ([FromServices] IUserSession? sess) => {
-            if (sess is not null)
-            {
-                return sess.User;
-            }
-            return null;
-        })
+        route.MapGet("session", ([FromServices] IUserSession? sess) 
+            => sess is null || sess.User is null ? Results.NotFound() : Results.Ok(sess.User))
             .Produces<SessionUserDto>()
             .WithTags("Session");
 

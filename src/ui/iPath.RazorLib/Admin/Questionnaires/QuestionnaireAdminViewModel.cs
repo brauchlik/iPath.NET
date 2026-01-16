@@ -26,8 +26,15 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
         if (res?.Data is EditQuestionnaireModel)
         {
             var m = (EditQuestionnaireModel)res.Data;
-            var resp = await api.CreateQuestionnaire(new CreateQuestionnaireCommand(m.QuestionnaireId, m.Name, m.Resource));
-            await grid.ReloadServerData();
+            var resp = await api.CreateQuestionnaire(new UpdateQuestionnaireCommand(m.QuestionnaireId, m.Name, m.Resource, insert: true));
+            if (resp.IsSuccessful)
+            {
+                await grid.ReloadServerData();
+            }
+            else
+            {
+                snackbar.AddError(resp.ErrorMessage);
+            }
         }
     }
 
@@ -56,7 +63,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
 
                     if (v1 != r.Resource)
                     {
-                        var resp2 = await api.CreateQuestionnaire(new CreateQuestionnaireCommand(r.QuestionnaireId, r.Name, r.Resource));
+                        var resp2 = await api.CreateQuestionnaire(new UpdateQuestionnaireCommand(r.QuestionnaireId, r.Name, r.Resource, insert: false));
                         await grid.ReloadServerData();
                         snackbar.Add("Questionnaire updated", Severity.Success);
                     }

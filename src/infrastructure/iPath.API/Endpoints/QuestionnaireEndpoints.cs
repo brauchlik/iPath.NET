@@ -30,7 +30,7 @@ public static class QuesionnaireEndpoints
             .RequireAuthorization("Admin");
 
 
-        qr.MapPost("create", async (CreateQuestionnaireCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
+        qr.MapPost("create", async (UpdateQuestionnaireCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))
             .RequireAuthorization("Admin");
 

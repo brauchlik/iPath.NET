@@ -10,7 +10,7 @@ internal class GroupMemberConfiguration : IEntityTypeConfiguration<GroupMember>
 
         b.HasOne(x => x.Group).WithMany(g => g.Members).HasForeignKey(x => x.GroupId).IsRequired();
         b.HasOne(x => x.User).WithMany(u => u.GroupMembership).HasForeignKey(x => x.UserId).IsRequired()
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.ClientCascade);
 
         b.ComplexProperty(x => x.NotificationSettings, b => b.ToJson());
 

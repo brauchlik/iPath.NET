@@ -18,7 +18,7 @@ else
     <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true"
              PanelClass="pa-6" Color="Color.Info" IconColor="Color.Surface"
              @bind-ActivePanelIndex="panelIndex">
-        <MudTabPanel Text=@T["Group Settings"] Icon="@Icons.Material.Filled.Settings">
+        <MudTabPanel Text=@T["Settings"] Icon="@Icons.Material.Filled.Settings">
             <CommunityAdminSettings Model="@vm.SelectedCommunity" />
         </MudTabPanel>
         <MudTabPanel Text=@T["Members"] Icon="@Icons.Material.Filled.Person">

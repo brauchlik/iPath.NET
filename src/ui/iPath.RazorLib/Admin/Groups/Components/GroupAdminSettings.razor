@@ -6,8 +6,6 @@
 
 @if (EditModel != null)
 {
-    <IPathHeader Typo="Typo.h6" Title=@T["Settings"] />
-
     <MudTextField Label=@T["Name"] @bind-Value="EditModel.Name" Variant="@Variant.Outlined" />
     <MudGrid>
         <MudItem xs="12" sm="6">

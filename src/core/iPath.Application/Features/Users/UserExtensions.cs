@@ -19,4 +19,9 @@ public static class UserExtensions
             return true;
         }
     }
+
+    extension(OwnerDto? owner)
+    {
+        public string ToLongString() => $"{owner.Username} ({owner.Email})";
+    }
 }

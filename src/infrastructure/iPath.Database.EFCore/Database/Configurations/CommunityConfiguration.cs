@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Sqlite;
-
-namespace iPath_EFCore.Database.Configurations;
+﻿namespace iPath_EFCore.Database.Configurations;
 
 internal class CommunityConfiguration : IEntityTypeConfiguration<Community>
 {

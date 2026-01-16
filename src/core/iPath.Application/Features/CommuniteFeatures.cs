@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 
 namespace iPath.Application.Features;
 
 
 #region "-- Queries --"
 
-public record CommunityListDto(Guid Id, string Name, CommunitySettings? Settings = null);
+public record CommunityListDto(Guid Id, string Name, OwnerDto? Owner = null, CommunitySettings? Settings = null);
 
 public record CommunityDto(Guid Id, string Name, CommunitySettings Settings, eCommunityVisibility Visibility,
     OwnerDto? Owner, 
@@ -70,8 +71,8 @@ public record DeleteCommunityCommand(Guid Id)
 public static class CommunityExtensions
 {
     public static CommunityListDto? ToListDto(this Community? entity)
-        => entity is null ? null : new CommunityListDto(Id: entity.Id, Name: entity.Name);
+        => entity is null ? null : new CommunityListDto(Id: entity.Id, Name: entity.Name, Owner: entity.Owner.ToOwnerDto());
 
-    public static CommunityListDto? ToListDto(this CommunityDto? entity)
-        => entity is null ? null : new CommunityListDto(Id: entity.Id, Name: entity.Name);
+    public static CommunityListDto? ToListDto(this CommunityDto? dto)
+        => dto is null ? null : new CommunityListDto(Id: dto.Id, Name: dto.Name, Owner: dto.Owner);    
 }

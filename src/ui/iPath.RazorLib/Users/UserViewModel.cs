@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace iPath.Blazor.Componenents.Users;
@@ -8,6 +9,7 @@ public class UserViewModel(IPathApi api,
     IDialogService srvDialog,
     IMemoryCache cache,
     IStringLocalizer T,
+    NavigationManager nm,
     ILogger<UserViewModel> logger) : IViewModel
 {
     public async Task ShowProfileAsync(Guid UserId) => ShowProfileAsync(await GetProfileAsync(UserId));
@@ -37,7 +39,15 @@ public class UserViewModel(IPathApi api,
                 var resp = await api.GetUser(userid);
                 if (resp.IsSuccessful)
                 {
-                    profile = resp.Content.Profile;
+                    if (resp.Content is not null)
+                    {
+                        profile = resp.Content.Profile;
+                    }
+                    else
+                    {
+                        // no profile => logout
+                        nm.NavigateTo("Account/Logout", true);
+                    }
                 }
                 else
                 {

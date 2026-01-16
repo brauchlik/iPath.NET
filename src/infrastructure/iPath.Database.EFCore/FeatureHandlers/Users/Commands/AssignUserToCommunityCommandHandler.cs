@@ -1,7 +1,7 @@
 ﻿
 namespace iPath.EF.Core.FeatureHandlers.Users.Commands;
 
-public class AssignUserToCommunityCommandHandler(iPathDbContext db)
+public class AssignUserToCommunityCommandHandler(iPathDbContext db, IUserSession sess)
     : IRequestHandler<AssignUserToCommunityCommand, Task>
 {
     public async Task Handle(AssignUserToCommunityCommand request, CancellationToken cancellationToken)
@@ -14,26 +14,17 @@ public class AssignUserToCommunityCommandHandler(iPathDbContext db)
         var community = await db.Communities.FindAsync(request.communityId);
         Guard.Against.NotFound(request.communityId, community);
 
-        // find existing membership
-        var m = user.CommunityMembership.FirstOrDefault(m => m.CommunityId == request.communityId);
         if (request.role == eMemberRole.None)
         {
-            // role None => remove
-            if (m != null) user.CommunityMembership.Remove(m);
+            user.RemoveFromCommunity(community);
         }
         else
-        { 
-            if (m is null)
-            {
-                // new membership
-                user.CommunityMembership.Add(new CommunityMember { User = user, Community = community, Role = request.role });
-            }
-            else
-            {
-                // change of role
-                m.Role = request.role;
-            }
+        {
+            user.AddToCommunity(community, request.role);
         }
+
+        // Refresh the cache
+        sess.ReloadUser(request.userId);
 
         await db.SaveChangesAsync(cancellationToken);
     }

@@ -11,8 +11,50 @@ public class User : IdentityUser<Guid>, IBaseEntity
 {
     public UserProfile Profile { get; private set; } = new();
 
-    public ICollection<GroupMember> GroupMembership { get; set; } = [];
-    public ICollection<CommunityMember> CommunityMembership { get; set; } = [];
+    private List<GroupMember> _GroupMembership { get; set; } = new();
+    public IReadOnlyCollection<GroupMember> GroupMembership => _GroupMembership;
+    public GroupMember AddToGroup(Group group, eMemberRole? role = null)
+    {
+        var ret = _GroupMembership.FirstOrDefault(m => m.GroupId == group.Id);
+        if (ret is null)
+        {
+            ret = new GroupMember { User = this, Group = group };
+            _GroupMembership.Add(ret);
+        }
+        if (role.HasValue)
+        {
+            ret.Role = role.Value;
+        }
+        return ret;
+    }
+    public void RemoveFromGroup(Group group)
+    {
+        _GroupMembership.RemoveAll(m => m.GroupId == group.Id);
+    }
+
+
+    private List<CommunityMember> _CommunityMembership { get; set; } = new();
+    public IReadOnlyCollection<CommunityMember> CommunityMembership => _CommunityMembership;
+    public CommunityMember AddToCommunity(Community community, eMemberRole? role = null)
+    {
+        var ret = _CommunityMembership.FirstOrDefault(m => m.CommunityId == community.Id);
+        if (ret is null)
+        {
+            ret = new CommunityMember { User = this, Community = community };
+            _CommunityMembership.Add(ret);
+        }
+        if (role.HasValue)
+        {
+            ret.Role = role.Value;
+        }
+        return ret;
+    }
+    public void RemoveFromCommunity(Community community)
+    {
+        _CommunityMembership.RemoveAll(m => m.CommunityId == community.Id);
+    }
+
+
 
     public ICollection<Node> OwnedNodes { get; set; } = [];    
     public ICollection<NodeLastVisit> NodeVisitis { get; set; } = [];

@@ -10,7 +10,7 @@ public class GetCommunityMembersQueryHandler(iPathDbContext db, IUserSession ses
         var q = db.Set<CommunityMember>()
             .Include(m => m.User)
             .AsNoTracking()
-            .Where(c => c.Id == request.CommunityId);
+            .Where(c => c.CommunityId == request.CommunityId);
 
         q.ApplyQuery(request);
         if (request.Sorting.IsEmpty())

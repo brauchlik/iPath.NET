@@ -21,7 +21,12 @@ public class Group : AuditableEntity
     public ICollection<CommunityGroup> ExtraCommunities { get; set; } = [];
 
     public ICollection<Node> Nodes { get; set; } = [];
-    public ICollection<GroupMember> Members { get; set; } = [];
+
+
+    private List<GroupMember> _Members { get; set; } = new();
+    public IReadOnlyCollection<GroupMember> Members => _Members;
+
+
 
     public ICollection<QuestionnaireForGroup> Quesionnaires { get; set; } = [];
 

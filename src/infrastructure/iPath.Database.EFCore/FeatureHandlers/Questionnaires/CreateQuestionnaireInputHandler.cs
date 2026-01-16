@@ -1,12 +1,22 @@
 ﻿namespace iPath.EF.Core.FeatureHandlers.Questionnaires;
 
 public class CreateQuestionnaireInputHandler(iPathDbContext db, IUserSession sess)
-    : IRequestHandler<CreateQuestionnaireCommand, Task<Guid>>
+    : IRequestHandler<UpdateQuestionnaireCommand, Task<Guid>>
 {
-    public async Task<Guid> Handle(CreateQuestionnaireCommand request, CancellationToken ct)
+    public async Task<Guid> Handle(UpdateQuestionnaireCommand request, CancellationToken ct)
     {
         Guard.Against.NullOrEmpty(request.QuestionnaireId);
         Guard.Against.NullOrEmpty(request.Resource);
+
+        // for new questionnaires, check that Id is not taken
+        if (request.insert)
+        {
+            if (await db.Questionnaires.AnyAsync(q => q.QuestionnaireId == request.QuestionnaireId, ct))
+            {
+                throw new InvalidOperationException($"Questionnaire with Id {request.QuestionnaireId} exists already");
+            }
+        }
+
 
         // TODO: Resource should be validated as FHIR Questionnaire
 

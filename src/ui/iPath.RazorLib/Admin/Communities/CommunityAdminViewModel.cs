@@ -105,17 +105,18 @@ public class CommunityAdminViewModel(IPathApi api,
 
 
 
-    public async Task<List<CommunityMemberModel>> GetMembersAsync(CancellationToken ct = default)
+    public async Task<List<CommunityMemberModel>> GetMembersAsync(Guid? communityId = null, CancellationToken ct = default)
     {
-        if (SelectedCommunity is not null)
+        communityId ??= SelectedCommunity?.Id;
+        if (communityId.HasValue)
         {
             try
             {
-                var resp = await api.GetCommunityMembers(SelectedCommunity.Id);
+                var resp = await api.GetCommunityMembers(communityId.Value);
 
                 if (resp.IsSuccessful)
                 {
-                    return resp.Content.Items.Select(m => new CommunityMemberModel(dto: m, SelectedCommunity.Name, m.UserId, m.Username)).ToList();
+                    return resp.Content.Items.Select(m => new CommunityMemberModel(dto: m, m.Communityname, m.UserId, m.Username)).ToList();
                 }
                 snackbar.AddWarning(resp.ErrorMessage);
             }
@@ -129,27 +130,22 @@ public class CommunityAdminViewModel(IPathApi api,
 
     public async Task UpdateMember(CommunityMemberModel m)
     {
-        if (m.Role == eMemberRole.None)
-        {
-            await RemoveGroupMember(m);
-        }
-        else
-        {
-            var cmd = new AssignUserToCommunityCommand(communityId: m.CommunityId, userId: m.UserId, role: m.Role);
+        var cmd = new AssignUserToCommunityCommand(communityId: m.CommunityId, userId: m.UserId, role: m.Role);
 
-            var resp = await api.AssignUserToCommunity(cmd);
-            if (!resp.IsSuccessful)
-                snackbar.AddError(resp.ErrorMessage);
-        }
+        var resp = await api.AssignUserToCommunity(cmd);
+        if (!resp.IsSuccessful)
+            snackbar.AddError(resp.ErrorMessage);
+
         OnChange?.Invoke();
     }
 
+    /*
     public async Task RemoveGroupMember(CommunityMemberModel member)
     {
         if (SelectedCommunity is not null)
         {
-            UserGroupMemberDto[] list = {
-                new UserGroupMemberDto(GroupId: SelectedCommunity.Id, Groupname: "", Role: eMemberRole.None)
+            CommunityMemberModel[] list = {
+                new CommunityMemberModel(CommunityId: SelectedCommunity.Id, Groupname: "", Role: eMemberRole.None)
             };
             var cmd = new UpdateGroupMembershipCommand(member.UserId, list);
             var resp = await api.UpdateGroupMemberships(cmd);
@@ -157,7 +153,7 @@ public class CommunityAdminViewModel(IPathApi api,
                 snackbar.AddError(resp.ErrorMessage);
         }
     }
-
+    */
 
 
 

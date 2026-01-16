@@ -10,10 +10,11 @@ internal class CommunityMemberConfiguration : IEntityTypeConfiguration<Community
 
         b.Property(x => x.UserId).HasColumnName("user_id");
         b.HasOne(x => x.User).WithMany(u => u.CommunityMembership).HasForeignKey(x => x.UserId).IsRequired()
-            .OnDelete(DeleteBehavior.NoAction); ;
+            .OnDelete(DeleteBehavior.ClientCascade);
 
         b.Property(x => x.CommunityId).HasColumnName("community_id");
-        b.HasOne(x => x.Community).WithMany(c => c.Members).HasForeignKey(x => x.CommunityId).IsRequired();
+        b.HasOne(x => x.Community).WithMany(c => c.Members).HasForeignKey(x => x.CommunityId).IsRequired()
+            .OnDelete(DeleteBehavior.ClientCascade);
 
         b.HasIndex(builder => new { builder.UserId, builder.CommunityId }).IsUnique();
     }

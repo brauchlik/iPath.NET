@@ -11,7 +11,7 @@ public class GetCommunityListQueryHandler (iPathDbContext db)
         q = q.ApplyQuery(request, "Name ASC");
 
         // project
-        var projeted = q.Select(x => new CommunityListDto(x.Id, x.Name));
+        var projeted = q.Select(x => new CommunityListDto(x.Id, x.Name, Owner: new OwnerDto(Id: x.Owner.Id, Username: x.Owner.UserName, Email: x.Owner.Email)));
 
         // pagination
         return await projeted.ToPagedResultAsync(request, cancellationToken);

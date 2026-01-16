@@ -63,7 +63,20 @@ else
         </RowTemplate>
     </MudTable>
 
-    <MudButton Href="admin/communities" Variant="Variant.Filled" Class="mt-10">Ok</MudButton>
+    <MudGrid Class="mt-0">
+        <MudItem xs="12" sm="4" md="2">
+            <MudButton Href="admin/communities" Variant="Variant.Filled" Style="width: 100px;">Ok</MudButton>
+        </MudItem>
+        <MudItem xs="12" sm="8" md="10">
+            <MudAlert Severity="Severity.Info" >
+                <div><strong>@T["User"]:</strong> @T["can access all groups of this community as normal user"]</div>
+                <div><strong>@T["Guest"]:</strong> @T["read only access all groups of this community"]</div>
+                <div><strong>@T["Moderator"]:</strong> @T["Community admin"]</div>
+                <div><strong>@T["Banned"]:</strong> @T["no access at all"]</div>
+            </MudAlert>
+        </MudItem>
+    </MudGrid>
+
 }
 
 @code {
@@ -83,9 +96,9 @@ else
 
     async Task LoadData()
     {
-        if (vm.SelectedCommunity is not null)
+        if (Model is not null)
         {
-            AllItems = await vm.GetMembersAsync();
+            AllItems = await vm.GetMembersAsync(Model.Id);
             Items = AllItems;
         }
     }

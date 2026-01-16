@@ -217,7 +217,7 @@ public interface IPathApi
     Task<IApiResponse<PagedResultList<QuestionnaireListDto>>> GetQuestionnnaires(GetQuestionnaireListQuery query);
 
     [Post("/api/v1/questionnaires/create")]
-    Task<IApiResponse<Guid>> CreateQuestionnaire(CreateQuestionnaireCommand cmd);
+    Task<IApiResponse<Guid>> CreateQuestionnaire(UpdateQuestionnaireCommand cmd);
 
     #endregion
 

@@ -105,6 +105,16 @@
                     var options = new JsonSerializerOptions().ForFhir(Hl7.Fhir.Model.ModelInfo.ModelInspector);
                     var qr = JsonSerializer.Deserialize<Hl7.Fhir.Model.Questionnaire>(fhir, options);
 
+                    // extract id & title
+                    if (string.IsNullOrEmpty(Model.QuestionnaireId))
+                    {
+                        Model.QuestionnaireId = qr.Id;
+                    }
+                    if (string.IsNullOrEmpty(Model.Name))
+                    {
+                        Model.Name = qr.Title;
+                    }
+
                     // serialize as JSON again
                     options = new JsonSerializerOptions().ForFhir(Hl7.Fhir.Model.ModelInfo.ModelInspector).Pretty();
                     Model.Resource = JsonSerializer.Serialize(qr, options);

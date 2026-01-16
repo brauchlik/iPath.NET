@@ -14,23 +14,20 @@ public class AssignUserToGroupsCommandHandler(iPathDbContext db, IUserSession se
         var group = await db.Groups.FindAsync(request.groupId);
         Guard.Against.NotFound(request.groupId, group);
 
-        // this function only assigns a normal user role, if user not in group yet.
-        var m = user.GroupMembership.FirstOrDefault(m => m.GroupId == request.groupId);
-        if (m is null)
+
+        if (request.role == eMemberRole.None)
         {
-            // new membership
-            m = new GroupMember { User = user, Group = group, Role = request.role };
-            user.GroupMembership.Add(m);
+            user.RemoveFromGroup(group);
         }
         else
         {
-            m.Role = request.role;
+            user.AddToGroup(group, request.role);
         }
         await db.SaveChangesAsync(cancellationToken);
 
         // Refresh the cache
         sess.ReloadUser(request.userId);
 
-        return new GroupMemberDto(m.UserId, user.UserName, m.Role);
+        return new GroupMemberDto(user.Id, user.UserName, request.role);
     }
 }

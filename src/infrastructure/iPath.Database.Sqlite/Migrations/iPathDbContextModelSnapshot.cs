@@ -659,7 +659,7 @@ namespace iPath.Database.Sqlite.Migrations
 
                     b.HasKey("NodeId");
 
-                    b.ToTable("NodeImports");
+                    b.ToTable("NodeImports", (string)null);
                 });
 
             modelBuilder.Entity("iPath.Domain.Entities.NodeLastVisit", b =>
@@ -801,7 +801,7 @@ namespace iPath.Database.Sqlite.Migrations
 
                     b.HasIndex("QuestionnaireId");
 
-                    b.ToTable("QuestionnaireForCommunity");
+                    b.ToTable("QuestionnaireForCommunity", (string)null);
                 });
 
             modelBuilder.Entity("iPath.Domain.Entities.QuestionnaireForGroup", b =>

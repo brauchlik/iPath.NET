@@ -14,8 +14,48 @@ public class Community : AuditableEntity
     public CommunitySettings Settings { get; set; } = new();
 
     public ICollection<Group>? Groups { get; set; } = [];
-    public ICollection<CommunityGroup>? ExtraGroups { get; set; } = [];
-    public ICollection<CommunityMember>? Members { get; set; } = [];
+
+
+    private List<CommunityGroup> _ExtraGroups { get; set; } = new();
+    public IReadOnlyCollection<CommunityGroup> ExtraGroups => _ExtraGroups;
+    public CommunityGroup AddExtraGroup(Group group)
+    {
+        var ret = _ExtraGroups.FirstOrDefault(g => g.GroupId == group.Id);
+        if (ret is null)
+        {
+            ret = new CommunityGroup { Community = this, Group = group };
+            _ExtraGroups.Add(ret);
+        }
+        return ret;
+    }
+    public void RemoveExtraGroup(Group group)
+    {
+        _ExtraGroups.RemoveAll(m => m.GroupId == group.Id);
+    }
+
+
+    private List<CommunityMember> _Members { get; set; } = new();
+    public IReadOnlyCollection<CommunityMember> Members => _Members;
+
+    public CommunityMember AddMember(User user, eMemberRole? role = null)
+    {
+        var ret = Members.FirstOrDefault(m => m.UserId == user.Id);
+        if (ret is null)
+        {
+            ret = new CommunityMember { User = user, Community = this };
+            _Members.Add(ret);
+        };
+        if (role.HasValue)
+        {
+            ret.Role = role.Value;
+        }
+        return ret;
+    }
+    public void RemoveMember(User user)
+    {
+        _Members.RemoveAll(m => m.UserId == user.Id);
+    }
+
 
     public eCommunityVisibility Visibility { get; set; } = eCommunityVisibility.Public;
 

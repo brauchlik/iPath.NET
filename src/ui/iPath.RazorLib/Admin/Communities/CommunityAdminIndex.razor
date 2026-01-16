@@ -19,13 +19,14 @@
              Dense="true" Hover="true">
     <Columns>
         <PropertyColumn Property="x => x.Name" />
+        <PropertyColumn Property="x => x.Owner.ToLongString()" Title=@T["Owner"] />
     </Columns>
     <PagerContent>
         <MudDataGridPager T="CommunityListDto" />
     </PagerContent>
 </MudDataGrid>
 
-@code{
+@code {
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();

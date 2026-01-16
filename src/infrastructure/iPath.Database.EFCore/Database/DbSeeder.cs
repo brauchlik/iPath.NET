@@ -52,7 +52,7 @@ public class DbSeeder(iPathDbContext db,
             await roleManager.CreateAsync(new Role { Name = "Developer" });
         }
 
-        User? admin;
+        User? admin = null;
         if (!db.Users.Any())
         {
             admin = new User { Id = Guid.CreateVersion7(), UserName = "Admin", Email = "admin@test.com", IsActive = true, EmailConfirmed = true };
@@ -75,17 +75,25 @@ public class DbSeeder(iPathDbContext db,
         }
 
 
-        Community? community = null;
-        if (!db.Communities.Any() && admin != null)
+        Community? community = await db.Communities.FirstOrDefaultAsync();
+        if (community is null)
         {
             community = Community.Create(Name: "Test Community", Owner: admin);
             await db.Communities.AddAsync(community);
+
+            // add member
+            admin.AddToCommunity(community, eMemberRole.User);
         }
 
         if (!db.Groups.Any() && admin != null)
         {
-            await db.Groups.AddAsync(Group.Create(Name: "Test Group", Owner: admin, Community: community));
+            var group = Group.Create(Name: "Test Group", Owner: admin, Community: community);
+            await db.Groups.AddAsync(group);
+
+            // add member
+            admin.AddToGroup(group, eMemberRole.User);
         }
+
 
         await db.SaveChangesAsync();
     }

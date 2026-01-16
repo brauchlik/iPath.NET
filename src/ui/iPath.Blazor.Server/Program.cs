@@ -162,7 +162,7 @@ if (!string.IsNullOrWhiteSpace(externalFilesPath))
         {
             var provider = new PhysicalFileProvider(Path.GetFullPath(externalFilesPath));
             var contentTypeProvider = new FileExtensionContentTypeProvider();
-            contentTypeProvider.Mappings[".svs"] = "application/octet-stream";
+            // contentTypeProvider.Mappings[".svs"] = "application/octet-stream";
             // Optionally: add unknown mappings or overrides here, e.g. contentTypeProvider.Mappings[".bin"] = "application/octet-stream";
 
             app.UseStaticFiles(new StaticFileOptions

@@ -162,6 +162,7 @@ if (!string.IsNullOrWhiteSpace(externalFilesPath))
         {
             var provider = new PhysicalFileProvider(Path.GetFullPath(externalFilesPath));
             var contentTypeProvider = new FileExtensionContentTypeProvider();
+            contentTypeProvider.Mappings[".svs"] = "application/octet-stream";
             // Optionally: add unknown mappings or overrides here, e.g. contentTypeProvider.Mappings[".bin"] = "application/octet-stream";
 
             app.UseStaticFiles(new StaticFileOptions
@@ -170,19 +171,20 @@ if (!string.IsNullOrWhiteSpace(externalFilesPath))
                 RequestPath = "/files",
                 ContentTypeProvider = contentTypeProvider,
                 ServeUnknownFileTypes = true, // allow binary files with unknown extensions
+                /*
                 OnPrepareResponse = ctx =>
                 {
-                    // reuse same caching policy as other static files (adjust as desired)
                     ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
                     ctx.Context.Response.Headers.Append("Pragma", "no-cache");
                     ctx.Context.Response.Headers.Append("Expires", "0");
                 }
+                */
             });
         }
         else
         {
             var logger = app.Services.GetRequiredService<ILogger<Program>>();
-            logger.LogWarning("Configured LocalDataPath '{path}' does not exist; /files will not be available.", externalFilesPath);
+            logger.LogWarning("Configured TempDataPath '{path}' does not exist; /files will not be available.", externalFilesPath);
         }
     }
     catch (Exception ex)
@@ -194,7 +196,7 @@ if (!string.IsNullOrWhiteSpace(externalFilesPath))
 else
 {
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogWarning("LocalDataPath is not configured; /files will not be available.");
+    logger.LogWarning("TempDataPath is not configured; /files will not be available.");
 }
 
 

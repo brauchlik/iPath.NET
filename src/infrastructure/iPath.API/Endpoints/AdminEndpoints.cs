@@ -67,10 +67,10 @@ public static class AdminEndpoints
 
 
         route.MapGet("config", (IOptions<iPathClientConfig> opts) => {
-            var config = new cfg { iPathClientConfig = opts.Value };
+            var config = new AppSettings { iPathClientConfig = opts.Value };
             return Results.Ok(config);
         })
-            .Produces<iPathClientConfig>()
+            .Produces<AppSettings>()
             .WithTags("Config")
             .AllowAnonymous();
 
@@ -108,7 +108,7 @@ public static class AdminEndpoints
 }
 
 
-public class cfg
+public class AppSettings
 {
     public iPathClientConfig iPathClientConfig { get; set;  } = new iPathClientConfig();
 }

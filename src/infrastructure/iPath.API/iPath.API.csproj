@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\core\iPath.Application\iPath.Application.csproj" />
+    <ProjectReference Include="..\..\ui\iPath.OpenSeadragon\iPath.OpenSeadragon.csproj" />
     <ProjectReference Include="..\iPath.Database.EFCore\iPath.Database.EFCore.csproj" />
     <ProjectReference Include="..\iPath.Database.Postgres\iPath.Database.Postgres.csproj" />
     <ProjectReference Include="..\iPath.Database.Sqlite\iPath.Database.Sqlite.csproj" />

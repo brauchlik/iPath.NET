@@ -314,6 +314,10 @@
     background-color: black;
 }
 
+.ipath_osd {
+    margin-bottom: -4.2em;
+}
+
 .image_info {
     text-align: center;
     width: 100%;

@@ -3,8 +3,10 @@ using iPath.Blazor.Server;
 using iPath.Blazor.Server.Components;
 using iPath.Blazor.Server.Components.Account;
 using iPath.Domain.Config;
+using iPath.OpenSeadragon;
 using iPath.RazorLib;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
@@ -225,5 +227,6 @@ app.MapIPathApi();
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
+
 
 app.Run();

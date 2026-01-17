@@ -1,0 +1,81 @@
+﻿@inject IJSRuntime JSRuntime
+@inject NavigationManager nm
+
+
+<MudStack>
+    <MudPaper Width="@WidthFrame" Height="@HeightFrame" Elevation="2" Style="background-color: black;">
+        <iframe id="wsiFrame" title="WSI Viewer"
+                width="@WidthFrame" height="@HeightFrame" style="border:none;"
+                srcdoc="@iframe">
+        </iframe>
+    </MudPaper>
+
+    @if (ShowViewerInfo)
+    {
+        <MudAlert NoIcon="true" Severity="Severity.Info">
+            WSI viewer using <a href="https://openseadragon.github.io/">OpenSeadragon</a>
+        </MudAlert>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <MudAlert Severity="Severity.Warning" Class="my-2">
+             @errorMessage
+        </MudAlert>
+    }
+
+    <MudSpacer />
+</MudStack>
+
+
+@code
+    {
+    [Parameter, EditorRequired]
+    public string ImagePath { get; set; }
+
+    [Parameter]
+    public bool ShowViewerInfo { get; set; } = true;
+
+    [Parameter]
+    public int Width { get; set; } = 1200;
+
+    [Parameter]
+    public int Height { get; set; } = 720;
+
+
+    string WidthFrame => $"{Width}px"; 
+    string HeightFrame => $"{Height}px";
+    string ViewerStyle => $"width: {Width-12}px; height: {Height - 32}px;";
+
+
+    string errorMessage;
+    string iframe = "<p>loading ...</p>";
+
+
+    protected override void OnParametersSet()
+    {
+        if (isready)
+        {
+            LoadHtml();
+        }
+    }
+
+
+    bool isready;
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            LoadHtml();
+            isready = true;
+        }
+    }
+
+    private void LoadHtml()
+    {
+        var html = new OsdViewerHtml();
+        iframe = html.CreateIframeHtml(ImagePath, ViewerStyle);
+        StateHasChanged();
+    }
+}
+

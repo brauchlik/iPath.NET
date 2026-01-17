@@ -20,16 +20,18 @@
         }
         else if (Wsi && vm.SelectedNode.FileExtension == ".svs")
         {
-                <iframe id="wsiFrame"  title="WSI Viewer"
-                        width="1200" height="720"
-                        src="@wsiSrc">
-                </iframe>
+            <div class="d-flex justify-center ipath_osd">
+                <iPath.OpenSeadragon.OsdViewerIFrame ImagePath=@($"/files/{vm.SelectedNode.Id}") Width="1000" Height="700" />
+            </div>
         }
         else
         {
             <MudIcon Size="Size.Large" Icon="@vm.SelectedNode.FileIcon" />
         }
-        <div class="mt-2"><MudLink Target="_blank" Href="@vm.SelectedNode.FileUrl">@vm.SelectedNode.GalleryCaption.ShortenTo(50)</MudLink></div>
+        <div class="mt-2">
+            <strong>@T["Download original"]:</strong> 
+            <MudLink Target="_blank" Href="@vm.SelectedNode.FileUrl">@vm.SelectedNode.GalleryCaption.ShortenTo(50)</MudLink>
+        </div>
     </div>
 }
 else

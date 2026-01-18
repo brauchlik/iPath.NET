@@ -9,6 +9,7 @@ public static class DocumentExtensions
             Id = document.Id,
             CreatedOn = document.CreatedOn,
             SortNr = document.SortNr,
+            DocumentType = document.DocumentType,
             OwnerId = document.OwnerId,
             Owner = document.Owner.ToOwnerDto(),
             ServiceRequestId = document.ServiceRequestId,
@@ -22,4 +23,6 @@ public static class DocumentExtensions
     {
         return doc is not null && other is not null && doc.Id == other.Id;
     }
+
+
 }

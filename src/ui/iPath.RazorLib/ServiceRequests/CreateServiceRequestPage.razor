@@ -1,4 +1,4 @@
-﻿@page "/node/new/{groupId}"
+﻿@page "/request/create/{groupId}"
 
 @inherits ServiceRequestViewComponentBase
 
@@ -78,6 +78,7 @@ else
             {
                 forms = Group.Questionnaires.Where(q => q.Usage == eQuestionnaireUsage.CaseDescription).ToList();
             }
+            StateHasChanged();
         }
     }
 

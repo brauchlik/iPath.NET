@@ -33,7 +33,7 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Title" Class="ipath_node_title2" onclick="@(() => vm.GotoNode(context))">
-            <MudLink Href=@($"node/{context.Id}")>
+            <MudLink Href=@($"request/{context.Id}")>
                 <MudHighlighter Text="@context.Title" HighlightedText="@vm.SearchString" Style="font-weight: bold;" />
             </MudLink>
             @if (@context.Description.BodySite is not null)
@@ -85,7 +85,7 @@
     </PagerContent>
 </MudTable>
 
-@inject NodeListViewModel vm
+@inject ServiceRequestListViewModel vm
 @inject GroupIndexViewModel gvm
 
 @code {

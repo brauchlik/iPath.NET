@@ -1,12 +1,16 @@
-﻿namespace iPath.EF.Core.FeatureHandlers.Nodes.Commands;
+﻿using Microsoft.Identity.Client.Extensions.Msal;
+
+namespace iPath.EF.Core.FeatureHandlers.Nodes.Commands;
 
 
-public class DeleteNodeCommandHandler(iPathDbContext db, IUserSession sess)
+public class DeleteServiceRequestCommandHandler(iPathDbContext db, IUserSession sess)
     : IRequestHandler<DeleteServiceRequestCommand, Task<ServiceRequestDeletedEvent>>
 {
     public async Task<ServiceRequestDeletedEvent> Handle(DeleteServiceRequestCommand request, CancellationToken ct)
     {
-        var node = await db.ServiceRequests.FindAsync(request.NodeId);
+        var node = await db.ServiceRequests
+            .Include(s => s.Documents)
+            .SingleOrDefaultAsync(r => r.Id == request.NodeId, ct);
         Guard.Against.NotFound(request.NodeId, node);
 
         if (!sess.IsAdmin)
@@ -26,7 +30,8 @@ public class DeleteNodeCommandHandler(iPathDbContext db, IUserSession sess)
         {
             foreach (var doc in node.Documents)
             {
-                db.Docoments.Remove(doc);
+                doc.Delete();
+                db.Documents.Remove(doc);
             }
         }
         db.ServiceRequests.Remove(node);

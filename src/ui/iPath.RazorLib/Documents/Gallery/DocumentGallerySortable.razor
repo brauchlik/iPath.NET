@@ -1,4 +1,4 @@
-﻿@namespace iPath.Blazor.Componenents.ServiceRequests
+﻿@namespace iPath.Blazor.Componenents.Documents
 
 @inherits ServiceRequestViewComponentBase
 
@@ -11,10 +11,9 @@
     <div id="gallery" class="gallery" style="z-index: 20;">
         @foreach (var c in vm.SelectedRequest.Documents.OrderBy(c => c.SortNr))
         {
-            <NodeGallerySortableItem Model="c" 
-                                     Selected="IsSelected(c.Id)"
-                                     SelectedChanged="@(val => OnChildSelectedChanged(c.Id, val))"
-                                     @key="c.Id" />
+            <DocumentGallerySortableItem Model="c" @key="c.Id"
+                                         Selected="IsSelected(c.Id)"
+                                         SelectedChanged="@(val => OnChildSelectedChanged(c.Id, val))" />
         }
     </div>
 </div>
@@ -37,7 +36,7 @@
     [Parameter]
     public bool HideSaveButtons { get; set; }
 
-    private DotNetObjectReference<NodeGallerySortable> _dotNetHelper;
+    private DotNetObjectReference<DocumentGallerySortable> _dotNetHelper;
     private Dictionary<string, int> _SortOrder;
     private bool sortHasChanged = false;
 

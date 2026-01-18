@@ -27,5 +27,10 @@ public class DocumentNode
 
     public NodeFile? File { get; set; } = null!;
 
-    public string DocumentType { get; set; } = "";    
+    public string DocumentType { get; set; } = "";
+
+    public void Delete()
+    {
+        DeletedOn ??= DateTime.UtcNow;
+    }
 }

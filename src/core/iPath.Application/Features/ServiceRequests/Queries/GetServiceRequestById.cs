@@ -3,4 +3,4 @@
 
 
 public record GetServiceRequestByIdQuery(Guid Id, bool inclDrafts = false)
-    : IRequest<GetServiceRequestByIdQuery, Task<ServiceRequest>>;
+    : IRequest<GetServiceRequestByIdQuery, Task<ServiceRequestDto>>;

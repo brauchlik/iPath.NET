@@ -5,64 +5,78 @@ namespace iPath.Blazor.Componenents.Documents;
 public static class DocumentExtensions
 {
 
-    extension(DocumentDto node)
+    extension(DocumentDto document)
     {
         public string? Title
         {
             get
             {
-                return node.File.Filename;
+                return document.File.Filename;
             }
         }
 
-        public string GalleryCaption => node?.File is null ? "" : node.File.Filename;
+        public string GalleryCaption => document?.File is null ? "" : document.File.Filename;
                
 
         public string ThumbUrl
         {
             get
             {
-                if (!string.IsNullOrEmpty(node.File?.ThumbData))
+                if (!string.IsNullOrEmpty(document.File?.ThumbData))
                 {
-                    return $"data:image/jpeg;base64, {node.File.ThumbData}";
+                    return $"data:image/jpeg;base64, {document.File.ThumbData}";
                 }
-                else if (node.ipath2_id.HasValue)
+                else if (document.ipath2_id.HasValue)
                 {
-                    return $"https://www.ipath-network.com/ipath/image/src/{node.ipath2_id}";
+                    return $"https://www.ipath-network.com/ipath/image/src/{document.ipath2_id}";
                 }
 
                 return "";
             }
         }
 
-        public string BinarayDataUrl => $"/files/{node.Id}";
+        public string BinarayDataUrl => $"/files/{document.Id}";
 
         public string FileUrl
         {
             get
             {
-                if (!node.ipath2_id.HasValue)
+                if (!document.ipath2_id.HasValue)
                 {
-                    return $"/api/v1/nodes/file/{node.Id}/{node.File.Filename}";
+                    return $"/api/v1/documents/{document.Id}/{document.File.Filename}";
                 }
-                else if (node.ipath2_id.HasValue)
+                else if (document.ipath2_id.HasValue)
                 {
-                    return $"https://www.ipath-network.com/ipath/image/src/{node.ipath2_id}";
+                    return $"https://www.ipath-network.com/ipath/image/src/{document.ipath2_id}";
                 }
 
                 return "";
             }
         }
 
-        public bool IsImage => node.NodeType == "image";
+        public bool IsImage
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(document.DocumentType))
+                {
+                    return document.DocumentType == "image";
+                }
+                else if(!string.IsNullOrEmpty(document.File?.MimeType))
+                {
+                    return document.File.MimeType.ToLower().StartsWith("images");
+                }
+                return false;
+            }
+        }
 
         public string FileExtension
         {
             get
             {
-                if (node is not null && node.File is not null && !string.IsNullOrEmpty(node.File.Filename))
+                if (document is not null && document.File is not null && !string.IsNullOrEmpty(document.File.Filename))
                 {
-                    var fi = new FileInfo(node.File.Filename);
+                    var fi = new FileInfo(document.File.Filename);
                     return fi.Extension;
                 }
                 return string.Empty;
@@ -73,13 +87,13 @@ public static class DocumentExtensions
         {
             get
             {
-                if (node.FileExtension == ".pdf")
+                if (document.FileExtension == ".pdf")
                     return Icons.Custom.FileFormats.FilePdf;
 
-                if (node.FileExtension == ".svs")
+                if (document.FileExtension == ".svs")
                     return Icons.Custom.FileFormats.FileImage;
 
-                if (node.NodeType.ToLower() == "folder")
+                if (document.DocumentType.ToLower() == "folder")
                     return Icons.Material.Filled.FolderOpen;
 
                 return Icons.Custom.FileFormats.FileDocument;

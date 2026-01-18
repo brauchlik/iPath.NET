@@ -1,6 +1,6 @@
 ﻿using iPath.Application.Features.ServiceRequests;
 
-public class CreateNodeCommandHandler(iPathDbContext db, IUserSession sess, IMediator mediator)
+public class CreateServiceRequestCommandHandler(iPathDbContext db, IUserSession sess, IMediator mediator)
     : IRequestHandler<CreateServiceRequestCommand, Task<ServiceRequestDto>>
 {
     public async Task<ServiceRequestDto> Handle(CreateServiceRequestCommand request, CancellationToken ct)

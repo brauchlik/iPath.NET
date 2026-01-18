@@ -30,7 +30,7 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<Group> Groups { get; set; }
 
     public DbSet<ServiceRequest> ServiceRequests { get; set; }
-    public DbSet<DocumentNode> Docoments { get; set; }
+    public DbSet<DocumentNode> Documents { get; set; }
     public DbSet<Annotation> Annotations { get; set; }
     public DbSet<NodeImport> NodeImports { get; set; }
     public DbSet<NodeLastVisit> NodeLastVisits { get; set; }

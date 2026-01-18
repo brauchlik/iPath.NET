@@ -2,7 +2,7 @@
 
 namespace iPath.EF.Core.FeatureHandlers.Nodes.Commands;
 
-public class DeleteNodeAnnotationCommandHandler(iPathDbContext db, IUserSession sess)
+public class DeleteAnnotationCommandHandler(iPathDbContext db, IUserSession sess)
     : IRequestHandler<DeleteAnnotationCommand, Task<Guid>>
 {
     public async Task<Guid> Handle(DeleteAnnotationCommand request, CancellationToken ct)

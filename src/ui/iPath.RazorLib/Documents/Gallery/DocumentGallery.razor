@@ -1,4 +1,4 @@
-﻿@namespace iPath.Blazor.Componenents.ServiceRequests
+﻿@namespace iPath.Blazor.Componenents.Documents
 @using System.Threading.Tasks
 @using iPath.Application.Features.ServiceRequests
 @using iPath.Domain.Config
@@ -50,11 +50,11 @@ else
         </div>
     </div>
 
-    @if (vm.SelectedDocument != null)
+    @if (vm.SelectedRequest != null)
     {
         @if (Sorting)
         {
-            <NodeGallerySortable OnSortingFinished="SortingFinished" />
+            <DocumentGallerySortable OnSortingFinished="SortingFinished" />
         }
         else if (Uploading)
         {
@@ -63,7 +63,7 @@ else
         }
         else
         {
-            <NodeGalleryView />
+            <DocumentGalleryView />
         }
     }
 }

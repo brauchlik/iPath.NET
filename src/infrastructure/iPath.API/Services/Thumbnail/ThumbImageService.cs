@@ -15,7 +15,7 @@ public class ThumbImageService(IOptions<iPathConfig> opts,
     {
         try
         {
-            var node = await db.Docoments.FindAsync(request.Id, cancellationToken);
+            var node = await db.Documents.FindAsync(request.Id, cancellationToken);
             if (node != null)
             {
                 logger.LogInformation($"creating thumbnail for document {node.Id}");

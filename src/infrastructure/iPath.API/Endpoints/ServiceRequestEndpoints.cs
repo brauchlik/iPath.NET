@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace iPath.API.Endpoints;
 
-public static class NodeEndpoints
+public static class ServiceRequestEndpoints
 {
-    public static IEndpointRouteBuilder MapNodeEndpoints(this IEndpointRouteBuilder builder)
+    public static IEndpointRouteBuilder MapServiceRequestEndpoints(this IEndpointRouteBuilder builder)
     {
-        var grp = builder.MapGroup("nodes")
-            .WithTags("Nodes");
+        var grp = builder.MapGroup("requests")
+            .WithTags("Service Requests");
 
         // Queries
 
@@ -29,33 +29,6 @@ public static class NodeEndpoints
             .Produces<IReadOnlyList<Guid>>()
             .RequireAuthorization();
 
-        grp.MapGet("file/{id}/{filename}", async (string id, string? filename, [FromServices] IMediator mediator, HttpContext ctx, CancellationToken ct) =>
-        {
-            if (Guid.TryParse(id, out var nodeId))
-            {
-                var res = await mediator.Send(new GetDocumentFileQuery(nodeId), ct);
-
-                if (res.NotFound)
-                {
-                    return Results.NotFound();
-                }
-                else if (res.AccessDenied)
-                {
-                    return Results.Unauthorized();
-                }
-                else
-                {
-                    return Results.File(res.TempFile, contentType: res.Info.MimeType);
-                }
-            }
-
-            return Results.BadRequest();
-        });
-           // .RequireAuthorization();
-
-
-
-
         // Commands
         grp.MapPost("create", async (CreateServiceRequestCommand request, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(request, ct))
@@ -72,46 +45,13 @@ public static class NodeEndpoints
             .Produces<bool>()
             .RequireAuthorization();
 
-        grp.MapPut("order", async (UpdateDcoumentsSortOrderCommand request, [FromServices] IMediator mediator, CancellationToken ct)
-            => await mediator.Send(request, ct))
-            .Produces<ChildNodeSortOrderUpdatedEvent>()
-            .RequireAuthorization();
-
         grp.MapPost("visit/{id}", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(new UpdateServiceRequestVisitCommand(Guid.Parse(id)), ct))
             .Produces<bool>()
             .RequireAuthorization();
 
-        grp.MapPost("{requestId}/upload/{parentId}", async (string requestId, string? parentId, [FromForm] IFormFile file, 
-            [FromServices] IMediator mediator, CancellationToken ct) =>
-        {
-            if (file is not null)
-            {
-                var fileName = file.FileName;
-                var fileSize = file.Length;
-                var contentType = file.ContentType;
 
-                Guard.Against.Null(fileSize);
-
-                if (Guid.TryParse(requestId, out var requestGuid))
-                {
-                    await using Stream stream = file.OpenReadStream();
-                    var req = new UploadDocumentCommand(RequestId: requestGuid, ParentId: Guid.Parse(parentId) , filename: fileName, fileSize: fileSize, fileStream: stream, contenttype: contentType);
-                    var node = await mediator.Send(req, ct);
-                    return node is null ? Results.NoContent() : Results.Ok(node);
-                }
-                else
-                {
-                    return Results.NotFound();
-                }
-            }
-            return Results.NoContent();
-        })
-            .DisableAntiforgery()
-            .Produces<DocumentDto>()
-            .RequireAuthorization();
-
-
+        // Annotations
         grp.MapPost("annotation", async (CreateAnnotationCommand request, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(request, ct))
             .Produces<AnnotationDto>()

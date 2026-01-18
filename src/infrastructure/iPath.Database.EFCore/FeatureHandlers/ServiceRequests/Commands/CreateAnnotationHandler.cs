@@ -1,7 +1,7 @@
 ﻿namespace iPath.EF.Core.FeatureHandlers.Nodes.Commands;
 
 
-public class CreateNodeAnnotationCommandHandler(iPathDbContext db, IMediator mediator, IUserSession sess)
+public class CreateAnnotationCommandHandler(iPathDbContext db, IMediator mediator, IUserSession sess)
     : IRequestHandler<CreateAnnotationCommand, Task<AnnotationDto>>
 {
     public async Task<AnnotationDto> Handle(CreateAnnotationCommand request, CancellationToken ct)
@@ -16,7 +16,7 @@ public class CreateNodeAnnotationCommandHandler(iPathDbContext db, IMediator med
 
         if (request.docuemntId.HasValue)
         {
-            var document = await db.Docoments.FindAsync(request.docuemntId.Value);
+            var document = await db.Documents.FindAsync(request.docuemntId.Value);
             Guard.Against.NotFound(request.docuemntId.Value, document);
 
             if (document.ServiceRequestId != serviceRequest.Id)

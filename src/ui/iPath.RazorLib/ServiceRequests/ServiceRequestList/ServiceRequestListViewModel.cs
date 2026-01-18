@@ -2,7 +2,7 @@
 
 namespace iPath.Blazor.Componenents.ServiceRequests;
 
-public class NodeListViewModel(IPathApi api,
+public class ServiceRequestListViewModel(IPathApi api,
     ISnackbar snackbar, 
     IDialogService dialog,
     NavigationManager nm,
@@ -26,7 +26,7 @@ public class NodeListViewModel(IPathApi api,
             });
             nvm.LastQuery = query;
             nvm.IdList = null;
-            var resp = await api.GetNodeList(query);
+            var resp = await api.GetRequestList(query);
             if (resp.IsSuccessful)
             {
                 return resp.Content.ToTableData();
@@ -43,13 +43,13 @@ public class NodeListViewModel(IPathApi api,
     {
         if (GroupId.HasValue)
         {
-            nm.NavigateTo($"node/new/{GroupId}");
+            nm.NavigateTo($"request/create/{GroupId}");
         }
     }
 
 
     public void GotoNode(ServiceRequestListDto node)
-        => nm.NavigateTo($"node/{node.Id}");
+        => nm.NavigateTo($"request/{node.Id}");
 
 
     public bool CreateNewCaseDisabled => !GroupId.HasValue;

@@ -1,9 +1,9 @@
 ﻿namespace iPath.EF.Core.FeatureHandlers.Nodes.Commands;
 
 public class UpdateChildNodeSortOrderCommandHandler(iPathDbContext db, IUserSession sess) 
-    : IRequestHandler<UpdateDcoumentsSortOrderCommand, Task<ChildNodeSortOrderUpdatedEvent>>
+    : IRequestHandler<UpdateDocumentsSortOrderCommand, Task<ChildNodeSortOrderUpdatedEvent>>
 {
-    public async Task<ChildNodeSortOrderUpdatedEvent> Handle(UpdateDcoumentsSortOrderCommand request, CancellationToken ct)
+    public async Task<ChildNodeSortOrderUpdatedEvent> Handle(UpdateDocumentsSortOrderCommand request, CancellationToken ct)
     {
         var node = await db.ServiceRequests
             .Include(n => n.Documents)
@@ -24,7 +24,7 @@ public class UpdateChildNodeSortOrderCommandHandler(iPathDbContext db, IUserSess
             catch (Exception ex) { }
         }
 
-        var evt = await db.CreateEventAsync<ChildNodeSortOrderUpdatedEvent, UpdateDcoumentsSortOrderCommand>(request, node.Id, sess);
+        var evt = await db.CreateEventAsync<ChildNodeSortOrderUpdatedEvent, UpdateDocumentsSortOrderCommand>(request, node.Id, sess);
         await db.SaveChangesAsync();
         await tran.CommitAsync(ct);
 

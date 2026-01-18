@@ -31,7 +31,7 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
     {
         try
         {
-            var node = await db.Docoments.AsNoTracking()
+            var node = await db.Documents.AsNoTracking()
                 .Include(d => d.ServiceRequest)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(n => n.Id == DocumentId, ct);
@@ -83,7 +83,7 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
     {
         try
         {
-            var document = await db.Docoments
+            var document = await db.Documents
                 .Include(n => n.ServiceRequest)
                 .FirstOrDefaultAsync(n => n.Id == DocumentId, ct);
             Guard.Against.NotFound(DocumentId, document);
@@ -125,7 +125,7 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
 
             // save node
             document.File.LastStorageExportDate = DateTime.UtcNow;
-            db.Docoments.Update(document);
+            db.Documents.Update(document);
             await db.SaveChangesAsync(ct);
 
             return new StorageRepsonse(true, StorageId: document.StorageId);

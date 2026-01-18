@@ -12,7 +12,7 @@ public class GetDocumentFileHandler(iPathDbContext db,
 {
     public async Task<FetchFileResponse> Handle(GetDocumentFileQuery request, CancellationToken cancellationToken)
     {
-        var document = await db.Docoments
+        var document = await db.Documents
                     .Include(d => d.ServiceRequest)
                    .AsNoTracking()
                    .SingleOrDefaultAsync(n => n.Id == request.documentId);

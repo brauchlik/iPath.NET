@@ -26,7 +26,7 @@ public class UploadTask(IPathApi api, long MaxFileSize)
         try
         {
             var s = new StreamPart(file.OpenReadStream(maxAllowedSize: MaxFileSize), file.Name, file.ContentType);
-            var resp = await api.UploadNodeFile(s, requestId, parentId);
+            var resp = await api.UploadDocument(s, requestId, parentId);
             if (resp.IsSuccessful)
             {
                 IsSuccessful = true;

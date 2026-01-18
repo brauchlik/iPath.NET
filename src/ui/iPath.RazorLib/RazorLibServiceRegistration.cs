@@ -84,7 +84,7 @@ public static class RazorLibServiceRegistration
         services.AddScoped<CommunityViewModel>();
         services.AddScoped<GroupListViewModel>();
         services.AddScoped<GroupIndexViewModel>();
-        services.AddScoped<NodeListViewModel>();
+        services.AddScoped<ServiceRequestListViewModel>();
         services.AddScoped<ServiceRequestViewModel>();
         services.AddScoped<UserViewModel>();
         services.AddScoped<QuestionnairesViewModel>();

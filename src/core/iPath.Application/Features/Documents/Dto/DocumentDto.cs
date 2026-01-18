@@ -2,7 +2,7 @@
 
 public record DocumentDto
 {
-    public string NodeType { get; init; } = default!;
+    public string DocumentType { get; init; } = default!;
     public int? SortNr { get; set; }
 
     public Guid Id { get; init; }

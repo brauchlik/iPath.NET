@@ -137,28 +137,25 @@ public interface IPathApi
 
     #region "-- ServiceRequest --"
     [Get("/api/v1/requests/{id}")]
-    Task<IApiResponse<ServiceRequestDto>> GetNodeById(Guid id);
+    Task<IApiResponse<ServiceRequestDto>> GetRequestById(Guid id);
 
     [Post("/api/v1/requests/list")]
-    Task<IApiResponse<PagedResultList<ServiceRequestListDto>>> GetNodeList(GetServiceRequestsQuery query);
+    Task<IApiResponse<PagedResultList<ServiceRequestListDto>>> GetRequestList(GetServiceRequestsQuery query);
 
     [Post("/api/v1/requests/idlist")]
-    Task<IApiResponse<IReadOnlyList<Guid>>> GetNodeIdList(GetServiceRequestIdListQuery query);
+    Task<IApiResponse<IReadOnlyList<Guid>>> GetRequestIdList(GetServiceRequestIdListQuery query);
 
     [Post("/api/v1/requests/create")]
-    Task<IApiResponse<ServiceRequestDto>> CreateNode(CreateServiceRequestCommand query);
+    Task<IApiResponse<ServiceRequestDto>> CreateRequest(CreateServiceRequestCommand query);
 
     [Delete("/api/v1/requests/{id}")]
-    Task<IApiResponse<ServiceRequestDeletedEvent>> DeleteNode(Guid id);
+    Task<IApiResponse<ServiceRequestDeletedEvent>> DeleteRequest(Guid id);
 
     [Put("/api/v1/requests/update")]
-    Task<IApiResponse<bool>> UpdateNode(UpdateServiceRequestCommand request);
-
-    [Put("/api/v1/requests/order")]
-    Task<IApiResponse<ChildNodeSortOrderUpdatedEvent>> UpdateNodeSortOrder(UpdateDcoumentsSortOrderCommand request);
+    Task<IApiResponse<bool>> UpdateRequest(UpdateServiceRequestCommand request);
 
     [Post("/api/v1/requests/visit/{id}")]
-    Task<IApiResponse<bool>> UpdateNodeVisit(Guid id);
+    Task<IApiResponse<bool>> UpdateRequestVisit(Guid id);
 
     [Post("/api/v1/requests/annotation")]
     Task<IApiResponse<AnnotationDto>> CreateAnnotation(CreateAnnotationCommand request);
@@ -170,14 +167,17 @@ public interface IPathApi
 
     #region "-- Request-Documents --"
     [Multipart]
-    [Post("/api/v1/requests/{requestId}/upload/{parentId}")]
-    Task<IApiResponse<DocumentDto>> UploadNodeFile([AliasAs("file")] StreamPart file, Guid requestId, Guid? parentId = null);
+    [Post("/api/v1/documents/upload/{requestId}")]
+    Task<IApiResponse<DocumentDto>> UploadDocument([AliasAs("file")] StreamPart file, Guid requestId, [AliasAs("parentId")] Guid? parentId = null);
 
-    [Delete("/api/v1/requests/document/{id}")]
+    [Delete("/api/v1/documents/{id}")]
     Task<IApiResponse<Guid>> DeleteDocument(Guid id);
 
-    [Put("/api/v1/requests/document/{id}")]
+    [Put("/api/v1/documents/{id}")]
     Task<IApiResponse<Guid>> UpdateDocument(Guid id);
+
+    [Put("/api/v1/documents/order")]
+    Task<IApiResponse<ChildNodeSortOrderUpdatedEvent>> UpdateDocumentsSortOrder(UpdateDocumentsSortOrderCommand request);
     #endregion
 
 

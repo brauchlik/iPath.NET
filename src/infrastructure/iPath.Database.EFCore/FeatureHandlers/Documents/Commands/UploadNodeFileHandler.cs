@@ -1,4 +1,5 @@
-﻿using iPath.Application.Features.Documents;
+﻿using iPath.Application;
+using iPath.Application.Features.Documents;
 using iPath.Domain.Config;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
@@ -38,15 +39,15 @@ public class UploadDocumentFileCommandHandler(iPathDbContext db,
         var document = new DocumentNode
         {
             Id = Guid.CreateVersion7(),
-            ServiceRequest = node,
+            ServiceRequestId = node.Id,
             ParentNodeId = request.ParentId,
             CreatedOn = DateTime.UtcNow,
-            Owner = await db.Users.FindAsync(sess.User.Id, ct)
+            OwnerId = sess.User.Id
         };
 
         // rootNode.ChildNodes.Add(newNode);
 
-        document.SortNr = node.Documents.Where(n => n.ParentNodeId == request.ParentId).Max(n => n.SortNr) + 1;
+        document.SortNr = node.Documents.IsEmpty() ? 0 : node.Documents.Where(n => n.ParentNodeId == request.ParentId).Max(n => n.SortNr) + 1;
 
         document.File = new()
         {
@@ -78,7 +79,7 @@ public class UploadDocumentFileCommandHandler(iPathDbContext db,
             }
 
             // insert the newNode into the DB
-            await db.Docoments.AddAsync(document);
+            await db.Documents.AddAsync(document);
 
             // publish domain event
             var evtinput = new UploadDocumentInput(RequestId: node.Id, ParentId: request.ParentId, filename: request.filename);

@@ -1,0 +1,59 @@
+﻿@namespace iPath.Blazor.Componenents.Documents
+
+@inherits ServiceRequestViewComponentBase
+
+@inject ISnackbar snackbar
+@inject IDialogService srvDialog
+
+
+@**** Gallery View **********************************************@
+<div class="gallery">
+    @foreach (var c in Items)
+    {
+        <div class="gallery-item" @onclick="@(() => OnChildClick(c))">
+
+            <div class="gallery-contextmenu">
+                <MudMenu FullWidth="true" ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.TopCenter" Disabled="vm.EditDisabled">
+                    <ActivatorContent>
+                        <MudIcon Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" />
+                    </ActivatorContent>
+                    <ChildContent>
+                        <MudMenuItem Label="Delete" Disabled="vm.DeleteDisabled" OnClick=@(() => vm.DeleteDocument(c)) />
+                        <MudMenuItem Label="Edit" Disabled="vm.EditDisabled" OnClick=@(() => vm.EditDocument(c)) />
+                    </ChildContent>
+                </MudMenu>
+            </div>
+
+            <MudTooltip>
+                <TooltipContent>
+                    <b>Owner: </b> @c.Owner.Username - @c.CreatedOn.ToString("d")<br />
+                    <b>Filename: </b>@c.GalleryCaption
+                </TooltipContent>
+                <ChildContent>
+                    <GalleryImage Model="@c" />
+                </ChildContent>
+            </MudTooltip>
+        </div>
+    }
+</div>
+
+
+@code {
+    List<DocumentDto> Items = new();
+
+    protected override void OnInitialized()
+    {
+        if (vm.SelectedRequest is not null)
+        {
+            Items = vm.SelectedRequest.Documents
+                .Where(d => !d.ParentNodeId.HasValue)
+                .OrderBy(d => d.SortNr).ToList();
+        }
+    }
+
+
+    void OnChildClick(DocumentDto child)
+    {
+        vm.NavigateToDocument(child);
+    }
+}

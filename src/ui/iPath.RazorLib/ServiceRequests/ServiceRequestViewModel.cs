@@ -31,7 +31,7 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public string SearchString { get; set; }
 
-    public ServiceRequestDto SelectedRequest { get; private set; }
+    public ServiceRequestDto? SelectedRequest { get; private set; }
     public DocumentDto? SelectedDocument { get; private set; }
     public GroupDto? ActiveGroup { get; private set; }
 
@@ -92,7 +92,7 @@ public class ServiceRequestViewModel(IPathApi api,
         else
         {
             OnLoadingStarted?.Invoke();
-            var respN = await api.GetNodeById(id);
+            var respN = await api.GetRequestById(id);
             if (respN.IsSuccessful)
             {
                 SelectedRequest = respN.Content;
@@ -130,7 +130,7 @@ public class ServiceRequestViewModel(IPathApi api,
     {
         if (SelectedRequest is not null)
         {
-            await api.UpdateNodeVisit(SelectedRequest.Id);
+            await api.UpdateRequestVisit(SelectedRequest.Id);
         }
     }
 
@@ -158,7 +158,7 @@ public class ServiceRequestViewModel(IPathApi api,
         if (IdList is null && LastQuery is not null)
         {
             var cmd = new GetServiceRequestIdListQuery(LastQuery);
-            var resp = await api.GetNodeIdList(cmd);
+            var resp = await api.GetRequestIdList(cmd);
             if (resp.IsSuccessful)
             {
                 IdList = resp.Content.ToList();
@@ -209,7 +209,7 @@ public class ServiceRequestViewModel(IPathApi api,
                     // there is one more in list => select
                     var nextId = IdList[idx + 1];
                     ClearData();
-                    nm.NavigateTo($"node/{nextId}");
+                    nm.NavigateTo($"request/{nextId}");
                     return;
                 }
             }
@@ -249,7 +249,7 @@ public class ServiceRequestViewModel(IPathApi api,
                     // there is one more in list => select
                     var prevId = IdList[idx - 1];
                     ClearData();
-                    nm.NavigateTo($"node/{prevId}");
+                    nm.NavigateTo($"request/{prevId}");
                     return;
                 }
             }
@@ -277,7 +277,8 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public void NavigateToDocument(DocumentDto childNode)
     {
-        // nm.NavigateTo($"node/{childNode.Id}");
+        // nm.NavigateTo($"request/{childNode.Id}");
+        SelectDocument(childNode);
     }
 
 
@@ -340,8 +341,8 @@ public class ServiceRequestViewModel(IPathApi api,
     {
         if (SelectedRequest != null)
         {
-            var cmd = new UpdateDcoumentsSortOrderCommand(SelectedRequest.Id, sortOrder);
-            var resp = await api.UpdateNodeSortOrder(cmd);
+            var cmd = new UpdateDocumentsSortOrderCommand(SelectedRequest.Id, sortOrder);
+            var resp = await api.UpdateDocumentsSortOrder(cmd);
             if (!resp.IsSuccessful)
             {
                 snackbar.AddWarning(resp.ErrorMessage);
@@ -366,7 +367,7 @@ public class ServiceRequestViewModel(IPathApi api,
         ActiveGroup = grpResp.Content;
 
         // Create new Node
-        var resp = await api.CreateNode(new CreateServiceRequestCommand(GroupId: GroupId, RequestType: "Case"));
+        var resp = await api.CreateRequest(new CreateServiceRequestCommand(GroupId: GroupId, RequestType: "Case"));
         if (resp.IsSuccessful)
         {
             SelectedRequest = resp.Content;
@@ -407,7 +408,7 @@ public class ServiceRequestViewModel(IPathApi api,
             }
             if (SelectedRequest != null)
             {
-                var resp = await api.DeleteNode(SelectedRequest.Id);
+                var resp = await api.DeleteRequest(SelectedRequest.Id);
                 if (resp.IsSuccessful)
                 {
                         IsEditing = false;
@@ -439,13 +440,13 @@ public class ServiceRequestViewModel(IPathApi api,
         var errors = new List<string>();
         foreach (var id in ids)
         {
-            var node = SelectedRequest.Documents.FirstOrDefault(n => n.Id == id);
-            if (node != null)
+            var doc = SelectedRequest.Documents.FirstOrDefault(n => n.Id == id);
+            if (doc != null)
             {
-                var resp = await api.DeleteNode(node.Id);
+                var resp = await api.DeleteDocument(doc.Id);
                 if (resp.IsSuccessful)
                 {
-                    SelectedRequest.Documents.Remove(node);
+                    SelectedRequest.Documents.Remove(doc);
                 }
                 else
                 {
@@ -460,16 +461,17 @@ public class ServiceRequestViewModel(IPathApi api,
         }
         else
         {
-            snackbar.Add(T["Items deleted"], Severity.Success);
+            snackbar.Add(T["Documents deleted"], Severity.Success);
         }
-        OnChange();
+
+        NotifyStateChanged();
     }
 
 
     public bool IsEditing
     {
         get;
-        set { field = value; OnChange(); }
+        set { field = value; NotifyStateChanged(); }
     }
 
     public bool EditDisabled => !appState.CanEditNode(SelectedRequest);
@@ -478,7 +480,7 @@ public class ServiceRequestViewModel(IPathApi api,
     {
         if (!EditDisabled && SelectedRequest is not null)
         {
-            nm.NavigateTo($"node/edit/{SelectedRequest.Id}");
+            nm.NavigateTo($"request/edit/{SelectedRequest.Id}");
         }
     }
 
@@ -496,14 +498,14 @@ public class ServiceRequestViewModel(IPathApi api,
         if (SelectedRequest != null && !SaveDisabled && IsEditing)
         {
             var cmd = new UpdateServiceRequestCommand(NodeId: SelectedRequest.Id, Description: SelectedRequest.Description, IsDraft: false);
-            var resp = await api.UpdateNode(cmd);
+            var resp = await api.UpdateRequest(cmd);
             if (!resp.IsSuccessful)
             {
                 snackbar.AddError(resp.ErrorMessage);
             }
             else
             {
-                nm.NavigateTo($"node/{SelectedRequest.Id}");
+                nm.NavigateTo($"request/{SelectedRequest.Id}");
             }
             IsEditing = false;
 
@@ -524,13 +526,13 @@ public class ServiceRequestViewModel(IPathApi api,
                 // check if there is no valid input and no child nodes => delete
                 if (SelectedRequest.Documents.IsEmpty() && !SelectedRequest.Description.ValidateInput())
                 {
-                    resp = await api.DeleteNode(SelectedRequest.Id);
+                    resp = await api.DeleteRequest(SelectedRequest.Id);
                 }
                 else
                 {
                     // when cancelling a draft, save current state ...
                     var cmd = new UpdateServiceRequestCommand(NodeId: SelectedRequest.Id, Description: SelectedRequest.Description, IsDraft: true);
-                    resp = await api.UpdateNode(cmd);
+                    resp = await api.UpdateRequest(cmd);
                 }
 
                 if (resp.IsSuccessful)
@@ -545,7 +547,7 @@ public class ServiceRequestViewModel(IPathApi api,
             }
             else
             {
-                nm.NavigateTo($"node/{SelectedRequest.Id}");
+                nm.NavigateTo($"request/{SelectedRequest.Id}");
             }
         }
     }
@@ -560,9 +562,9 @@ public class ServiceRequestViewModel(IPathApi api,
     {
         try
         {
-            if (SelectedDocument is null)
+            if (SelectedRequest is null)
             {
-                snackbar.AddWarning("no node selected");
+                snackbar.AddWarning("no service request selected");
             }
             else if (f.Size > opts.Value.MaxFileSizeBytes)
             {
@@ -687,7 +689,7 @@ public class ServiceRequestViewModel(IPathApi api,
     {
         if (SelectedRequest is not null)
         {
-            nm.NavigateTo($"node/{SelectedRequest.Id}/slideshow");
+            nm.NavigateTo($"request/{SelectedRequest.Id}/slideshow");
         }
     }
 

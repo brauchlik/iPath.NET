@@ -12,7 +12,7 @@ internal class DocumentNodeConfiguration : IEntityTypeConfiguration<DocumentNode
 
         b.Property(x => x.OwnerId).IsRequired().HasColumnName("owner_id");
         b.Property(b => b.ServiceRequestId).HasColumnName("servicerequest_id");
-        b.HasIndex(b => b.ServiceRequestId);
+        b.HasIndex(b => b.ServiceRequestId).IsUnique(false);
 
         b.HasMany(x => x.ChildNodes).WithOne(c => c.ParentNode).HasForeignKey(c => c.ParentNodeId).OnDelete(DeleteBehavior.Cascade);
 

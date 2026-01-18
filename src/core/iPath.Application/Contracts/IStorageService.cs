@@ -10,7 +10,6 @@ public interface IStorageService
     Task<StorageRepsonse> GetFileAsync(Guid DocumentId, CancellationToken ctk = default!);
     Task<StorageRepsonse> GetFileAsync(DocumentNode document, CancellationToken ctk = default!);
 
-
     Task<StorageRepsonse> PutServiceRequestJsonAsync(Guid Id, CancellationToken ctk = default!);
     Task<StorageRepsonse> PutServiceRequestJsonAsync(ServiceRequest request, CancellationToken ctk = default!);
 }

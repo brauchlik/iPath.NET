@@ -1,4 +1,4 @@
-﻿@page "/node/{id}"
+﻿@page "/request/{id}"
 
 @inherits ServiceRequestViewComponentBase
 
@@ -11,8 +11,8 @@
 }
 else
 {
-    <NodeDescriptionView ExpandDescription="ShowDescription" />
-    <NodeGallery OnShowingChildNode="@(e => ShowDescription = !e)" />
+    <ServiceRequestDescriptionView ExpandDescription="ShowDescription" />
+    <DocumentGallery OnShowingChildNode="@(e => ShowDescription = !e)" />
     <NodeAnnotations Class="mt-8" @ref="annotationView" />
 }
 

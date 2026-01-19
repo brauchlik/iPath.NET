@@ -93,7 +93,9 @@ public static class ServiceRequestExtensions
 
         public string? NodeTitle => node?.File is null ? node.Description?.Title : node.File.Filename;
 
-        public bool ContainsChildId(Guid Id) => node.Documents.Any(c => c.Id == Id);
+        public bool ContainsDocumentId(Guid Id) => node.Documents.Any(c => c.Id == Id);
+
+        public string GetDocumentCaption(Guid Id) => node.Documents.FirstOrDefault(c => c.Id == Id)?.GalleryCaption;
     }
 
 

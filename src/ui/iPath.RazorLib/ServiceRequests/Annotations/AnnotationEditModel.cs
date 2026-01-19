@@ -6,8 +6,8 @@ public class AnnotationEditModel
 
     public AnnotationData Data { get; set; } = new();
 
-    public Guid RootNodeId { get; set; }
-    public Guid? ChildNodeId { get; set; }
+    public Guid ServiceRequestId { get; set; }
+    public Guid? DocumentId { get; set; }
 
 }
            

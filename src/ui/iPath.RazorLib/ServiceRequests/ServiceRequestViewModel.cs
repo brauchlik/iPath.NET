@@ -31,9 +31,17 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public string SearchString { get; set; }
 
-    public ServiceRequestDto? SelectedRequest { get; private set; }
-    public DocumentDto? SelectedDocument { get; private set; }
+    public ServiceRequestDto? SelectedRequest { 
+        get; 
+        private set
+        {
+            RequestOwner = value?.Owner;
+            field = value;
+        }
+    }
     public OwnerDto? RequestOwner { get; set; } // May be modified by view
+
+    public DocumentDto? SelectedDocument { get; private set; }
 
     public GroupDto? ActiveGroup { get; private set; }
 
@@ -76,7 +84,6 @@ public class ServiceRequestViewModel(IPathApi api,
     }
 
 
-
     public List<DocumentDto> GetVisibleDocuments(DocumentDto? parent = null)
     {
         if (SelectedRequest is not null)
@@ -109,7 +116,6 @@ public class ServiceRequestViewModel(IPathApi api,
         if (respN.IsSuccessful)
         {
             SelectedRequest = respN.Content;
-            RequestOwner = SelectedRequest.Owner;
 
             // load Group
             if (SelectedRequest.GroupId.HasValue && (ActiveGroup is null || ActiveGroup.Id != SelectedRequest.GroupId))
@@ -184,6 +190,19 @@ public class ServiceRequestViewModel(IPathApi api,
         return !IdList.IsEmpty();
     }
 
+
+    public async Task GoUpRequestPage()
+    {
+        if (SelectedRequest is null)
+        {
+            nm.NavigateTo(NavUrl);
+        }
+        else
+        {
+            nm.NavigateTo($"request/{SelectedRequest.Id}");
+        }
+    }
+
     public async Task GoUp()
     {
         if (SelectedRequest is null) return;
@@ -193,17 +212,15 @@ public class ServiceRequestViewModel(IPathApi api,
             // go back to nodelist (group, search, mynode)
             nm.NavigateTo(NavUrl);
         }
-        else if (SelectedDocument != null && SelectedDocument.ParentNodeId.HasValue)
+        else if (SelectedDocument != null)
         {
-            // go up to parent
-            var tmp = SelectedRequest.Documents.FirstOrDefault(n => n.Id == SelectedDocument.ParentNodeId.Value);
-            if (tmp is null)
+            if (SelectedDocument.ParentNodeId.HasValue)
             {
-                SelectedDocument = null;
+                SelectDocument(SelectedDocument.ParentNodeId.Value);
             }
             else
             {
-                SelectedDocument = tmp;
+                SelectDocument(null);
             }
         }
     }
@@ -629,19 +646,23 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public bool AnnotateDisabled => IsEditing;
 
-    public async Task Annotate(Guid? ChildNodeId = null)
+    public async Task Annotate(DocumentDto document = null, bool ReloadOnSave = true)
     {
         if (AnnotateDisabled) return;
 
-        var model = CreateNewAnnotationInput(ChildNodeId);
+        var dlgTitle = T["New Comment"].ToString();
+        if (document is not null)
+            dlgTitle = string.Format(T["New Comment on {0}"], document.GalleryCaption.ShortenTo(25));
+
+        var model = CreateNewAnnotationInput(document);
         var parameters = new DialogParameters<AddPlaintextAnnotationDialog> { { x => x.Model, model } };
-        var dialog = await srvDialog.ShowAsync<AddPlaintextAnnotationDialog>("New Comment", parameters);
+        var dialog = await srvDialog.ShowAsync<AddPlaintextAnnotationDialog>(dlgTitle, parameters);
         var result = await dialog.Result;
         if (!result.Canceled && result.Data is AnnotationEditModel data)
         {
             if (data.Data.ValidateInput())
             {
-                await SubmitAnnotation();
+                await SubmitAnnotation(data, ReloadOnSave);
             }
         }
     }
@@ -653,13 +674,13 @@ public class ServiceRequestViewModel(IPathApi api,
         OnChange?.Invoke();
     }
 
-    private AnnotationEditModel CreateNewAnnotationInput(Guid? ChildNodeId = null)
+    private AnnotationEditModel CreateNewAnnotationInput(DocumentDto? Document = null)
     {
         var model = new AnnotationEditModel();
         if (SelectedRequest is not null)
         {
-            model.RootNodeId = SelectedRequest.Id;
-            model.ChildNodeId = ChildNodeId;
+            model.ServiceRequestId = SelectedRequest.Id;
+            model.DocumentId = Document?.Id;
             if (ActiveGroup is not null)
             {
                 model.AskMorphology = ActiveGroup.Settings.AnnotationHasMoprhoogy;
@@ -675,17 +696,19 @@ public class ServiceRequestViewModel(IPathApi api,
         OnChange?.Invoke();
     }
 
-    public async Task SubmitAnnotation()
+    public async Task SubmitAnnotation(AnnotationEditModel? data = null, bool ReloadOnSave = true)
     {
-        if (NewAnnotation is not null)
+        data ??= NewAnnotation;
+        if (data is not null)
         {
-            var cmd = new CreateAnnotationCommand(NewAnnotation.RootNodeId, NewAnnotation.Data, NewAnnotation.ChildNodeId);
+            var cmd = new CreateAnnotationCommand(data.ServiceRequestId, data.Data, data.DocumentId);
 
             var resp = await api.CreateAnnotation(cmd);
             if (resp.IsSuccessful)
             {
                 NewAnnotation = null;
-                await ReloadNode();
+                if (ReloadOnSave)
+                    await ReloadNode();
             }
             else
             {

@@ -35,9 +35,11 @@
             </div>
         </MudPopover>
     </MudChatBubble>
-    @if (Item.ChildNodeId.HasValue)
+    @if (Item.DocumentId.HasValue)
     {
-        <MudChatFooter Text=@($"Comment on image @Item.ChildNodeId") />
+        <MudChatFooter>
+            <span>@T["Comment on:"] </span><MudLink OnClick=@(() => vm.SelectDocument(Item.DocumentId.Value))>@DocumentCaption</MudLink>
+        </MudChatFooter>
     }
 </MudChat>
 
@@ -68,6 +70,8 @@
         var cType =  T[Item.Data.Type.ToString()];
         return string.Format(T["{0} by {1}"], cType, Item.Owner.Username);
     }
+
+    string DocumentCaption => vm.SelectedRequest is not null && Item.DocumentId.HasValue ? vm.SelectedRequest.GetDocumentCaption(Item.DocumentId.Value) : "";
 
     protected override void OnChangedHandler()
     {

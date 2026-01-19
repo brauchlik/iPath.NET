@@ -15,6 +15,6 @@ public class CreateServiceRequestCommandHandler(iPathDbContext db, IUserSession 
         await db.ServiceRequests.AddAsync(node, ct);
         await db.SaveChangesAsync(ct);
 
-        return node.ToDto();
+        return await mediator.Send(new GetServiceRequestByIdQuery(node.Id), ct);
     }
 }

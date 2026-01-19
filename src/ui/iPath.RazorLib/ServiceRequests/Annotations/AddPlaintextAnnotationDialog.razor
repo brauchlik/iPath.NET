@@ -1,7 +1,7 @@
 ﻿<MudFocusTrap DefaultFocus="DefaultFocus.FirstChild">
     <MudDialog ContentStyle="width: 720px; min-height: 350px;">
         <TitleContent>
-            <MudText Typo="Typo.h6">Annotation</MudText>
+            <MudText Typo="Typo.h6">@MudDialog.Title</MudText>
         </TitleContent>
         <DialogContent>
             <MudTextField AutoGrow="true" @bind-Value="Model.Data.Text" Immediate="true"

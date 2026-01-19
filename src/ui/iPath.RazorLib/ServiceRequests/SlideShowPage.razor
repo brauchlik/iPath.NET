@@ -18,8 +18,8 @@
             <div class="d-flex justify-center flex-grow-1 gap-4 mb-10">
                 <MudIconButton Icon="@Icons.Material.Filled.ArrowLeft" Size="Size.Small" OnClick="@(() => vm.SelectPreviousImage())" />
                 <MudIconButton Icon="@Icons.Material.Filled.ArrowRight" Size="Size.Small" OnClick="@(() => vm.SelectNextImage())" />
-                <MudIconButton Icon="@Icons.Material.Filled.Comment" Size="Size.Small" OnClick="@(() => vm.Annotate(vm.SelectedDocument.Id))" />
-                <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small" OnClick="@(() => vm.GoUp())" />
+                <MudIconButton Icon="@Icons.Material.Filled.Comment" Size="Size.Small" OnClick="@(() => vm.Annotate(vm.SelectedDocument, false))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small" OnClick="@(() => vm.GoUpRequestPage())" />
             </div>
 
             <div class="ipath_image slideshow">
@@ -34,10 +34,6 @@
                 <div class="mt-2">@vm.SelectedDocument.GalleryCaption.ShortenTo(80)</div>
             </div>
         }
-        else
-        {
-            vm.GoUp();
-        }
     </MudSwipeArea>
 </MudFocusTrap>
 
@@ -46,19 +42,26 @@
     [Parameter]
     public string id { get; set; }
 
+    Guid? lastId = null;
 
     protected override async Task OnParametersSetAsync()
     {
         await vm.LoadNode(Guid.Parse(id));
 
         // select first images
-        if (vm.HasImages)
+        await SelectFirstImage();
+    }
+
+    async Task SelectFirstImage()
+    {
+                if (vm.HasImages)
         {
             vm.SelectDocument(vm.SelectedRequest.Documents.FirstOrDefault(n => n.IsImage).Id);
+            lastId = vm.SelectedDocument?.Id;
         }
         else
         {
-            await vm.GoUp();
+            await vm.GoUpRequestPage();
         }
     }
 
@@ -73,6 +76,7 @@
         {
             await vm.SelectPreviousImage();
         }
+        lastId = vm.SelectedDocument?.Id;
     }
 
 
@@ -90,8 +94,9 @@
         }
         else if (code == "Escape")
         {
-            await vm.GoUp();
+            await vm.GoUpRequestPage();
         }
+        lastId = vm.SelectedDocument?.Id;
     }
 
 }

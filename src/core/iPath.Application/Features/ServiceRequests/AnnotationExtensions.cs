@@ -11,7 +11,7 @@ public static class AnnotationExtensions
             OwnerId = item.OwnerId,
             Owner = item.Owner.ToOwnerDto(),
             Data = item.Data,
-            ChildNodeId = item.DcoumentNodeId
+            DocumentId = item.DcoumentNodeId
         };
     }
 

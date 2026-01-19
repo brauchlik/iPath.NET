@@ -1,5 +1,6 @@
 ﻿using iPath.Blazor.Componenents.Admin.Groups;
 using iPath.Blazor.Componenents.Admin.Users;
+using iPath.Blazor.Componenents.Questionaiires;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 
@@ -285,6 +286,29 @@ public class CommunityAdminViewModel(IPathApi api,
             }
         }
     }
+
+
+
+
+    public async Task SaveQuestionnaireUsage(CommunityQuestionnareModel model, eQuestionnaireUsage change)
+    {
+        try
+        {
+            bool remove = !model.Usage[change];
+            var cmd = new AssignQuestionnaireCommand(Id: model.QuestionnaireId, change, remove, CommunityId: model.CommunityId);
+            var resp = await api.AssignQuestionnaire(cmd);
+            if (resp.IsSuccessful) return;
+
+            snackbar.AddError(resp.ErrorMessage);
+        }
+        catch (Exception ex)
+        {
+            snackbar.AddError(ex.Message);
+        }
+
+        // on error => reset Usage
+        model.Usage[change] = !model.Usage[change];
+    }
 }
 
 
@@ -299,4 +323,32 @@ public class CommunityEditModel
     public CommunitySettings Settings { get; set; } = new();
 
     public OwnerDto? Owner { get; set; }
+}
+
+
+public class CommunityQuestionnareModel
+{
+    public Guid QuestionnaireId { get; init; }
+
+    public string Id { get; init; }
+    public string Name { get; init; }
+
+    public string NameAndId => $"{Name} [{Id}]";
+
+    public Guid CommunityId { get; init; }
+
+    public Dictionary<eQuestionnaireUsage, bool> Usage = new();
+
+    public CommunityQuestionnareModel(Guid QuestionnaireId, string Id, string Name, Guid CommunityId)
+    {
+        this.QuestionnaireId = QuestionnaireId;
+        this.Id = Id;
+        this.Name = Name;
+        this.CommunityId = CommunityId;
+
+        foreach (var e in QuestionnairesViewModel.Usages)
+        {
+            Usage.Add((eQuestionnaireUsage)e, false);
+        }
+    }
 }

@@ -38,7 +38,7 @@
     @if (Item.DocumentId.HasValue)
     {
         <MudChatFooter>
-            <span>@T["Comment on:"] </span><MudLink OnClick=@(() => vm.SelectDocument(Item.DocumentId.Value))>@DocumentCaption</MudLink>
+            <span>@T["Comment on: "]</span><MudLink OnClick=@(() => vm.SelectDocument(Item.DocumentId.Value))>@DocumentCaption</MudLink>
         </MudChatFooter>
     }
 </MudChat>

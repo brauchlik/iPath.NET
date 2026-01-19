@@ -9,70 +9,79 @@
 @inject ISnackbar snackbar
 @inject IJSRuntime JS
 @inject IHttpClientFactory httpFactory
-@inject IOptions<iPathConfig> opts
+@inject IOptions<iPathClientConfig> opts
 
-@if (vm.SelectedDocument is not null)
-{
-    OnShowingChildNode.InvokeAsync(true);
-    <div class="ipath_image">
-        @if (vm.SelectedDocument.IsImage)
-        {
-            <img src="@vm.SelectedDocument.FileUrl" @onclick="@vm.GoNext" />
-        }
-        else if (Wsi && vm.SelectedDocument.FileExtension == ".svs")
-        {
-            <div class="d-flex justify-center ipath_osd">
-                <iPath.OpenSeadragon.OsdViewerIFrame ImagePath=@($"/files/{vm.SelectedDocument.Id}") Width="1000" Height="700" />
-            </div>
-        }
-        else
-        {
-            <MudIcon Size="Size.Large" Icon="@vm.SelectedDocument.FileIcon" />
-        }
-        <div class="mt-2">
-            <strong>@T["Download original"]:</strong> 
-            <MudLink Target="_blank" Href="@vm.SelectedDocument.FileUrl">@vm.SelectedDocument.GalleryCaption.ShortenTo(50)</MudLink>
-        </div>
-    </div>
-}
-else
-{
-    OnShowingChildNode.InvokeAsync(false);
-    <div class="ipath_section_header">
-        <div class="ipath_header_title">Gallery</div>
-        <div class="ipath_header_actions">
-            <MudTooltip Text="Sort Images">
-                <MudIcon Size="Size.Small" Icon="@Icons.Material.Rounded.PlaylistPlay" @onclick="ActivateSort" />
-            </MudTooltip>
-            <MudTooltip Text="Upload new Images">
-                <MudIcon Size="Size.Small" Icon="@Icons.Material.Rounded.AttachFile" @onclick="ActivateUpload" />
-            </MudTooltip>
-        </div>
-    </div>
-
-    @if (vm.SelectedRequest != null)
+<MudPaper Class="@Class" Elevation="0">
+    @if (vm.SelectedDocument is not null)
     {
-        @if (Sorting)
+        OnShowingChildNode.InvokeAsync(true);
+        <div class="ipath_image">
+            @if (vm.SelectedDocument.IsImage)
+            {
+                <img src="@vm.SelectedDocument.FileUrl" @onclick="@vm.GoNext" />
+            }
+            else if (Wsi && vm.SelectedDocument.FileExtension == ".svs")
+            {
+                <div class="d-flex justify-center">
+                    <iPath.OpenSeadragon.OsdViewerIFrame ImagePath=@($"/files/{vm.SelectedDocument.Id}") MaxHeight="700" />
+                </div>
+                <MudAlert NoIcon="true" Severity="Severity.Info">
+                    WSI viewer using <a href="https://openseadragon.github.io/">OpenSeadragon</a>
+                </MudAlert>
+            }
+            else
+            {
+                <MudIcon Size="Size.Large" Icon="@vm.SelectedDocument.FileIcon" />
+            }
+
+            <div class="mt-2">
+                <strong>@T["Download original"]:</strong>
+                <MudLink Target="_blank" Href="@vm.SelectedDocument.FileUrl">@vm.SelectedDocument.GalleryCaption.ShortenTo(50)</MudLink>
+            </div>
+        </div>
+    }
+    else
+    {
+        OnShowingChildNode.InvokeAsync(false);
+        <div class="ipath_section_header">
+            <div class="ipath_header_title">Gallery</div>
+            <div class="ipath_header_actions">
+                <MudTooltip Text="Sort Images">
+                    <MudIcon Size="Size.Small" Icon="@Icons.Material.Rounded.PlaylistPlay" @onclick="ActivateSort" />
+                </MudTooltip>
+                <MudTooltip Text="Upload new Images">
+                    <MudIcon Size="Size.Small" Icon="@Icons.Material.Rounded.AttachFile" @onclick="ActivateUpload" />
+                </MudTooltip>
+            </div>
+        </div>
+
+        @if (vm.SelectedRequest != null)
         {
-            <DocumentGallerySortable OnSortingFinished="SortingFinished" />
-        }
-        else if (Uploading)
-        {
-            <GalleryDropZone />
-            <MudButton Variant="Variant.Filled" OnClick="UploadingFinished" Class="my-4">Ok</MudButton>
-        }
-        else
-        {
-            <DocumentGalleryView />
+            @if (Sorting)
+            {
+                <DocumentGallerySortable OnSortingFinished="SortingFinished" />
+            }
+            else if (Uploading)
+            {
+                <GalleryDropZone />
+                <MudButton Variant="Variant.Filled" OnClick="UploadingFinished" Class="my-4">Ok</MudButton>
+            }
+            else
+            {
+                <DocumentGalleryView />
+            }
         }
     }
-}
+</MudPaper>
 
 @code {
     [Parameter]
+    public string Class { get; set; }
+
+    [Parameter]
     public EventCallback<bool> OnShowingChildNode { get; set; }
 
-    bool Wsi => true; // opts.Value.WsiViewerActive;
+    bool Wsi => opts.Value.WsiViewerActive;
 
     private bool Sorting;
     private bool Uploading;

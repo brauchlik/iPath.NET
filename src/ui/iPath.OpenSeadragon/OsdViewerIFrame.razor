@@ -1,35 +1,28 @@
-﻿@inject IJSRuntime JSRuntime
+﻿@using MudBlazor.Services
+@implements IBrowserViewportObserver
+@implements IAsyncDisposable
+
+@inject IJSRuntime JSRuntime
 @inject NavigationManager nm
+@inject IBrowserViewportService BrowserViewportService
 
 
-<MudStack>
-    <MudPaper Width="@WidthFrame" Height="@HeightFrame" Elevation="2" Style="background-color: black;">
-        <iframe id="wsiFrame" title="WSI Viewer"
-                width="@WidthFrame" height="@HeightFrame" style="border:none;"
-                srcdoc="@iframe">
-        </iframe>
-    </MudPaper>
-
-    @if (ShowViewerInfo)
-    {
-        <MudAlert NoIcon="true" Severity="Severity.Info">
-            WSI viewer using <a href="https://openseadragon.github.io/">OpenSeadragon</a>
-        </MudAlert>
-    }
-
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <MudAlert Severity="Severity.Warning" Class="my-2">
-             @errorMessage
-        </MudAlert>
-    }
-
-    <MudSpacer />
-</MudStack>
+<MudPaper Elevation="2" Style="background-color: black;" Width="@paperW" Height="@paperH" >
+    <iframe id="wsiFrame" title="WSI Viewer"
+            width="@pxWidth" height="@pxHeight" style="border:none; max-height: @pxHeight;"
+            srcdoc="@iframe">
+    </iframe>
+</MudPaper>
 
 
-@code
-    {
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <MudAlert Severity="Severity.Warning" Class="my-1 pa-1">
+            @errorMessage
+    </MudAlert>
+}
+
+@code{
     [Parameter, EditorRequired]
     public string ImagePath { get; set; }
 
@@ -37,15 +30,20 @@
     public bool ShowViewerInfo { get; set; } = true;
 
     [Parameter]
-    public int Width { get; set; } = 1200;
+    public int? MaxWidth { get; set; }
 
     [Parameter]
-    public int Height { get; set; } = 720;
+    public int? MaxHeight { get; set; } = 600;
 
 
-    string WidthFrame => $"{Width}px"; 
-    string HeightFrame => $"{Height}px";
-    string ViewerStyle => $"width: {Width-12}px; height: {Height - 32}px;";
+    string paperH => $"{pxHeight}px";
+    string paperW => $"{pxWidth}px";
+
+
+    private int pxWidth = 0;
+    private int pxHeight = 0;
+
+    string ViewerStyle => $"width: {pxWidth-16}px; height: {pxHeight-22}px; background-color: dark-gray;";
 
 
     string errorMessage;
@@ -54,28 +52,60 @@
 
     protected override void OnParametersSet()
     {
-        if (isready)
+        if (pxWidth > 0)
         {
             LoadHtml();
         }
     }
 
-
-    bool isready;
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            LoadHtml();
-            isready = true;
-        }
-    }
 
     private void LoadHtml()
     {
         var html = new OsdViewerHtml();
         iframe = html.CreateIframeHtml(ImagePath, ViewerStyle);
-        StateHasChanged();
+    }
+
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await BrowserViewportService.SubscribeAsync(this, fireImmediately: true);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public async ValueTask DisposeAsync() => await BrowserViewportService.UnsubscribeAsync(this);
+
+    Guid IBrowserViewportObserver.Id { get; } = Guid.NewGuid();
+
+    ResizeOptions IBrowserViewportObserver.ResizeOptions { get; } = new()
+    {
+        ReportRate = 50,
+        NotifyOnBreakpointOnly = false
+    };
+
+    int _Width;
+    int _Height;
+
+    Task IBrowserViewportObserver.NotifyBrowserViewportChangeAsync(BrowserViewportEventArgs browserViewportEventArgs)
+    {
+        _Width = browserViewportEventArgs.BrowserWindowSize.Width;
+        _Height = browserViewportEventArgs.BrowserWindowSize.Height;
+
+        pxWidth = _Width > 960 ? _Width - 300 : _Width - 10;
+        pxHeight = _Height - 150;
+
+        if (MaxWidth.HasValue && MaxWidth < pxWidth)
+            pxWidth = MaxWidth.Value;
+
+        if (MaxHeight.HasValue && MaxHeight < pxHeight)
+            pxHeight = MaxHeight.Value;
+
+        LoadHtml();
+        return InvokeAsync(StateHasChanged);
     }
 }
 

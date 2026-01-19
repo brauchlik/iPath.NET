@@ -55,8 +55,8 @@ public partial class EditGroupQuestionnairesDialog(IPathApi api, IStringLocalize
         try
         {
             bool remove = !model.Usage[change];
-            var cmd = new AssignQuestionnaireToGroupCommand(model.QuestionnaireId, model.GrouppId, change, remove);
-            var resp = await api.AssignQuestionnaireToGroup(cmd);
+            var cmd = new AssignQuestionnaireCommand(model.QuestionnaireId, change, remove, GroupId: model.GroupId);
+            var resp = await api.AssignQuestionnaire(cmd);
         }
         catch(Exception ex)
         {

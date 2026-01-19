@@ -46,11 +46,6 @@ public static class GroupEndpoints
             => await srv.DeleteGroupAsync(new DeleteGroupCommand(id), ct))
             .RequireAuthorization("Admin");
 
-
-        grp.MapPut("questionnaire/assign", async (AssignQuestionnaireToGroupCommand cmd, [FromServices] IGroupService srv, CancellationToken ct)
-            => await srv.AssignQuestionnaireToGroupAsync(cmd, ct))
-            .RequireAuthorization("Admin");
-
         return route;
     }
 }

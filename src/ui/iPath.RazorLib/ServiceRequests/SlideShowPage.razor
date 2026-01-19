@@ -6,6 +6,7 @@
 @layout SlideshowLayout
 
 @inherits ServiceRequestViewComponentBase
+@inject IOptions<iPathClientConfig> opts
 
 <MudFocusTrap DefaultFocus="DefaultFocus.FirstChild">
     <MudSwipeArea Style="height: 100%; width: 100%; background-color: black;"
@@ -27,6 +28,12 @@
                 {
                     <img src="@vm.SelectedDocument.FileUrl" class="ipath_image_slideshow"/>
                 }
+                else if (Wsi && vm.SelectedDocument.FileExtension == ".svs")
+                {
+                    <div class="d-flex justify-center ipath_osd">
+                        <iPath.OpenSeadragon.OsdViewerIFrame ImagePath=@($"/files/{vm.SelectedDocument.Id}") MaxHeight="700" />
+                    </div>
+                }
                 else
                 {
                     <MudIcon Size="Size.Large" Icon="@vm.SelectedDocument.FileIcon" />
@@ -42,6 +49,7 @@
     [Parameter]
     public string id { get; set; }
 
+    bool Wsi => opts.Value.WsiViewerActive;
     Guid? lastId = null;
 
     protected override async Task OnParametersSetAsync()

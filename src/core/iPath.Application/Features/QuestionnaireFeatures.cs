@@ -19,5 +19,14 @@ public class GetQuestionnaireListQuery : PagedQuery<QuestionnaireEntity>
 }
 
 
+public record AssignQuestionnaireCommand(Guid Id, eQuestionnaireUsage Usage, bool remove, Guid? GroupId = null, Guid? CommunityId = null)
+    : IEventInput
+    , IRequest<AssignQuestionnaireCommand, Task>
+{
+    public string ObjectName => nameof(Group);
+}
+
+
+
 public record UpdateQuestionnaireCommand(string QuestionnaireId, string Name, string Resource, bool insert)
     : IRequest<UpdateQuestionnaireCommand, Task<Guid>>;

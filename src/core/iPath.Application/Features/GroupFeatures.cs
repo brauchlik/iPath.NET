@@ -53,7 +53,6 @@ public interface IGroupService
 
 
     Task<GroupAssignedToCommunityEvent> AssignGroupToCommunityAsync(AssignGroupToCommunityCommand cmd, CancellationToken ct = default);
-    Task AssignQuestionnaireToGroupAsync(AssignQuestionnaireToGroupCommand cmd, CancellationToken ct = default);
 }
 
 
@@ -91,12 +90,6 @@ public record AssignGroupToCommunityCommand(Guid GroupId, Guid CommunityId, bool
 }
 
 
-public record AssignQuestionnaireToGroupCommand(Guid Id, Guid GroupId, eQuestionnaireUsage Usage, bool remove)
-    : IEventInput
-    // , IRequest<AssignQuestionnaireToGroupCommand, Task<QuestionnaireAssignedToGroupEvent>>
-{
-    public string ObjectName => nameof(Group);
-}
 
 
 public class CreateGroupCommand : IRequest<CreateGroupCommand, Task<GroupListDto>>, IEventInput

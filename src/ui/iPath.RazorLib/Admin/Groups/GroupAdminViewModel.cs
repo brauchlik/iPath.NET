@@ -374,8 +374,8 @@ public class GroupAdminViewModel(IPathApi api,
         try
         {
             bool remove = !model.Usage[change];
-            var cmd = new AssignQuestionnaireToGroupCommand(model.QuestionnaireId, model.GrouppId, change, remove);
-            var resp = await api.AssignQuestionnaireToGroup(cmd);
+            var cmd = new AssignQuestionnaireCommand(model.QuestionnaireId, change, remove, GroupId: model.GroupId);
+            var resp = await api.AssignQuestionnaire(cmd);
             if (resp.IsSuccessful) return;
 
             snackbar.AddError(resp.ErrorMessage);
@@ -434,7 +434,7 @@ public class GroupQuestionnareModel
 
     public string NameAndId => $"{Name} [{Id}]";
 
-    public Guid GrouppId { get; init; }
+    public Guid GroupId { get; init; }
 
     public Dictionary<eQuestionnaireUsage, bool> Usage = new();
 
@@ -443,7 +443,7 @@ public class GroupQuestionnareModel
         this.QuestionnaireId = QuestionnaireId;
         this.Id = Id;
         this.Name = Name;
-        this.GrouppId = GroupId;
+        this.GroupId = GroupId;
 
         foreach (var e in QuestionnairesViewModel.Usages)
         {

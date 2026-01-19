@@ -13,7 +13,7 @@ public class OsdViewerHtml
         <script src="https://cdn.jsdelivr.net/npm/openseadragon@5.0.1/build/openseadragon/openseadragon.min.js"></script>
         <script src="https://cdn.jsdelivr.net/gh/episphere/GeoTIFFTileSource-JPEG2k/GeoTIFFTileSource.js" type="module" crossorigin="anonymous"></script>
     </head>
-    <body style="backgroud-color: black;">
+    <body style="backgroud-color: black; color: white;">
 
     <div id="osd" style="
 """ + viewerStyle + """

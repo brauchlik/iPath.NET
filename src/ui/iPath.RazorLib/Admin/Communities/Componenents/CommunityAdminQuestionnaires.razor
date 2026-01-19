@@ -2,7 +2,7 @@
 @using iPath.Application.Features.ServiceRequests
 @using iPath.Blazor.Componenents.Admin.Communities
 
-@inject GroupAdminViewModel vm
+@inject CommunityAdminViewModel vm
 @inject IStringLocalizer T
 @inject IPathApi api
 @inject NavigationManager nm
@@ -43,7 +43,7 @@ else
     [Parameter, EditorRequired]
     public CommunityDto Model { get; set; }
 
-    List<GroupQuestionnareModel> Items = new();
+    List<CommunityQuestionnareModel> Items = new();
     QuestionnaireListDto? selectedQ;
     bool saving;
 
@@ -59,7 +59,7 @@ else
             var item = Items.FirstOrDefault(x => x.QuestionnaireId == selectedQ.Id);
             if (item is null)
             {
-                item = new GroupQuestionnareModel(selectedQ.Id, selectedQ.QuestionnaireId, selectedQ.Name, Model.Id);
+                item = new CommunityQuestionnareModel(selectedQ.Id, selectedQ.QuestionnaireId, selectedQ.Name, Model.Id);
                 Items.Add(item);
             }
             selectedQ = null;

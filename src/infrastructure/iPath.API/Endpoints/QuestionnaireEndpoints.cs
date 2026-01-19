@@ -34,6 +34,12 @@ public static class QuesionnaireEndpoints
             => await mediator.Send(cmd, ct))
             .RequireAuthorization("Admin");
 
+
+
+        qr.MapPut("assign", async (AssignQuestionnaireCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(cmd, ct))
+            .RequireAuthorization("Admin");
+
         return route;
     }
 }

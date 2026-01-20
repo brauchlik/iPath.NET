@@ -4,7 +4,7 @@ public partial class MailBox(IPathApi api, ISnackbar snackbar, IDialogService dl
 {
     public MudDataGrid<EmailMessage> grid;
 
-    public async Task<GridData<EmailMessage>> GetData(GridState<EmailMessage> state)
+    public async Task<GridData<EmailMessage>> GetData(GridState<EmailMessage> state, CancellationToken ct = default)
     {
         try
         {
@@ -22,7 +22,7 @@ public partial class MailBox(IPathApi api, ISnackbar snackbar, IDialogService dl
 
     public async Task DeleteAll()
     {
-        var res = await dlg.ShowMessageBox("Delete Mail",
+        var res = await dlg.ShowMessageBoxAsync("Delete Mail",
         "Do you really want to delete all emails?",
         yesText: "yes",
         cancelText: "cancel");

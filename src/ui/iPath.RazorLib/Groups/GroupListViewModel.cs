@@ -1,14 +1,11 @@
-﻿using iPath.Blazor.ServiceLib.ApiClient;
-using Microsoft.AspNetCore.Components;
-
-namespace iPath.Blazor.Componenents.Groups;
+﻿namespace iPath.Blazor.Componenents.Groups;
 
 public class GroupListViewModel(IPathApi api, GroupCache cache, ISnackbar snackbar, IDialogService dialog, NavigationManager nm) : IViewModel
 {
     public CommunityListDto? SelectedCommunity {  get; set; }
     public string SearchString { get; set; }
 
-    public async Task<GridData<GroupListDto>> GetGridAsync(GridState<GroupListDto> state)
+    public async Task<GridData<GroupListDto>> GetGridAsync(GridState<GroupListDto> state, CancellationToken ct = default)
     {
         var query = state.BuildQuery(new GetGroupListQuery { IncludeCounts = true });
         var resp = await api.GetGroupList(query);

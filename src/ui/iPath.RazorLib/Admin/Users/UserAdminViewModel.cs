@@ -38,7 +38,7 @@ public class UserAdminViewModel(IPathApi api,
 
 
     public MudDataGrid<UserListDto> grid;
-    public async Task<GridData<UserListDto>> GetListAsync(GridState<UserListDto> state)
+    public async Task<GridData<UserListDto>> GetListAsync(GridState<UserListDto> state, CancellationToken ct = default)
     {
         var query = state.BuildQuery(new GetUserListQuery { SearchString = this.SearchString });
         var resp = await api.GetUserList(query);
@@ -264,7 +264,7 @@ public class UserAdminViewModel(IPathApi api,
     {
         if (user != null)
         {
-            var res = await dialog.ShowMessageBox("Warning",
+            var res = await dialog.ShowMessageBoxAsync("Warning",
                 $"Are you sure that you want to delete user {user.Username} completely?",
                 yesText: "Yes", cancelText: "Cancel");
             if (res is not null)

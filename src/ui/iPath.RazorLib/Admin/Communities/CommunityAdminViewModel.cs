@@ -37,7 +37,7 @@ public class CommunityAdminViewModel(IPathApi api,
 
     public MudDataGrid<CommunityListDto> grid;
 
-    public async Task<GridData<CommunityListDto>> GetListAsync(GridState<CommunityListDto> state)
+    public async Task<GridData<CommunityListDto>> GetListAsync(GridState<CommunityListDto> state, CancellationToken ct = default)
     {
         var query = state.BuildQuery(new GetCommunityListQuery());
         var resp = await api.GetCommunityList(query);

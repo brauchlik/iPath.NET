@@ -21,7 +21,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.2" />
-    <PackageReference Include="MudBlazor" Version="8.15.0" />
+    <PackageReference Include="MudBlazor" Version="9.0.0-preview.2" />
     <PackageReference Include="MudBlazor.Translations" Version="2.7.0" />
     <PackageReference Include="Refit" Version="9.0.2" />
     <PackageReference Include="Refit.HttpClientFactory" Version="9.0.2" />

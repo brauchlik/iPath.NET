@@ -40,7 +40,7 @@ public class GroupAdminViewModel(IPathApi api,
     public string SearchString { get; set; } = "";
     public MudDataGrid<GroupListDto> grid;
 
-    public async Task<GridData<GroupListDto>> GetListAsync(GridState<GroupListDto> state)
+    public async Task<GridData<GroupListDto>> GetListAsync(GridState<GroupListDto> state, CancellationToken ct = default)
     {
         var query = state.BuildQuery(new GetGroupListQuery { AdminList = true, SearchString = this.SearchString });
         var resp = await api.GetGroupList(query);
@@ -54,7 +54,7 @@ public class GroupAdminViewModel(IPathApi api,
 
     public MudTable<GroupListDto> table;
 
-    public async Task<TableData<GroupListDto>> GetTableAsync(TableState state, CancellationToken ct)
+    public async Task<TableData<GroupListDto>> GetTableAsync(TableState state, CancellationToken ct = default)
     {
         var query = state.BuildQuery(new GetGroupListQuery { AdminList = true, SearchString = this.SearchString });
         var resp = await api.GetGroupList(query);
@@ -276,7 +276,7 @@ public class GroupAdminViewModel(IPathApi api,
 
     public string MemberSearchString { get; set; }
 
-    public async Task<GridData<GroupMemberDto>> GetMembersGridAsync(GridState<GroupMemberDto> state)
+    public async Task<GridData<GroupMemberDto>> GetMembersGridAsync(GridState<GroupMemberDto> state, CancellationToken ct = default)
     {
         if (SelectedGroup is not null)
         {

@@ -8,19 +8,18 @@
 @inherits ServiceRequestViewComponentBase
 @inject IOptions<iPathClientConfig> opts
 
-<MudFocusTrap DefaultFocus="DefaultFocus.FirstChild">
+<MudFocusTrap DefaultFocus="DefaultFocus.Element">
     <MudSwipeArea Style="height: 100%; width: 100%; background-color: black;"
                   OnSwipeEnd="OnSwipeHandler"
-                  @onkeydown="@((args) => OnKeyDown(args))"
-                  @onclick="@(() => vm.SelectNextImage())">
+                  @onkeydown="@((args) => OnKeyDown(args))">
 
         @if (vm.SelectedDocument is not null)
         {
-            <div class="d-flex justify-center flex-grow-1 gap-4 mb-10">
-                <MudIconButton Icon="@Icons.Material.Filled.ArrowLeft" Size="Size.Small" OnClick="@(() => vm.SelectPreviousImage())" />
-                <MudIconButton Icon="@Icons.Material.Filled.ArrowRight" Size="Size.Small" OnClick="@(() => vm.SelectNextImage())" />
+            <div class="d-flex justify-center flex-grow-1 gap-2">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleLeft" Size="Size.Small" OnClick="GotoPrevious" />
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleRight" Size="Size.Small" OnClick="GotoNext" />
                 <MudIconButton Icon="@Icons.Material.Filled.Comment" Size="Size.Small" OnClick="@(() => vm.Annotate(vm.SelectedDocument, false))" />
-                <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small" OnClick="@(() => vm.GoUpRequestPage())" />
+                <MudIconButton Icon="@Icons.Material.Filled.CloseFullscreen" Size="Size.Small" OnClick="@(() => vm.GoUpRequestPage())" />
             </div>
 
             <div class="ipath_image slideshow">
@@ -28,7 +27,7 @@
                 {
                     <img src="@vm.SelectedDocument.FileUrl" class="ipath_image_slideshow"/>
                 }
-                else if (Wsi && vm.SelectedDocument.FileExtension == ".svs")
+                else if (Wsi && vm.SelectedDocument.IsWSI)
                 {
                     <div class="d-flex justify-center ipath_osd">
                         <iPath.OpenSeadragon.OsdViewerIFrame ImagePath=@($"/files/{vm.SelectedDocument.Id}") MaxHeight="700" />
@@ -54,17 +53,22 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        await vm.LoadNode(Guid.Parse(id));
-
-        // select first images
-        await SelectFirstImage();
+        if (!vm.IsRequestLoaded(id))
+        {
+            await vm.LoadNode(Guid.Parse(id));
+        }
+        if (!lastId.HasValue)
+        {
+            // select first images
+            await SelectFirstSlide();
+        }
     }
 
-    async Task SelectFirstImage()
+    async Task SelectFirstSlide()
     {
-                if (vm.HasImages)
+        if (vm.HasSlideShow)
         {
-            vm.SelectDocument(vm.SelectedRequest.Documents.FirstOrDefault(n => n.IsImage).Id);
+            vm.SelectDocument(vm.SelectedRequest.Documents.FirstOrDefault(n => n.IsSlide).Id);
             lastId = vm.SelectedDocument?.Id;
         }
         else
@@ -78,11 +82,11 @@
     {
         if (args.SwipeDirection == SwipeDirection.RightToLeft)
         {
-            await vm.SelectNextImage();
+            await GotoNext();
         }
         else if (args.SwipeDirection == SwipeDirection.LeftToRight)
         {
-            await vm.SelectPreviousImage();
+            await GotoPrevious();
         }
         lastId = vm.SelectedDocument?.Id;
     }
@@ -94,11 +98,11 @@
 
         if (code == "Space" || code == "ArrowRight")
         {
-            await vm.SelectNextImage();
+            await GotoNext();
         }
         else if (code == "ArrowLeft")
         {
-            await vm.SelectPreviousImage();
+            await GotoPrevious();
         }
         else if (code == "Escape")
         {
@@ -107,4 +111,6 @@
         lastId = vm.SelectedDocument?.Id;
     }
 
+    async Task GotoNext() => await vm.SelectNextSlide();
+    async Task GotoPrevious() => await vm.SelectPreviousSlide();
 }

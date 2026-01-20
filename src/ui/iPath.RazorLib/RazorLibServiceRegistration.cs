@@ -1,22 +1,18 @@
 ﻿using iPath.Application.Localization;
-using iPath.Blazor.Componenents.Admin;
 using iPath.Blazor.Componenents.Admin.Communities;
 using iPath.Blazor.Componenents.Admin.Groups;
 using iPath.Blazor.Componenents.Admin.Questionnaires;
 using iPath.Blazor.Componenents.Admin.Users;
 using iPath.Blazor.Componenents.Communities;
-using iPath.Blazor.Componenents.ServiceRequests;
 using iPath.Blazor.Componenents.Questionaiires;
 using iPath.Blazor.Componenents.Shared;
 using iPath.Blazor.Componenents.Users;
 using iPath.Blazor.Server;
-using iPath.Domain.Config;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Translations;
 using Refit;
 using System.Data;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace iPath.RazorLib;
 
@@ -68,6 +64,11 @@ public static class RazorLibServiceRegistration
 
         services.AddScoped<AppState>();
 
+
+        // DI for Extensions
+        DocumentExtensions.Initialize(services.BuildServiceProvider());
+
+
         return services;
     }
 
@@ -83,9 +84,10 @@ public static class RazorLibServiceRegistration
         // users
         services.AddScoped<CommunityViewModel>();
         services.AddScoped<GroupListViewModel>();
-        services.AddScoped<GroupIndexViewModel>();
+        services.AddScoped<GroupViewModel>();
         services.AddScoped<ServiceRequestListViewModel>();
         services.AddScoped<ServiceRequestViewModel>();
+        services.AddScoped<DocumentViewModel>();
         services.AddScoped<UserViewModel>();
         services.AddScoped<QuestionnairesViewModel>();
 

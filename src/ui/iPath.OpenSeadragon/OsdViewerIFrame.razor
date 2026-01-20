@@ -35,6 +35,12 @@
     [Parameter]
     public int? MaxHeight { get; set; } = 600;
 
+    [Parameter]
+    public string BackgroundColor { get; set; } = "#222";
+
+    [Parameter]
+    public string ForegroundColor { get; set; } = "#ddd";
+
 
     string paperH => $"{pxHeight}px";
     string paperW => $"{pxWidth}px";
@@ -43,7 +49,7 @@
     private int pxWidth = 0;
     private int pxHeight = 0;
 
-    string ViewerStyle => $"width: {pxWidth-16}px; height: {pxHeight-22}px; background-color: dark-gray;";
+    string ViewerStyle => $"width: {pxWidth - 16}px; height: {pxHeight - 22}px; font-color: {ForegroundColor}; background-color: {BackgroundColor};";
 
 
     string errorMessage;

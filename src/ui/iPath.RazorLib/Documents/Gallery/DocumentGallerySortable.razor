@@ -125,7 +125,7 @@
 
     async Task DeleteSelection()
     {
-        await vm.DeleteDcouments(Selection);
+        await vm.DeleteDocuments(Selection);
         await OnSortingFinished.InvokeAsync(true);
     }
 }

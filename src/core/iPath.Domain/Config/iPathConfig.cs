@@ -33,4 +33,8 @@ public class iPathClientConfig
     public string MaxFileSize { get; set; } = "10 MB";
 
     public long MaxFileSizeBytes => (long)(ByteSize.TryParse(MaxFileSize, out var size) ? size.Bytes : 10.Megabytes().Bytes);
+
+
+    public HashSet<string> WsiExtensions { get; set; } = [];
+
 }

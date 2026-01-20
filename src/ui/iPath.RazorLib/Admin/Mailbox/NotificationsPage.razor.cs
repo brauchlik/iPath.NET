@@ -7,7 +7,7 @@ public partial class NotificationsPage(IPathApi api, ISnackbar snackbar, IDialog
     public MudDataGrid<NotificationDto> grid;
     public eNotificationTarget Target = eNotificationTarget.None;
 
-    public async Task<GridData<NotificationDto>> GetData(GridState<NotificationDto> state)
+    public async Task<GridData<NotificationDto>> GetData(GridState<NotificationDto> state, CancellationToken ct = default)
     {
         try
         {
@@ -25,7 +25,7 @@ public partial class NotificationsPage(IPathApi api, ISnackbar snackbar, IDialog
 
     public async Task DeleteAll()
     {
-        var res = await dlg.ShowMessageBox("Delete Notification",
+        var res = await dlg.ShowMessageBoxAsync("Delete Notification",
         "Do you really want to delete all notifications?",
         yesText: "yes",
         cancelText: "cancel");

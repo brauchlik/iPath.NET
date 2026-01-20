@@ -9,7 +9,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
     public MudDataGrid<QuestionnaireListDto> grid;
     public iPath.LHCForms.LhcForm preview;
 
-    public async Task<GridData<QuestionnaireListDto>> GetData(GridState<QuestionnaireListDto> state)
+    public async Task<GridData<QuestionnaireListDto>> GetData(GridState<QuestionnaireListDto> state, CancellationToken ct = default)
     {
         var query = state.BuildQuery(new GetQuestionnaireListQuery());
         var resp = await api.GetQuestionnnaires(query);

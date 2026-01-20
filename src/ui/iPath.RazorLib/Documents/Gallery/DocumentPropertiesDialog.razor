@@ -1,0 +1,29 @@
+﻿@namespace iPath.Blazor.Componenents.Documents
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@T["Document Properties"]</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudStack>
+            <MudTextField Label=@T["Filename"] @bind-Value="Model.File.Filename" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
+            <MudTextField Label=@T["DocumentType"] Value="Model.DocumentType" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
+            <MudTextField Label=@T["MimeType"] @bind-Value="Model.File.MimeType" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
+            <MudTextField Label=@T["Dimensions"] Value="Model.Dimensions" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick=@(() => MudDialog.Close())>Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@inject IStringLocalizer T
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public DocumentDto Model { get; set; }
+}

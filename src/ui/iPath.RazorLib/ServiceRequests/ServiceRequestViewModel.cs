@@ -1,4 +1,5 @@
-﻿using iPath.Application;
+﻿using Hl7.Fhir.Model;
+using iPath.Application;
 using iPath.Application.Contracts;
 using iPath.Application.Features.Documents;
 using iPath.Blazor.Componenents.ServiceRequests.Annotations;
@@ -107,6 +108,16 @@ public class ServiceRequestViewModel(IPathApi api,
         NotifyStateChanged();
     }
 
+
+    public bool IsRequestLoaded(string id)
+    {
+        if (Guid.TryParse(id, out var guid) && SelectedRequest is not null)
+        {
+            return (guid == SelectedRequest.Id);
+        }
+        return false;
+    }
+
     public async Task LoadNode(Guid id)
     {
         ClearData();
@@ -152,6 +163,18 @@ public class ServiceRequestViewModel(IPathApi api,
             await api.UpdateRequestVisit(SelectedRequest.Id);
         }
     }
+
+
+    public bool HasDocument(Guid? id)
+    {
+        if (id.HasValue && SelectedRequest is not null) 
+        { 
+            return SelectedRequest.Documents.Any(d => d.Id == id.Value);
+        }
+        return false;
+    }
+
+
 
 
     #region "-- Navigation --"
@@ -314,14 +337,14 @@ public class ServiceRequestViewModel(IPathApi api,
 
 
 
-    public async Task SelectNextImage()
+    public async Task SelectNextSlide()
     {
         if (SelectedRequest is null) return;
 
         if (SelectedDocument is not null)
         {
             // find index of current child Node
-            var list = SelectedRequest.Documents.Where(n => n.IsImage).OrderBy(n => n.SortNr).ToList();
+            var list = SelectedRequest.Documents.Where(n => n.IsSlide).OrderBy(n => n.SortNr).ToList();
             if (list.IsEmpty()) await GoUp();
             var idx = list.IndexOf(SelectedDocument);
             if (idx < list.Count() - 1)
@@ -337,14 +360,14 @@ public class ServiceRequestViewModel(IPathApi api,
         }
     }
 
-    public async Task SelectPreviousImage()
+    public async Task SelectPreviousSlide()
     {
         if (SelectedRequest is null) return;
 
         if (SelectedDocument is not null)
         {
             // find index of current child Node
-            var list = SelectedRequest.Documents.Where(n => n.IsImage).OrderBy(n => n.SortNr).ToList();
+            var list = SelectedRequest.Documents.Where(n => n.IsSlide).OrderBy(n => n.SortNr).ToList();
             if (list.IsEmpty()) await GoUp();
             var idx = list.IndexOf(SelectedDocument);
             if (idx > 0)
@@ -434,7 +457,7 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             if (AskConfirmation)
             {
-                bool? result = await srvDialog.ShowMessageBox(
+                bool? result = await srvDialog.ShowMessageBoxAsync(
                     T["Warning"],
                     T["Are you sure that you want to delete !"],
                     yesText: T["Yes"], cancelText: T["Cancel"]);
@@ -455,15 +478,35 @@ public class ServiceRequestViewModel(IPathApi api,
                 }
             }
         }
+        else
+        {
+            await DeleteDocument(SelectedDocument, AskConfirmation);
+            // await GoUp();
+        }
     }
 
-    public async Task DeleteDcouments(HashSet<Guid> ids, bool AskConfirmation = true)
+
+    public async Task DeleteDocument(DocumentDto document, bool AskConfirmation = true)
+    {
+        if (AskConfirmation)
+        {
+            bool? result = await srvDialog.ShowMessageBoxAsync(
+            T["Warning"],
+            string.Format(T["Are you sure that you want to delete the document {0}"], document.GalleryCaption),
+            yesText: T["Yes"], cancelText: T["Cancel"]);
+            if (result is null)
+                return;
+        }
+        await DeleteDocuments(new HashSet<Guid> { document.Id }, false);
+    }
+
+    public async Task DeleteDocuments(HashSet<Guid> ids, bool AskConfirmation = true)
     {
         if (SelectedRequest is null) return;
 
         if (AskConfirmation)
         {
-            bool? result = await srvDialog.ShowMessageBox(
+            bool? result = await srvDialog.ShowMessageBoxAsync(
                 T["Warning"],
                 string.Format(T["Are you sure that you want to delete {0} items !"], ids.Count()),
                 yesText: T["Yes"], cancelText: T["Cancel"]);
@@ -729,14 +772,11 @@ public class ServiceRequestViewModel(IPathApi api,
 
 
     public bool HasImages => SelectedRequest is not null && SelectedRequest.Documents.Any(n => n.IsImage);
-    public void StartSlideshow()
-    {
-        if (SelectedRequest is not null)
-        {
-            nm.NavigateTo($"request/{SelectedRequest.Id}/slideshow");
-        }
-    }
+    public bool HasWSI => SelectedRequest is not null && SelectedRequest.Documents.Any(n => n.IsWSI);
 
+    public bool HasSlideShow => SelectedRequest is not null && SelectedRequest.Documents.Any(n => n.IsSlide);
+
+    public string SlideShowUrl => SelectedRequest is null ? "" : $"request/{SelectedRequest?.Id}/slideshow";
     #endregion
 
 
@@ -782,12 +822,6 @@ public class ServiceRequestViewModel(IPathApi api,
     private QuestionnaireForGroupDto PlainText => new QuestionnaireForGroupDto(Guid.Empty, "", "Plain Text", eQuestionnaireUsage.Annotation);
 
 
-
-
-    public async Task DeleteDocument(DocumentDto document)
-    {
-        throw new NotImplementedException();
-    }
 
     public async Task EditDocument(DocumentDto document)
     {

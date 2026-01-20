@@ -202,9 +202,15 @@
 .ipath_annotation_block {
     display: grid;
     grid-template-columns: 180px 100%;
-    gap: 10px;
     width: 100%;
     border-top: 1px outset;
+    margin-bottom: 1em;
+}
+
+.ipath_annotation_block_list {
+    width: 100%;
+    border: 1px outset;
+    margin-bottom: 20px;
 }
 
     .ipath_annotation_block:last-child {
@@ -212,15 +218,25 @@
     }
 
 .ipath_annotation_info {
-    background-color: #faffbf;
     padding: 4px;
     overflow: hidden;
 }
 
 .ipath_annotation_text {
     padding: 4px;
+    padding-left: 1em;
     width: 100%;
     max-width: 720px;
+    background-color: #f8faf8;
+}
+
+.ipath_annotation_footer {
+    padding: 4px;
+    width: 100%;
+    border-top: 1px solid;
+    max-width: 720px;
+    color: dimgray;
+    font-style: italic;
 }
 
 .morphology_code {
@@ -249,15 +265,16 @@
     width: 120px;
     height: 110px;
     overflow: hidden;
-    border-radius: 5px;
+    border-radius: 10px;
     border: 1px outset;
-    padding: 8px;
+    padding: 10px;
     text-align: center;
+    align-content: center;
     background-color: var(--mud-palette-gray-lighter);
 }
 
     .gallery-item img {
-        max-width: 100%;
+        max-width: 95%;
         max-height: 90px;
         transition: transform 0.3s;
         border: 1px solid;
@@ -267,8 +284,11 @@
             transform: scale(1.1);
         }
 
+.gallery-context {
+    box-shadow: -1px 1px 4px gray;
+}
 
-.gallery-contextmenu{
+.gallery-contextmenu {
     position: absolute;
     top: 4px;
     right: 0px;

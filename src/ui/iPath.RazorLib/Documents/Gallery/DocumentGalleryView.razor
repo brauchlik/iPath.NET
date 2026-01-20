@@ -4,22 +4,22 @@
 
 @inject ISnackbar snackbar
 @inject IDialogService srvDialog
-
+@inject DocumentViewModel dvm
 
 @**** Gallery View **********************************************@
 <div class="gallery">
     @foreach (var c in vm.GetVisibleDocuments())
     {
         <div class="gallery-item" @onclick="@(() => vm.NavigateToDocument(c))">
-
             <div class="gallery-contextmenu">
-                <MudMenu FullWidth="true" ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.TopCenter" Disabled="vm.EditDisabled">
+                <MudMenu FullWidth="true" ActivationEvent="@MouseEvent.MouseOver" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopCenter" Disabled="vm.EditDisabled">
                     <ActivatorContent>
-                        <MudIcon Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" />
+                        <MudIcon Icon="@Icons.Material.Filled.MoreVert" Size="Size.Small" Class="gallery-context"/>
                     </ActivatorContent>
                     <ChildContent>
-                        <MudMenuItem Label="Delete" Disabled="vm.DeleteDisabled" OnClick=@(() => vm.DeleteDocument(c)) />
-                        <MudMenuItem Label="Edit" Disabled="vm.EditDisabled" OnClick=@(() => vm.EditDocument(c)) />
+                        <MudMenuItem Label=@T["Properties"] Disabled="vm.EditDisabled" OnClick=@(() => dvm.ShowPropertiesDialog(c)) />
+                        <MudMenuItem Label=@T["Edit"] Disabled="vm.EditDisabled" OnClick=@(() => vm.EditDocument(c)) />
+                        <MudMenuItem Label=@T["Delete"] Disabled="vm.DeleteDisabled" OnClick=@(() => vm.DeleteDocument(c)) />
                     </ChildContent>
                 </MudMenu>
             </div>
@@ -27,7 +27,7 @@
             <MudTooltip>
                 <TooltipContent>
                     <b>Owner: </b> @c.Owner.Username - @c.CreatedOn.ToString("d")<br />
-                    <b>Filename: </b>@c.GalleryCaption
+                    <b>Filename: </b>@c.GalleryCaption<br />
                 </TooltipContent>
                 <ChildContent>
                     <GalleryImage Model="@c" />

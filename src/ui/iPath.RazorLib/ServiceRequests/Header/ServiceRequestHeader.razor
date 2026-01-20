@@ -12,12 +12,12 @@
         </div>
         <div class="ipath_header_toolbar">
             <MudToolBar>
-                <MudIconButton Icon="@EditIcon" OnClick="OnEditClick" Disabled="vm.EditDisabled" />
-                <MudIconButton Icon="@Icons.Material.Outlined.Save" OnClick="@(() => vm.Save())" hidden="@hideSave" />
-                <MudIconButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => vm.Delete())" Disabled="vm.DeleteDisabled" />
+                <IPathToolbarButton Icon="@EditIcon" OnClick="OnEditClick" Disabled="vm.EditDisabled" />
+                <IPathToolbarButton Icon="@Icons.Material.Outlined.Save" OnClick="@(() => vm.Save())" Hidden="@hideSave" />
+                <IPathToolbarButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => vm.Delete())" Disabled="vm.DeleteDisabled" />
                 <FileUploadButton Disabled="@vm.AttachFileDisabled" />
-                <MudIconButton Icon="@Icons.Material.Outlined.Comment" OnClick="@(() => vm.StartAnnotation())" Disabled="vm.AnnotateDisabled" />
-                <MudIconButton Icon="@Icons.Material.Outlined.Slideshow" OnClick="@(() => vm.StartSlideshow())" Disabled=@(!vm.HasImages) />
+                <IPathToolbarButton Icon="@Icons.Material.Outlined.Comment" OnClick="@(() => vm.StartAnnotation())" Disabled="vm.AnnotateDisabled" />
+                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled=@(!vm.HasSlideShow) Tooltip=@T["Show images in fullscreen mode"] />
             </MudToolBar>
         </div>
     </div>

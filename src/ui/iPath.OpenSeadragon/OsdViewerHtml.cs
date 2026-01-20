@@ -15,7 +15,7 @@ public class OsdViewerHtml
     </head>
     <body style="backgroud-color: black; color: white;">
 
-    <div id="osd" style="
+    <div id="osd" style=" 
 """ + viewerStyle + """
     "></div>
   

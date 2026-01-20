@@ -5,13 +5,11 @@
 @inject IDialogService srvDialog
 @inject UserViewModel uvm
 
-<MudChat ChatPosition="ChatBubblePosition.Start">
-    <MudChatHeader Name=@FullTitle() Time=@Item.CreatedOn.ToString("g") />
-    <MudAvatar @onclick="@(() => uvm.ShowProfileAsync(Item.Owner.Id))">@Initials</MudAvatar>
-
-    <MudChatBubble Style="min-width: 500px;"
-                   @onmouseenter="@(() => Hovering = true)"
-                   @onmouseleave="@(() => Hovering = false)">
+<div class="ipath_annotation_block">
+    <div class="ipath_annotation_info">
+        <strong><OwnerLink Owner="@Item.Owner" /></strong><br />
+        @Item.CreatedOn.ToString("g")</div>
+    <div class="ipath_annotation_text">
         @if (Item.Data?.Questionnaire is not null)
         {
             <QuestionnaireResponseView Data="Item.Data.Questionnaire" />
@@ -23,27 +21,16 @@
         {
             <div class="morphology_code"><b>Morphology:</b> @Item.Data.Morphology.ToDisplay()</div>
         }
-
-        <MudPopover Open="@Hovering" Class="hoverarea"
-                    AnchorOrigin="Origin.TopRight"
-                    TransformOrigin="Origin.BottomRight"
-                    @onmouseenter="@(() => Hovering = true)"
-                    @onmouseleave="@(() => Hovering = false)">
-            <div class="d-flex" style="width: 100%;" @onclick:stopPropagation="true" @onclick:preventDefault="true">
-                <MudIcon Icon="@Icons.Material.Rounded.Delete" Size="Size.Small" @onclick="@Delete" Disabled="vm.DeleteAnnotationDisabled" />
-                <MudIcon Icon="@Icons.Material.Rounded.Reply" Size="Size.Small" @onclick="@Reply" Disabled="vm.AnnotateDisabled" />
+        @if (vm.HasDocument(Item.DocumentId))
+        {
+            <div class="ipath_annotation_footer">
+                <span>@T["Comment on: "]</span><MudLink OnClick=@(() => vm.SelectDocument(Item.DocumentId.Value))>@DocumentCaption</MudLink>
             </div>
-        </MudPopover>
-    </MudChatBubble>
-    @if (Item.DocumentId.HasValue)
-    {
-        <MudChatFooter>
-            <span>@T["Comment on: "]</span><MudLink OnClick=@(() => vm.SelectDocument(Item.DocumentId.Value))>@DocumentCaption</MudLink>
-        </MudChatFooter>
-    }
-</MudChat>
+        }
+    </div>
+</div>
 
-    @code {
+@code {
     [Parameter]
     public AnnotationDto Item { get; set; }
 

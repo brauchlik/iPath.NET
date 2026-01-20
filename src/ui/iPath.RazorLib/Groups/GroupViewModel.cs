@@ -3,7 +3,7 @@ using iPath.Blazor.Componenents.Shared;
 
 namespace iPath.Blazor.Componenents.Groups;
 
-public class GroupIndexViewModel(IPathApi api,
+public class GroupViewModel(IPathApi api,
     AppState appState,
     ISnackbar snackbar, 
     IDialogService dialog,

@@ -1,9 +1,21 @@
 ﻿using iPath.Application.Features.Documents;
+using iPath.Domain.Config;
+using Microsoft.Extensions.DependencyInjection;
+using System.Drawing;
+using Size = System.Drawing.Size;
 
 namespace iPath.Blazor.Componenents.Documents;
 
 public static class DocumentExtensions
 {
+    private static iPathClientConfig cfg;
+
+    // Call this once at app startup!
+    public static void Initialize(IServiceProvider serviceProvider)
+    {
+        cfg = serviceProvider.GetRequiredService<IOptions<iPathClientConfig>>().Value;
+    }
+
 
     extension(DocumentDto document)
     {
@@ -58,17 +70,31 @@ public static class DocumentExtensions
         {
             get
             {
-                if (!string.IsNullOrEmpty(document.DocumentType))
+                if (!string.IsNullOrEmpty(document.DocumentType) && document.DocumentType == "image")
                 {
-                    return document.DocumentType == "image";
+                    return true;
                 }
-                else if(!string.IsNullOrEmpty(document.File?.MimeType))
+                else if(!string.IsNullOrEmpty(document.File?.MimeType) && document.File.MimeType.ToLower().StartsWith("images"))
                 {
-                    return document.File.MimeType.ToLower().StartsWith("images");
+                    return true;
                 }
                 return false;
             }
         }
+
+        public bool IsWSI
+        {
+            get
+            {
+                if (cfg.WsiExtensions.Any(x => string.Compare(x, document.FileExtension, true) == 0))
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        public bool IsSlide => document.IsImage || document.IsWSI;
 
         public string FileExtension
         {
@@ -99,6 +125,11 @@ public static class DocumentExtensions
                 return Icons.Custom.FileFormats.FileDocument;
             }
         }
+
+
+        public Size? Dimensions => document.File is not null && document.File.ImageHeight.HasValue ?
+            new System.Drawing.Size(document.File.ImageWidth.Value, document.File.ImageHeight.Value) :
+            null;
     }
 
 }

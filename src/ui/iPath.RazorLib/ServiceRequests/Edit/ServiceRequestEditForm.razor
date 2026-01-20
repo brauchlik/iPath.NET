@@ -1,5 +1,4 @@
 ﻿@namespace iPath.Blazor.Componenents.ServiceRequests
-@using Tizzani.MudBlazor.HtmlEditor
 @using iPath.Application.Features.ServiceRequests
 
 @inject ServiceRequestViewModel vm;
@@ -26,10 +25,12 @@
                 }
                 else if (useHtmlEditor)
                 {
+                    <!--
                     <MudText Typo="Typo.subtitle2" Class="mt-2 mb-2">@T["Desciption"]</MudText>
                     <MudHtmlEditor @bind-Html="Model.Text" style="min-height: 12em;">
                         <MudHtmlToolbarOptions InsertImage="false" />
                     </MudHtmlEditor>
+                    -->
                 }
                 else
                 {
@@ -86,7 +87,7 @@
     private iPath.LHCForms.LhcForm lhcForm;
 
     bool useQuestionnaire => Model?.Questionnaire != null;
-    bool useHtmlEditor => vm.ActiveGroup.Settings.DescriptionAllowHtml;
+    bool useHtmlEditor => false; // vm.ActiveGroup.Settings.DescriptionAllowHtml;
 
     private MudForm frm;
 

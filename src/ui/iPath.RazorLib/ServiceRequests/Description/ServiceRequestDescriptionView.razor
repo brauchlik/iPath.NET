@@ -13,6 +13,10 @@
                     <span>@vm.SelectedRequest.Description.BodySite?.ToAppend()</span>
                 </div>
                 <div>@vm.SelectedRequest.SubTitle</div>
+                @if (!string.IsNullOrEmpty(PatientText))
+                {
+                    <div><strong>@T["Patient"]:</strong> @PatientText</div>
+                }
             </div>
             <div class="ipath_node_type">
                 <div class="ipath_bold">Type:</div>
@@ -27,6 +31,9 @@
                 <div>@vm.SelectedRequest.CreatedOn.ToString("d")</div>
             </div>
         </div>
+
+
+
         @if (vm.SelectedRequest.Description.Questionnaire is null)
         {
             <div class="ipath_node_description">
@@ -86,4 +93,23 @@
     {
         HideDescription = !HideDescription;
     }
+
+    string PatientText
+    {
+        get
+        {
+            string ret = "";
+            if (!string.IsNullOrEmpty(vm.SelectedRequest.Description.PatientInfo.Gender))
+            {
+                ret = ret.Append(vm.SelectedRequest.Description.PatientInfo.Gender);
+            }
+            if (vm.SelectedRequest.Description.PatientInfo.Age.HasValue)
+            {
+                ret = ret.Append($"{vm.SelectedRequest.Description.PatientInfo.Age} years");
+            }
+
+            return ret;
+        }
+    }
+
 }

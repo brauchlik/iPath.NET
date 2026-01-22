@@ -147,30 +147,17 @@ public class ServiceRequestCreateWizzardViewModel(IServiceProvider sp, ServiceRe
             }
             if (!string.IsNullOrEmpty(Data.PatientInfo.Gender))
             {
-                ret = AppendString(ret, Data.PatientInfo.Gender);
+                ret = ret.Append(Data.PatientInfo.Gender);
             }
             if (Data.PatientInfo.Age.HasValue)
             {
-                ret = AppendString(ret, $"{Data.PatientInfo.Age} years");
+                ret = ret.Append($"{Data.PatientInfo.Age} years");
             }
 
             return Data.IsClinicalInfoValid ? ret : "Patient Information";
         }
     }
 
-    private string AppendString(string value, string append, string separator = ", ")
-    {
-        if (!string.IsNullOrEmpty(value))
-        {
-            if (!string.IsNullOrEmpty(value))
-            {
-                value += separator;
-            }
-            value += append;
-        }
-
-        return value;
-    }
 
 
 

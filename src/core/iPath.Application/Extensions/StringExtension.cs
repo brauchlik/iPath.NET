@@ -19,4 +19,16 @@ public static class StringExtension
             return tmp.Substring( 0, Maxlength ) + "...";
         }
     }
+
+
+    public static string Append(this string value, string append, string separator = ", ")
+    {
+        if (!string.IsNullOrEmpty(value))
+        {
+            value += separator;
+        }
+        value += append;
+
+        return value;
+    }
 }

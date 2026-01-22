@@ -23,7 +23,7 @@ public partial class Home(AppState appState, UserViewModel uvm, AuthenticationSt
             if (state.User.Identity.IsAuthenticated)
             {
                 MyProfile = await GetMyProfile();
-                if (MyProfile is not null && MyProfile.IsComplete())
+                if (MyProfile is not null && !MyProfile.IsComplete())
                 {
                     ShowProfileCompletion = true;
                 }

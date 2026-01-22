@@ -18,6 +18,8 @@ public partial class GalleryDropZone
 
     private List<UploadTask> _uploads = new();
 
+    Action OnChanged;
+
 
     protected override void OnInitialized()
     {
@@ -48,6 +50,7 @@ public partial class GalleryDropZone
             var t = vm.CreateUploadTask();
             await t.Upload(f, vm.SelectedRequest.Id, vm.SelectedDocument?.Id).ConfigureAwait(false);
             _uploads.Add(t);
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -55,5 +58,6 @@ public partial class GalleryDropZone
     private void OnUploadStartedHandler(UploadTask t)
     {
         _uploads.Add(t);
+        InvokeAsync(StateHasChanged);
     }
 }

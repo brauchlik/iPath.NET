@@ -106,9 +106,13 @@
         </MudStep>
     </ChildContent>
     <CompletedContent>
-        <IPathHeader Typo="Typo.h6" Title=@T["next steps"] />
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Create" OnClick="Reset">@T["Create another Request"]</MudButton>
-        <MudButton Variant="Variant.Filled" OnClick="vm.GoUp" StartIcon="@Icons.Material.Filled.List">@T["Back to list"]</MudButton>
+        <MudText Typo="Typo.h6">@T["next steps"]</MudText>
+        <MudDivider />
+        <MudStack Row Spacing="4" Class="mt-4 mb-10">
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Create" OnClick="Reset">@T["Create another Request"]</MudButton>
+            <MudButton Variant="Variant.Filled" OnClick="vm.GoUp" StartIcon="@Icons.Material.Filled.List">@T["Back to list"]</MudButton>
+            <MudSpacer />
+        </MudStack>
     </CompletedContent>
 </MudStepper>
 

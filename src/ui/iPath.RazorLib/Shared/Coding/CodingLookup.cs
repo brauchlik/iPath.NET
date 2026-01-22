@@ -14,6 +14,24 @@ public class CodingLookup(IServiceProvider sp) : MudAutocomplete<CodeDisplay>
     public IEnumerable<CodeDisplay> Items { get; set; }
 
 
+
+    // Data-Binding to CodedConcept
+    [Parameter]
+    public CodedConcept Concept
+    {
+        get => Value.ToConcept(CodeSystemUrl);
+        set
+        {
+            field = value;
+            SelectCode(field?.Code);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<CodedConcept> ConceptChanged { get; set; }
+
+
+
     public string CodeSystemUrl => srv.CodeSystemUrl;
 
     protected CodingService srv;
@@ -78,24 +96,10 @@ public class CodingLookup(IServiceProvider sp) : MudAutocomplete<CodeDisplay>
         else if (!string.IsNullOrEmpty(ValueSetId))
         {
             var vs = srv.GetValueSetDisplay(ValueSetId);
-            Value = vs.FindConceptByCode(code);
+            if (vs is not null) 
+                Value = vs.FindConceptByCode(code);
         }
     }
 
 
-
-
-    [Parameter]
-    public CodedConcept Concept
-    {
-        get => Value.ToConcept(CodeSystemUrl);
-        set
-        {
-            field = value;
-            SelectCode(field?.Code);
-        }
-    }
-
-    [Parameter]
-    public EventCallback<CodedConcept> ConceptChanged { get; set; }
 }

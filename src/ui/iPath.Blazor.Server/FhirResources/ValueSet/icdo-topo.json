@@ -1,0 +1,2550 @@
+{
+  "resourceType": "ValueSet",
+  "id": "icdo-topography-3-2-en",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/shareablevalueset"
+    ]
+  },
+  "language": "en",
+  "url": "https://terminologien.bfarm.de/fhir/ValueSet/icdo-topography",
+  "version": "3.2",
+  "name": "ICDO_Topography",
+  "title": "ICD-O-3 Topography Codes",
+  "status": "active",
+  "experimental": false,
+  "date": "2021-01-29",
+  "publisher": "iPath",
+  "description": "German edittion of ICD-O translated with an older version of the English Edition",
+  "copyright": "Copyright WHO",
+  "compose": {
+    "include": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "filter": [
+          {
+            "property": "concept",
+            "op": "descendent-of",
+            "value": "T"
+          },
+          {
+            "property": "classKind",
+            "op": "=",
+            "value": "category"
+          }
+        ]
+      }
+    ]
+  },
+  "expansion": {
+    "identifier": "urn:uuid:06c783e6-6bbf-47ab-a553-33a926c270a8",
+    "timestamp": "2025-07-30",
+    "total": 400,
+    "offset": 0,
+    "parameter": [
+      {
+        "name": "displayLanguage",
+        "valueString": "en"
+      }
+    ],
+    "contains": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C00-C14",
+        "display": "Lip, oral cavity and pharynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C15-C26",
+        "display": "Digestive organs"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C30-C39",
+        "display": "Respiratory and intrathoracic organs"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40-C41",
+        "display": "Bone and articular cartilage"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C42-C42",
+        "display": "Haematopoietic and reticuloendothelial systems (Blood, bone marrow, spleen)"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C44-C44",
+        "display": "Skin"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C47-C47",
+        "display": "Peripheral nerves and autonomic nervous system"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C48-C48",
+        "display": "Retroperitoneum and peritoneum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C49-C49",
+        "display": "Connective and soft tissue"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C50-C50",
+        "display": "Breast"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C51-C58",
+        "display": "Female genital organs"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C60-C63",
+        "display": "Male genital organs"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C64-C68",
+        "display": "Urinary tract"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C69-C72",
+        "display": "Eye, brain and other parts of central nervous system"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C73-C75",
+        "display": "Thyroid gland and other endocrine glands"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C76-C80",
+        "display": "Other and ill-defined sites"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C00",
+        "display": "LIP"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C00.0",
+        "display": "Upper lip, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C00.1",
+        "display": "External lower lip"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C00.2",
+        "display": "External lip, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C00.3",
+        "display": "Frenulum of upper lip"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C00.4",
+        "display": "Mucosa of lower lip"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C00.5",
+        "display": "Frenulum labii, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C00.6",
+        "display": "Commissure of lip"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C00.8",
+        "display": "Overlapping lesion of lip"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C00.9",
+        "display": "Lip, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C01",
+        "display": "BASE OF TONGUE"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C01.9",
+        "display": "Posterior third of tongue"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C02",
+        "display": "OTHER AND UNSPECIFIED PARTS OF TONGUE"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C02.0",
+        "display": "Dorsal surface of tongue, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C02.1",
+        "display": "Border of tongue"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C02.2",
+        "display": "Ventral surface of anterior tongue, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C02.3",
+        "display": "Anterior 2/3 of tongue, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C02.4",
+        "display": "Lingual tonsil"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C02.8",
+        "display": "Overlapping lesion of tongue"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C02.9",
+        "display": "Tongue, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C03",
+        "display": "GUM"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C03.0",
+        "display": "Upper gum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C03.1",
+        "display": "Lower gum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C03.9",
+        "display": "Alveolus, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C04",
+        "display": "FLOOR OF MOUTH"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C04.0",
+        "display": "Anterior floor of mouth"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C04.1",
+        "display": "Lateral floor of mouth"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C04.8",
+        "display": "Overlapping lesion of floor of mouth"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C04.9",
+        "display": "Floor of mouth, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C05",
+        "display": "PALATE"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C05.0",
+        "display": "Hard palate"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C05.1",
+        "display": "Soft palate, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C05.2",
+        "display": "Uvula"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C05.8",
+        "display": "Overlapping lesion of palate"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C05.9",
+        "display": "Roof of mouth"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C06",
+        "display": "OTHER AND UNSPECIFIED PARTS OF MOUTH"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C06.0",
+        "display": "Cheek mucosa"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C06.1",
+        "display": "Vestibule of mouth"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C06.2",
+        "display": "Retromolar area"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C06.8",
+        "display": "Overlapping lesion of other and unspecified parts of mouth"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C06.9",
+        "display": "Minor salivary gland, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C07",
+        "display": "PAROTID GLAND"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C07.9",
+        "display": "Parotid gland duct"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C08",
+        "display": "OTHER AND UNSPECIFIED MAJOR SALIVARY GLANDS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C08.0",
+        "display": "Submandibular gland"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C08.1",
+        "display": "Sublingual gland"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C08.8",
+        "display": "Overlapping lesion of major salivary glands"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C08.9",
+        "display": "Salivary gland, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C09",
+        "display": "TONSIL"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C09.0",
+        "display": "Tonsillar fossa"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C09.1",
+        "display": "Tonsillar pillar"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C09.8",
+        "display": "Overlapping lesion of tonsil"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C09.9",
+        "display": "Faucial tonsil"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C10",
+        "display": "OROPHARYNX"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C10.0",
+        "display": "Vallecula"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C10.1",
+        "display": "Anterior surface of epiglottis"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C10.2",
+        "display": "Lateral wall of oropharynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C10.3",
+        "display": "Posterior wall of oropharynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C10.4",
+        "display": "Branchial cleft"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C10.8",
+        "display": "Junctional region of oropharynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C10.9",
+        "display": "Mesopharynx, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C11",
+        "display": "NASOPHARYNX"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C11.0",
+        "display": "Superior wall of nasopharynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C11.1",
+        "display": "Pharyngeal tonsil"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C11.2",
+        "display": "Lateral wall of nasopharynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C11.3",
+        "display": "Posterior margin of nasal septum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C11.8",
+        "display": "Overlapping lesion of nasopharynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C11.9",
+        "display": "Nasopharyngeal wall"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C12",
+        "display": "PYRIFORM SINUS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C12.9",
+        "display": "Piriform fossa"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C13",
+        "display": "HYPOPHARYNX"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C13.0",
+        "display": "Cricopharynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C13.1",
+        "display": "Hypopharyngeal aspect of aryepiglottic fold"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C13.2",
+        "display": "Posterior wall of hypopharynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C13.8",
+        "display": "Overlapping lesion of hypopharynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C13.9",
+        "display": "Hypopharynx, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C14",
+        "display": "OTHER AND ILL-DEFINED SITES IN LIP, ORAL CAVITY AND PHARYNX"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C14.0",
+        "display": "Pharyngeal wall, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C14.2",
+        "display": "Waldeyer ring"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C14.8",
+        "display": "Overlapping lesion of lip, oral cavity and pharynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C15",
+        "display": "ESOPHAGUS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C15.0",
+        "display": "Cervical esophagus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C15.1",
+        "display": "Thoracic esophagus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C15.2",
+        "display": "Abdominal esophagus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C15.3",
+        "display": "Proximal third of esophagus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C15.4",
+        "display": "Middle third of esophagus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C15.5",
+        "display": "Lower third of esophagus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C15.8",
+        "display": "Overlapping lesion of esophagus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C15.9",
+        "display": "Esophagus, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C16",
+        "display": "STOMACH"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C16.0",
+        "display": "Gastroesophageal junction"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C16.1",
+        "display": "Fundus of stomach"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C16.2",
+        "display": "Corpus of stomach"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C16.3",
+        "display": "Gastric antrum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C16.4",
+        "display": "Pylorus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C16.5",
+        "display": "Lesser curvature of stomach, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C16.6",
+        "display": "Greater curvature of stomach, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C16.8",
+        "display": "Overlapping lesion of stomach"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C16.9",
+        "display": "Stomach, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C17",
+        "display": "SMALL INTESTINE"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C17.0",
+        "display": "Duodenum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C17.1",
+        "display": "Jejunum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C17.2",
+        "display": "Ileum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C17.3",
+        "display": "Meckel diverticulum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C17.8",
+        "display": "Overlapping lesion of smallintestine"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C17.9",
+        "display": "Small intestine, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C18",
+        "display": "COLON"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C18.0",
+        "display": "Cecum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C18.1",
+        "display": "Appendix"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C18.2",
+        "display": "Right colon"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C18.3",
+        "display": "Hepatic flexure of colon"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C18.4",
+        "display": "Transverse colon"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C18.5",
+        "display": "Splenic flexure of colon"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C18.6",
+        "display": "Descending colon"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C18.7",
+        "display": "Sigmoid colon"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C18.8",
+        "display": "Overlapping lesion of colon"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C18.9",
+        "display": "Large intestine"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C19",
+        "display": "RECTOSIGMOID JUNCTION"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C19.9",
+        "display": "Pelvirectal junction"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C20",
+        "display": "RECTUM"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C20.9",
+        "display": "Rectal ampulla"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C21",
+        "display": "ANUS AND ANAL CANAL"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C21.0",
+        "display": "Anus, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C21.1",
+        "display": "Anal sphincter"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C21.2",
+        "display": "Cloacogenic zone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C21.8",
+        "display": "Anorectal junction"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C22",
+        "display": "LIVER AND INTRAHEPATIC BILE DUCTS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C22.0",
+        "display": "Hepatic, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C22.1",
+        "display": "Intrahepatic bile duct"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C23",
+        "display": "GALLBLADDER"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C23.9",
+        "display": "Gallbladder"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C24",
+        "display": "OTHER AND UNSPECIFIED PARTS OF BILIARY TRACT"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C24.0",
+        "display": "Extrahepatic bile duct"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C24.1",
+        "display": "Ampulla of Vater"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C24.8",
+        "display": "Overlapping lesion of biliary tract Note:"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C24.9",
+        "display": "Biliary tract, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C25",
+        "display": "PANCREAS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C25.0",
+        "display": "Head of pancreas"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C25.1",
+        "display": "Body of pancreas"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C25.2",
+        "display": "Tail of pancreas"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C25.3",
+        "display": "Duct of Wirsung"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C25.4",
+        "display": "Islets of Langerhans"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C25.7",
+        "display": "Other specified parts of pancreas"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C25.8",
+        "display": "Overlapping lesion of pancreas"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C25.9",
+        "display": "Pancreas, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C26",
+        "display": "OTHER AND ILL-DEFINED DIGESTIVE ORGANS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C26.0",
+        "display": "Intestinal tract, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C26.8",
+        "display": "Overlapping lesion of digestive system"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C26.9",
+        "display": "Gastrointestinal tract, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C30",
+        "display": "NASAL CAVITY AND MIDDLE EAR"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C30.0",
+        "display": "Nostril"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C30.1",
+        "display": "Eustachian tube"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C31",
+        "display": "ACCESSORY SINUSES"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C31.0",
+        "display": "Maxillary sinus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C31.1",
+        "display": "Ethmoid sinus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C31.2",
+        "display": "Frontal sinus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C31.3",
+        "display": "Sphenoid sinus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C31.8",
+        "display": "Overlapping lesion of accessory sinuses"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C31.9",
+        "display": "Paranasal sinus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C32",
+        "display": "LARYNX"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C32.0",
+        "display": "Intrinsic larynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C32.1",
+        "display": "anterior surface of epiglottis"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C32.2",
+        "display": "Subglottis"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C32.3",
+        "display": "Cuneiform cartilage"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C32.8",
+        "display": "Overlapping lesion of larynx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C32.9",
+        "display": "Larynx, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C33",
+        "display": "TRACHEA"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C33.9",
+        "display": "Trachea"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C34",
+        "display": "BRONCHUS AND LUNG"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C34.0",
+        "display": "Hilus of lung"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C34.1",
+        "display": "Upper lobe, bronchus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C34.2",
+        "display": "Middle lobe, lung"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C34.3",
+        "display": "Lower lobe, bronchus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C34.8",
+        "display": "Overlapping lesion of lung"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C34.9",
+        "display": "Pulmonary, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C37",
+        "display": "THYMUS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C37.9",
+        "display": "Thymus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C38",
+        "display": "HEART, MEDIASTINUM, AND PLEURA"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C38.0",
+        "display": "Cardiac atrium"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C38.1",
+        "display": "Anterior mediastinum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C38.2",
+        "display": "Posterior mediastinum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C38.3",
+        "display": "Mediastinum, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C38.4",
+        "display": "Pleura, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C38.8",
+        "display": "Overlapping lesion of heart, mediastinum and pleura"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C39",
+        "display": "OTHER AND ILL-DEFINED SITES WITHIN RESPIRATORY SYSTEM AND INTRATHORACIC ORGANS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C39.0",
+        "display": "Upper respiratory tract, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C39.8",
+        "display": "Overlapping lesion of respiratory system and intrathoracic organs"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C39.9",
+        "display": "Ill-defined sites within respiratory system"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40",
+        "display": "BONES, JOINTS AND ARTICULAR CARTILAGE OF LIMBS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40.0",
+        "display": "Bone of shoulder"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40.1",
+        "display": "Hand joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40.2",
+        "display": "Knee joint, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40.3",
+        "display": "Ankle joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40.8",
+        "display": "Overlapping lesion of bones, joints and articular cartilage of limbs"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40.9",
+        "display": "Articular cartilage of limb, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41",
+        "display": "BONES, JOINTS AND ARTICULAR CARTILAGE OF OTHER AND UNSPECIFIED SITES"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.0",
+        "display": "Hyoid bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.1",
+        "display": "Mandible"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.2",
+        "display": "Spine"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.3",
+        "display": "Rib, sternum, clavicle and associated joints"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.4",
+        "display": "Coccyx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.8",
+        "display": "Overlapping lesion of bones, joints and articular cartilage"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.9",
+        "display": "Articular cartilage, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C42",
+        "display": "HEMATOPOIETIC AND RETICULOENDOTHELIAL SYSTEMS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C42.0",
+        "display": "Blood"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C42.1",
+        "display": "Bone marrow"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C42.2",
+        "display": "Spleen"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C42.3",
+        "display": "Reticuloendothelial system,NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C42.4",
+        "display": "Hematopoietic system, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C44",
+        "display": "SKIN"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C44.0",
+        "display": "Skin of lip, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C44.1",
+        "display": "Canthus, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C44.2",
+        "display": "Auricular canal, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C44.3",
+        "display": "Temple, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C44.4",
+        "display": "Scalp, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C44.5",
+        "display": "inguinal region"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C44.6",
+        "display": "elbow"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C44.7",
+        "display": "lower limb"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C44.8",
+        "display": "Overlapping lesion of skin"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C44.9",
+        "display": "Skin, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C47",
+        "display": "PERIPHERAL NERVES AND AUTONOMIC NERVOUS SYSTEM"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C47.0",
+        "display": "scalp"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C47.1",
+        "display": "Radial nerve"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C47.2",
+        "display": "popliteal space"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C47.3",
+        "display": "thoracic wall"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C47.4",
+        "display": "Peripheral nerves and autonomic nervous system of abdomen"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C47.5",
+        "display": "buttock"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C47.6",
+        "display": "trunk"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C47.8",
+        "display": "Overlapping lesion of peripheral nerves and autonomic nervous system"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C47.9",
+        "display": "Sympathetic nervous system, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C48",
+        "display": "RETROPERITONEUM AND PERITONEUM"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C48.0",
+        "display": "Periadrenal tissue"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C48.1",
+        "display": "Pelvic peritoneum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C48.2",
+        "display": "Peritoneum, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C48.8",
+        "display": "Overlapping lesion of retroperitoneum and peritoneum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C49",
+        "display": "CONNECTIVE, SUBCUTANEOUS AND OTHER SOFT TISSUES"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C49.0",
+        "display": "cervical region"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C49.1",
+        "display": "Biceps brachii muscle"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C49.2",
+        "display": "knee"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C49.3",
+        "display": "Aorta, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C49.4",
+        "display": "umbilicus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C49.5",
+        "display": "inguinal region"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C49.6",
+        "display": "trunk"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C49.8",
+        "display": "Overlapping lesion of connective, subcutaneous and other soft tissues"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C49.9",
+        "display": "Lymphatic, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C50",
+        "display": "BREAST"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C50.0",
+        "display": "Nipple"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C50.1",
+        "display": "Central portion of breast"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C50.2",
+        "display": "Upper-inner quadrant of breast"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C50.3",
+        "display": "Lower-inner quadrant of breast"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C50.4",
+        "display": "Upper-outer quadrant of breast"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C50.5",
+        "display": "Lower-outer quadrant of breast"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C50.6",
+        "display": "Axillary tail of breast"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C50.8",
+        "display": "Overlapping lesion of breast"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C50.9",
+        "display": "Breast, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C51",
+        "display": "VULVA"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C51.0",
+        "display": "Bartholin gland"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C51.1",
+        "display": "Labia minora"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C51.2",
+        "display": "Clitoris"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C51.8",
+        "display": "Overlapping lesion of vulva"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C51.9",
+        "display": "Fourchette"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C52",
+        "display": "VAGINA"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C52.9",
+        "display": "Hymen"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C53",
+        "display": "CERVIX UTERI"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C53.0",
+        "display": "Internal os"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C53.1",
+        "display": "External os"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C53.8",
+        "display": "Squamocolumnar junction of cervix"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C53.9",
+        "display": "Cervix uteri"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C54",
+        "display": "CORPUS UTERI"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C54.0",
+        "display": "Isthmus uteri"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C54.1",
+        "display": "Endometrium"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C54.2",
+        "display": "Myometrium"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C54.3",
+        "display": "Fundus uteri"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C54.8",
+        "display": "Overlapping lesion of corpus uteri"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C54.9",
+        "display": "Corpus uteri"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C55",
+        "display": "UTERUS, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C55.9",
+        "display": "Uterus, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C56",
+        "display": "OVARY"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C56.9",
+        "display": "Ovary"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C57",
+        "display": "OTHER AND UNSPECIFIED FEMALE GENITAL ORGANS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C57.0",
+        "display": "Fallopian tube"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C57.1",
+        "display": "Broad ligament"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C57.2",
+        "display": "Round ligament"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C57.3",
+        "display": "Uterosacral ligament"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C57.4",
+        "display": "Uterine adnexa"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C57.7",
+        "display": "Other specified parts of female genital organs"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C57.8",
+        "display": "Utero-ovarian"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C57.9",
+        "display": "Female genital organs, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C58",
+        "display": "PLACENTA"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C58.9",
+        "display": "Fetal membranes"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C60",
+        "display": "PENIS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C60.0",
+        "display": "Foreskin"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C60.1",
+        "display": "Glans penis"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C60.2",
+        "display": "Body of penis"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C60.8",
+        "display": "Overlapping lesion of penis"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C60.9",
+        "display": "Penis, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C61",
+        "display": "PROSTATE GLAND"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C61.9",
+        "display": "Prostate gland"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C62",
+        "display": "TESTIS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C62.0",
+        "display": "Undescended testis"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C62.1",
+        "display": "Descended testis"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C62.9",
+        "display": "Testicle, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C63",
+        "display": "OTHER AND UNSPECIFIED MALE GENITAL ORGANS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C63.0",
+        "display": "Epididymis"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C63.1",
+        "display": "Spermatic cord"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C63.2",
+        "display": "Scrotum, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C63.7",
+        "display": "Other specified parts of male genital organs"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C63.8",
+        "display": "Overlapping lesion of male genital organs Note:"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C63.9",
+        "display": "Male genitourinary tract, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C64",
+        "display": "KIDNEY"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C64.9",
+        "display": "Kidney, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C65",
+        "display": "RENAL PELVIS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C65.9",
+        "display": "Renal calyces"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C66",
+        "display": "URETER"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C66.9",
+        "display": "Ureter"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C67",
+        "display": "BLADDER"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C67.0",
+        "display": "Trigone of bladder"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C67.1",
+        "display": "Dome of bladder"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C67.2",
+        "display": "Lateral wall of bladder"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C67.3",
+        "display": "Anterior wall of bladder"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C67.4",
+        "display": "Posterior wall of bladder"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C67.5",
+        "display": "Bladder neck"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C67.6",
+        "display": "Ureteric orifice"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C67.7",
+        "display": "Urachus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C67.8",
+        "display": "Overlapping lesion of bladder"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C67.9",
+        "display": "Bladder, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C68",
+        "display": "OTHER AND UNSPECIFIED URINARY ORGANS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C68.0",
+        "display": "Urethra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C68.1",
+        "display": "Paraurethral gland"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C68.8",
+        "display": "Overlapping lesion of urinary organs"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C68.9",
+        "display": "Urinary system, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C69",
+        "display": "EYE AND ADNEXA"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C69.0",
+        "display": "Conjunctiva"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C69.1",
+        "display": "Cornea, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C69.2",
+        "display": "Retina"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C69.3",
+        "display": "Choroid"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C69.4",
+        "display": "Crystalline lens"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C69.5",
+        "display": "Lacrimal duct, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C69.6",
+        "display": "Orbit, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C69.8",
+        "display": "Overlapping lesion of eye and adnexa"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C69.9",
+        "display": "Eye, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C70",
+        "display": "MENINGES"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C70.0",
+        "display": "Falx, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C70.1",
+        "display": "Spinal meninges"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C70.9",
+        "display": "Dura mater, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C71",
+        "display": "BRAIN"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C71.0",
+        "display": "Corpus striatum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C71.1",
+        "display": "Frontal lobe"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C71.2",
+        "display": "Hippocampus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C71.3",
+        "display": "Parietal lobe"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C71.4",
+        "display": "Occipital lobe"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C71.5",
+        "display": "Choroid plexus of third ventricle"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C71.6",
+        "display": "Cerebellum, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C71.7",
+        "display": "Choroid plexus of fourth ventricle"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C71.8",
+        "display": "Overlapping lesion of brain"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C71.9",
+        "display": "Intracranial site"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C72",
+        "display": "SPINAL CORD, CRANIAL NERVES, AND OTHER PARTS OF CENTRAL NERVOUS SYSTEM"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C72.0",
+        "display": "Cervical cord"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C72.1",
+        "display": "Cauda equina"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C72.2",
+        "display": "Olfactory nerve"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C72.3",
+        "display": "Optic nerve"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C72.4",
+        "display": "Acoustic nerve"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C72.5",
+        "display": "Cranial nerve, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C72.8",
+        "display": "Overlapping lesion of brain and central nervous system"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C72.9",
+        "display": "Nervous system, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C73",
+        "display": "THYROID GLAND"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C73.9",
+        "display": "Thyroglossal duct"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C74",
+        "display": "ADRENAL GLAND"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C74.0",
+        "display": "Cortex of adrenal gland"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C74.1",
+        "display": "Medulla of adrenal gland"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C74.9",
+        "display": "Adrenal gland, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C75",
+        "display": "OTHER ENDOCRINE GLANDS AND RELATED STRUCTURES"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C75.0",
+        "display": "Parathyroid gland"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C75.1",
+        "display": "Pituitary, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C75.2",
+        "display": "Craniopharyngeal duct"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C75.3",
+        "display": "Pineal gland"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C75.4",
+        "display": "Carotid body"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C75.5",
+        "display": "Glomus jugulare"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C75.8",
+        "display": "Overlapping lesion of endocrine glands and related structures"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C75.9",
+        "display": "Endocrine gland, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C76",
+        "display": "OTHER AND ILL-DEFINED SITES"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C76.0",
+        "display": "Cheek, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C76.1",
+        "display": "Infraclavicular region, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C76.2",
+        "display": "Abdominal wall, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C76.3",
+        "display": "Rectovesical septum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C76.4",
+        "display": "Elbow, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C76.5",
+        "display": "Foot, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C76.7",
+        "display": "Other ill-defined sites"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C76.8",
+        "display": "Overlapping lesion of ill-defined sites"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C77",
+        "display": "LYMPH NODES"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C77.0",
+        "display": "Parotid lymph node"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C77.1",
+        "display": "Mediastinal lymph node"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C77.2",
+        "display": "Splenic lymph node, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C77.3",
+        "display": "Lymph nodes of axilla or arm"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C77.4",
+        "display": "Lymph node of lower limb"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C77.5",
+        "display": "Inferior epigastric lymph node"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C77.8",
+        "display": "Lymph nodes of multiple regions"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C77.9",
+        "display": "Lymph node, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C80",
+        "display": "UNKNOWN PRIMARY SITE"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C80.9",
+        "display": "Unknown primary site"
+      }
+    ]
+  }
+}

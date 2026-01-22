@@ -30,6 +30,10 @@ public class HttpFhirDataLoader : IFhirDataLoader
             {
                 return await resp.Content.ReadAsStringAsync();
             }
+            else
+            {
+                _logger.LogError("FHIR Resource {0} not found", id);
+            }
         }
         catch (Exception ex)
         {
@@ -50,6 +54,10 @@ public class HttpFhirDataLoader : IFhirDataLoader
 
                 var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector);
                 return await JsonSerializer.DeserializeAsync<T>(pr, options, ct);
+            }
+            else
+            {
+                _logger.LogError("FHIR Resource {0} not found", id);
             }
         }
         catch (Exception ex)

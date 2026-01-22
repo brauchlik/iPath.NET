@@ -1,6 +1,4 @@
-﻿using Ardalis.GuardClauses;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 
 namespace iPath.API;
@@ -20,13 +18,16 @@ public static class FhirEndpoints
                 var filename = System.IO.Path.Combine(dir, resource);
                 filename = System.IO.Path.Combine(filename, id) + ".json";
                 if (System.IO.File.Exists(filename))
-                { 
-                    return Results.File(filename, contentType: "text/json");
+                {
+                    using var stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    return Results.File(stream, contentType: "text/json");
                 }
             }
 
             return Results.NotFound();
-        });
+        })
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
 
         return route;
     }

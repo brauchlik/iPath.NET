@@ -35,7 +35,7 @@ public static class DocumentEndpoints
             {
                 var res = await mediator.Send(new GetDocumentFileQuery(nodeId), ct);
 
-                if (res.NotFound)
+                if (res.NotFound || !System.IO.File.Exists(res.TempFile))
                 {
                     return Results.NotFound();
                 }
@@ -45,13 +45,16 @@ public static class DocumentEndpoints
                 }
                 else
                 {
-                    return Results.File(res.TempFile, contentType: res.Info.MimeType);
+                    using var stream = new FileStream(res.TempFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    return Results.File(stream, contentType: res.Info.MimeType, fileDownloadName: res.Info.Filename);
                 }
             }
 
             return Results.BadRequest();
         })
-           .RequireAuthorization();
+           .RequireAuthorization()
+           .Produces(StatusCodes.Status200OK)
+           .Produces(StatusCodes.Status404NotFound);
 
 
         grp.MapPost("upload/{requestId}", async (string requestId, [FromForm] string? parentId, [FromForm] IFormFile file, 

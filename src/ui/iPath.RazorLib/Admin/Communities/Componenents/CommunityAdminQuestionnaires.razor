@@ -19,7 +19,7 @@ else
             <MudText Typo="Typo.h6">Questionnaires</MudText>
             <MudSpacer />
             <QuestionnaireLookup @bind-Value="selectedQ" @bind-Value:after="OnQuestionaireSelected" Clearable="true" @ref="lookup"
-                                 Label=@T["Questionnaire"]
+                                 Label=@T["Questionnaire"] MaxItems="100"
                                  Variant="Variant.Outlined" ShrinkLabel="true" Dense="true" Margin="Margin.Dense" />
         </ToolBarContent>
         <Columns>

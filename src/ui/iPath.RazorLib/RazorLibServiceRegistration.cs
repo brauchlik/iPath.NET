@@ -63,6 +63,7 @@ public static class RazorLibServiceRegistration
         // FHIR: questionnaires & coding
         services.AddSingleton<QuestionnaireCache>();
 
+        services.AddHttpClient("Fhir", cfg => cfg.BaseAddress = new Uri(baseAddress + "api/v1/fhir/"));
         services.AddSingleton<IFhirDataLoader, HttpFhirDataLoader>();
         services.AddKeyedSingleton<CodingService>("icdo", (sp, key) =>
         {

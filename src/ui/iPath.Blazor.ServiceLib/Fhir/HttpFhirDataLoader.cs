@@ -11,12 +11,12 @@ namespace iPath.Blazor.ServiceLib.Fhir;
 public class HttpFhirDataLoader : IFhirDataLoader
 {
     private readonly ILogger<HttpFhirDataLoader> _logger;
-    private readonly string _baseAddress;
+    private readonly IHttpClientFactory _fct;
 
-    public HttpFhirDataLoader(IConfiguration config, ILogger<HttpFhirDataLoader> logger)
+    public HttpFhirDataLoader(IHttpClientFactory fct, ILogger<HttpFhirDataLoader> logger)
     {
         _logger = logger;
-        _baseAddress = config["BaseAddress"] + "api/v1/fhir/";
+        _fct = fct;
     }
     
 
@@ -24,8 +24,8 @@ public class HttpFhirDataLoader : IFhirDataLoader
     {
         try
         {
-            _logger.LogInformation("Getting Fhir Resource {0} {1}", _baseAddress, id);
-            var http = new HttpClient { BaseAddress = new Uri(_baseAddress) };
+            using var http = _fct.CreateClient("Fhir");
+            _logger.LogInformation("Getting Fhir Resource {0} {1}", http.BaseAddress, id);
             var resp = await http.GetAsync(id);
             if (resp.IsSuccessStatusCode)
             {
@@ -47,8 +47,8 @@ public class HttpFhirDataLoader : IFhirDataLoader
     {
         try
         {
-            _logger.LogInformation("Getting Fhir Resource {0} {1}", _baseAddress, id);
-            var http = new HttpClient { BaseAddress = new Uri(_baseAddress) };
+            using var http = _fct.CreateClient("Fhir");
+            _logger.LogInformation("Getting Fhir Resource {0} {1}", http.BaseAddress, id);
             var resp = await http.GetAsync(id);
             if (resp.IsSuccessStatusCode)
             {

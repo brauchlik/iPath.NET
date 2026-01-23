@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Hl7.Fhir.Model;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace iPath.Blazor.Componenents.Shared.Coding;
 
-public class CodingLookup(IServiceProvider sp) : MudAutocomplete<CodeDisplay>
+public class CodingLookup(IServiceProvider sp) : MudAutocomplete<CodeDisplay?>
 {
     [Parameter]
     public string ValueSetId { get; set; }
@@ -23,7 +24,14 @@ public class CodingLookup(IServiceProvider sp) : MudAutocomplete<CodeDisplay>
         set
         {
             field = value;
-            SelectCode(field?.Code);
+            if (field != null)
+            {
+                SelectCode(field?.Code);
+            }
+            else
+            {
+                Value = null;
+            }
         }
     }
 
@@ -38,8 +46,6 @@ public class CodingLookup(IServiceProvider sp) : MudAutocomplete<CodeDisplay>
 
     protected override void OnInitialized()
     {
-        srv = sp.GetKeyedService<CodingService>(CodingService);
-
         this.ToStringFunc = x => x is null ? "" : $"{x.Display} [{x.Code}]";
         this.SearchFunc = Search; // (string? term, CancellationToken ct) => Search(term, ct);
         base.OnInitialized();
@@ -56,18 +62,24 @@ public class CodingLookup(IServiceProvider sp) : MudAutocomplete<CodeDisplay>
         });
     }
 
-    private bool _isReady = false;
+    private bool _isReady => srv is not null;
+
     protected override async Task OnParametersSetAsync()
     {
         // this componenet is interactive only => no need to load data on SSR
         if (RendererInfo.IsInteractive)
         {
-            if (!string.IsNullOrEmpty(ValueSetId) && !_isReady)
-            {
-                await srv.LoadCodeSystem();
-                await srv.LoadValueSet(ValueSetId);
-                _isReady = true;
-            }
+            await InitCS();
+        }
+    }
+
+    private async Task InitCS()
+    {
+        if (!string.IsNullOrEmpty(ValueSetId) && !_isReady)
+        {
+            srv = sp.GetKeyedService<CodingService>(CodingService);
+            await srv.LoadCodeSystem();
+            await srv.LoadValueSet(ValueSetId);
         }
     }
 
@@ -79,6 +91,8 @@ public class CodingLookup(IServiceProvider sp) : MudAutocomplete<CodeDisplay>
         }
         else if (!string.IsNullOrEmpty(ValueSetId))
         {
+            await InitCS();
+
             var vs = srv.GetValueSetDisplay(ValueSetId);
             if (vs is not null)
                 return await vs.FindConcepts(term, ct);
@@ -87,7 +101,7 @@ public class CodingLookup(IServiceProvider sp) : MudAutocomplete<CodeDisplay>
         return new List<CodeDisplay>();
     }
 
-    protected void SelectCode(string code)
+    protected async Task SelectCode(string code)
     {
         if (Items != null)
         {
@@ -95,8 +109,10 @@ public class CodingLookup(IServiceProvider sp) : MudAutocomplete<CodeDisplay>
         }
         else if (!string.IsNullOrEmpty(ValueSetId))
         {
+            await InitCS();
+
             var vs = srv.GetValueSetDisplay(ValueSetId);
-            if (vs is not null) 
+            if (vs is not null)
                 Value = vs.FindConceptByCode(code);
         }
     }

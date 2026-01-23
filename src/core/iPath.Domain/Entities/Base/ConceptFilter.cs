@@ -1,8 +1,21 @@
-﻿namespace iPath.Domain.Entities.Base;
+﻿
+namespace iPath.Domain.Entities.Base;
 
 public class ConceptFilter
 {
-    public  string CodeSystem { get; set; }
     public bool IncludingChildCodes { get; set; } = true;
-    public List<string> Codes { get; set; } = new();
+    public List<CodedConcept> Concetps { get; set; } = new();
+
+    public void Add(CodedConcept newValue)
+    {
+        if (!Concetps.Any(x => x.Equals(newValue)))
+        {
+            Concetps.Add(newValue.Clone());
+        }
+    }
+
+    public void Remove(CodedConcept c)
+    {
+        Concetps.RemoveAll(x => x.Equals(c));
+    }
 }

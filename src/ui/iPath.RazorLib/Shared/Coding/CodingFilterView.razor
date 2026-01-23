@@ -4,49 +4,22 @@
 
 <h3>CodingFilterView</h3>
 
-<MudPaper MaxWidth="300">
-<MudStack>
-    @foreach (var cd in Codes)
-    {
-        <CodingLookup CodingService="@CodingService" ValueSetId="@ValueSetId" Value="cd" />
-    }
-    <MudButton OnClick="AddCode">add</MudButton>
-</MudStack>
-</MudPaper>
+@if (Filter != null)
+{
+    <CodingLookup CodingService="@CodingService" ValueSetId="@ValueSetId" @ref="lookup"
+                  @bind-Concept="NewValue" @bind-Concept:after="AddCode"
+                  Variant="Variant.Outlined" Margin="Margin.Dense" MaxItems="100" />
 
-@inject IServiceProvider sp
-
-@code {
-    [Parameter, EditorRequired]
-    public ConceptFilter Model { get; set; }
-
-    [Parameter, EditorRequired]
-    public string CodingService { get; set; }
-
-    [Parameter, EditorRequired]
-    public string ValueSetId { get; set; }
-
-
-    List<CodeDisplay> Codes = new();
-
-    private CodingService srv;
-    protected override async Task OnParametersSetAsync()
-    {
-        if (srv is null && RendererInfo.IsInteractive && !string.IsNullOrEmpty(CodingService))
+    <MudList T="CodedConcept">
+        @foreach (var c in Filter.Concetps)
         {
-            srv = sp.GetKeyedService<CodingService>(CodingService);
-            await srv.LoadCodeSystem();
-            await srv.LoadValueSet(ValueSetId);
-            var vs = srv.GetValueSetDisplay(ValueSetId);
-            ;
-            Codes.Add(vs.FindConceptByCode("C40.1"));
-            Codes.Add(vs.FindConceptByCode("C10.3"));
-            Codes.Add(vs.FindConceptByCode("C45"));
+            <MudListItem Value="c">
+                <MudStack Row Spacing="0">
+                    @c.ToDisplay()
+                    <MudSpacer />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick=@(() => Remove(c)) />
+                </MudStack>
+            </MudListItem>
         }
-    }
-
-    private void AddCode(MouseEventArgs args)
-    {
-        Codes.Add(new CodeDisplay());
-    }
+    </MudList>
 }

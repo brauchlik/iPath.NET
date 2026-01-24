@@ -5,10 +5,9 @@
 @using iPath.Domain.Config
 
 @attribute [ExcludeFromInteractiveRouting]
-@attribute [Authorize(Roles = "Admin")]
 
 
-<IPathHeader Title="System Satus" />
+<IPathHeader Title="Server Satus" />
 <b>@RendererInfo.Name @RendererInfo.IsInteractive</b>
 <p>max filesize: @clopts.Value.MaxFileSize = @clopts.Value.MaxFileSizeBytes Bytes</p>
 <MudDivider />

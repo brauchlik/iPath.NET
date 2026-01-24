@@ -1,4 +1,6 @@
-﻿namespace iPath.Domain.Entities;
+﻿using iPath.Domain.Entities.Base;
+
+namespace iPath.Domain.Entities;
 
 public class QuestionnaireForCommunity
 {
@@ -12,4 +14,6 @@ public class QuestionnaireForCommunity
 
     public eQuestionnaireUsage Usage { get; set; }
     public int? ExplicitVersion { get; set; } = null;
+
+    public ConceptFilter? BodySiteFilter { get; set; }
 }

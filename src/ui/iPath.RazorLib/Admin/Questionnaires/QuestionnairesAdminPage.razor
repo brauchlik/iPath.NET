@@ -1,37 +1,91 @@
-﻿@page "/admin/questionnaires"
+﻿@page "/admin/questionnaires/{id}"
+@page "/admin/questionnaires/{id}/{mode}"
 
-@attribute [Authorize(Roles = "Admin")]
-
-@inject IStringLocalizer T
 @inject QuestionnaireAdminViewModel vm
-
 
 <MudBreadcrumbs Items="vm.BreadCrumbs" Class="mt-0 pt-0"></MudBreadcrumbs>
 
-<IPathHeader Title=@T["Questionnaires"]>
-    <ActionContent>
-        <MudFab StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="vm.Create" />
-    </ActionContent>
-</IPathHeader>
-<MudDataGrid T="QuestionnaireListDto" ServerData="vm.GetData" Dense Striped @ref="vm.grid">
-    <Columns>
-        <PropertyColumn Property="q => q.QuestionnaireId" Title="Id" />
-        <PropertyColumn Property="q => q.Name" Title="Name" />
-        <PropertyColumn Property="q => q.Version" />
-        <TemplateColumn>
-            <CellTemplate>
-                <MudCheckBox ReadOnly="true" Value="@context.Item.IsActive" />
-            </CellTemplate>
-        </TemplateColumn>
-        <TemplateColumn>
-            <CellTemplate>
-                <MudIconButton Icon="@Icons.Material.Filled.Preview" Size="Size.Small" Href=@($"admin/questionnaires/{context.Item.Id}") />
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick=@(() => vm.Edit(context.Item)) />
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick=@(() => vm.Delete(context.Item)) />
-            </CellTemplate>
-        </TemplateColumn>
-    </Columns>
-    <PagerContent>
-        <MudDataGridPager T="QuestionnaireListDto" />
-    </PagerContent>
-</MudDataGrid>
+
+
+@if (vm.SelectedQuestionnaire is null)
+{
+    <IPathHeader Title=@T["Questionnaire Administration"] />
+}
+else
+{
+    <!--
+    <IPathHeader Title=@($"{vm.SelectedQuestionnaire.Name}, Version={vm.SelectedQuestionnaire.Version}")>
+        <ActionContent>
+            <MudFab StartIcon="@Icons.Material.Filled.Backspace" Href="admin/questionnaires" Size="Size.Small" />
+        </ActionContent>
+    </IPathHeader>
+    -->
+
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true"
+             TabPanelsClass="pa-6"
+             Color="Color.Info" IconColor="Color.Surface"
+             @bind-ActivePanelIndex="panelIndex">
+        <MudTabPanel Text=@T["Settings"] Icon="@Icons.Material.Filled.Settings">
+            <MudForm Model="@Model" Spacing="4">
+                <MudStack Row Spacing="0">
+                    <MudTextField @bind-Value="@Model.QuestionnaireId" Label=@T["Id"] ShrinkLabel="true" Required="true"
+                                  Variant="Variant.Outlined" Disabled="true" Margin="Margin.Dense" />
+                    <MudCheckBox @bind-Value="@Model.IsActive" Label=@T["active"] />
+                </MudStack>
+
+                <MudTextField @bind-Value="@Model.Name" Label=@T["Name"] ShrinkLabel="true" Required="true" Variant="Variant.Outlined" />
+
+                <MudTextField @bind-Value="@Model.Resource" Label=@T["FHIR Resource"] Variant="Variant.Outlined"
+                              Lines="10" Margin="Margin.Dense" Typo="Typo.body2" />
+            </MudForm>
+
+
+            <MudStack Row Class="mt-2">
+                <ProgressButton Text="Save" Icon="@Icons.Material.Filled.Save" OnClick=@(() => vm.Save(Model)) />
+                <MudButton Variant="Variant.Filled" OnClick="ReloadModel">Cancel</MudButton>
+            </MudStack>
+        </MudTabPanel>
+        <MudTabPanel Text=@T["Filter"] Icon="@Icons.Material.Filled.Filter">
+            <TopoTreeFilter Filter="@Model.Settings.BodySiteFilter" />
+        </MudTabPanel>
+        <MudTabPanel Text=@T["Preview"] Icon="@Icons.Material.Filled.Preview">
+            <iPath.LHCForms.LhcForm @ref="vm.PreviewForm" ReadOnly="false"
+                                    Questionnaire="@Model.Resource" />
+        </MudTabPanel>
+    </MudTabs>
+}
+
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+
+    [Parameter]
+    public string mode { get; set; }
+
+    QuestionnaireEntity q;
+    EditQuestionnaireModel Model { get; set; } = new();
+    int panelIndex = 0;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Guid.TryParse(id, out var guid))
+        {
+            await vm.Load(guid);
+            Model = new EditQuestionnaireModel(vm.SelectedQuestionnaire);
+        }
+        panelIndex = mode switch
+        {
+            "preview" => 2,
+            "filter" => 1,
+            _ => 0
+        };
+        StateHasChanged();
+    }
+    private void ReloadModel(MouseEventArgs args)
+    {
+        if (vm.SelectedQuestionnaire is not null)
+            Model = new EditQuestionnaireModel(vm.SelectedQuestionnaire);
+    }
+}

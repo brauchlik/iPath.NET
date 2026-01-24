@@ -1,8 +1,6 @@
 ﻿@page "/admin/users"
 
-@attribute [Authorize(Roles = "Admin")]
 @inject UserAdminViewModel vm;
-@inject IStringLocalizer T
 
 
 <MudBreadcrumbs Items="vm.BreadCrumbs" Class="mt-0 pt-0"></MudBreadcrumbs>
@@ -16,7 +14,8 @@
 <p class="mt-4" />
 
 <MudTable T="UserListDto" ServerData="vm.GetTableDataAsync" @ref="vm.table"
-          RowStyleFunc="vm.SelectedRowStyle" Class="ipath_table" Dense>
+          RowStyleFunc="vm.SelectedRowStyle" Class="ipath_table" 
+          Dense="true" Striped="true" Hover="true">
     <ToolBarContent>
         <MudText Typo="Typo.h6">@T["Users"]</MudText>
         <MudSpacer />

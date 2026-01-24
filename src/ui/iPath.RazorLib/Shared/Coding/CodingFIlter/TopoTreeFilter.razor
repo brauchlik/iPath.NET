@@ -1,0 +1,93 @@
+﻿@using Microsoft.Extensions.DependencyInjection
+@using iPath.Application.Fhir
+@using iPath.Domain.Entities.Base
+
+@namespace iPath.Blazor.Componenents.Shared.Coding
+
+<MudPaper>
+    <h3>@T["Body site filter (icd-o)"]</h3>
+    @if (RendererInfo.IsInteractive)
+    {
+        <MudStack AlignItems="AlignItems.Center">
+            <MudTextField T="string" Label="Search" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          TextChanged="OnTextChanged" Immediate="true" Clearable="true" />
+            <CodingTreeFilter TreeItems="BodySiteCodes" @ref="_treeView"
+                              @bind-Selection="_sel" @bind-Selection:after="OnChange" />
+
+        </MudStack>
+        <div style="border: 1px; margin-top: 8px;">
+            <strong>selection: </strong> @sel
+        </div>
+    }
+    else
+    {
+        <MudSkeleton Height="200px" />
+    }
+</MudPaper>
+
+@inject IServiceProvider sp;
+
+    @code {
+    [Parameter]
+    public ConceptFilter? Filter { get; set; }
+
+    [Parameter]
+    public EventCallback<ConceptFilter?> FilterChanged { get; set; }
+
+
+    CodingTreeFilter _treeView;
+    IReadOnlyCollection<CodeDisplay> _sel;
+
+    string sel => _sel is null ? "--" : string.Join(", ", _sel.Select(x => x.Code).ToArray());
+
+    public List<TreeItemData<CodeDisplay>> BodySiteCodes { get; private set; } = new();
+
+    const string system = "icdo";
+    const string vsid = "icdo-topo";
+
+
+    async Task OnChange()
+    {
+        StateHasChanged();
+        Filter.Concetps = _sel.ToArray().ToConcept(_coding.CodeSystemUrl).ToList();
+        await FilterChanged.InvokeAsync();
+    }
+
+
+    CodingService _coding;
+    protected override async Task OnInitializedAsync()
+    {
+        _coding = sp.GetRequiredKeyedService<CodingService>(system);
+        var _loader = sp.GetRequiredService<IFhirDataLoader>();
+
+        await _coding.LoadCodeSystem();
+        await _coding.LoadValueSet(vsid);
+
+        LoadFilter();
+    }
+
+    private void LoadFilter()
+    {
+        if (Filter is not null)
+        {
+            var vs = _coding.GetValueSetDisplay(vsid);
+            var mysel = new List<CodeDisplay>();
+            foreach (var code in Filter.Concetps)
+            {
+                mysel.Add(vs.FindConceptByCode(code.Code));
+            }
+            _sel = mysel;
+        }
+        else
+        {
+            _sel = new List<CodeDisplay>();
+        }
+        StateHasChanged();
+    }
+
+    private async Task OnTextChanged(string term)
+    {
+        await _treeView.Search(term);
+    }
+}

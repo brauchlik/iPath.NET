@@ -25,7 +25,7 @@ public class QuestionnaireEntity : AuditableEntity
     public ICollection<QuestionnaireForGroup> Groups { get; set; } = [];
     public ICollection<QuestionnaireForCommunity> Communities { get; set; } = [];
 
-    public ConceptFilter? BodySiteFilter { get; set; }
+    public QuestionnaireSettings Settings { get; set; } = new();
 }
 
 

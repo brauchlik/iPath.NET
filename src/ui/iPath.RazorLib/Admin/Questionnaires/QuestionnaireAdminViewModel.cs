@@ -1,4 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Ardalis.GuardClauses;
+using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace iPath.Blazor.Componenents.Admin.Questionnaires;
 
@@ -6,7 +11,6 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
     : IViewModel
 {
     public MudDataGrid<QuestionnaireListDto> grid;
-    public iPath.LHCForms.LhcForm preview;
 
 
     public List<BreadcrumbItem> BreadCrumbs
@@ -45,7 +49,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
         if (res?.Data is EditQuestionnaireModel)
         {
             var m = (EditQuestionnaireModel)res.Data;
-            var resp = await api.CreateQuestionnaire(new UpdateQuestionnaireCommand(m.QuestionnaireId, m.Name, m.Resource, insert: true));
+            var resp = await api.CreateQuestionnaire(new UpdateQuestionnaireCommand(m.QuestionnaireId, m.Name, m.Resource, Settings: null, IsActive: true, insert: true));
             if (resp.IsSuccessful)
             {
                 await grid.ReloadServerData();
@@ -76,15 +80,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
             var resp = await api.GetQuestionnaireById(item.Id);
             if (resp.IsSuccessful)
             {
-                var v1 = resp.Content.Resource;
-                var m = new EditQuestionnaireModel
-                {
-                    Id = resp.Content.Id,
-                    QuestionnaireId = resp.Content.QuestionnaireId,
-                    Name = resp.Content.Name,
-                    Version = resp.Content.Version,
-                    Resource = resp.Content.Resource
-                };
+                var m = new EditQuestionnaireModel(resp.Content);
                 var p = new DialogParameters<DlgEditQuestionnaire> { { x => x.Model, m } };
                 var dlg = await dialog.ShowAsync<DlgEditQuestionnaire>("...", parameters: p);
                 var res = await dlg.Result;
@@ -92,24 +88,46 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
                 {
                     var r = (EditQuestionnaireModel)res.Data;
 
-                    if (v1 != r.Resource)
-                    {
-                        var resp2 = await api.CreateQuestionnaire(new UpdateQuestionnaireCommand(r.QuestionnaireId, r.Name, r.Resource, insert: false));
-                        await grid.ReloadServerData();
-                        snackbar.Add("Questionnaire updated", Severity.Success);
-                    }
-                    else
-                    {
-                        snackbar.Add("no change", Severity.Info);
-                    }
+                    await Save(r);
+                    await grid.ReloadServerData();
+                    snackbar.Add("Questionnaire updated", Severity.Success);
                 }
             }
         }
     }
 
+    public async Task<bool> Save(EditQuestionnaireModel r)
+    {
+        // validate resource
+        try
+        {
+            var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector);
+            var q = JsonSerializer.Deserialize<Questionnaire>(r.Resource, options);
+        }
+        catch (Exception ex) 
+        {
+            snackbar.AddError("Resource is not valid: " + ex.Message);
+            return false;
+        }
+
+        var resp = await api.CreateQuestionnaire(new UpdateQuestionnaireCommand(r.QuestionnaireId, r.Name, r.Resource, Settings:r.Settings, IsActive: r.IsActive, insert: false));
+        return snackbar.CheckSuccess(resp);
+    }
+
     public async Task Delete(QuestionnaireListDto item)
     {
         snackbar.Add("not implemented yet", Severity.Info);
+    }
+
+
+
+    public iPath.LHCForms.LhcForm PreviewForm;
+    public async Task RenderPreview()
+    {
+        if (PreviewForm is not null && SelectedQuestionnaire is not null)
+        {
+            await PreviewForm.LoadFormAsync(SelectedQuestionnaire.Resource, "");
+        }
     }
 }
 
@@ -124,9 +142,28 @@ public class EditQuestionnaireModel
     [Required]
     public string Name { get; set; }
 
+    public bool IsActive { get; set; }
 
     public IBrowserFile? ResourceFile { get; set; }
     public string ResourceFileName { get; set; }
 
     public string? Resource { get; set; }
+
+    public QuestionnaireSettings? Settings { get; set; } = null;
+
+    public EditQuestionnaireModel()
+    {
+    }
+
+    public EditQuestionnaireModel(QuestionnaireEntity e)
+    {
+        Guard.Against.Null(e);
+        Id = e.Id;
+        QuestionnaireId = e.QuestionnaireId;
+        Name = e.Name;
+        Version = e.Version;
+        IsActive = e.IsActive;
+        Resource = e.Resource;
+        Settings = e.Settings;
+    }
 }

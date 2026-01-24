@@ -1,7 +1,6 @@
 ﻿@page "/admin/users/{id}"
 @page "/admin/users/{id}/{panel}"
 
-@inject IStringLocalizer T
 @inject UserAdminViewModel vm
 
 @attribute [Authorize(Roles = "Admin")]

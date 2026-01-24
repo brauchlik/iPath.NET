@@ -14,7 +14,7 @@ internal class QuestionnaireConfiguration : IEntityTypeConfiguration<Questionnai
         b.Property(q => q.QuestionnaireId).HasMaxLength(100);
         b.HasOne(q => q.Owner).WithMany().IsRequired(true);
 
-        b.ComplexProperty(q => q.BodySiteFilter, b => b.ToJson());
+        b.ComplexProperty(q => q.Settings, b => b.ToJson());
 
         b.HasMany(q => q.Groups)
             .WithOne(qg => qg.Questionnaire)

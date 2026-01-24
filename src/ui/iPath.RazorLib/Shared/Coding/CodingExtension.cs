@@ -42,10 +42,22 @@ public static class CodingExtension
 
             return ret;
         }
+
+
+        public IEnumerable<CodedConcept>? ToConcept(string system)
+        {
+            var ret = new List<CodedConcept>();
+            if (values is not null && values.Any())
+                foreach (var v in values)
+                {
+                    ret.Add(v.ToConcept(system));
+                }
+            return ret;
+        }
     }
 
 
-    extension (CodedConcept? concept)
+    extension(CodedConcept? concept)
     {
         public string ToDisplay() => concept is null ? "" : $"{concept.Display} [{concept.Code}]";
         public string ToAppend() => concept is null ? "" : ", " + concept.ToDisplay();

@@ -1,0 +1,42 @@
+﻿@page "/admin/questionnaires"
+
+@inject QuestionnaireAdminViewModel vm
+
+
+<MudBreadcrumbs Items="vm.BreadCrumbs" Class="mt-0 pt-0"></MudBreadcrumbs>
+
+<IPathHeader Title=@T["Questionnaires"]>
+    <ActionContent>
+        <MudFab StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="vm.Create" />
+    </ActionContent>
+</IPathHeader>
+<MudDataGrid T="QuestionnaireListDto" ServerData="vm.GetData" Dense Striped @ref="vm.grid" RowClick="OnRowClick">
+    <Columns>
+        <PropertyColumn Property="q => q.QuestionnaireId" Title="Id" />
+        <PropertyColumn Property="q => q.Name" Title="Name" />
+        <PropertyColumn Property="q => q.Version" />
+        <TemplateColumn>
+            <CellTemplate>
+                <MudCheckBox ReadOnly="true" Value="@context.Item.IsActive" />
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn>
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Href=@($"admin/questionnaires/{context.Item.Id}/edit") />
+                <MudIconButton Icon="@Icons.Material.Filled.Filter" Size="Size.Small" Href=@($"admin/questionnaires/{context.Item.Id}/filter") />
+                <MudIconButton Icon="@Icons.Material.Filled.Preview" Size="Size.Small" Href=@($"admin/questionnaires/{context.Item.Id}/preview") />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick=@(() => vm.Delete(context.Item)) />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="QuestionnaireListDto" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    private void OnRowClick(DataGridRowClickEventArgs<QuestionnaireListDto> args)
+    {
+        nm.NavigateTo($"admin/questionnaires/{args.Item.Id}");
+    }
+}

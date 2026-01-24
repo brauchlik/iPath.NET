@@ -28,5 +28,5 @@ public record AssignQuestionnaireCommand(Guid Id, eQuestionnaireUsage Usage, boo
 
 
 
-public record UpdateQuestionnaireCommand(string QuestionnaireId, string Name, string Resource, bool insert)
+public record UpdateQuestionnaireCommand(string QuestionnaireId, string Name, string Resource, QuestionnaireSettings Settings, bool IsActive, bool insert)
     : IRequest<UpdateQuestionnaireCommand, Task<Guid>>;

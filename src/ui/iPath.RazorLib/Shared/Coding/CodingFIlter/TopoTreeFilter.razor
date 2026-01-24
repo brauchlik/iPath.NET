@@ -4,16 +4,16 @@
 
 @namespace iPath.Blazor.Componenents.Shared.Coding
 
-<MudPaper>
+<MudPaper Class="pa-2">
     <h3>@T["Body site filter (icd-o)"]</h3>
     @if (RendererInfo.IsInteractive)
     {
-        <MudStack AlignItems="AlignItems.Center">
+        <MudStack AlignItems="AlignItems.Start">
             <MudTextField T="string" Label="Search" Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Search"
                           TextChanged="OnTextChanged" Immediate="true" Clearable="true" />
             <CodingTreeFilter TreeItems="BodySiteCodes" @ref="_treeView"
-                              @bind-Selection="_sel" @bind-Selection:after="OnChange" />
+                              @bind-SelectedValues="SelectedValues" />
 
         </MudStack>
         <div style="border: 1px; margin-top: 8px;">
@@ -28,7 +28,7 @@
 
 @inject IServiceProvider sp;
 
-@code {
+    @code {
     [Parameter]
     public ConceptFilter? Filter { get; set; }
 
@@ -37,20 +37,20 @@
 
 
     CodingTreeFilter _treeView;
-    IReadOnlyCollection<CodeDisplay> _sel { get; set; }
+    IReadOnlyCollection<CodeDisplay> SelectedValues { get; set; } = [];
 
-    string sel => _sel is null ? "--" : string.Join(", ", _sel.Select(x => x.Code).ToArray());
+    string sel => SelectedValues is null ? "--" : string.Join(", ", SelectedValues.Select(x => x.Code).ToArray());
 
     public List<TreeItemData<CodeDisplay>> BodySiteCodes { get; private set; } = new();
 
     const string system = "icdo";
     const string vsid = "icdo-topo";
 
-
-    async Task OnChange()
+    /*
+    async Task OnSelectionChange()
     {
         StateHasChanged();
-        var list = _sel.ToArray().ToConcept(_coding.CodeSystemUrl).ToList();
+        var list = SelectedValues.ToArray().ToConcept(_coding.CodeSystemUrl).ToList();
         if (list.IsEmpty())
         {
             Filter = null;
@@ -61,6 +61,7 @@
         }
         await FilterChanged.InvokeAsync(Filter);
     }
+    */
 
 
     CodingService _coding;
@@ -96,17 +97,103 @@
             var mysel = new List<CodeDisplay>();
             foreach (var code in Filter.Concetps)
             {
-                mysel.Add(_valueset.FindConceptByCode(code.Code));
-                // TODO: add all child concepts for display in tree
+                var expanded = _coding.GetChildCodes(code.Code, true);
+                foreach (var x in expanded.ChildCodes) 
+                {
+                    mysel.Add(_valueset.FindConceptByCode(x));
+                } 
             }
-            _sel = mysel;
+            SelectedValues = mysel;
         }
         else
         {
-            _sel = new List<CodeDisplay>();
+            SelectedValues = new List<CodeDisplay>();
         }
         StateHasChanged();
     }
+
+    public void SaveFilter()
+    {
+        // Build a lookup of selected codes
+        var selectedCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (SelectedValues is not null)
+        {
+            foreach (var v in SelectedValues)
+            {
+                if (v?.Code is not null)
+                    selectedCodes.Add(v.Code);
+            }
+        }
+
+        var _selection = new List<CodeDisplay>();
+
+        // Recursive helper: determines whether all nodes in the subtree are selected.
+        bool NodeFullySelected(ITreeItemData<CodeDisplay> node)
+        {
+            var children = node.Children;
+            if (children is null)
+            {
+                // leaf node
+                return node.Value?.Code is not null && selectedCodes.Contains(node.Value.Code);
+            }
+
+            bool hadChild = false;
+            foreach (var child in children)
+            {
+                hadChild = true;
+                if (!NodeFullySelected(child))
+                    return false;
+            }
+
+            // no children -> treat as leaf
+            if (!hadChild)
+                return node.Value?.Code is not null && selectedCodes.Contains(node.Value.Code);
+
+            // all children fully selected
+            return true;
+        }
+
+        // Traverse and collect: if a node's entire subtree is selected, add only the parent and skip children.
+        void Traverse(ITreeItemData<CodeDisplay> node)
+        {
+            if (NodeFullySelected(node))
+            {
+                if (node.Value is not null)
+                    _selection.Add(node.Value);
+                return;
+            }
+
+            // If node itself was selected (but not all children), include it as well.
+            if (node.Value is not null && selectedCodes.Contains(node.Value.Code ?? string.Empty))
+                _selection.Add(node.Value);
+
+            if (node.Children is not null)
+            {
+                foreach (var child in node.Children)
+                    Traverse(child);
+            }
+        }
+
+        if (BodySiteCodes is not null)
+        {
+            foreach (var root in BodySiteCodes)
+            {
+                // TreeItemData implements ITreeItemData<T>, so cast is safe
+                Traverse(root);
+            }
+        }
+
+
+        if (_selection.IsEmpty())
+        {
+            Filter = null;
+        }
+        else
+        {
+            Filter.Concetps = _selection.ToConcept(_coding.CodeSystemUrl).ToList();
+        }
+    }
+
 
     private async Task OnTextChanged(string term)
     {

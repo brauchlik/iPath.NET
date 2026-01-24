@@ -16,7 +16,7 @@ public class ServiceRequestViewModel(IPathApi api,
     IDialogService srvDialog,
     IStringLocalizer T,
     NavigationManager nm,
-    QuestionnaireCache qCache,
+    QuestionnaireCacheClient qCache,
     IOptions<iPathClientConfig> opts,
     ILogger<ServiceRequestViewModel> logger)
     : IViewModel

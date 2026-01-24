@@ -19,6 +19,9 @@
     public bool ReadOnly { get; set; }
 
     [Parameter]
+    public bool ShowTitle { get; set; }
+
+    [Parameter]
     public string Questionnaire { get; set; } = "";
 
     [Parameter]
@@ -41,18 +44,27 @@
         await interop.DisposeAsync();
     }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadFormAsync();
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await OnAfterRendered.InvokeAsync();
-            if (!string.IsNullOrEmpty(Questionnaire))
-            {
-                await LoadFormAsync(Questionnaire, QuestionnaireResponse);
-            }
+            await LoadFormAsync();
         }
     }
 
+    public async Task LoadFormAsync()
+    {
+        if (!string.IsNullOrEmpty(Questionnaire))
+        {
+            await LoadFormAsync(Questionnaire, QuestionnaireResponse);
+        }
+    }
 
 
     public async Task LoadFormAsync(string questionnaire, string questionnaireResponse = "")

@@ -1,11 +1,12 @@
-﻿using iPath.Blazor.ServiceLib.ApiClient;
+﻿using iPath.Application.Contracts;
+using iPath.Blazor.ServiceLib.ApiClient;
 using iPath.Domain.Entities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace iPath.Blazor.ServiceLib.Services;
 
-public class QuestionnaireCache(IMemoryCache cache, IPathApi api, ILogger<QuestionnaireCache> logger)
+public class QuestionnaireCacheClient(IMemoryCache cache, IPathApi api, ILogger<QuestionnaireCacheClient> logger) 
 {
     public async Task<string?> GetQuestionnaireResourceAsync(String Id, int? Version = null)
     {
@@ -13,7 +14,7 @@ public class QuestionnaireCache(IMemoryCache cache, IPathApi api, ILogger<Questi
 
         var chachekey = $"qr_{Id}" + (Version.HasValue ? $"_{Version}" : "");
 
-        if( !cache.TryGetValue(cache, out QuestionnaireEntity? q))
+        if (!cache.TryGetValue(cache, out QuestionnaireEntity? q))
         {
             logger.LogInformation("loading questionnaire {0}", Id);
 

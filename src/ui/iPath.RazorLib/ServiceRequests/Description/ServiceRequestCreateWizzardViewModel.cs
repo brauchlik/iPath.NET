@@ -10,7 +10,7 @@ public class ServiceRequestCreateWizzardViewModel(IServiceProvider sp, ServiceRe
 {
     private CodingService _coding;
     private IFhirDataLoader _loader;
-    private QuestionnaireCache _cache;
+    private QuestionnaireCacheClient _cache;
 
     public string CodingService { get; private set; }
 
@@ -19,7 +19,7 @@ public class ServiceRequestCreateWizzardViewModel(IServiceProvider sp, ServiceRe
         this.CodingService = CodingService;
         _coding = sp.GetRequiredKeyedService<CodingService>(CodingService);
         _loader = sp.GetRequiredService<IFhirDataLoader>();
-        _cache = sp.GetRequiredService<QuestionnaireCache>();
+        _cache = sp.GetRequiredService<QuestionnaireCacheClient>();
 
         await _coding.LoadCodeSystem();
         await _coding.LoadValueSet(ValueSetId);

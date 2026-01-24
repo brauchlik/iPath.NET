@@ -7,7 +7,9 @@ using iPath.API.Services.Storage;
 using iPath.API.Services.Thumbnail;
 using iPath.API.Services.Uploads;
 using iPath.Application.Features.Notifications;
+using iPath.Application.Features.Questionnaires;
 using iPath.Application.Localization;
+using iPath.Blazor.ServiceLib.Services;
 using iPath.Google;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -94,6 +96,9 @@ public static class APIServicesRegistration
         // TODO: services.AddHostedService(p => p.GetRequiredService<BackgroundUploadWorker>());
         services.AddScoped<LocalChacheService>();
 
+        // Questionnaire handling
+        services.AddScoped<QuestionnaireCacheServer>();
+        services.AddTransient<IQuestionnaireToTextService, GenericQuestionnaireToTextService>();
 
         // Caching
         services.AddMemoryCache();

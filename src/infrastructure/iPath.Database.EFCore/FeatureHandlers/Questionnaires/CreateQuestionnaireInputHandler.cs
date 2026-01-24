@@ -1,6 +1,9 @@
-﻿namespace iPath.EF.Core.FeatureHandlers.Questionnaires;
+﻿using Hl7.Fhir.Utility;
+using iPath.Blazor.ServiceLib.Services;
 
-public class CreateQuestionnaireInputHandler(iPathDbContext db, IUserSession sess)
+namespace iPath.EF.Core.FeatureHandlers.Questionnaires;
+
+public class CreateQuestionnaireInputHandler(iPathDbContext db, QuestionnaireCacheServer cache, IUserSession sess)
     : IRequestHandler<UpdateQuestionnaireCommand, Task<Guid>>
 {
     public async Task<Guid> Handle(UpdateQuestionnaireCommand request, CancellationToken ct)
@@ -53,9 +56,12 @@ public class CreateQuestionnaireInputHandler(iPathDbContext db, IUserSession ses
             await db.SaveChangesAsync(ct);
             await tran.CommitAsync(ct);
 
+            // clear from cache
+            cache.ClearCache(request.QuestionnaireId);
+
             return newItem.Id;
 
-            }
+        }
         catch (Exception ex)
         {
             await tran.RollbackAsync(ct);

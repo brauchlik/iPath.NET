@@ -41,7 +41,7 @@ else
             </MudForm>
         </MudTabPanel>
         <MudTabPanel Text=@T["Filter"] Icon="@Icons.Material.Filled.Filter">
-            <TopoTreeFilter @bind-Filter="@Model.Settings.BodySiteFilter" />
+            <TopoTreeFilter @bind-Filter="@Model.Settings.BodySiteFilter" @ref="_topoTree" />
         </MudTabPanel>
         <MudTabPanel Text=@T["Preview"] Icon="@Icons.Material.Filled.Preview">
             <iPath.LHCForms.LhcForm @ref="vm.PreviewForm" ReadOnly="false"
@@ -69,6 +69,7 @@ else
     // ConceptFilter BodySiteFilter = new();
     int panelIndex = 0;
 
+    TopoTreeFilter _topoTree;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -91,6 +92,13 @@ else
     {
         Model.Settings ??= new();
         // Model.Settings.BodySiteFilter = BodySiteFilter;
+
+        if (_topoTree is not null)
+        {
+            _topoTree.SaveFilter();
+            Model.Settings.BodySiteFilter = _topoTree.Filter;
+        }
+
         await vm.Save(Model);
     }
 

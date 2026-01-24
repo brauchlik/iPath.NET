@@ -1,7 +1,16 @@
 ﻿@namespace iPath.Blazor.Componenents.ServiceRequests
 @inject ServiceRequestViewModel vm
 
-<QuestionnaireResponseView Data="Model.Questionnaire" />
+<MudExpansionPanels>
+    <MudExpansionPanel>
+        <TitleContent>
+            <strong>generated text:</strong> @Model.Questionnaire.GeneratedText
+        </TitleContent>
+        <ChildContent>
+            <QuestionnaireResponseView Data="Model.Questionnaire" />
+        </ChildContent>
+    </MudExpansionPanel>
+</MudExpansionPanels>
 
 @code {
     [Parameter]

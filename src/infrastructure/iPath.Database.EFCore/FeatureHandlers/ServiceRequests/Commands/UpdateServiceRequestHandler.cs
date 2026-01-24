@@ -1,12 +1,21 @@
 ﻿
 using DispatchR;
+using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
+using iPath.Application.Features.Questionnaires;
+using iPath.Blazor.ServiceLib.Services;
+using iPath.Domain.Entities;
 using iPath.EF.Core.FeatureHandlers.Users;
 using Microsoft.Identity.Client;
+using System.Text.Json;
 
 namespace iPath.EF.Core.FeatureHandlers.Nodes.Commands;
 
 
-public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator, IUserSession sess)
+public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator, 
+    IQuestionnaireToTextService q2t,
+    QuestionnaireCacheServer cache,
+    IUserSession sess)
     : IRequestHandler<UpdateServiceRequestCommand, Task<bool>>
 {
     public async Task<bool> Handle(UpdateServiceRequestCommand request, CancellationToken ct)
@@ -28,6 +37,29 @@ public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator, 
         }
 
         node.UpdateNode(request, sess.User.Id);
+
+        // Questionnaire to Text
+        var qr = request.Description?.Questionnaire;
+        if (qr is not null && !string.IsNullOrEmpty(qr.Resource))
+        {
+            try
+            {
+                var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector);
+                var r = JsonSerializer.Deserialize<QuestionnaireResponse>(qr.Resource, options);
+
+                var q = await cache.GetQuestionnaireAsync(qr.QuestionnaireId);
+                if (q is not null)
+                {
+                    request.Description.Questionnaire.GeneratedText = q2t.CreateText(r, q);
+                }
+            }
+            catch (Exception ex) 
+            {
+                qr.GeneratedText = "";
+            }
+
+        }
+
 
         if (request.NewOwnerId.HasValue)
         {

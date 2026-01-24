@@ -11,6 +11,7 @@
     <PackageReference Include="DispatchR.Mediator" Version="2.1.1" />
     <PackageReference Include="FluentResults" Version="4.0.0" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="Hl7.Fhir.R4" Version="6.0.2" />
     <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="10.0.2" />
     <PackageReference Include="MimeTypes" Version="2.5.2">
       <PrivateAssets>all</PrivateAssets>
@@ -24,7 +25,6 @@
 
   <ItemGroup>
     <Folder Include="Coding\tmp\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

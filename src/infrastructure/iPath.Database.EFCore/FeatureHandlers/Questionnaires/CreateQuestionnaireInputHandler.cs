@@ -50,7 +50,7 @@ public class CreateQuestionnaireInputHandler(iPathDbContext db, QuestionnaireCac
                 Version = maxVersion + 1,
                 Resource = request.Resource,
                 IsActive = request.IsActive,
-                Settings = request.Settings
+                Settings = request.Settings ?? new()
             };
 
             await db.Questionnaires.AddAsync(newItem);

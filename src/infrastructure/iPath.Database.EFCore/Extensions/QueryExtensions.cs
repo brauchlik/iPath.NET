@@ -9,6 +9,7 @@ internal static class QueryExtensions
 
     public static IQueryable<T> ApplyQuery<T>(this IQueryable<T> q, PagedQuery query, string? DefaultSort = null) where T : class
     {
+        bool hasSort = false;
         if (query.Sorting is not null)
         {
             foreach (var sd in query.Sorting)
@@ -16,10 +17,12 @@ internal static class QueryExtensions
                 if (!string.IsNullOrWhiteSpace(sd))
                 {
                     q = q.OrderBy(sd);
+                    hasSort = true;
                 }
             }
         }
-        else if(!string.IsNullOrEmpty(DefaultSort))
+
+        if(!hasSort && !string.IsNullOrEmpty(DefaultSort))
         {
             q = q.OrderBy(DefaultSort);
         }

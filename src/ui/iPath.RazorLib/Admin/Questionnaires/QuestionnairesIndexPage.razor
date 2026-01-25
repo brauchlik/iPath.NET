@@ -15,7 +15,7 @@
     <Columns>
         <PropertyColumn Property="q => q.QuestionnaireId" Title="Id" />
         <PropertyColumn Property="q => q.Name" Title=@T["Name"] />
-        <PropertyColumn Property="q => q.Filter.ShortenTo(10)" Title=@T["Body Site"] />
+        <PropertyColumn Property="q => q.Filter.ShortenTo(10)" Title=@T["Body Site"] Sortable="false" />
         <PropertyColumn Property="q => q.Version" Title=@T["Version"] />
         <TemplateColumn>
             <CellTemplate>

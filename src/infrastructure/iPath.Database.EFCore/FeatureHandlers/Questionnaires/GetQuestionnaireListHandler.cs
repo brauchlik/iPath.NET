@@ -1,24 +1,28 @@
 ﻿namespace iPath.EF.Core.FeatureHandlers.Questionnaires;
 
+using System.Linq.Dynamic.Core;
+
 public class GetQuestionnaireListHandler(iPathDbContext db)
      : IRequestHandler<GetQuestionnaireListQuery, Task<PagedResultList<QuestionnaireListDto>>>
 {
     public async Task<PagedResultList<QuestionnaireListDto>> Handle(GetQuestionnaireListQuery request, CancellationToken ct)
     {
         var q = db.Questionnaires.AsNoTracking();
+
         if (!request.AllVersions)
         {
             q = q.Where(x => x.IsActive);
         }
         else
         {
-            q.OrderByDescending(x => x.Version);
+            q = q.OrderBy("Version DESC");
         }
 
-        q.ApplyQuery(request);
+        q = q.ApplyQuery(request, "QuestionnaireId");
+        var o = q.ToOrderString();
 
         var projected = q.Select(x => new QuestionnaireListDto(x.Id, x.QuestionnaireId, x.Name, x.Version, x.IsActive,
-            Filter: (x.Settings.BodySiteFilter  == null ? "" : x.Settings.BodySiteFilter.ConceptCodesString)));
-        return await projected.ToPagedResultAsync(request, ct);    
+        Filter: (x.Settings.BodySiteFilter == null ? "" : x.Settings.BodySiteFilter.ConceptCodesString)));
+        return await projected.ToPagedResultAsync(request, ct);
     }
 }

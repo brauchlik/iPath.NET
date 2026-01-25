@@ -23,7 +23,7 @@ public static class FhirEndpoints
                 if (System.IO.File.Exists(filename))
                 {
                     var stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
-                    return Results.File(stream, contentType: "text/json");
+                    return Results.File(stream, contentType: "application/octet-stream");
                 }
             }
 
@@ -32,7 +32,7 @@ public static class FhirEndpoints
                 var q = await mediator.Send(new GetQuestionnaireByIdQuery(guid), default);
                 if (q != null)
                 {
-                    return Results.File(q.Resource, contentType: "text/json", fileDownloadName: q.QuestionnaireId + ".json");
+                    return Results.File(q.Resource, contentType: "application/octet-stream", fileDownloadName: q.QuestionnaireId + ".json");
                 }
             }
 

@@ -59,7 +59,7 @@ public static class APIServicesRegistration
         services.Configure<SmtpConfig>(config.GetSection(nameof(SmtpConfig)));
         services.AddSingleton<IEmailQueue, EmailQueue>(ctx =>
         {
-            var capacity = config.GetValue<int?>("Norifications:ProcessingQueueCapacity") ?? 100;
+            var capacity = config.GetValue<int?>("Notifications:ProcessingQueueCapacity") ?? 100;
             return new EmailQueue(capacity);
         });
         if (smtp.Active)

@@ -1,0 +1,77 @@
+﻿@namespace iPath.Blazor.Componenents.ServiceRequests
+@inject IStringLocalizer T
+
+<MudList T="ServiceRequestListDto">
+    @foreach (var d in data.Items)
+    {
+        <MudListItem Value="d" Class="px-2 py-0 ma-0" OnClick="@(() => vm.GotoNode(d))">
+            <MudStack Row Spacing="0" Style="border-bottom: 1px outset;" AlignItems="AlignItems.Center">
+                <div>
+                    <div style="font-weight: bold; font-size: 1.1em;">@d.Title</div>
+                    <div><OwnerLink Owner="@d.Owner" /> at @d.CreatedOn.ToShortDateString()</div>
+                </div>
+                <MudSpacer />
+                <MudIcon Size="Size.Medium" Icon="@ListIcon(d)" />
+            </MudStack>
+        </MudListItem>
+    }
+</MudList>
+
+
+
+@inject ServiceRequestListViewModel vm
+@inject GroupViewModel gvm
+
+@code {
+    [Parameter]
+    public Guid? GroupId
+    {
+        get => vm.GroupId;
+        set
+        {
+            vm.OwnerId = null;
+            vm.GroupId = value;
+        }
+    }
+
+    [Parameter]
+    public Guid? OwnerId
+    {
+        get => vm.OwnerId;
+        set
+        {
+            vm.OwnerId = value;
+            vm.GroupId = null;
+        }
+    }
+
+
+    TableData<ServiceRequestListDto> data = new() { Items = [] };
+
+    protected async Task LoadData()
+    {
+        var state = new TableState { Page = 0, PageSize = 25 };
+        data = await vm.GetNodeListAsync(state, default);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    string ListIcon(ServiceRequestListDto dto)
+    {
+        if (dto.IsDraft)
+        {
+            return Icons.Material.Filled.HourglassEmpty;
+        }
+        else if (dto.IsNew)
+        {
+            return dto.IsNewIcon;
+        }
+        else
+        {
+            return dto.HasNewAnnotationIcon;
+        }
+    }
+}

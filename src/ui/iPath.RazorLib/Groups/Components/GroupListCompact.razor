@@ -1,0 +1,40 @@
+﻿@namespace iPath.Blazor.Componenents.Groups
+@inject IStringLocalizer T
+
+
+@inject GroupListViewModel vm
+
+<MudList T="ServiceRequestListDto">
+    @foreach (var d in data.Items)
+    {
+        <MudListItem Value="d" Class="px-2 py-0 ma-0" OnClick="@(() => vm.GotoGroup(d))">
+            <MudStack Row Spacing="0" Style="border-bottom: 1px outset;" AlignItems="AlignItems.Center">
+                <div>
+                    <div style="font-weight: bold; font-size: 1.1em;">@d.Name</div>
+                    <div>Requests: @d.TotalRequests</div>
+                </div>
+                <MudSpacer />
+                <MudIcon Size="Size.Medium" Icon="" />
+            </MudStack>
+        </MudListItem>
+    }
+</MudList>
+
+
+    @code{
+    [Parameter, EditorRequired]
+    public bool ShowLegend { get; set; }
+
+    TableData<GroupListDto> data = new() { Items = [] };
+
+    protected async Task LoadData()
+    {
+        var state = new TableState { Page = 0, PageSize = 25 };
+        data = await vm.GetTableAsync(state, default);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+}

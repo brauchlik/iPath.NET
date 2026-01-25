@@ -9,7 +9,13 @@
 
 <IPathHeader Title=@T["My Groups"] />
 
-<GroupListTable ServerData="vm.GetTableAsync" OnRowClick=@((e) => vm.GotoGroup(e.Item)) ShowLegend="false" />
+
+<MudHidden Breakpoint="Breakpoint.SmAndUp">
+    <GroupListCompact ShowLegend="false" />
+</MudHidden>
+<MudHidden Breakpoint="Breakpoint.Xs">
+    <GroupListTable ServerData="vm.GetTableAsync" OnRowClick=@((e) => vm.GotoGroup(e.Item)) ShowLegend="false" />
+</MudHidden>
 
 
 @if (vm.GroupCount == 0)
@@ -22,7 +28,7 @@ else
 {
     <MudAlert Severity="Severity.Info" Class="mt-8 px-4" NoIcon>
         <MudStack Row AlignItems="AlignItems.Center">
-            <MudIcon Icon="@Icons.Material.TwoTone.CreateNewFolder" /> 
+            <MudIcon Icon="@Icons.Material.TwoTone.CreateNewFolder" />
             @T["New cases in group"]<br />
             <MudSpacer />
         </MudStack>

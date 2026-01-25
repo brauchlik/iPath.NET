@@ -6,7 +6,7 @@ public static class GroupExtensions
 {
     extension (GroupListDto dto)
     {
-        public bool HasNewNode => dto.NewNodes.HasValue && dto.NewNodes.Value > 0;
+        public bool HasNewNode => dto.NewRequests.HasValue && dto.NewRequests.Value > 0;
         public string NewNodeIcon => dto.HasNewNode ?
             Icons.Material.TwoTone.CreateNewFolder : string.Empty;
 

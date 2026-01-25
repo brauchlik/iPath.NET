@@ -9,16 +9,16 @@
     padding-top: 0em;
 }
 
-@media (width <= 900px) {
+@media (width <= 960px) {
     .ipath_main_container {
-        padding: 0px;
+        padding: 1px;
         padding-top: 2px;
     }
 }
 
-@media (900px >= width) {
+@media (width >= 960px) {
     .ipath_main_container {
-        padding: 10px;
+        padding: 20px;
     }
 }
 

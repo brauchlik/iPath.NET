@@ -16,7 +16,7 @@
     <MudDivider />
     @if (true || RendererInfo.IsInteractive)
     {
-        <CodingTreeFilter TreeItems="BodySiteCodes" @ref="_treeView" SelectionChanged="SaveFilter" />
+        <CodingTreeFilter TreeItems="BodySiteCodes" @ref="_treeView" SelectionChanged="OnChange" />
 
         <div style="border: 1px; margin-top: 8px; font-size: 0.7em;">
             <strong>filter: </strong> @FilterStr
@@ -42,6 +42,10 @@
     [Parameter]
     public EventCallback<ConceptFilter?> FilterChanged { get; set; }
 
+    [Parameter]
+    public bool UpdateFilterOnChange { get; set; }
+
+
     CodingTreeFilter _treeView;
 
     // HashSet<string> _selectedCodes = new();
@@ -56,10 +60,12 @@
 
     async Task OnChange()
     {
-        SaveFilter();
+        if (UpdateFilterOnChange)
+        {
+            SaveFilter();
+        }
         StateHasChanged();
     }
-
 
 
 

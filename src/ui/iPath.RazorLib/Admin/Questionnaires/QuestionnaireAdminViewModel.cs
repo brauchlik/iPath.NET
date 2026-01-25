@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using FluentResults;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using System.ComponentModel.DataAnnotations;
@@ -120,6 +121,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
             return false;
         }
 
+        r.Settings.Filename = r.ResourceFileName;
         var resp = await api.CreateQuestionnaire(new UpdateQuestionnaireCommand(r.QuestionnaireId, r.Name, r.Resource,
             Settings: r.Settings, IsActive: r.IsActive, insert: false));
         return snackbar.CheckSuccess(resp);
@@ -139,6 +141,54 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
         {
             await PreviewForm.LoadFormAsync(SelectedQuestionnaire.Resource, "");
         }
+    }
+
+
+
+    public const long maxMemFile = 100000;
+    public async Task<Result> UploadFile(InputFileChangeEventArgs e, EditQuestionnaireModel Model)
+    {
+        if (e.File is not null)
+        {
+            Model.ResourceFileName = e.File.Name;
+
+            if (e.File.Size < maxMemFile)
+            {
+                try
+                {
+                    using var memoryStream = new MemoryStream();
+                    await e.File.OpenReadStream(maxMemFile).CopyToAsync(memoryStream);
+
+                    // parse as FHIR Questionnaire
+                    var fhir = System.Text.Encoding.Default.GetString(memoryStream.ToArray());
+                    var options = new JsonSerializerOptions().ForFhir(Hl7.Fhir.Model.ModelInfo.ModelInspector);
+                    var qr = JsonSerializer.Deserialize<Hl7.Fhir.Model.Questionnaire>(fhir, options);
+
+                    // extract id & title
+                    if (string.IsNullOrEmpty(Model.QuestionnaireId))
+                    {
+                        Model.QuestionnaireId = qr.Id;
+                    }
+                    if (string.IsNullOrEmpty(Model.Name))
+                    {
+                        Model.Name = qr.Title;
+                    }
+
+                    // serialize as JSON again
+                    options = new JsonSerializerOptions().ForFhir(Hl7.Fhir.Model.ModelInfo.ModelInspector).Pretty();
+                    Model.Resource = JsonSerializer.Serialize(qr, options);
+
+                    var l = Model.Resource.Length;
+
+                    return Result.Ok();
+                }
+                catch (Exception ex)
+                {
+                    return Result.Fail(T["The content provided is not a valid FHIR Quesionnaire"]);
+                }
+            }
+        }
+        return Result.Fail(T["no content uploaded"]);
     }
 }
 

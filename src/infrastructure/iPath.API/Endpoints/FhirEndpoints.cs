@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
+using System.IO;
 
 namespace iPath.API;
 
@@ -10,7 +11,9 @@ public static class FhirEndpoints
         var fhir = route.MapGroup("fhir")
                 .WithTags("Fhir");
 
-        fhir.MapGet("{resource}/{id}", async (string resource, string id, IOptions<iPathConfig> opts) =>
+
+
+        fhir.MapGet("{resource}/{id}", async (string resource, string id, IOptions<iPathConfig> opts, IMediator mediator) =>
         {
             var dir = opts.Value.FhirResourceFilePath;
             if (System.IO.Directory.Exists(dir))
@@ -21,6 +24,15 @@ public static class FhirEndpoints
                 {
                     var stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
                     return Results.File(stream, contentType: "text/json");
+                }
+            }
+
+            if (resource == "Questionnaire" && Guid.TryParse(id, out var guid))
+            {
+                var q = await mediator.Send(new GetQuestionnaireByIdQuery(guid), default);
+                if (q != null)
+                {
+                    return Results.File(q.Resource, contentType: "text/json", fileDownloadName: q.QuestionnaireId + ".json");
                 }
             }
 

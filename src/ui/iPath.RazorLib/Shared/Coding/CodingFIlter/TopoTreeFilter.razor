@@ -16,214 +16,122 @@
     <MudDivider />
     @if (true || RendererInfo.IsInteractive)
     {
-        <MudTreeView T="CodeDisplay" Items="@BodySiteCodes" @ref="_treeView"
-                     SelectionMode="SelectionMode.MultiSelection"
-                     FilterFunc="MatchesName"
-                     CheckBoxColor="Color.Info"
-                     MaxHeight="400px"
-                     @bind-SelectedValues="SelectedValues"
-                     Hover="true" Dense="true" Color="Color.Tertiary">
-            <ItemTemplate>
-                <MudTreeViewItem T="CodeDisplay" Items="@context.Children"
-                                 Value="@context.Value" Text="@context.Value.ToDisplay()" />
-            </ItemTemplate>
-        </MudTreeView>
+        <CodingTreeFilter TreeItems="BodySiteCodes" @ref="_treeView" SelectionChanged="SaveFilter" />
 
         <div style="border: 1px; margin-top: 8px; font-size: 0.7em;">
-            <strong>selection: </strong> @selStr<br />
-            <strong>filter: </strong> @filterStr
+            <strong>filter: </strong> @FilterStr
         </div>
     }
     else
     {
         <MudSkeleton Height="200px" />
     }
-</MudPaper>
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <MudAlert Severity="Severity.Warning">@error</MudAlert>
+    }
+    </MudPaper>
 
 @inject IServiceProvider sp;
 
-    @code {
+@code {
     [Parameter]
     public ConceptFilter? Filter { get; set; }
 
     [Parameter]
     public EventCallback<ConceptFilter?> FilterChanged { get; set; }
 
+    CodingTreeFilter _treeView;
 
-    MudTreeView<CodeDisplay> _treeView;
-    IReadOnlyCollection<CodeDisplay> SelectedValues { get; set; } = [];
-
-    string selStr => SelectedValues is null ? "--" : string.Join(", ", SelectedValues.Select(x => x.Code).ToArray());
-    string filterStr => Filter?.Concetps is null ? "--" : string.Join(", ", Filter.Concetps.Select(x => x.Code).ToArray());
+    // HashSet<string> _selectedCodes = new();
+    string FilterStr => Filter is null ? "--" : Filter.ConceptCodesString;
 
     public List<TreeItemData<CodeDisplay>> BodySiteCodes { get; private set; } = new();
 
-
-    const string system = "icdo";
+    const string cs = "icdo";
     const string vsid = "icdo-topo";
 
+    string error;
+
+    async Task OnChange()
+    {
+        SaveFilter();
+        StateHasChanged();
+    }
 
 
-    CodingService _coding;
-    ValueSetDisplay _valueset;
+
+
     protected override async Task OnInitializedAsync()
     {
-        _coding = sp.GetRequiredKeyedService<CodingService>(system);
-        var _loader = sp.GetRequiredService<IFhirDataLoader>();
+        await LoadCoding();
+    }
 
-        // TODO: initilize in DI startup
-        await _coding.LoadCodeSystem();
-        await _coding.LoadValueSet(vsid);
-        _valueset = _coding.GetValueSetDisplay(vsid);
-
-        // if only one root node => start with it's childrend
-        // TODO: write an extension that finds the first node with more than 1 child
-        if (_valueset.DisplayTree.Count == 1)
-        {
-            BodySiteCodes = _valueset.DisplayTree.First().Children.ToTreeView();
-        }
-        else
-        {
-            BodySiteCodes = _valueset.DisplayTree.ToTreeView();
-        }
-
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadCoding();
         LoadFilter();
     }
 
-    protected override void OnParametersSet()
+    protected override void OnAfterRender(bool firstRender)
     {
-        LoadFilter();
+    }
+
+
+    private CodingService _coding;
+    private ValueSetDisplay _valueset;
+
+    protected async Task LoadCoding()
+    {
+        if (_coding is null)
+        {
+            _coding = sp.GetRequiredKeyedService<CodingService>(cs);
+            var _loader = sp.GetRequiredService<IFhirDataLoader>();
+
+            await _coding.LoadCodeSystem();
+            await _coding.LoadValueSet(vsid);
+
+            _valueset = _coding.GetValueSetDisplay(vsid);
+
+            if (_valueset is null)
+            {
+                error = _coding is null ? $"CodeSystem {cs} not found" : $"ValueSet {vsid} not found";
+            }
+        }
     }
 
 
     private void LoadFilter()
     {
-        if (Filter is not null && _valueset is not null)
+        if (_valueset is not null)
         {
-            var mysel = new List<CodeDisplay>();
-            foreach (var code in Filter.Concetps)
+            var r = _valueset.DisplayTree;
+            if (r.Count == 1)
             {
-                var expanded = _coding.GetChildCodes(code.Code, true);
-                foreach (var x in expanded.ChildCodes)
-                {
-                    mysel.Add(_valueset.GetByCode(x));
-                }
+                var _selectedCodes = Filter is null ? [] : Filter.ConceptCodes;
+                BodySiteCodes = r.First().Children.ToTreeViewSelection(_selectedCodes, false);
             }
-            SelectedValues = mysel;
+            StateHasChanged();
         }
-        else
-        {
-            SelectedValues = new List<CodeDisplay>();
-        }
-        StateHasChanged();
+    }
+
+
+    private async Task Search(string term)
+    {
+        await _treeView.Search(term);
     }
 
     public void SaveFilter()
     {
-        // Build a lookup of selected codes
-        var selectedCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        if (SelectedValues is not null)
+        var _selectedCodes = BodySiteCodes.ToSelectedCodes();
+        Filter.Concetps = new();
+        foreach (var code in _selectedCodes)
         {
-            foreach (var v in SelectedValues)
-            {
-                if (v?.Code is not null)
-                    selectedCodes.Add(v.Code);
-            }
+            var c = _valueset.GetByCode(code);
+            Filter.Concetps.Add(c.ToConcept(_coding.CodeSystemUrl));
         }
-
-        var _selection = new List<CodeDisplay>();
-
-        // Recursive helper: determines whether all nodes in the subtree are selected.
-        bool NodeFullySelected(ITreeItemData<CodeDisplay> node)
-        {
-            var children = node.Children;
-            if (children is null)
-            {
-                // leaf node
-                return node.Value?.Code is not null && selectedCodes.Contains(node.Value.Code);
-            }
-
-            bool hadChild = false;
-            foreach (var child in children)
-            {
-                hadChild = true;
-                if (!NodeFullySelected(child))
-                    return false;
-            }
-
-            // no children -> treat as leaf
-            if (!hadChild)
-                return node.Value?.Code is not null && selectedCodes.Contains(node.Value.Code);
-
-            // all children fully selected
-            return true;
-        }
-
-        // Traverse and collect: if a node's entire subtree is selected, add only the parent and skip children.
-        void Traverse(ITreeItemData<CodeDisplay> node)
-        {
-            if (NodeFullySelected(node))
-            {
-                if (node.Value is not null)
-                    _selection.Add(node.Value);
-                return;
-            }
-
-            // If node itself was selected (but not all children), include it as well.
-            if (node.Value is not null && selectedCodes.Contains(node.Value.Code ?? string.Empty))
-                _selection.Add(node.Value);
-
-            if (node.Children is not null)
-            {
-                foreach (var child in node.Children)
-                    Traverse(child);
-            }
-        }
-
-        if (BodySiteCodes is not null)
-        {
-            foreach (var root in BodySiteCodes)
-            {
-                // TreeItemData implements ITreeItemData<T>, so cast is safe
-                Traverse(root);
-            }
-        }
-
-
-        if (_selection.IsEmpty())
-        {
-            Filter = null;
-        }
-        else
-        {
-            Filter ??= new();
-            Filter.Concetps = _selection.ToConcept(_coding.CodeSystemUrl).ToList();
-        }
-
         StateHasChanged();
     }
 
-
-    async Task Search(string searchPhrase)
-    {
-        _searchPhrase = searchPhrase;
-        await _treeView.FilterAsync();
-    }
-
-    string _searchPhrase;
-
-    private Task<bool> MatchesName(ITreeItemData<CodeDisplay> item)
-    {
-        if (string.IsNullOrEmpty(item.Text))
-        {
-            return Task.FromResult(false);
-        }
-
-        return Task.FromResult(item.Text.Contains(_searchPhrase, StringComparison.OrdinalIgnoreCase));
-    }
-    private void OnChanged(IReadOnlyCollection<CodeDisplay> args)
-    {
-        Console.Write(".");
-        StateHasChanged();
-    }
 }

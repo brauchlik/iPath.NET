@@ -1,5 +1,6 @@
 ﻿@page "/admin/questionnaires/{id}"
 @page "/admin/questionnaires/{id}/{mode}"
+@using System.Threading.Tasks
 @using iPath.Domain.Entities.Base
 
 @inject QuestionnaireAdminViewModel vm
@@ -35,6 +36,22 @@ else
                 </MudStack>
 
                 <MudTextField @bind-Value="@Model.Name" Label=@T["Name"] ShrinkLabel="true" Required="true" Variant="Variant.Outlined" />
+
+
+                <MudStack Row Class="mt-2">
+                    <MudTextField @bind-Value="Model.ResourceFileName" Label=@T["Quesiotnnaire File"] ReadOnly="true" ShrinkLabel="true" />
+                    <MudFileUpload T="IBrowserFile" @bind-Files="Model.ResourceFile" OnFilesChanged="UploadFile">
+                        <ActivatorContent>
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.FileUpload">
+                                FHIR
+                            </MudButton>
+                        </ActivatorContent>
+                    </MudFileUpload>
+                    <MudButton StartIcon="@Icons.Material.Filled.Download" Color="Color.Primary" Variant="Variant.Filled"
+                               Href=@($"api/v1/fhir/Questionnaire/{Model.Id}")>Download</MudButton>
+                </MudStack>
 
                 <MudTextField @bind-Value="@Model.Resource" Label=@T["FHIR Resource"] Variant="Variant.Outlined"
                               Lines="10" Margin="Margin.Dense" Typo="Typo.body2" />
@@ -77,7 +94,6 @@ else
         {
             await vm.Load(guid);
             Model = new EditQuestionnaireModel(vm.SelectedQuestionnaire);
-            // BodySiteFilter = Model.Settings?.BodySiteFilter ?? new();
         }
         panelIndex = mode switch
         {
@@ -106,5 +122,15 @@ else
     {
         if (vm.SelectedQuestionnaire is not null)
             Model = new EditQuestionnaireModel(vm.SelectedQuestionnaire);
+    }
+
+    private async Task UploadFile(InputFileChangeEventArgs args)
+    {
+        var res = await vm.UploadFile(args, Model);
+        if (res.IsFailed)
+        {
+            snackbar.AddError(res.Errors.FirstOrDefault().Message);
+        }
+        StateHasChanged();
     }
 }

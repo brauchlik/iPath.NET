@@ -2,14 +2,16 @@
 
 <MudTreeView T="CodeDisplay" Items="@TreeItems" @ref="_treeView"
              SelectionMode="SelectionMode.MultiSelection"
-             AutoSelectParent="true"
              FilterFunc="MatchesName"
              CheckBoxColor="Color.Info"
              Hover="true" Dense="true" Color="Color.Tertiary">
     <ItemTemplate>
         <MudTreeViewItem T="CodeDisplay" Items="@context.Children"
                          @bind-Expanded="@context.Expanded"
-                         Value="@context.Value" Text="@context.Value.ToDisplay()" />
+                         @bind-Selected="@context.Selected"
+                         @bind-Selected:after="OnChange"
+                         Value="@context.Value"
+                         Text="@context.Value.ToDisplay()" />
     </ItemTemplate>
 </MudTreeView>
 
@@ -18,36 +20,11 @@
     public List<TreeItemData<CodeDisplay>> TreeItems { get; set; } = [];
 
     [Parameter]
-    public IReadOnlyCollection<CodeDisplay>? SelectedValues {
-        get => _treeView?.SelectedValues;
-        set
-        {
-            if (_treeView is not null) { _treeView.SelectedValues = value; }
-        }
-    }
+    public EventCallback SelectionChanged { get; set; }
 
-    [Parameter]
-    public EventCallback<IReadOnlyCollection<CodeDisplay>?> SelectedValuesChanged 
-    {
-        get => _treeView.SelectedValuesChanged;
-        set
-        {
-            if (_treeView is not null) { _treeView.SelectedValuesChanged = value; }
-        }
-    }
-
-    private async Task OnValueChanged()
-    {
-        await SelectedValuesChanged.InvokeAsync(SelectedValues);
-    }
 
     MudTreeView<CodeDisplay> _treeView;
     string _searchPhrase;
-
-    protected override Task OnAfterRenderAsync(bool firstRender)
-    {
-        return base.OnAfterRenderAsync(firstRender);
-    }
 
     public async Task Search(string searchPhrase)
     {
@@ -63,5 +40,10 @@
         }
 
         return Task.FromResult(item.Text.Contains(_searchPhrase, StringComparison.OrdinalIgnoreCase));
+    }
+
+    async Task OnChange()
+    {
+        await SelectionChanged.InvokeAsync();
     }
 }

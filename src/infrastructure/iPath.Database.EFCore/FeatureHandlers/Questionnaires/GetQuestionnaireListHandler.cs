@@ -17,7 +17,8 @@ public class GetQuestionnaireListHandler(iPathDbContext db)
 
         q.ApplyQuery(request);
 
-        var projected = q.Select(x => new QuestionnaireListDto(x.Id, x.QuestionnaireId, x.Name, x.Version, x.IsActive));
+        var projected = q.Select(x => new QuestionnaireListDto(x.Id, x.QuestionnaireId, x.Name, x.Version, x.IsActive,
+            Filter: (x.Settings.BodySiteFilter  == null ? "" : x.Settings.BodySiteFilter.ConceptCodesString)));
         return await projected.ToPagedResultAsync(request, ct);    
     }
 }

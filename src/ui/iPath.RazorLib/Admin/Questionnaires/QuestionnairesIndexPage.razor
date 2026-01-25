@@ -14,8 +14,9 @@
 <MudDataGrid T="QuestionnaireListDto" ServerData="vm.GetData" Dense Striped @ref="vm.grid" RowClick="OnRowClick">
     <Columns>
         <PropertyColumn Property="q => q.QuestionnaireId" Title="Id" />
-        <PropertyColumn Property="q => q.Name" Title="Name" />
-        <PropertyColumn Property="q => q.Version" />
+        <PropertyColumn Property="q => q.Name" Title=@T["Name"] />
+        <PropertyColumn Property="q => q.Filter.ShortenTo(10)" Title=@T["Body Site"] />
+        <PropertyColumn Property="q => q.Version" Title=@T["Version"] />
         <TemplateColumn>
             <CellTemplate>
                 <MudCheckBox ReadOnly="true" Value="@context.Item.IsActive" />

@@ -28,9 +28,9 @@ public static class MapEndpoints
             .MapIPathHubs();
 
         // OpenAPI Documentation
-        var baseAddress = config["BaseAddress"];
-        Console.WriteLine("Starting openAPI on " + baseAddress);
         app.MapOpenApi("/openapi/v1.json");
+
+        var baseAddress = config["BaseAddress"];
         app.MapScalarApiReference((opts, httpContext) =>
         {
             if (!string.IsNullOrEmpty(baseAddress))
@@ -39,7 +39,6 @@ public static class MapEndpoints
                 opts.Servers.Add(new ScalarServer(baseAddress, ""));
                 opts.BaseServerUrl = baseAddress;
             }
-            opts.BaseServerUrl = "http://xxx/";
 
             opts.WithTitle($"API for {httpContext.User.Identity?.Name}");
             opts.PreserveSchemaPropertyOrder();

@@ -5,37 +5,38 @@
 
 @if (Model is not null)
 {
-    <MudGrid>
-        <MudItem xs="12" sm="3">
-            <MudText>Type of Annotation</MudText>
-        </MudItem>
-        <MudItem xs="12" sm="9">
-            <MudToggleGroup T="eAnnotationType" Size="Size.Small" @bind-Value="Model.Data.Type" @bind-Value:after="OnTypeChanged">
-                @foreach (var t in vm.ActiveGroup.Settings.AllowedAnnotationTypes)
-                {
-                    <MudToggleItem Value="@t" />
-                }
-            </MudToggleGroup>
-        </MudItem>
-    </MudGrid>
-
-    @if (availableQuestionnaires.Any())
-    {
+    <MudStack Spacing="1">
         <MudGrid>
             <MudItem xs="12" sm="3">
-                <MudText>Questionnaire</MudText>
+                <MudText>Type of Annotation</MudText>
             </MudItem>
             <MudItem xs="12" sm="9">
-                <MudToggleGroup T="QuestionnaireForGroupDto" Size="Size.Small" @bind-Value="SelectedQ" @bind-Value:after="OnQuestionnaireChanged">
-                    @foreach (var q in availableQuestionnaires)
+                <MudToggleGroup Color="Color.Default" T="eAnnotationType" Size="Size.Small" @bind-Value="Model.Data.Type" @bind-Value:after="OnTypeChanged">
+                    @foreach (var t in vm.ActiveGroup.Settings.AllowedAnnotationTypes)
                     {
-                        <MudToggleItem Value="@q" />
+                        <MudToggleItem Value="@t" />
                     }
                 </MudToggleGroup>
             </MudItem>
         </MudGrid>
-    }
 
+        @if (availableQuestionnaires.Any())
+        {
+            <MudGrid>
+                <MudItem xs="12" sm="3">
+                    <MudText>Questionnaire</MudText>
+                </MudItem>
+                <MudItem xs="12" sm="9">
+                    <MudToggleGroup Color="Color.Default" T="QuestionnaireForGroupDto" Size="Size.Small" @bind-Value="SelectedQ" @bind-Value:after="OnQuestionnaireChanged">
+                        @foreach (var q in availableQuestionnaires)
+                        {
+                            <MudToggleItem Value="@q" />
+                        }
+                    </MudToggleGroup>
+                </MudItem>
+            </MudGrid>
+        }
+    </MudStack>
 
     @if (useQuestionnaire)
     {
@@ -43,9 +44,6 @@
 
         <MudTextField Label="Comment" @bind-Value="Model.Data.Text" Immediate="true"
                       AutoGrow="true" Lines="3" Variant="Variant.Outlined" Style="width: 100%;" />
-
-
-
     }
     else
     {
@@ -53,13 +51,10 @@
                       AutoGrow="true" Lines="12" Variant="Variant.Outlined" Style="width: 100%;" />
     }
 
-
-
     @if (Model.AskMorphology)
     {
         <MorphoLookup Label="Morphology" @bind-Concept="Model.Data.Morphology" Dense="true" ShrinkLabel="true" Variant="Variant.Outlined" />
     }
-
 }
 
 @inject ServiceRequestViewModel vm
@@ -81,7 +76,8 @@
 
     public async Task Validate()
     {
-        if (useQuestionnaire){
+        if (useQuestionnaire)
+        {
             if (lhcForm is not null)
             {
                 Model.Data.Questionnaire.Resource = await lhcForm.GetDataAsync();
@@ -93,9 +89,9 @@
     private IEnumerable<QuestionnaireForGroupDto> availableQuestionnaires = [];
 
 
-    void OnTypeChanged()
+    async Task OnTypeChanged()
     {
-        availableQuestionnaires = vm.AvailableAnnotationQuestionnaires(Model.Data.Type);
+        availableQuestionnaires = await vm.AvailableAnnotationQuestionnaires(Model.Data.Type, vm.SelectedRequest?.Description?.BodySite?.Code);
         if (SelectedQ is null && availableQuestionnaires.Any())
         {
             SelectedQ = availableQuestionnaires.FirstOrDefault();

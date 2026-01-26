@@ -21,7 +21,12 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
                                       Settings: g.Settings,
                                       Members: g.Members.Select(m => new GroupMemberDto(UserId: m.User.Id, Username: m.User.UserName, Role: m.Role)).ToArray(),
                                       ExtraCommunities: g.ExtraCommunities.Select(c => new CommunityListDto(Id: c.Community.Id, Name: c.Community.Name)).ToArray(),
-                                      Questionnaires: g.Quesionnaires.Select(q => new QuestionnaireForGroupDto(qId: q.QuestionnaireId, QuestinnaireId: q.Questionnaire.QuestionnaireId, QuestinnaireName: q.Questionnaire.Name, Usage: q.Usage, ExplicitVersion: q.ExplicitVersion)).ToArray()))
+                                      Questionnaires: g.Quesionnaires.Select(q => new QuestionnaireForGroupDto(qId: q.QuestionnaireId,
+                                      QuestinnaireId: q.Questionnaire.QuestionnaireId,
+                                      QuestinnaireName: q.Questionnaire.Name,
+                                      Usage: q.Usage,
+                                      Settings: q.Questionnaire.Settings,
+                                      ExplicitVersion: q.ExplicitVersion)).ToArray()))
             .FirstOrDefaultAsync(ct);
 
         Guard.Against.NotFound(GroupId, group);
@@ -68,8 +73,10 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
 
             dtoQuery = q.Select(x => new GroupListDto(x.Id, x.Name, x.Visibility,
                 x.ServiceRequests.Count(),
-                x.ServiceRequests.Count(n => n.CreatedOn > minDate && !n.LastVisits.Any(v => v.UserId == uid)),
-                x.ServiceRequests.Count(n => n.Annotations.Any(a => a.CreatedOn > minDate &&
+                // do not count drafts
+                x.ServiceRequests.Count(n => !n.IsDraft && n.CreatedOn > minDate && !n.LastVisits.Any(v => v.UserId == uid)),
+                // do not count drafts and also don't count users own comments
+                x.ServiceRequests.Count(n => !n.IsDraft && n.Annotations.Any(a => a.CreatedOn > minDate && a.OwnerId != uid &&
                                                         (!n.LastVisits.Any(v => v.UserId == uid) || a.CreatedOn > n.LastVisits.First(v => v.UserId == uid).Date)))
                 ));
         }

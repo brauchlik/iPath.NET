@@ -1,12 +1,10 @@
-﻿using iPath.Application.Coding;
-using iPath.Application.Fhir;
+﻿using iPath.Application.Fhir;
 using iPath.Application.Localization;
 using iPath.Blazor.Componenents.Admin.Communities;
 using iPath.Blazor.Componenents.Admin.Groups;
 using iPath.Blazor.Componenents.Admin.Questionnaires;
 using iPath.Blazor.Componenents.Admin.Users;
 using iPath.Blazor.Componenents.Communities;
-using iPath.Blazor.Componenents.Questionaiires;
 using iPath.Blazor.Componenents.Shared;
 using iPath.Blazor.Componenents.Users;
 using iPath.Blazor.Server;
@@ -72,7 +70,10 @@ public static class RazorLibServiceRegistration
 
 
         // DI for Extensions
-        DocumentExtensions.Initialize(services.BuildServiceProvider());
+        var sp = services.BuildServiceProvider();
+        DocumentExtensions.Initialize(sp);
+        QuestionnaireExtension.Initialize(sp);
+
 
         services.AddScoped<AppState>();
 

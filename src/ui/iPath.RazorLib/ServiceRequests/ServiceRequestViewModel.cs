@@ -143,6 +143,7 @@ public class ServiceRequestViewModel(IPathApi api,
             nm.NavigateTo("/");
         }
         OnLoadingFinished?.Invoke();
+        NotifyStateChanged();
     }
 
     public async Task ReloadNode()
@@ -781,7 +782,8 @@ public class ServiceRequestViewModel(IPathApi api,
                 snackbar.AddError(resp.ErrorMessage);
             }
         }
-        OnChange?.Invoke();
+
+        NotifyStateChanged();
     }
 
 
@@ -819,7 +821,7 @@ public class ServiceRequestViewModel(IPathApi api,
         => await qCache.GetQuestionnaireNameAsync(id, version);
 
 
-    public IEnumerable<QuestionnaireForGroupDto> AvailableAnnotationQuestionnaires(eAnnotationType annotationTyp)
+    public async Task<IReadOnlyCollection<QuestionnaireForGroupDto>> AvailableAnnotationQuestionnaires(eAnnotationType annotationTyp, string? BodySiteCode)
     {
         if (ActiveGroup is null) return new List<QuestionnaireForGroupDto>();
 
@@ -831,10 +833,8 @@ public class ServiceRequestViewModel(IPathApi api,
             _ => eQuestionnaireUsage.None,
         };
 
-        var ret = ActiveGroup.Questionnaires
-            .Where(q => q.Usage == qUsage)
-            .OrderBy(q => q.QuestinnaireName)
-            .ToList();
+        var ret = (await ActiveGroup.Questionnaires.FilterAsync(qUsage, BodySiteCode)).ToList();
+
         if (ret.Any())
         {
             ret.Insert(0, PlainText);
@@ -842,7 +842,7 @@ public class ServiceRequestViewModel(IPathApi api,
         return ret;
     }
 
-    private QuestionnaireForGroupDto PlainText => new QuestionnaireForGroupDto(Guid.Empty, "", "Plain Text", eQuestionnaireUsage.Annotation);
+    private QuestionnaireForGroupDto PlainText => new QuestionnaireForGroupDto(Guid.Empty, "", "Plain Text", eQuestionnaireUsage.Annotation, null);
 
     public async Task EditDocument(DocumentDto document)
     {

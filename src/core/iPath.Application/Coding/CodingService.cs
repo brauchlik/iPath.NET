@@ -143,4 +143,27 @@ public class CodingService
 
         return _lookup.IsChildCode(childCode, rootCode, includeRoot);
     }
+
+
+
+    public bool InConceptFilter(string code, ConceptFilter filter, bool includeRoot = true)
+    {
+        if (_lookup == null)
+            return false;
+
+        // no filter/concepts => true
+        if (filter is null || filter.Concetps.IsEmpty())
+            return true;
+
+        foreach(var concept in filter.Concetps)
+        {
+            if (_lookup.IsChildCode(code, concept.Code, includeRoot))
+            {
+                return true; 
+            }
+        }
+
+        return false;
+    }
+
 }

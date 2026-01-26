@@ -45,7 +45,7 @@ public class EventNotificationDispatcher(IEventNotificationDispatcherQueue queue
             var evt = await queue.DequeueAsync(stoppingToken);
             logger.LogTrace("processing event type {0}", evt.GetType().Name);
 
-            var processor = scope.ServiceProvider.GetService<INodeEventProcessor>();
+            var processor = scope.ServiceProvider.GetService<IServiceRequestEventProcessor>();
             if (processor != null)
             {
                 try

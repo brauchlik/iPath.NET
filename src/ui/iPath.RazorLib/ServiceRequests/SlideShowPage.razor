@@ -18,7 +18,7 @@
             <div class="d-flex justify-center flex-grow-1 gap-2">
                 <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleLeft" Size="Size.Small" OnClick="GotoPrevious" />
                 <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleRight" Size="Size.Small" OnClick="GotoNext" />
-                <MudIconButton Icon="@Icons.Material.Filled.Comment" Size="Size.Small" OnClick="@(() => vm.Annotate(vm.SelectedDocument, false))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Comment" Size="Size.Small" OnClick="@(() => vm.Annotate(vm.SelectedDocument, true))" />
                 <MudIconButton Icon="@Icons.Material.Filled.CloseFullscreen" Size="Size.Small" OnClick="@(() => vm.GoUpRequestPage())" />
             </div>
 

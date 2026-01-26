@@ -12,15 +12,19 @@ namespace iPath.API;
 // NodeEvents are directly passed to the SignalR Client
 // This has to be refactored and attached to the NotificatoinQueue for InApp Notifications
 
-public class DomainEventHandler(IHubContext<NodeNotificationsHub> hub,
+public class DomainEventSignalrProcessor(IHubContext<NodeNotificationsHub> hub,
     IUserSession sess,
-    ILogger<DomainEventHandler> logger)
+    ILogger<DomainEventSignalrProcessor> logger)
     : INotificationHandler<EventEntity>
 {
     public async ValueTask Handle(EventEntity evt, CancellationToken ct)
     {
         if (evt is ServiceRequestEvent ne)
         {
+            // publish directly to SignalR Hub
+
+            // TODO: this should be filtered over the INotificationQueue and then sent according to users "InApp" subscriptions
+
             string payload = JsonSerializer.Serialize(ne);
             var msg = new NotificationMessage(evt.EventDate, ne.GetType().Name, payload);
             await hub.Clients.All.SendAsync("NodeEvent", msg);

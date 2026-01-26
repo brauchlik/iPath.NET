@@ -57,7 +57,7 @@
                     {
                         <MudText>@T["please select a body region"]</MudText>
                     }
-                    <CodingTree @bind-Value="@wizzardVM.Topo" @bind-Value:after="OnTopoSelected"  TreeItems="@wizzardVM.BodySiteCodes" />
+                    <CodingTree @bind-Value="@wizzardVM.Topo" @bind-Value:after="OnTopoSelected" TreeItems="@wizzardVM.BodySiteCodes" />
                 </MudItem>
             </MudGrid>
         </MudStep>
@@ -93,7 +93,22 @@
                 }
                 else
                 {
-                    <iPath.LHCForms.LhcForm @ref="qrForm" ReadOnly="false" OnAfterRendered="wizzardVM.LoadQuestionnaire" />
+                    @if (wizzardVM.validForms.Count > 0)
+                    {
+                        <MudStack Row AlignItems="AlignItems.Center">
+                            <MudText>Questionnaire</MudText>
+                            <MudToggleGroup Color="Color.Default" T="QuestionnaireForGroupDto" Size="Size.Small"
+                                            @bind-Value="@wizzardVM.SelectedQ" @bind-Value:after="@wizzardVM.LoadQuestionnaireForm">
+                                @foreach (var q in wizzardVM.validForms)
+                                {
+                                    <MudToggleItem Value="@q" />
+                                }
+                            </MudToggleGroup>
+                        </MudStack>
+                    }
+
+
+                    <iPath.LHCForms.LhcForm @ref="qrForm" ReadOnly="false" OnAfterRendered="wizzardVM.LoadQuestionnaireForm" />
                 }
 
             </MudStack>

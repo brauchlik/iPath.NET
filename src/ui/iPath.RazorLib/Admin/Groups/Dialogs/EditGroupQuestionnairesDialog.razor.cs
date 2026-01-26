@@ -1,6 +1,3 @@
-using iPath.Blazor.Componenents.Questionaiires;
-using Microsoft.Extensions.Localization;
-
 namespace iPath.Blazor.Componenents.Admin.Groups;
 
 public partial class EditGroupQuestionnairesDialog(IPathApi api, IStringLocalizer T)

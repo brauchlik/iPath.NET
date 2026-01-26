@@ -23,10 +23,10 @@ public static partial class ServiceRequestCommandExtensions
             sr.IsDraft = request.IsDraft.Value;
 
         sr.LastModifiedOn = DateTime.UtcNow;
-        sr.CreateEvent<NodeDescriptionUpdatedEvent, UpdateServiceRequestCommand>(request, userId);
+        sr.CreateEvent<ServiceRequestDescriptionUpdatedEvent, UpdateServiceRequestCommand>(request, userId);
         if (isPublishEvent)
         {
-            sr.CreateEvent<RootNodePublishedEvent, UpdateServiceRequestCommand>(request, userId);
+            sr.CreateEvent<ServiceRequestNodePublishedEvent, UpdateServiceRequestCommand>(request, userId);
         }
 
         return sr;

@@ -1,16 +1,11 @@
 ﻿namespace iPath.Domain.Entities;
 
-/*
-public interface INodeEvent
-{
-    Node Node { get; }
-}
-*/
 
-
-public class ServiceRequestEvent : EventEntity //, INodeEvent
+public class ServiceRequestEvent : EventEntity
 {
     [JsonIgnore]
     public ServiceRequest ServiceRequest { get; set; }
 }
 
+
+public interface IEventWithNotifications { }

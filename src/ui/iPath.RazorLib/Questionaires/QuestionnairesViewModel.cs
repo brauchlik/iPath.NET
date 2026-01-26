@@ -1,4 +1,4 @@
-﻿namespace iPath.Blazor.Componenents.Questionaiires;
+﻿namespace iPath.Blazor.Componenents.Questionaires;
 
 public class QuestionnairesViewModel
 {

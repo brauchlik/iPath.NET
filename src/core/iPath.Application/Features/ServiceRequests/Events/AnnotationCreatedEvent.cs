@@ -2,7 +2,7 @@
 
 namespace iPath.Application.Features.ServiceRequests;
 
-public class AnnotationCreatedEvent : ServiceRequestEvent, INotification
+public class AnnotationCreatedEvent : ServiceRequestEvent, IEventWithNotifications
 {
     public ServiceRequestEvent Event => this;
 }

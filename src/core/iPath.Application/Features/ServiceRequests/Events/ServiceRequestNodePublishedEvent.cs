@@ -2,4 +2,4 @@
 
 namespace iPath.Application.Features.ServiceRequests;
 
-public class RootNodePublishedEvent : ServiceRequestEvent, INotification;
+public class ServiceRequestNodePublishedEvent : ServiceRequestEvent, IEventWithNotifications;

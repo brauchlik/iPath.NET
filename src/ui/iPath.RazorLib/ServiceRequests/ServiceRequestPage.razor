@@ -12,9 +12,9 @@
 else
 {
     <MudStack Spacing="4">
-    <ServiceRequestDescriptionView ExpandDescription="ShowDescription" />
-    <DocumentGallery OnShowingChildNode="@(e => ShowDescription = !e)"/>
-    <NodeAnnotations @ref="annotationView" Class="mt-8" />
+        <ServiceRequestDescriptionView ExpandDescription="ShowDescription" />
+        <DocumentGallery OnShowingChildNode="@(e => ShowDescription = !e)" />
+        <NodeAnnotations @ref="annotationView" Class="mt-8" />
     </MudStack>
 }
 

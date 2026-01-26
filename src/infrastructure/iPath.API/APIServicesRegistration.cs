@@ -78,7 +78,7 @@ public static class APIServicesRegistration
         services.AddSingleton<IEventNotificationDispatcherQueue>(ctx => new EventNotificationDispatcherQueue(100));
         services.AddSingleton<INotificationQueue>(ctx => new NotificationQueue(100));
         services.AddHostedService<EventNotificationDispatcher>();
-        services.AddScoped<INodeEventProcessor, RootNodeEventProcessor>();
+        services.AddScoped<IServiceRequestEventProcessor, ServiceRequestEventProcessor>();
 
 
         // Upload Handling

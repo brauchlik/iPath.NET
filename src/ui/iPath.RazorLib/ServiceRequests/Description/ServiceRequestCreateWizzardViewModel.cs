@@ -60,7 +60,7 @@ public class ServiceRequestCreateWizzardViewModel(IServiceProvider sp, ServiceRe
     public List<TreeItemData<CodeDisplay>> BodySiteCodes { get; private set; } = new();
     public bool OrganGroupExpanded => Organ != null && Organ.Children != null && Organ.Children.Count == 1;
 
-    public bool TopoAutoSelect { get; set;  }
+    public bool TopoAutoSelect { get; set; }
 
     public CodeDisplay Topo
     {
@@ -68,7 +68,7 @@ public class ServiceRequestCreateWizzardViewModel(IServiceProvider sp, ServiceRe
         set
         {
             field = value;
-            Data.BodySite = value.ToConcept(_coding.CodeSystemUrl);           
+            Data.BodySite = value.ToConcept(_coding.CodeSystemUrl);
         }
     }
 
@@ -81,24 +81,36 @@ public class ServiceRequestCreateWizzardViewModel(IServiceProvider sp, ServiceRe
 
     public IQuestionnaireForm QuestionnaireViewer { get; set; }
 
+    public IReadOnlyCollection<QuestionnaireForGroupDto> validForms { get; private set; } = new List<QuestionnaireForGroupDto>();
+
+    public QuestionnaireForGroupDto? SelectedQ { get; set; }
+
 
     public async Task LoadQuestionnaire()
     {
+        SelectedQ = null;
+        validForms = new List<QuestionnaireForGroupDto>();
         if (Data.BodySite != null)
         {
-            // TODO: choose questionnaire by topo
-            // Test: check if there is a case description form in the group and select it
-            var forms =  vm.ActiveGroup.Questionnaires.Where(q => q.Usage == eQuestionnaireUsage.CaseDescription).ToList();
-            if (forms.Count == 1)
+            // find all questionnaires that are valid for Usage as CaseDescription and that match the body site
+            validForms = await vm.ActiveGroup.Questionnaires.FilterAsync(eQuestionnaireUsage.CaseDescription, Data.BodySite.Code);
+
+            // autoselect first form if only 1 is valid
+            if (validForms.Count > 0)
             {
-                Data.Questionnaire = new QuestionnaireResponseData { QuestionnaireId = forms.First().QuestinnaireId };
+                SelectedQ = validForms.First();
+                Data.Questionnaire = new QuestionnaireResponseData { QuestionnaireId = SelectedQ.QuestinnaireId };
             }
         }
+        await LoadQuestionnaireForm();
+    }
 
-        if (QuestionnaireViewer != null && !string.IsNullOrEmpty(Data.Questionnaire.QuestionnaireId))
+    public async Task LoadQuestionnaireForm()
+    {
+        if (SelectedQ is not null && QuestionnaireViewer is not null)
         {
-            var q = await _cache.GetQuestionnaireResourceAsync(Data.Questionnaire.QuestionnaireId);
-            await QuestionnaireViewer.LoadFormAsync(q, Data.Questionnaire.Resource!);
+            var q = await _cache.GetQuestionnaireResourceAsync(SelectedQ.QuestinnaireId);
+            await QuestionnaireViewer.LoadFormAsync(q, Data.Questionnaire?.Resource!);
         }
     }
 

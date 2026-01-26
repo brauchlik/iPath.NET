@@ -22,7 +22,7 @@ public record UserGroupMemberDto(Guid GroupId, string Groupname, eMemberRole Rol
 public record GroupMemberDto(Guid UserId, string Username, eMemberRole Role);
 
 
-public record QuestionnaireForGroupDto(Guid qId, string QuestinnaireId, string QuestinnaireName, eQuestionnaireUsage Usage, int? ExplicitVersion = null)
+public record QuestionnaireForGroupDto(Guid qId, string QuestinnaireId, string QuestinnaireName, eQuestionnaireUsage Usage, QuestionnaireSettings Settings, int? ExplicitVersion = null)
 {
     public override string ToString() => QuestinnaireName;
 }
@@ -139,7 +139,12 @@ public static class GroupExtensions
             Settings: group.Settings,
             Members: group.Members?.Select(m => new GroupMemberDto(UserId: m.UserId, Role: m.Role, Username: m.User?.UserName)).ToArray(),
             ExtraCommunities: group.ExtraCommunities.Select(c => new CommunityListDto(Id: c.Community.Id, Name: c.Community.Name)).ToArray(),
-            Questionnaires: group.Quesionnaires.Select(q => new QuestionnaireForGroupDto(qId: q.QuestionnaireId, QuestinnaireId: q.Questionnaire.QuestionnaireId, QuestinnaireName: q.Questionnaire.Name, Usage: q.Usage, ExplicitVersion: q.ExplicitVersion)).ToArray());
+            Questionnaires: group.Quesionnaires.Select(q => new QuestionnaireForGroupDto(qId: q.QuestionnaireId, 
+            QuestinnaireId: q.Questionnaire.QuestionnaireId, 
+            QuestinnaireName: q.Questionnaire.Name, 
+            Usage: q.Usage, 
+            Settings: q.Questionnaire.Settings,
+            ExplicitVersion: q.ExplicitVersion)).ToArray());
     }
     
     public static GroupListDto ToListDto(this Group group)

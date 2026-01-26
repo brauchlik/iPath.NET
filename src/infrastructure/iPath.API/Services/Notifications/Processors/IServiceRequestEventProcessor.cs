@@ -2,7 +2,7 @@
 
 namespace iPath.API.Services.Notifications.Processors;
 
-public interface INodeEventProcessor
+public interface IServiceRequestEventProcessor
 {
     Task ProcessEvent(ServiceRequestEvent n, CancellationToken ct);
 }

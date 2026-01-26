@@ -6,9 +6,6 @@ public abstract class ServiceRequestViewComponentBase : ComponentBase, IDisposab
     protected ServiceRequestViewModel vm { get; set; }
 
     [Inject]
-    protected IStringLocalizer T { get; set; }
-
-    [Inject]
     protected ISnackbar snackbar { get; set; }
 
     [Inject]

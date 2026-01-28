@@ -132,9 +132,9 @@
         var p = new DialogParameters<BodySiteFilterDialog> { { p => p.Filter, Model.SpecialisationBodySite } };
         var d = await dlg.ShowAsync<BodySiteFilterDialog>("Specialisation Body Sites", parameters: p);
         var r = await d.Result;
-        if (r is not null && r.Data is ConceptFilter newFilter)
+        if (r is not null && !r.Canceled)
         {
-            Model.SpecialisationBodySite = newFilter;
+            Model.SpecialisationBodySite = r.Data as ConceptFilter;
         }
     }
 

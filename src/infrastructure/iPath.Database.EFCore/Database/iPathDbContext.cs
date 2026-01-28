@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System.Reflection.Metadata;
 
 namespace iPath.EF.Core.Database;
 
@@ -36,6 +35,7 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<ServiceRequestLastVisit> NodeLastVisits { get; set; }
 
     public DbSet<QuestionnaireEntity> Questionnaires { get; set; }
+    public DbSet<WebContent> WebPages { get; set; }
 
     public DbSet<Notification> NotificationQueue { get; set; }
     public DbSet<EmailMessage> EmailStore { get; set; }
@@ -138,9 +138,19 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
         // soft delete
         foreach (var entry in ChangeTracker.Entries())
         {
-            if (entry is not { State: EntityState.Deleted, Entity: ISoftDelete delete }) continue;
-            entry.State = EntityState.Modified;
-            delete.DeletedOn = DateTime.UtcNow;
+            if (entry is { State: EntityState.Deleted, Entity: ISoftDelete delete })
+            {
+                entry.State = EntityState.Modified;
+                delete.DeletedOn = DateTime.UtcNow;
+            }
+            if (entry is { State: EntityState.Added, Entity: AuditableEntity add })
+            {
+                add.CreatedOn ??= DateTime.UtcNow;
+            }
+            if (entry is { State: EntityState.Modified, Entity: AuditableEntity modify })
+            {
+                modify.LastModifiedOn = DateTime.UtcNow;
+            }
         }
 
 

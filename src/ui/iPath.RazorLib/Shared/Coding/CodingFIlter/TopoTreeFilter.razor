@@ -11,7 +11,9 @@
         <MudTextField T="string" Label="Search" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" Variant="Variant.Outlined" Margin="Margin.Dense"
                       TextChanged="Search" Immediate="true" Clearable="true" />
-
+        <MudTooltip Text=@T["clear filter"]>
+            <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="ClearAll" />
+        </MudTooltip>
     </MudStack>
     <MudDivider />
     @if (RendererInfo.IsInteractive)
@@ -41,7 +43,7 @@
 
 @inject IServiceProvider sp;
 
-@code {
+    @code {
     [Parameter]
     public ConceptFilter? Filter { get; set; }
 
@@ -64,6 +66,7 @@
 
     string error;
 
+
     async Task OnChange()
     {
         if (UpdateFilterOnChange)
@@ -73,7 +76,11 @@
         StateHasChanged();
     }
 
-
+    public void ClearAll()
+    {
+        Filter = null;
+        LoadFilter();
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,10 +91,6 @@
     {
         await LoadCoding();
         LoadFilter();
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
     }
 
 

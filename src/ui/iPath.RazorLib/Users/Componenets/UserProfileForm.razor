@@ -4,6 +4,7 @@
 
 @inject IStringLocalizer T
 @inject NavigationManager nm
+@inject IDialogService dlg
 
 @if (Model != null)
 {
@@ -21,7 +22,13 @@
             </MudItem>
         </MudGrid>
 
+
         <MudTextField Label=@T["Specialisation"] For="(() => Model.Specialisation)" @bind-Value="Model.Specialisation" />
+        <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+            <MudSwitch Label=@T["Is Consultant"] For="(() => Model.IsConsultant)" @bind-Value="Model.IsConsultant" Color="Color.Success" />
+            <MudText Class="ml-8"><strong>@T["Body Sites"]: </strong> @Model.SpecialisationBodySite?.ConceptCodesString</MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="ShowBodySiteDialog" />
+        </MudStack>
 
 
         <MudText Typo="Typo.h6" Class="section_header">@T["Address & Contact"]</MudText>
@@ -119,4 +126,16 @@
         if (string.IsNullOrEmpty(value)) return iPath.Domain.CountryService.CountryNames;
         return iPath.Domain.CountryService.CountryNames.Where(x => x.Contains(value, StringComparison.InvariantCultureIgnoreCase));
     }
+
+    private async Task ShowBodySiteDialog()
+    {
+        var p = new DialogParameters<BodySiteFilterDialog> { { p => p.Filter, Model.SpecialisationBodySite } };
+        var d = await dlg.ShowAsync<BodySiteFilterDialog>("Specialisation Body Sites", parameters: p);
+        var r = await d.Result;
+        if (r is not null && r.Data is ConceptFilter newFilter)
+        {
+            Model.SpecialisationBodySite = newFilter;
+        }
+    }
+
 }

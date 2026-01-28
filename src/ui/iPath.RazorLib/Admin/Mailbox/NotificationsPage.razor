@@ -19,13 +19,13 @@
              Hover="true" Dense="true">
     <Columns>
         <HierarchyColumn T="NotificationDto" />
-        <PropertyColumn Property="e => e.Username" Title=@T["User"] />
+        <PropertyColumn Property="e => e.Receiver.Username" Title=@T["User"] />
         <PropertyColumn Property="e => e.EventType" Title=@T["Event Type"] />
         <PropertyColumn Property="e => e.Target" Title=@T["Notification Type"] />
         <PropertyColumn Property="e => e.Date" Format="d" Title=@T["Date"] />
     </Columns>
     <ChildRowContent>
-        <pre>@context.Item.payload</pre>
+        <pre>@context.Item.Payload</pre>
     </ChildRowContent>
     <PagerContent>
         <MudDataGridPager T="NotificationDto" />

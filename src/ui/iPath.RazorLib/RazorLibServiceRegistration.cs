@@ -1,4 +1,6 @@
-﻿using iPath.Application.Fhir;
+﻿using iPath.Application.Contracts;
+using iPath.Application.Features.Notifications;
+using iPath.Application.Fhir;
 using iPath.Application.Localization;
 using iPath.Blazor.Componenents.Admin.Communities;
 using iPath.Blazor.Componenents.Admin.Groups;
@@ -9,11 +11,9 @@ using iPath.Blazor.Componenents.Shared;
 using iPath.Blazor.Componenents.Users;
 using iPath.Blazor.Server;
 using iPath.Blazor.ServiceLib.Fhir;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Translations;
 using Refit;
-using System.Data;
 using System.Text.Json;
 
 namespace iPath.RazorLib;
@@ -69,6 +69,9 @@ public static class RazorLibServiceRegistration
         {
             return new CodingService(sp, "icdo");
         });
+
+        // html preview
+        services.AddTransient<IServiceRequestHtmlPreview, EmailNotificationPreview>();
 
 
         // DI for Extensions

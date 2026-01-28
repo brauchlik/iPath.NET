@@ -20,7 +20,7 @@ public class CreateUserCommandHandler(UserManager<User> um, IMediator mediator)
 
         if (request.Community != null)
         {
-            var cmd = new AssignUserToCommunityCommand(userId: newUser.Id, communityId: request.Community.Id, role: eMemberRole.User);
+            var cmd = new AssignUserToCommunityCommand(userId: newUser.Id, communityId: request.Community.Id, role: eMemberRole.User, isConsultant: false);
             await mediator.Send(cmd, cancellationToken);
         }
 

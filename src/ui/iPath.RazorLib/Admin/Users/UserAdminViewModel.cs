@@ -10,6 +10,7 @@ public class UserAdminViewModel(IPathApi api,
     ISnackbar snackbar,
     IDialogService dialog,
     IStringLocalizer T,
+    UserViewModel userVM,
     IMemoryCache cache,
     ILogger<UserAdminViewModel> logger)
     : IViewModel
@@ -218,6 +219,9 @@ public class UserAdminViewModel(IPathApi api,
             logger.LogError(ex, ex.Message);
             snackbar.AddError(ex.Message);
         }
+
+        userVM.ClearProfileCache(cmd.UserId);
+
         return false;
     }
 

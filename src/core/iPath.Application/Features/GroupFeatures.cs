@@ -17,9 +17,9 @@ public record GroupDto(Guid Id, string Name, eGroupVisibility Visibility,
     QuestionnaireForGroupDto[]? Questionnaires);
 
 
-public record UserGroupMemberDto(Guid GroupId, string Groupname, eMemberRole Role);
+public record UserGroupMemberDto(Guid GroupId, string Groupname, eMemberRole Role, bool IsConsultant);
 
-public record GroupMemberDto(Guid UserId, string Username, eMemberRole Role);
+public record GroupMemberDto(Guid UserId, string Username, eMemberRole Role, bool IsConsultant);
 
 
 public record QuestionnaireForGroupDto(Guid qId, string QuestinnaireId, string QuestinnaireName, eQuestionnaireUsage Usage, QuestionnaireSettings Settings, int? ExplicitVersion = null)
@@ -139,7 +139,7 @@ public static class GroupExtensions
             Owner: group.Owner.ToOwnerDto(),
             Community: group.Community.ToListDto(),
             Settings: group.Settings,
-            Members: group.Members?.Select(m => new GroupMemberDto(UserId: m.UserId, Role: m.Role, Username: m.User?.UserName)).ToArray(),
+            Members: group.Members?.Select(m => new GroupMemberDto(UserId: m.UserId, Role: m.Role, IsConsultant: m.IsConsultant, Username: m.User?.UserName)).ToArray(),
             ExtraCommunities: group.ExtraCommunities.Select(c => new CommunityListDto(Id: c.Community.Id, Name: c.Community.Name)).ToArray(),
             Questionnaires: group.Quesionnaires.Select(q => new QuestionnaireForGroupDto(qId: q.QuestionnaireId, 
             QuestinnaireId: q.Questionnaire.QuestionnaireId, 

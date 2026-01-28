@@ -1,10 +1,11 @@
+using Humanizer;
 using System.ComponentModel;
 using System.Diagnostics;
 
 namespace iPath.Blazor.Componenents.Admin.Users;
 
 
-[DebuggerDisplay("{Username} - {GroupName} - {Role}")]
+[DebuggerDisplay("{Username} - {GroupName} - {Role}{cstr}")]
 public class GroupMemberModel : INotifyPropertyChanged
 {
     public Guid UserId { get; private set; }
@@ -14,12 +15,25 @@ public class GroupMemberModel : INotifyPropertyChanged
     public string GroupName { get; private set; }
 
     public eMemberRole OriginalRole { get; private set; }
-    public eMemberRole Role { get; set; }
+    public eMemberRole Role { 
+        get => field; 
+        set {
+            field = value;
+            if (field == eMemberRole.None)
+            {
+                // if user is set to banned, remove as consultant
+                IsConsultant = false;
+            }
+        }
+    }
 
+    public bool IsConsultant { get; set; }
+    public bool IsConsultantOrig { get; private set; }
+    private string? cstr => IsConsultant ? ", Consultant" : null;
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public bool Saving { get; set; } = false;
-    public bool HasChange => OriginalRole != Role;
+    public bool HasChange => (IsConsultantOrig != IsConsultant) || (OriginalRole != Role);
 
     private void NotifyRoleChanged()
     {
@@ -68,6 +82,8 @@ public class GroupMemberModel : INotifyPropertyChanged
         GroupName = groupName;
         OriginalRole = (eMemberRole)dto.Role;
         Role = (eMemberRole)dto.Role;
+        IsConsultantOrig = dto.IsConsultant;
+        IsConsultant = dto.IsConsultant;
     }
 
     public GroupMemberModel(Guid groupId, string groupName)
@@ -93,17 +109,19 @@ public class GroupMemberModel : INotifyPropertyChanged
         GroupName = groupName;
         UserId = m.UserId;
         Username = m.Username;
-        Role = m.Role;
         OriginalRole = m.Role;
+        Role = m.Role;
+        IsConsultantOrig = m.IsConsultant;
+        IsConsultant = m.IsConsultant;
     }
 
     public UserGroupMemberDto ToDto()
     {
-        return new UserGroupMemberDto(GroupId: this.GroupId, Role: this.Role, Groupname: this.GroupName);
+        return new UserGroupMemberDto(GroupId: this.GroupId, Role: this.Role, Groupname: this.GroupName, IsConsultant: this.IsConsultant);
     }
 
     public GroupMemberDto ToGroupMemberDto()
     {
-           return new GroupMemberDto(UserId: this.UserId, Username: this.Username, Role: this.Role);
+           return new GroupMemberDto(UserId: this.UserId, Username: this.Username, Role: this.Role, IsConsultant: this.IsConsultant);
     }
 }

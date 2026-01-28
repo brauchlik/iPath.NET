@@ -26,7 +26,12 @@
         </TemplateColumn>
         <TemplateColumn Title=@T["Banned"]>
             <CellTemplate>
-                <MudCheckBox @bind-Value="context.Item.IsBanned" />
+                <MudCheckBox @bind-Value="context.Item.IsBanned" Color="Color.Warning" />
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title=@T["Consultant"]>
+            <CellTemplate>
+                <MudCheckBox @bind-Value="context.Item.IsConsultant" Color="Color.Success" />
             </CellTemplate>
         </TemplateColumn>
     </Columns>

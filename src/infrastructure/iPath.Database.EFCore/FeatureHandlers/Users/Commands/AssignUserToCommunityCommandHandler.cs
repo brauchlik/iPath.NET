@@ -20,7 +20,7 @@ public class AssignUserToCommunityCommandHandler(iPathDbContext db, IUserSession
         }
         else
         {
-            user.AddToCommunity(community, request.role);
+            user.AddToCommunity(community, request.role, request.isConsultant);
         }
 
         // Refresh the cache

@@ -32,7 +32,7 @@
             <MudIconButton Icon="@context.SettingsIcon" Size="Size.Small" OnClick=@(() => ShowBodySiteFilter(context)) />
         </MudTd>
         <MudTd>
-            <MudText Typo="Typo.body2">@context.Settings?.BodySiteFilter?.ConceptCodesString</MudText>
+            <MudText Typo="Typo.body2">@context.BodySiteFilterString</MudText>
         </MudTd>
     </RowTemplate>
 </MudTable>

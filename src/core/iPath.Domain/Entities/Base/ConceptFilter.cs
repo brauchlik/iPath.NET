@@ -30,4 +30,12 @@ public class ConceptFilter
 
     [JsonIgnore]
     public string ConceptCodesString => string.Join(", ", ConceptCodes); 
+
+
+    public ConceptFilter Clone()
+    {
+        var ret = new ConceptFilter();
+        ret.Concetps.AddRange(this.Concetps.Select(x => x.Clone()));
+        return ret;
+    }
 }

@@ -83,6 +83,8 @@ public static class APIServicesRegistration
 
         services.AddScoped<INotificationPublisher, EmailNotificationPublisher>();
         services.AddHostedService<NotificationPublisher>();
+        services.AddTransient<IServiceRequestHtmlPreview, EmailNotificationPreview>();
+
 
 
         // Upload Handling

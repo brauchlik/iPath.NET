@@ -10,10 +10,25 @@ public class CommunityMemberModel
     public string CommunityName { get; private set; }
 
     public eMemberRole OriginalRole { get; private set; }
-    public eMemberRole Role { get; set; }
+    public eMemberRole Role
+    {
+        get => field;
+        set
+        {
+            field = value;
+            if (field == eMemberRole.None)
+            {
+                // if user is set to banned, remove as consultant
+                IsConsultant = false;
+            }
+        }
+    }
+
+    public bool IsConsultant { get; set; }
+    public bool IsConsultantOrig { get; private set; }
 
     public bool Saving { get; set; } = false;
-    public bool HasChange => OriginalRole != Role;
+    public bool HasChange => (IsConsultantOrig != IsConsultant) || (OriginalRole != Role);
 
     public bool IsModerator
     {
@@ -48,6 +63,8 @@ public class CommunityMemberModel
         UserName = username;
         OriginalRole = (eMemberRole)dto.Role;
         Role = (eMemberRole)dto.Role;
+        IsConsultantOrig = dto.IsConsultant;
+        IsConsultant = dto.IsConsultant;
     }
 
     public CommunityMemberModel(Guid communityId, string communityName, Guid userId, string? username)
@@ -62,6 +79,6 @@ public class CommunityMemberModel
 
     public CommunityMemberDto ToDto()
     {
-        return new CommunityMemberDto(CommunityId: this.CommunityId, UserId: this.UserId, Role: this.Role);
+        return new CommunityMemberDto(CommunityId: this.CommunityId, UserId: this.UserId, Role: this.Role, IsConsultant: this.IsConsultant);
     }
 }

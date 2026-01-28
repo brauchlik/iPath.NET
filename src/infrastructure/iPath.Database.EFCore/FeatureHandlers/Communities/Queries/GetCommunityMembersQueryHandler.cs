@@ -18,7 +18,9 @@ public class GetCommunityMembersQueryHandler(iPathDbContext db, IUserSession ses
             q = q.OrderBy(m => m.User.UserName);
         }
 
-        var projected = q.Select(m => new CommunityMemberDto(CommunityId: m.CommunityId, UserId: m.UserId, Role: m.Role, Communityname: m.Community.Name, Username: m.User.UserName));
+        var projected = q.Select(m => new CommunityMemberDto(CommunityId: m.CommunityId, UserId: m.UserId,
+            Role: m.Role, IsConsultant: m.IsConsultant,
+            Communityname: m.Community.Name, Username: m.User.UserName));
         return await projected.ToPagedResultAsync(request, cancellationToken);
     }
 }

@@ -5,7 +5,7 @@
     <ToolBarContent>
         <MudText Typo="Typo.h6">@T["Filter"]</MudText>
         <MudSpacer />
-        <CommunityLookup Label=@T["Community"] @bind-Value="selectedCommunity" @bind-Value:after="OnCommunityFilter"
+        <CommunityLookup Label=@T["Filter by community"] @bind-Value="selectedCommunity" @bind-Value:after="OnCommunityFilter"
                          Variant="Variant.Outlined" Dense Clearable="true" Class="mr-5" />
         <MudSwitch Label=@T["active memberships only"] @bind-Value="ShowActiveOnly" @bind-Value:after="ApplyFilter" />
     </ToolBarContent>
@@ -15,13 +15,15 @@
         <MudTh><br />@T["Guest"]</MudTh>
         <MudTh><br />@T["Moderator"]</MudTh>
         <MudTh><br />@T["Banned"]</MudTh>
+        <MudTh><br />@T["Consultant"]</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Group">@context.GroupName</MudTd>
         <MudTd DataLabel="User"><MudCheckBox @bind-Value="context.IsUser" /></MudTd>
-        <MudTd DataLabel="User"><MudCheckBox @bind-Value="context.IsGuest" /></MudTd>
-        <MudTd DataLabel="User"><MudCheckBox @bind-Value="context.IsModerator" /></MudTd>
-        <MudTd DataLabel="User"><MudCheckBox @bind-Value="context.IsBanned" Color="Color.Warning" /></MudTd>
+        <MudTd DataLabel="Guest"><MudCheckBox @bind-Value="context.IsGuest" /></MudTd>
+        <MudTd DataLabel="Moderator"><MudCheckBox @bind-Value="context.IsModerator" /></MudTd>
+        <MudTd DataLabel="Banned"><MudCheckBox @bind-Value="context.IsBanned" Color="Color.Warning" /></MudTd>
+        <MudTd DataLabel="Consultant"><MudCheckBox @bind-Value="context.IsConsultant" Color="Color.Success" /></MudTd>
     </RowTemplate>
 </MudTable>
 

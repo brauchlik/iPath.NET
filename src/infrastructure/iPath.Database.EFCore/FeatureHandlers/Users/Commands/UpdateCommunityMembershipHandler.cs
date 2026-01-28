@@ -70,6 +70,7 @@ public class UpdateCommunityMembershipHandler(iPathDbContext db, IMediator media
                     await set.AddAsync(entity, ct);
                 }
                 entity.Role = dto.Role;
+                entity.IsConsultant = dto.IsConsultant;
             }
         }
 

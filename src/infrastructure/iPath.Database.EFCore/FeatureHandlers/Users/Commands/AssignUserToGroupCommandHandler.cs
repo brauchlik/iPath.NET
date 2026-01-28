@@ -21,13 +21,13 @@ public class AssignUserToGroupsCommandHandler(iPathDbContext db, IUserSession se
         }
         else
         {
-            user.AddToGroup(group, request.role);
+            user.AddToGroup(group, request.role, request.isConsultant);
         }
         await db.SaveChangesAsync(cancellationToken);
 
         // Refresh the cache
         sess.ReloadUser(request.userId);
 
-        return new GroupMemberDto(user.Id, user.UserName, request.role);
+        return new GroupMemberDto(user.Id, user.UserName, request.role, request.role != eMemberRole.None && request.isConsultant);
     }
 }

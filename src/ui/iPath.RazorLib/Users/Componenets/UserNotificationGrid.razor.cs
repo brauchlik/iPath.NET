@@ -1,9 +1,8 @@
-using Humanizer;
 using iPath.Blazor.Componenents.Admin.Users;
 
 namespace iPath.Blazor.Componenents.Users;
 
-public partial class UserNotificationGrid(UserAdminViewModel vm, IPathApi api, IStringLocalizer T, ISnackbar snackbar, IDialogService dialog)
+public partial class UserNotificationGrid(UserAdminViewModel vm, UserViewModel uvm, IPathApi api, IStringLocalizer T, ISnackbar snackbar, IDialogService dialog)
 {
     [Parameter]
     public UserDto? User { get; set; }
@@ -33,7 +32,12 @@ public partial class UserNotificationGrid(UserAdminViewModel vm, IPathApi api, I
                 return;
             }
 
-            Items = resp.Content.Select(x => new UserNotificationModel(x)).ToList();
+            Items = new();
+            foreach(var i in resp.Content)
+            {
+                var x = new UserNotificationModel(i, await uvm.GetProfileAsync(i.UserId));
+                Items.Add(x);
+            }
         }
     }
 
@@ -89,10 +93,12 @@ public partial class UserNotificationGrid(UserAdminViewModel vm, IPathApi api, I
 public class UserNotificationModel
 {
     public readonly UserGroupNotificationDto Dto;
+    private readonly UserProfile Profile;
 
-    public UserNotificationModel(UserGroupNotificationDto dto)
+    public UserNotificationModel(UserGroupNotificationDto dto, UserProfile profile)
     {
         Dto = dto;
+        Profile = profile;
 
         NewCase =  dto.Source.HasFlag(eNotificationSource.NewCase);
         NewAnnotation = dto.Source.HasFlag(eNotificationSource.NewAnnotation);
@@ -125,9 +131,26 @@ public class UserNotificationModel
     {
         if (Dto.Settings != null)
         {
-            HasSettings = Dto.Settings.BodySiteFilter is not null  || Dto.Settings.DailyEmailSummary;
+            HasSettings = Dto.Settings.BodySiteFilter is not null  || Dto.Settings.DailyEmailSummary || Dto.Settings.UseProfileBodySiteFilter;
         }
         _hasSettingsUpdate = SetChanged;
+    }
+
+
+    public string BodySiteFilterString
+    {
+        get
+        {
+            if (Dto.Settings.BodySiteFilter is not null)
+            {
+                return Dto.Settings.BodySiteFilter.ConceptCodesString;
+            }
+            else if (Dto.Settings.UseProfileBodySiteFilter)
+            {
+                return Profile.SpecialisationBodySite?.ConceptCodesString;
+            }
+            return "";
+        }
     }
 
 

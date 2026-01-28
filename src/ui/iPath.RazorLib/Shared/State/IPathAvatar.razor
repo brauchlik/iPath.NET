@@ -2,7 +2,7 @@
 
 @if (appState.IsAuthenticated)
 {
-    <MudMenu>
+    <MudMenu ActivationEvent="MouseEvent.LeftClick">
         <ActivatorContent>
             <MudBadge Color="@appState.PresenceColor" Overlap="true" Bordered="true">
                 <MudAvatar>@appState.User.Initials</MudAvatar>
@@ -13,18 +13,20 @@
             <MudMenuItem Label=@T["Notification Settings"] Icon="@Icons.Material.Filled.Settings" OnClick="vm.ShowUserNotifications" />
             <MudMenuItem Label=@T["My Cases"] Icon="@Icons.Material.Filled.Folder" Href="/user/cases" />
             <MudMenuItem Label=@T["My Groups"] Icon="@Icons.Material.Filled.Group" Href="/user/groups" />
+            <!--
             <MudMenu Label=@T["Community"] StartIcon="@Icons.Material.Filled.Groups">
                 @if (user is not null)
                 {
-                    foreach( var c in user.CommunityMembership)
+                    foreach (var c in user.CommunityMembership)
                     {
                         <MudMenuItem Label=@c.Communityname Icon="@Icons.Material.Filled.Group" Href=@($"community/{c.CommunityId}") />
                     }
                 }
             </MudMenu>
+            -->
         </ChildContent>
     </MudMenu>
-    }
+}
 else
 {
     <MudAvatar />
@@ -39,12 +41,12 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
+        await LoadUser();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    async Task LoadUser()
     {
-        if (firstRender)
+        if (appState is not null)
         {
             await appState.ReloadSession();
             user = await vm.GetUserAsync(appState.User.Id);

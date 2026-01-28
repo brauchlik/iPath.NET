@@ -1,6 +1,4 @@
-﻿using Azure.Core;
-using iPath.Domain.Entities;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using EFunc = Microsoft.EntityFrameworkCore.EF;
 
 namespace iPath.EF.Core.FeatureHandlers.Groups;
@@ -19,7 +17,7 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
             .Select(g => new GroupDto(Id: g.Id, Name: g.Name, Visibility: g.Visibility, Owner: g.Owner.ToOwnerDto(),
                                       Community: g.Community.ToListDto(),
                                       Settings: g.Settings,
-                                      Members: g.Members.Select(m => new GroupMemberDto(UserId: m.User.Id, Username: m.User.UserName, Role: m.Role)).ToArray(),
+                                      Members: g.Members.Select(m => new GroupMemberDto(UserId: m.User.Id, Username: m.User.UserName, Role: m.Role, IsConsultant: m.IsConsultant)).ToArray(),
                                       ExtraCommunities: g.ExtraCommunities.Select(c => new CommunityListDto(Id: c.Community.Id, Name: c.Community.Name)).ToArray(),
                                       Questionnaires: g.Quesionnaires.Select(q => new QuestionnaireForGroupDto(qId: q.QuestionnaireId,
                                       QuestinnaireId: q.Questionnaire.QuestionnaireId,
@@ -105,7 +103,7 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
             q = q.Where(m => EFunc.Functions.Like(m.User.UserName, s) || EFunc.Functions.Like(m.User.Email, s));
         }
 
-        var projected = q.Select(m => new GroupMemberDto(UserId: m.User.Id, Username: m.User.UserName, Role: m.Role));
+        var projected = q.Select(m => new GroupMemberDto(UserId: m.User.Id, Username: m.User.UserName, Role: m.Role, IsConsultant: m.IsConsultant));
         return await projected.ToPagedResultAsync(query, ct);
     }
 

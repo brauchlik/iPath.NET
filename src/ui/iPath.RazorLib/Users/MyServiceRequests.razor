@@ -9,11 +9,11 @@
 @inject AuthenticationStateProvider asp
 @inject AppState appSate
 
-<IPathHeader Title=@T["My cases"] Typo="Typo.h6" />
+<IPathHeader Title=@T["My requests"] Typo="Typo.h6" />
 
 @if (UserId.HasValue)
 {
-    <NodeListTable OwnerId="UserId" />
+    <ServiceRequestListTable OwnerId="UserId" />
 }
 
 @code {

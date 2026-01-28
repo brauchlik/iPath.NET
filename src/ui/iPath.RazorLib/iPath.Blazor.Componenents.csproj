@@ -44,7 +44,6 @@
 
   <ItemGroup>
     <Folder Include="Admin\Questionnaires\Components\" />
-    <Folder Include="ServiceRequests\Dialogs\" />
     <Folder Include="wwwroot\fhir\" />
   </ItemGroup>
 

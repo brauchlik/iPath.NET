@@ -129,7 +129,7 @@ public class CommunityAdminViewModel(IPathApi api,
 
     public async Task UpdateMember(CommunityMemberModel m)
     {
-        var cmd = new AssignUserToCommunityCommand(communityId: m.CommunityId, userId: m.UserId, role: m.Role);
+        var cmd = new AssignUserToCommunityCommand(communityId: m.CommunityId, userId: m.UserId, role: m.Role, isConsultant: m.IsConsultant);
 
         var resp = await api.AssignUserToCommunity(cmd);
         if (!resp.IsSuccessful)

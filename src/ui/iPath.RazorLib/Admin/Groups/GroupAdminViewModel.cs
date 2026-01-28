@@ -312,7 +312,7 @@ public class GroupAdminViewModel(IPathApi api,
     {
         if (SelectedGroup is not null)
         {
-            var cmd = new AssignUserToGroupCommand(userId: owner.Id, groupId: SelectedGroup.Id, role: eMemberRole.User);
+            var cmd = new AssignUserToGroupCommand(userId: owner.Id, groupId: SelectedGroup.Id, role: eMemberRole.User, isConsultant: false);
             var resp = await api.AssignUserToGroup(cmd);
             if (!resp.IsSuccessful)
             {
@@ -331,7 +331,7 @@ public class GroupAdminViewModel(IPathApi api,
         if (SelectedGroup is not null)
         {
             UserGroupMemberDto[] list = {
-                new UserGroupMemberDto(GroupId: SelectedGroup.Id, Groupname: "", Role: eMemberRole.None)
+                new UserGroupMemberDto(GroupId: SelectedGroup.Id, Groupname: "", Role: eMemberRole.None, IsConsultant: false)
             };
             var cmd = new UpdateGroupMembershipCommand(member.UserId, list);
             var resp = await api.UpdateGroupMemberships(cmd);
@@ -348,7 +348,7 @@ public class GroupAdminViewModel(IPathApi api,
         }
         else
         {
-            var cmd = new AssignUserToGroupCommand(groupId: m.GroupId, userId: m.UserId, role: m.Role);
+            var cmd = new AssignUserToGroupCommand(groupId: m.GroupId, userId: m.UserId, role: m.Role, isConsultant: m.IsConsultant);
 
             var resp = await api.AssignUserToGroup(cmd);
             if (!resp.IsSuccessful)

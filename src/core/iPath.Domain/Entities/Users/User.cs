@@ -12,8 +12,10 @@ public class User : IdentityUser<Guid>, IBaseEntity
     public UserProfile Profile { get; private set; } = new();
 
     private List<GroupMember> _GroupMembership { get; set; } = new();
+
     public IReadOnlyCollection<GroupMember> GroupMembership => _GroupMembership;
-    public GroupMember AddToGroup(Group group, eMemberRole? role = null)
+
+    public GroupMember AddToGroup(Group group, eMemberRole? role = null, bool? isConsultant = null)
     {
         var ret = _GroupMembership.FirstOrDefault(m => m.GroupId == group.Id);
         if (ret is null)
@@ -25,8 +27,13 @@ public class User : IdentityUser<Guid>, IBaseEntity
         {
             ret.Role = role.Value;
         }
+        if (isConsultant.HasValue)
+        {
+            ret.IsConsultant = isConsultant.Value;
+        }
         return ret;
     }
+
     public void RemoveFromGroup(Group group)
     {
         _GroupMembership.RemoveAll(m => m.GroupId == group.Id);
@@ -34,8 +41,10 @@ public class User : IdentityUser<Guid>, IBaseEntity
 
 
     private List<CommunityMember> _CommunityMembership { get; set; } = new();
+
     public IReadOnlyCollection<CommunityMember> CommunityMembership => _CommunityMembership;
-    public CommunityMember AddToCommunity(Community community, eMemberRole? role = null)
+
+    public CommunityMember AddToCommunity(Community community, eMemberRole? role = null, bool? isConsultant = null)
     {
         var ret = _CommunityMembership.FirstOrDefault(m => m.CommunityId == community.Id);
         if (ret is null)
@@ -46,6 +55,10 @@ public class User : IdentityUser<Guid>, IBaseEntity
         if (role.HasValue)
         {
             ret.Role = role.Value;
+        }
+        if (isConsultant.HasValue){ }
+        {
+            ret.IsConsultant = isConsultant.Value;
         }
         return ret;
     }

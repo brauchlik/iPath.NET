@@ -47,7 +47,13 @@ public class ServiceRequestEventProcessor(
                 if (evt.UserId != s.UserId)
                 {
                     // BodySite Filter
-                    if (IsValidBodySite(evt.ServiceRequest, s.NotificationSettings?.BodySiteFilter))
+                    ConceptFilter f = s.NotificationSettings?.BodySiteFilter;
+                    if ( s.NotificationSettings.UseProfileBodySiteFilter)
+                    {
+                        f = s.User.Profile?.SpecialisationBodySite;
+                    }
+
+                    if (IsValidBodySite(evt.ServiceRequest, f))
                     {
                         // Annotation Events
                         if (evt is AnnotationCreatedEvent)

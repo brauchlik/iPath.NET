@@ -30,6 +30,13 @@ public class UserProfile
     // [JsonPropertyName("specialisation")]
     public string? Specialisation { get; set; }
 
+
+    // #9
+    public bool IsConsultant { get; set; }
+    public ConceptFilter? SpecialisationBodySite {  get; set; }
+
+
+
     // [JsonPropertyName("contact")]
     public ContactDetails ContactDetails { get; set; } = new();
 

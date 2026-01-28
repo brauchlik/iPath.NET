@@ -12,7 +12,8 @@ public class NotificationRepository(iPathDbContext db) : INotificationRepository
             .Where(n => n.Target.HasFlag(query.Target))
             .OrderBy(n => n.CreatedOn);
 
-        var projected = q.Select(n => new NotificationDto(n.Id, n.CreatedOn, n.EventType, n.Target, n.User.UserName, n.Data));
+        var projected = q.Select(n => new NotificationDto(n.Id, n.CreatedOn, n.EventType, n.Target, 
+            new OwnerDto(n.Id, n.User.UserName, n.User.Email), n.Data));
         var data = await projected.ToPagedResultAsync(query, ct);
         return data;
     }

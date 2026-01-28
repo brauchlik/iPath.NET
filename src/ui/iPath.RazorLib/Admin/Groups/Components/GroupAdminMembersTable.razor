@@ -30,6 +30,7 @@ else
             <MudTh>@T["Guest"]</MudTh>
             <MudTh>@T["Moderator"]</MudTh>
             <MudTh>@T["Banned"]</MudTh>
+            <MudTh>@T["Consultant"]</MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -49,6 +50,10 @@ else
             <MudTd DataLabel="Banned">
                 <MudCheckBox @bind-Value="context.IsBanned" @bind-Value:after=@(async () => await UpdateMember(context))
                              StopClickPropagation="true" Color="Color.Warning" />
+            </MudTd>
+            <MudTd DataLabel="Consultant">
+                <MudCheckBox @bind-Value="context.IsConsultant" @bind-Value:after=@(async () => await UpdateMember(context))
+                             Color="Color.Success" />
             </MudTd>
             <MudTd DataLabel="Progress">
                 @if (context.Saving)

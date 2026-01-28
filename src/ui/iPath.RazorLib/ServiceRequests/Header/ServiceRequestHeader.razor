@@ -17,7 +17,11 @@
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => vm.Delete())" Disabled="vm.DeleteDisabled" />
                 <FileUploadButton Disabled="@vm.AttachFileDisabled" />
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Comment" OnClick="@(() => vm.StartAnnotation())" Disabled="vm.AnnotateDisabled" />
-                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled=@(!vm.HasSlideShow) Tooltip=@T["Show images in fullscreen mode"] />
+                <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled=@(!vm.HasSlideShow) Tooltip=@T["Show images in fullscreen mode"] />
+                @if (vm.IsAdmin && vm.HasPreviewPlugin)
+                {
+                    <IPathToolbarButton Icon="@Icons.Material.Outlined.Preview" OnClick="@(() => vm.ShowPreviewDialog())" />
+                }
             </MudToolBar>
         </div>
     </div>

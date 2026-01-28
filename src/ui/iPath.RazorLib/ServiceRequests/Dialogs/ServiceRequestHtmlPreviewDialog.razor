@@ -1,0 +1,43 @@
+﻿@using iPath.Application.Contracts
+@using iPath.Application.Features.Notifications
+    <MudDialog ContentStyle="width: 720px; min-height: 350px;">
+        <TitleContent>
+            <MudText Typo="Typo.h6">@MudDialog.Title</MudText>
+        </TitleContent>
+        <DialogContent>
+            <OwnerLookup Label="Receiver" Variant="Variant.Outlined" @bind-Value="owner" @bind-Value:after="LoadPreview" />
+            <MudDivider Class="my-2" />
+            <MudPaper Elevation="1">
+                @((MarkupString)html)
+            </MudPaper>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="@MudDialog.Cancel" Variant="Variant.Filled">Close</MudButton>
+        </DialogActions>
+    </MudDialog>
+
+@inject ServiceRequestViewModel vm
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public ServiceRequestDto Model { get; set; }
+
+    [Parameter]
+    public IServiceRequestHtmlPreview PreviewPlugin { get; set; }
+
+    OwnerDto owner;
+    string html = "";
+
+    private void LoadPreview()
+    {
+        var n = new NotificationDto(Id: Guid.Empty, Date: DateTime.UtcNow, EventType: Domain.Notificxations.eNodeNotificationType.None, Target: eNotificationTarget.None, Receiver: owner, null);
+        html = PreviewPlugin.CreatePreview(n, Model);
+    }
+
+    protected override void OnInitialized()
+    {
+        LoadPreview();
+    }
+}

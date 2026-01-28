@@ -3,6 +3,7 @@ using iPath.Application;
 using iPath.Application.Contracts;
 using iPath.Application.Features.Documents;
 using iPath.Blazor.Componenents.ServiceRequests.Annotations;
+using iPath.Blazor.Componenents.ServiceRequests.Dialogs;
 using iPath.Blazor.Componenents.Shared;
 using iPath.Domain.Config;
 using Refit;
@@ -19,6 +20,7 @@ public class ServiceRequestViewModel(IPathApi api,
     NavigationManager nm,
     QuestionnaireCacheClient qCache,
     IOptions<iPathClientConfig> opts,
+    IEnumerable<IServiceRequestHtmlPreview> previews,
     ILogger<ServiceRequestViewModel> logger)
     : IViewModel
 {
@@ -394,6 +396,7 @@ public class ServiceRequestViewModel(IPathApi api,
     #region  "-- Actions --"
 
 
+    public bool IsAdmin => appState.IsAdmin;
     public bool IsModerator => ActiveGroup is not null && appState.IsGroupModerator(ActiveGroup.Id);
     public bool DisableSenderChange => !IsModerator; // could maybe change to admin only
 
@@ -857,6 +860,26 @@ public class ServiceRequestViewModel(IPathApi api,
         if (SelectedRequest is not null && SelectedRequest.IsDraft)
         {
             SelectedRequest.ResetDescription();
+        }
+    }
+
+
+
+    public bool HasPreviewPlugin => !previews.IsEmpty();
+    public async Task ShowPreviewDialog()
+    {
+        if (SelectedRequest is not null)
+        {
+            var preview = previews.FirstOrDefault();
+            if (preview != null)
+            {
+                var p = new DialogParameters<ServiceRequestHtmlPreviewDialog>
+                {
+                    { d => d.Model, SelectedRequest },
+                    { d => d.PreviewPlugin, preview },
+                };
+                var d = await srvDialog.ShowAsync<ServiceRequestHtmlPreviewDialog>("preview", parameters: p);
+            }
         }
     }
 }

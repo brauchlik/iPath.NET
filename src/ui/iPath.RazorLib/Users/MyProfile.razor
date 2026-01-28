@@ -1,19 +1,21 @@
 ﻿@page "/user/profile"
 
-
+@attribute [Authorize()]
 
 <MudContainer MaxWidth="MaxWidth.Medium">
-    <IPathHeader Title=@T["My Profile"] />
+    <MudText Typo="Typo.h4" Class="mb-4">@T["My Profile"]</MudText>
+
     @if (Model != null)
     {
-        <AuthorizeView>
-            <Authorized>
-                <UserProfileForm Model="Model" OnValidSubmit="OnSubmit" RedirectUrl="/"/>
-            </Authorized>
-            <NotAuthorized>
-                <RedirectToLogin />
-            </NotAuthorized>
-        </AuthorizeView>
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true"
+                 TabPanelsClass="pa-6" Color="Color.Info" IconColor="Color.Surface">
+            <MudTabPanel Text="Profile">
+                <UserProfileForm Model="Model.Profile" OnValidSubmit="OnSubmit" RedirectUrl="/"/>
+            </MudTabPanel>
+            <MudTabPanel Text="Notifications">
+                <UserNotificationGrid User="Model" />
+            </MudTabPanel>
+        </MudTabs>
     }
     else
     {
@@ -26,32 +28,29 @@
 @inject IStringLocalizer T
 
     @code {
-    UserProfile? Model;
+    UserDto? Model;
     SessionUserDto sess;
 
     protected override async Task OnInitializedAsync()
     {
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await LoadProfile();
-            StateHasChanged();
-        }
+        await LoadProfile();
     }
 
     async Task LoadProfile()
     {
         sess = await vm.GetCurrentSessionAsync();
-        vm.ClearProfileCache(sess.Id); // make sure we reload from DB
-        var tmp = await vm.GetProfileAsync(sess.Id);
-        Model = tmp.Clone();
+        if (sess.IsAuthenticated)
+        {
+            vm.ClearProfileCache(sess.Id); // make sure we reload from DB
+            Model = await vm.GetUserAsync(sess.Id);
+        }
     }
 
     private async Task OnSubmit()
     {
-        await vm.UpdateProfile(sess.Id, Model, true);
+        if (Model is not null)
+        {
+            await vm.UpdateProfile(sess.Id, Model.Profile, true);
+        }
     }
 }

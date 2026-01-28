@@ -17,6 +17,9 @@ public class GroupMember : BaseEntity
     // User Preferences
     public bool IsFavourite { get; set; }
 
+    public bool IsConsultant { get; set; }
+
+
     public eNotificationSource NotificationSource { get; set; } = eNotificationSource.None;
     public eNotificationTarget NotificationTarget { get; set; } = eNotificationTarget.None;
 
@@ -29,6 +32,7 @@ public class NotificationSettings
     public bool DailyEmailSummary { get; set; }
     public TimeOnly? SummaryEmailTime { get; set; }
 
+    public bool UseProfileBodySiteFilter { get; set; }
     public ConceptFilter? BodySiteFilter { get; set; }
 }
 

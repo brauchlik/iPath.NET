@@ -1,5 +1,7 @@
 ﻿@namespace iPath.Blazor.Componenents.Users
 
+@inject UserViewModel vm
+
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h6">Notification Preferences: @Title</MudText>
@@ -17,8 +19,12 @@
 
         <MudDivider Class="my-2" />
 
-        <MudSwitch @bind-Value="HasBodySiteFilter" Label=@T["Body site filter active"] Color="Color.Success" />
-        @if (HasBodySiteFilter)
+
+        <MudSwitch @bind-Value="UseProfileBodySiteFilter" Label="@ProfileBodySiteLabel"
+                   Disabled=@(!ProfileHasBodySiteFilter) Color="Color.Success" />
+
+        <MudSwitch @bind-Value="HasCustomBodySiteFilter" Label=@T["Custom body site filter"] Color="Color.Success" />
+        @if (HasCustomBodySiteFilter)
         {
             <TopoTreeFilter Filter="@Model.Settings.BodySiteFilter" @ref="filterView" />
         }
@@ -41,24 +47,52 @@
 
     TopoTreeFilter filterView;
 
-    private bool HasBodySiteFilter = false;
 
-    protected override void OnInitialized()
+    private UserProfile profile;
+
+    private bool ProfileHasBodySiteFilter => profile?.SpecialisationBodySite is not null;
+    private string ProfileBodySiteFilterStr => ProfileHasBodySiteFilter ? $"({profile.SpecialisationBodySite.ConceptCodesString})" : "";
+    private string ProfileBodySiteLabel => @T["Body site filter from User-Profile active"] + " " + ProfileBodySiteFilterStr;
+
+    private bool UseProfileBodySiteFilter
     {
-        HasBodySiteFilter = Model?.Settings?.BodySiteFilter is not null;
+        get => field;
+        set
+        {
+            field = value;
+            if (value) HasCustomBodySiteFilter = false;
+        }
     }
 
-    protected override void OnParametersSet()
+    private bool HasCustomBodySiteFilter
+    {
+        get => field;
+        set
+        {
+            field = value;
+            if (value) UseProfileBodySiteFilter = false;
+        }
+    }
+
+
+    protected override async Task OnInitializedAsync()
     {
         if (Model is not null)
         {
             Model.Settings ??= new();
+
+            HasCustomBodySiteFilter = Model?.Settings?.BodySiteFilter is not null;
+            profile = await vm.GetProfileAsync(Model.UserId);
+            UseProfileBodySiteFilter = Model.Settings.UseProfileBodySiteFilter;
+            HasCustomBodySiteFilter = Model.Settings.BodySiteFilter is not null;
         }
     }
 
+
     void OnSavedHandler()
     {
-        if (!HasBodySiteFilter)
+        Model.Settings.UseProfileBodySiteFilter = UseProfileBodySiteFilter;
+        if (!HasCustomBodySiteFilter)
         {
             Model.Settings.BodySiteFilter = null;
         }

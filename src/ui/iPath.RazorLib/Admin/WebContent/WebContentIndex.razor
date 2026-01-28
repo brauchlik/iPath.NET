@@ -1,0 +1,48 @@
+﻿@page "/admin/cms"
+@using Tizzani.MudBlazor.HtmlEditor
+@using iPath.Application.Features.CMS
+
+
+
+<MudGrid>
+    <MudItem xs="12" sm="6">
+        <IPathHeader Title="static web content">
+            <ActionContent>
+                <MudFab Size="Size.Small" EndIcon="@Icons.Material.Filled.Add" OnClick="AddContent" />
+            </ActionContent>
+        </IPathHeader>
+        <MudDataGrid T="WebContentDto" ServerData="GetDataAsync" @bind-SelectedItem="SelectedItem" @ref="grid">
+            <Columns>
+                <PropertyColumn Property="x => x.Title" />
+                <PropertyColumn Property="x => x.Owner.Username" />
+                <PropertyColumn Property="x => x.CreatedOn" Format="d" />
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="WebContentDto" />
+            </PagerContent>
+        </MudDataGrid>
+    </MudItem>
+    <MudItem xs="12" sm="6">
+        @if (SelectedModel is null)
+        {
+            <IPathHeader Title="selected content" />
+        }
+        else
+        {
+            <IPathHeader Title="@SelectedModel.Title" />
+            <MudForm Model="SelectedModel">
+                <MudTextField Label="Title" @bind-Value="SelectedModel.Title" Variant="Variant.Outlined" ShrinkLabel="true" />
+
+                <MudHtmlEditor @bind-Html="SelectedModel.Body">
+                    <MudHtmlToolbarOptions InsertImage="false" /> <!-- This will exclude the "insert image" toolbar option -->
+                </MudHtmlEditor>
+            </MudForm>
+
+            <ProgressButton OnClick="Save" Text="Save" />
+        }
+    </MudItem>
+</MudGrid>
+
+
+
+

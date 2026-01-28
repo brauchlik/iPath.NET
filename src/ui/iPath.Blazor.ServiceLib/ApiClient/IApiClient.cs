@@ -9,6 +9,7 @@ using iPath.Application.Querying;
 using iPath.Domain.Config;
 using iPath.Domain.Entities;
 using Refit;
+using iPath.Application.Features.CMS;
 
 namespace iPath.Blazor.ServiceLib.ApiClient;
 
@@ -236,4 +237,18 @@ public interface IPathApi
     Task<IApiResponse> AssignQuestionnaire(AssignQuestionnaireCommand command);
     #endregion
 
+
+    #region "-- CMS --"
+    [Post("/api/v1/cms/list")]
+    Task<IApiResponse<PagedResultList<WebContentDto>>> GetWebContent(GetWebContentsQuery query);
+
+    [Post("/api/v1/cms/create")]
+    Task<IApiResponse<WebContentDto>> CreateWebContent(CreateWebContentCommand cmd);
+
+    [Put("/api/v1/cms/{id}")]
+    Task<IApiResponse<WebContentDto>> UpdateWebContent(Guid id, UpdateWebContentCommand cmd);
+
+    [Delete("/api/v1/cms/{id}")]
+    Task<IApiResponse> DeleteWebContent(Guid id);
+    #endregion  
 }

@@ -14,10 +14,11 @@ public static class SnackbarExtension
         if (!resp.IsSuccessful) snack.Add(resp.ErrorMessage, Severity.Error);
     }
 
-    public static bool CheckSuccess(this ISnackbar snackbar, IApiResponse resp)
+    public static bool CheckSuccess(this ISnackbar snackbar, IApiResponse resp, string? SuccessMessage = null)
     {
         if (resp.IsSuccessful)
         {
+            if (!string.IsNullOrEmpty(SuccessMessage)) snackbar.Add(SuccessMessage, Severity.Success);
             return true;
         }
         else

@@ -1,8 +1,6 @@
 ﻿using iPath.API.Endpoints;
 using iPath.API.Middleware;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 
 namespace iPath.API;
@@ -25,6 +23,7 @@ public static class MapEndpoints
             .MapQuesionnairesApi()
             .MapFhirApi()
             .MapTestApi()
+            .MapCmsApi()
             .MapIPathHubs();
 
         // OpenAPI Documentation

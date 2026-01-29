@@ -103,7 +103,7 @@ public class ServiceRequestEventProcessor(
             // => SignalR
             await Enqueue(t, evt, eNotificationTarget.InApp, false, m.UserId, ct);
         }
-        else if (m.NotificationTarget.HasFlag(eNotificationTarget.Email))
+        if (m.NotificationTarget.HasFlag(eNotificationTarget.Email))
         {
             bool daily = m.NotificationSettings is not null && m.NotificationSettings.DailyEmailSummary;
             await Enqueue(t, evt, eNotificationTarget.Email, false, m.UserId, ct);

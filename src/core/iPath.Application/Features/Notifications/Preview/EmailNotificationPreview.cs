@@ -40,8 +40,10 @@ public class EmailNotificationPreview
         foreach (var a in sr.Annotations.OrderBy(x => x.CreatedOn))
         {
             annoHtml += $"""
+<tr>
     <td class="comment_sender">{a.Owner.Username}, {a.CreatedOn.ToShortDateString()}<div class="comment_sender_email">({a.Owner.Email})</div></td>
     <td class="comment_text">{a.Data.Text}</td>
+</tr>
 """;
         }
         body = body.Replace("{comments}", annoHtml);
@@ -85,8 +87,15 @@ public class EmailNotificationPreview
                     font-weight: bold;
                     border-bottom: 1px solid;
                 }
+                .comments  table {
+                    width: 100%;
+                }
+                .comments  tr {
+                    border-bottom: 1px solid;
+                }
                 .comment_sender{
                     vertical-align: top;
+                    width: 160px;
                     padding: 4px;
                     background-color: lightgray;
                 }

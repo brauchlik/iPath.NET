@@ -1,4 +1,6 @@
 ﻿using iPath.API.Services.Notifications.Processors;
+using iPath.Application.Coding;
+using iPath.Application.Fhir;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -21,8 +23,18 @@ public class ServiceRequestEventProcessor(IServiceRequestEventQueue queue,
 
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
-        scope = services.CreateScope();
-        await base.StartAsync(cancellationToken);
+        try
+        {
+            scope = services.CreateScope();
+            var dl = scope.ServiceProvider.GetRequiredService<IFhirDataLoader>();
+            var coding = scope.ServiceProvider.GetRequiredKeyedService<CodingService>("icdo");
+            await coding.LoadCodeSystem();
+            await base.StartAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, ex.Message);
+        }
     }
 
     public override async Task StopAsync(CancellationToken cancellationToken)

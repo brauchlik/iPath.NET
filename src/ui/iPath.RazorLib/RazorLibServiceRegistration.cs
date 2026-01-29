@@ -31,8 +31,9 @@ public static class RazorLibServiceRegistration
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString,
         };
-        var refitSetting = new RefitSettings { 
-            ContentSerializer = new SystemTextJsonContentSerializer(jsonOptions) 
+        var refitSetting = new RefitSettings
+        {
+            ContentSerializer = new SystemTextJsonContentSerializer(jsonOptions)
         };
         services.AddRefitClient<IPathApi>(refitSetting)
             .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseAddress))
@@ -62,8 +63,17 @@ public static class RazorLibServiceRegistration
         // FHIR: questionnaires & coding
         services.AddSingleton<QuestionnaireCacheClient>();
 
-        services.AddHttpClient("Fhir", cfg => cfg.BaseAddress = new Uri(baseAddress + "api/v1/fhir/"));
-        services.AddSingleton<IFhirDataLoader, HttpFhirDataLoader>();
+        if (WasmClient)
+        {
+            // load fhir over http on wasm clients
+            services.AddHttpClient("Fhir", cfg => cfg.BaseAddress = new Uri(baseAddress + "api/v1/fhir/"));
+            services.AddSingleton<IFhirDataLoader, HttpFhirDataLoader>();
+        }
+        else
+        {
+            // load from filesystem on server
+            services.AddSingleton<IFhirDataLoader, FileFhirDataLoader>();
+        }
 
         services.AddKeyedSingleton<CodingService>("icdo", (sp, key) =>
         {

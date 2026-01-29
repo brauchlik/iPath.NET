@@ -2,6 +2,7 @@
 using iPath.Domain.Notificxations;
 using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -48,13 +49,19 @@ public class ServiceRequestEventProcessor(
                 {
                     // BodySite Filter
                     ConceptFilter f = s.NotificationSettings?.BodySiteFilter;
-                    if ( s.NotificationSettings.UseProfileBodySiteFilter)
+                    if (s.NotificationSettings.UseProfileBodySiteFilter)
                     {
                         f = s.User.Profile?.SpecialisationBodySite;
                     }
 
-                    if (IsValidBodySite(evt.ServiceRequest, f))
+                    if (!IsValidBodySite(evt.ServiceRequest, f))
                     {
+                        logger.LogInformation("Notifications {1} on {2} for {3} Bodysite Filter skipped ", evt.EventName, evt.ServiceRequest.Id, s.User.UserName);
+                        logger.LogInformation(" - Bodysite {1} not in {2}", evt.ServiceRequest.Description.BodySite?.Code, f?.ConceptCodesString);
+                    }
+                    else
+                    {
+                        logger.LogInformation("Processing {1} on request {2} for {3}", evt.EventName, evt.ServiceRequest.Id, s.User.UserName);
                         // Annotation Events
                         if (evt is AnnotationCreatedEvent)
                         {
@@ -84,7 +91,7 @@ public class ServiceRequestEventProcessor(
 
     protected bool IsValidBodySite(ServiceRequest sr, ConceptFilter? filter)
     {
-        if (filter is not null)
+        if (filter is not null && filter.ConceptCodes.Any())
         {
             if (!coding.InConceptFilter(sr?.Description?.BodySite?.Code, filter))
             {

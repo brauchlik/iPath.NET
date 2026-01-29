@@ -14,7 +14,7 @@ public class User : IdentityUser<Guid>, IBaseEntity, IHasDomainEvents
 
     public IReadOnlyCollection<GroupMember> GroupMembership => _GroupMembership;
 
-    public GroupMember AddToGroup(Group group, eMemberRole? role = null, bool? isConsultant = null)
+    public GroupMember AddToGroup(Group group, eMemberRole? role = null, bool? isConsultant = false)
     {
         var ret = _GroupMembership.FirstOrDefault(m => m.GroupId == group.Id);
         if (ret is null)
@@ -43,7 +43,7 @@ public class User : IdentityUser<Guid>, IBaseEntity, IHasDomainEvents
 
     public IReadOnlyCollection<CommunityMember> CommunityMembership => _CommunityMembership;
 
-    public CommunityMember AddToCommunity(Community community, eMemberRole? role = null, bool? isConsultant = null)
+    public CommunityMember AddToCommunity(Community community, eMemberRole? role = null, bool? isConsultant = false)
     {
         var ret = _CommunityMembership.FirstOrDefault(m => m.CommunityId == community.Id);
         if (ret is null)

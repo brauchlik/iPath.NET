@@ -22,7 +22,12 @@ public record UserGroupMemberDto(Guid GroupId, string Groupname, eMemberRole Rol
 public record GroupMemberDto(Guid UserId, string Username, eMemberRole Role, bool IsConsultant);
 
 
-public record QuestionnaireForGroupDto(Guid qId, string QuestinnaireId, string QuestinnaireName, eQuestionnaireUsage Usage, QuestionnaireSettings Settings, int? ExplicitVersion = null)
+public record QuestionnaireForGroupDto(Guid qId, string QuestinnaireId, 
+    string QuestinnaireName, 
+    eQuestionnaireUsage Usage, 
+    QuestionnaireSettings Settings, 
+    int Priority,
+    int? ExplicitVersion = null)
 {
     public override string ToString() => QuestinnaireName;
 }
@@ -146,6 +151,7 @@ public static class GroupExtensions
             QuestinnaireName: q.Questionnaire.Name, 
             Usage: q.Usage, 
             Settings: q.Questionnaire.Settings,
+            Priority: q.Priority,
             ExplicitVersion: q.ExplicitVersion)).ToArray());
     }
     

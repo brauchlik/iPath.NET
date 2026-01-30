@@ -1,6 +1,7 @@
 ﻿namespace iPath.Application.Features;
 
-public record AssignQuestionnaireCommand(Guid Id, eQuestionnaireUsage Usage, bool remove, Guid? GroupId = null, Guid? CommunityId = null)
+public record AssignQuestionnaireCommand(Guid Id, eQuestionnaireUsage Usage, int Priority,
+    bool remove, Guid? GroupId = null, Guid? CommunityId = null)
     : IEventInput
     , IRequest<AssignQuestionnaireCommand, Task>
 {

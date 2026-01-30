@@ -12,4 +12,6 @@ public class QuestionnaireForGroup
 
     public eQuestionnaireUsage Usage { get; set; }
     public int? ExplicitVersion { get; set; } = null;
+
+    public int Priority { get; set; }
 }

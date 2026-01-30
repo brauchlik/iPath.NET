@@ -25,6 +25,7 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
                                       QuestinnaireName: q.Questionnaire.Name,
                                       Usage: q.Usage,
                                       Settings: q.Questionnaire.Settings,
+                                      Priority: q.Priority,
                                       ExplicitVersion: q.ExplicitVersion)).ToArray()))
             .FirstOrDefaultAsync(ct);
 

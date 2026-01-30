@@ -11,6 +11,7 @@ public class QuestionnaireForCommunity
     public Community Community { get; set; }
 
     public eQuestionnaireUsage Usage { get; set; }
+    public int Priority { get; set; }
     public int? ExplicitVersion { get; set; } = null;
 
     public ConceptFilter? BodySiteFilter { get; set; }

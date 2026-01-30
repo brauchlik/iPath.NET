@@ -111,21 +111,26 @@ public class ServiceRequestCreateWizzardViewModel(IServiceProvider sp, ServiceRe
 
     public IReadOnlyCollection<QuestionnaireForGroupDto> validForms { get; private set; } = new List<QuestionnaireForGroupDto>();
 
+    public bool UseQuestionnaire { get; set; }
     public QuestionnaireForGroupDto? SelectedQ { get; set; }
 
 
     public async Task LoadQuestionnaire()
     {
+        UseQuestionnaire = false;
         SelectedQ = null;
         validForms = new List<QuestionnaireForGroupDto>();
         if (Data.BodySite != null)
         {
             // find all questionnaires that are valid for Usage as CaseDescription and that match the body site
-            validForms = await vm.ActiveGroup.Questionnaires.FilterAsync(eQuestionnaireUsage.CaseDescription, Data.BodySite.Code);
+            validForms = (await vm.ActiveGroup.Questionnaires
+                .OrderBy(f => f.Priority)
+                .FilterAsync(eQuestionnaireUsage.CaseDescription, Data.BodySite.Code));
 
             // autoselect first form if only 1 is valid
             if (validForms.Count > 0)
             {
+                UseQuestionnaire = true;
                 SelectedQ = validForms.First();
                 Data.Questionnaire = new QuestionnaireResponseData { QuestionnaireId = SelectedQ.QuestinnaireId };
             }
@@ -144,8 +149,9 @@ public class ServiceRequestCreateWizzardViewModel(IServiceProvider sp, ServiceRe
 
     async Task SaveQuestionnare()
     {
-        if (QuestionnaireViewer != null)
+        if (SelectedQ != null && QuestionnaireViewer != null)
         {
+            Data.Questionnaire.QuestionnaireId = SelectedQ.QuestinnaireId;
             Data.Questionnaire.Resource = await QuestionnaireViewer.GetDataAsync();
         }
     }

@@ -117,9 +117,11 @@
                     @if (wizzardVM.validForms.Count > 1)
                     {
                         <MudStack Row AlignItems="AlignItems.Center" Class="mt-2">
-                            <MudText>Case Submittion Forms</MudText>
-                            <MudToggleGroup Color="Color.Default" T="QuestionnaireForGroupDto" Size="Size.Small"
-                                            @bind-Value="@wizzardVM.SelectedQ" @bind-Value:after="@wizzardVM.LoadQuestionnaireForm">
+                            <MudCheckBox Label=@T["Clinical Form"] @bind-Value="@wizzardVM.UseQuestionnaire" />
+                            <MudToggleGroup T="QuestionnaireForGroupDto"
+                                            Color="Color.Default" Size="Size.Small" Class="ml-5"
+                                            @bind-Value="@wizzardVM.SelectedQ"
+                                            @bind-Value:after="@wizzardVM.LoadQuestionnaireForm">
                                 @foreach (var q in wizzardVM.validForms)
                                 {
                                     <MudToggleItem Value="@q" />
@@ -128,7 +130,10 @@
                         </MudStack>
                     }
 
-                    <iPath.LHCForms.LhcForm @ref="qrForm" ReadOnly="false" OnAfterRendered="wizzardVM.LoadQuestionnaireForm" />
+                    @if (@wizzardVM.UseQuestionnaire)
+                    {
+                        <iPath.LHCForms.LhcForm @ref="qrForm" ReadOnly="false" OnAfterRendered="wizzardVM.LoadQuestionnaireForm" />
+                    }
 
                     <MudTextField @bind-Value="@wizzardVM.Data.Text" Label=@T["Additional comments"]
                                   Lines="3" Required="false" class="mt-4"

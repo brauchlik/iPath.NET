@@ -12,7 +12,7 @@ public record CommunityDto(Guid Id, string Name, CommunitySettings Settings, eCo
     OwnerDto? Owner, 
     GroupListDto[] Groups,
     GroupListDto[]? ExtraGroups,
-    QuestionnaireForGroupDto[]? Questionnaires);
+    QuestionnaireForCommunityDto[]? Questionnaires);
 
 
 public class GetCommunityListQuery : PagedQuery<CommunityListDto>
@@ -30,6 +30,16 @@ public class GetCommunityMembersQuery : PagedQuery<CommunityMemberDto>
     public Guid CommunityId { get; set; }
 }
 
+
+public record QuestionnaireForCommunityDto(Guid qId, string QuestinnaireId,
+    string QuestinnaireName,
+    eQuestionnaireUsage Usage,
+    QuestionnaireSettings Settings,
+    int Priority,
+    int? ExplicitVersion = null)
+{
+    public override string ToString() => QuestinnaireName;
+}
 
 #endregion
 

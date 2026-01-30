@@ -855,7 +855,7 @@ public class ServiceRequestViewModel(IPathApi api,
         return ret;
     }
 
-    private QuestionnaireForGroupDto PlainText => new QuestionnaireForGroupDto(Guid.Empty, "", "Plain Text", eQuestionnaireUsage.Annotation, null);
+    private QuestionnaireForGroupDto PlainText => new QuestionnaireForGroupDto(Guid.Empty, "", "Plain Text", eQuestionnaireUsage.Annotation, null, 0);
 
     public async Task EditDocument(DocumentDto document)
     {

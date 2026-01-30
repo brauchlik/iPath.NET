@@ -11,11 +11,12 @@ public class GetCommunityByIdQueryHandler(iPathDbContext db)
                 Owner: c.Owner.ToOwnerDto(),
                 Groups: c.Groups.Select(g => new GroupListDto(g.Id, g.Name, Visibility: g.Visibility)).ToArray(),
                 ExtraGroups: c.ExtraGroups.Select(g => new GroupListDto(g.Group.Id, g.Group.Name, Visibility: g.Group.Visibility)).ToArray(),
-                Questionnaires: c.Quesionnaires.Select(q => new QuestionnaireForGroupDto(qId: q.QuestionnaireId, 
+                Questionnaires: c.Quesionnaires.Select(q => new QuestionnaireForCommunityDto(qId: q.QuestionnaireId, 
                 QuestinnaireId: q.Questionnaire.QuestionnaireId, 
                 QuestinnaireName: q.Questionnaire.Name, 
                 Usage: q.Usage, 
                 Settings: q.Questionnaire.Settings,
+                Priority: q.Priority,
                 ExplicitVersion: q.ExplicitVersion)).ToArray()
             ))
             .SingleOrDefaultAsync(cancellationToken);

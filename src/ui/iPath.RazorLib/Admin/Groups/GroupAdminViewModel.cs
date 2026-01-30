@@ -375,7 +375,7 @@ public class GroupAdminViewModel(IPathApi api,
         try
         {
             bool remove = !model.Usage[change];
-            var cmd = new AssignQuestionnaireCommand(model.QuestionnaireId, change, remove, GroupId: model.GroupId);
+            var cmd = new AssignQuestionnaireCommand(model.QuestionnaireId, change, model.Priority, remove, GroupId: model.GroupId);
             var resp = await api.AssignQuestionnaire(cmd);
             if (resp.IsSuccessful) return;
 
@@ -388,6 +388,26 @@ public class GroupAdminViewModel(IPathApi api,
 
         // on error => reset Usage
         model.Usage[change] = !model.Usage[change];
+    }
+
+    public async Task SaveQuestionnairePriority(GroupQuestionnareModel model)
+    {
+        try
+        {
+            if (model.Usage.Any(x => x.Value))
+            {
+                var u = model.Usage.FirstOrDefault(x => x.Value).Key;
+                var cmd = new AssignQuestionnaireCommand(model.QuestionnaireId, u, model.Priority, false, GroupId: model.GroupId);
+                var resp = await api.AssignQuestionnaire(cmd);
+                if (resp.IsSuccessful) return;
+
+                snackbar.AddError(resp.ErrorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            snackbar.AddError(ex.Message);
+        }
     }
 }
 
@@ -433,6 +453,7 @@ public class GroupQuestionnareModel
     public string Id { get; init; }
     public string Name { get; init; }
     public string Filter { get; init; } = "";
+    public int Priority { get; set; }
 
     public string NameAndId => $"{Name} [{Id}]";
 
@@ -440,13 +461,14 @@ public class GroupQuestionnareModel
 
     public Dictionary<eQuestionnaireUsage, bool> Usage = new();
 
-    public GroupQuestionnareModel(Guid QuestionnaireId, string Id, string Name, string? Filter, Guid GroupId)
+    public GroupQuestionnareModel(Guid QuestionnaireId, string Id, string Name, string? Filter, int Priority, Guid GroupId)
     {
         this.QuestionnaireId = QuestionnaireId;
         this.Id = Id;
         this.Name = Name;
         this.GroupId = GroupId;
         this.Filter = Filter ?? "";
+        this.Priority = Priority;
 
         foreach (var e in QuestionnairesViewModel.Usages)
         {

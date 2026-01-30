@@ -33,6 +33,10 @@ public class AssignQuestionnaireCommandHandler(iPathDbContext db, IUserSession s
                 };
                 await db.Set<QuestionnaireForGroup>().AddAsync(item, ct);
             }
+            if (item != null)
+            {
+                item.Priority = cmd.Priority;
+            }
         }
         else if (cmd.CommunityId.HasValue)
         {

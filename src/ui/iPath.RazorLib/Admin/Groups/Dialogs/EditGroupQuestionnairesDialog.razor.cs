@@ -23,7 +23,8 @@ public partial class EditGroupQuestionnairesDialog(IPathApi api, IStringLocalize
             var item = Items.FirstOrDefault(x => x.QuestionnaireId == q.qId);
             if (item is null)
             {
-                item = new GroupQuestionnareModel(q.qId, q.QuestinnaireId, q.QuestinnaireName, q.Settings?.BodySiteFilter?.ConceptCodesString, Model.Id);
+                item = new GroupQuestionnareModel(q.qId, q.QuestinnaireId, q.QuestinnaireName, 
+                    q.Settings?.BodySiteFilter?.ConceptCodesString, q.Priority, Model.Id);
             }
             item.Usage[q.Usage] = true;
         }
@@ -36,7 +37,7 @@ public partial class EditGroupQuestionnairesDialog(IPathApi api, IStringLocalize
             var item = Items.FirstOrDefault(x => x.QuestionnaireId == selectedQ.Id);
             if (item is null)
             {
-                item = new GroupQuestionnareModel(selectedQ.Id, selectedQ.QuestionnaireId, selectedQ.Name, selectedQ.Filter, Model.Id);
+                item = new GroupQuestionnareModel(selectedQ.Id, selectedQ.QuestionnaireId, selectedQ.Name, selectedQ.Filter, 0, Model.Id);
                 Items.Add(item);
             }
             selectedQ = null;
@@ -52,7 +53,7 @@ public partial class EditGroupQuestionnairesDialog(IPathApi api, IStringLocalize
         try
         {
             bool remove = !model.Usage[change];
-            var cmd = new AssignQuestionnaireCommand(model.QuestionnaireId, change, remove, GroupId: model.GroupId);
+            var cmd = new AssignQuestionnaireCommand(model.QuestionnaireId, change, model.Priority, remove, GroupId: model.GroupId);
             var resp = await api.AssignQuestionnaire(cmd);
         }
         catch(Exception ex)

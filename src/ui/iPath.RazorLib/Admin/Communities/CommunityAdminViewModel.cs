@@ -277,7 +277,7 @@ public class CommunityAdminViewModel(IPathApi api,
         try
         {
             bool remove = !model.Usage[change];
-            var cmd = new AssignQuestionnaireCommand(Id: model.QuestionnaireId, change, remove, CommunityId: model.CommunityId);
+            var cmd = new AssignQuestionnaireCommand(Id: model.QuestionnaireId, change, model.Priority, remove, CommunityId: model.CommunityId);
             var resp = await api.AssignQuestionnaire(cmd);
             if (resp.IsSuccessful) return;
 
@@ -315,6 +315,7 @@ public class CommunityQuestionnareModel
     public string Id { get; init; }
     public string Name { get; init; }
     public string Filter { get; init; }
+    public int Priority { get; set; }
 
     public string NameAndId => $"{Name} [{Id}]";
 

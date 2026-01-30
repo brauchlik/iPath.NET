@@ -141,7 +141,9 @@ public class ServiceRequestViewModel(IPathApi api,
             {
                 var respG = await api.GetGroup(SelectedRequest.GroupId.Value);
                 if (respG.IsSuccessful)
+                {
                     ActiveGroup = respG.Content;
+                }
             }
         }
         else

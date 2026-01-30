@@ -23,6 +23,8 @@ public class iPathConfig
 public class iPathClientConfig
 {
     public const string ConfigName = "iPathClientConfig";
+
+    public string BaseAddress { get; set; } = "";
     public int ThumbSize { get; set; } = 100;
 
     public string RenderMode { get; set; } = "Auto";

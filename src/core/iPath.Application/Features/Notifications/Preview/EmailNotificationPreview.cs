@@ -1,15 +1,19 @@
 ﻿using iPath.Application.Contracts;
 using iPath.Application.Features.Notifications;
+using iPath.Domain.Config;
+using Microsoft.Extensions.Options;
 
 namespace iPath.Application.Features.Notifications;
 
-public class EmailNotificationPreview
+public class EmailNotificationPreview(IOptions<iPathClientConfig> opts)
     : IServiceRequestHtmlPreview
 {
     public string Name => "email";
 
     public string CreatePreview(NotificationDto n, ServiceRequestDto sr)
     {
+        var link = opts.Value.BaseAddress + "request/" + sr.Id;
+
         var title = sr.Title;
         if (!string.IsNullOrEmpty(sr.Description.CaseType))
         {
@@ -19,7 +23,7 @@ public class EmailNotificationPreview
         {
             title += ", " + sr.Description.BodySite.ToString();
         }
-        var body = template.Replace("{title}", title);
+        var body = template.Replace("{title}", $"<a href=\"{link}\">{title}</a>");
 
         var desc = "";
         if (!string.IsNullOrEmpty(sr.Description.Questionnaire?.GeneratedText))
@@ -69,6 +73,9 @@ public class EmailNotificationPreview
                 .cont {
                     width: 100%;
                     border: 1px solid;
+                }
+                .message{
+                    margin-bottom: 1em;
                 }
                 .title {
                     background-color: lightgray;

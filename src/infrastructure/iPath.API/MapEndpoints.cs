@@ -30,7 +30,10 @@ public static class MapEndpoints
         // OpenAPI Documentation
         app.MapOpenApi("/openapi/v1.json");
 
-        var baseAddress = config["BaseAddress"];
+        var cfg = new iPathClientConfig();
+        config.GetSection(iPathClientConfig.ConfigName).Bind(cfg);
+
+        var baseAddress = cfg.BaseAddress;
         app.MapScalarApiReference((opts, httpContext) =>
         {
             if (!string.IsNullOrEmpty(baseAddress))

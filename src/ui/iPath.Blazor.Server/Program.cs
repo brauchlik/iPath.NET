@@ -82,17 +82,6 @@ builder.Services.AddIPathAPI(builder.Configuration);
 // TODO: make configurable (development only)
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-var baseAddress = builder.Configuration["BaseAddress"] ?? "http://localhost:5000/";
-builder.Services.AddRazorLibServices(baseAddress, false);
-
-// testing SSE
-builder.Services.AddSingleton<NotificationService>();
-
-builder.Services.AddAntiforgery();
-
-
-builder.Services.AddTransient<baseAuthDelegationHandler, ForwardCookiesHandler>();
-
 // Server Configuration
 builder.Services.Configure<iPathConfig>(builder.Configuration.GetSection(iPathConfig.ConfigName));
 var cfg = new iPathConfig();
@@ -103,6 +92,17 @@ builder.Services.Configure<iPathClientConfig>(builder.Configuration.GetSection(i
 var clcfg = new iPathClientConfig();
 builder.Configuration.GetSection(iPathClientConfig.ConfigName).Bind(clcfg);
 
+
+var baseAddress = clcfg.BaseAddress ?? "http://localhost:5000/";
+builder.Services.AddRazorLibServices(baseAddress, false);
+
+// testing SSE
+builder.Services.AddSingleton<NotificationService>();
+
+builder.Services.AddAntiforgery();
+
+
+builder.Services.AddTransient<baseAuthDelegationHandler, ForwardCookiesHandler>();
 
 // reverse Proxy
 if (!string.IsNullOrEmpty(cfg.ReverseProxyAddresse) && IPAddress.TryParse(cfg.ReverseProxyAddresse, out var proxyIP))

@@ -29,7 +29,20 @@
     </MudDrawer>
     <MudMainContent>
         <MudContainer Class="ipath_main_container">
-            @Body
+            <ErrorBoundary @ref="errorBoundary">
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent Context="errCtx">
+                <MudAlert Severity="Severity.Error">
+                        <b>Error:</b> @errCtx.Message<br />
+                        <p>@errCtx.HelpLink</p>
+                        <MudButton Variant="Variant.Filled" OnCLick="_ => errorBoundary?.Recover()">
+                            try again
+                        </MudButton>
+                </MudAlert>   
+                </ErrorContent>
+            </ErrorBoundary>
         </MudContainer>
 
         @if (opts.Value.ShowPageInfo)
@@ -43,7 +56,10 @@
 @inject iPath.Blazor.ServiceLib.Services.StringLocalizerService srvLoc
 @inject IOptions<iPathClientConfig> opts
 
+
 @code {
+    ErrorBoundary errorBoundary;
+
     bool _drawerOpen = true;
     void DrawerToggle()
     {

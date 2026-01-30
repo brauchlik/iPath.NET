@@ -24,7 +24,7 @@ public class iPathClientConfig
 {
     public const string ConfigName = "iPathClientConfig";
 
-    public string BaseAddress { get; set; } = "";
+    public string? BaseAddress { get; set; } = null;
     public int ThumbSize { get; set; } = 100;
 
     public string RenderMode { get; set; } = "Auto";

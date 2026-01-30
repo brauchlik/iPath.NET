@@ -51,7 +51,7 @@
     protected async Task LoadData()
     {
         var state = new TableState { Page = 0, PageSize = 25 };
-        data = await vm.GetNodeListAsync(state, default);
+        data = await vm.GetServiceRequestListAsync(state, default);
     }
 
     protected override async Task OnInitializedAsync()

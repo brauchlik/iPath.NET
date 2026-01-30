@@ -34,4 +34,21 @@ public class AppState(IPathApi api, ILogger<AppState> logger) : IUserSession
     }
 
     public Color PresenceColor => Color.Success;
+
+
+
+    private ServiceRequestUpdatesDto _stats;
+    public async Task<ServiceRequestUpdatesDto> GetNewRequestStats(bool reload)
+    {
+        if (reload || _stats is null)
+        {
+            var resp = await api.GetServiceRequestUpdates();
+            if (resp.IsSuccessful)
+            {
+                _stats = resp.Content;
+            }
+        }
+        return _stats;
+    }
+    public bool StatsLoaded => _stats is not null;
 }

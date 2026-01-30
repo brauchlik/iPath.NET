@@ -1,7 +1,7 @@
 ﻿@namespace iPath.Blazor.Componenents.ServiceRequests
 @inject IStringLocalizer T
 
-<MudTable T="ServiceRequestListDto" ServerData="vm.GetNodeListAsync" @ref="table"
+<MudTable T="ServiceRequestListDto" ServerData="vm.GetServiceRequestListAsync" @ref="table"
           HeaderClass="ipath_table_header"
           RowsPerPage="25" Bordered="false" Dense="true" Hover="true">
     <ToolBarContent>
@@ -119,6 +119,12 @@
             vm.OwnerId = value;
             vm.GroupId = null;
         }
+    }
+
+    [Parameter]
+    public eCaseListMode ListMode {
+        get => vm.ListMode;
+        set => vm.ListMode = value; 
     }
 
     MudTable<ServiceRequestListDto> table;

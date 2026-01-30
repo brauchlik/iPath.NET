@@ -170,6 +170,12 @@ public interface IPathApi
 
     [Get("/api/v1/requests/updates")]
     Task<IApiResponse<ServiceRequestUpdatesDto>> GetServiceRequestUpdates();
+
+    [Get("/api/v1/requests/new")]
+    Task<IApiResponse<PagedResultList<ServiceRequestListDto>>> GetNewServiceRequests();
+
+    [Get("/api/v1/requests/newannotations")]
+    Task<IApiResponse<PagedResultList<ServiceRequestListDto>>> GetNewAnnotations();
     #endregion
 
 

@@ -6,9 +6,47 @@
     <Authorized>
         <MudNavLink Href="user/groups" Icon="@Icons.Material.Filled.Groups">My Groups</MudNavLink>
         <MudNavLink Href="user/cases" Icon="@Icons.Material.Filled.Folder">My Cases</MudNavLink>
+
+        @if (NewRequestCount > 0)
+        {
+            <MudNavLink Href="user/newcases" Icon="@Icons.Material.Filled.Groups">
+                <MudBadge Content="@NewRequestCount" Origin="Origin.CenterRight" BadgeClass="mx-2" Color="Color.Info">
+                    New Cases
+                </MudBadge>
+            </MudNavLink>
+
+        }
+        @if (NewAnnotationCount > 0)
+        {
+            <MudNavLink Href="user/newannotations" Icon="@Icons.Material.Filled.Folder">
+                <MudBadge Content="@NewAnnotationCount" Origin="Origin.CenterRight" BadgeClass="mx-2" Color="Color.Info">
+                    New Annotations
+                </MudBadge>
+            </MudNavLink>
+        }
+
         <MudDivider />
         <MudNavLink Href="user/profile" Icon="@Icons.Material.Filled.ManageAccounts">My Profile</MudNavLink>
         <MudDivider />
         <MudNavLink Href="Account/Logout" Icon="@Icons.Material.Filled.Logout">Logout</MudNavLink>
     </Authorized>
 </AuthorizeView>
+
+
+@inject AppState state
+
+@code {
+    private ServiceRequestUpdatesDto stats;
+    int NewRequestCount => stats is null ? 0 : stats.NewRequests.Count();
+    int NewAnnotationCount => stats is null ? 0 : stats.NewAnnotations.Count();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (!state.StatsLoaded && RendererInfo.IsInteractive)
+        {
+            stats = await state.GetNewRequestStats(false);
+            StateHasChanged();
+        }
+    }
+}

@@ -220,6 +220,20 @@
         max-width: 800px;
     }
 
+
+@media (width <= 600px) {
+    .ipath_annotation_block {
+        width: 100%;
+        border-top: 1px outset;
+        margin-bottom: 1em;
+    }
+    .ipath_annotation_info{
+        display: flex;
+        gap: 1em;
+    }
+}
+
+@media (width >= 600px) {
     .ipath_annotation_block {
         display: grid;
         grid-template-columns: 180px 100%;
@@ -227,6 +241,7 @@
         border-top: 1px outset;
         margin-bottom: 1em;
     }
+}
 
     .ipath_annotation_block_list {
         width: 100%;
@@ -238,18 +253,22 @@
         border-bottom: 1px inset;
     }
 
-    .ipath_annotation_info {
-        padding: 4px;
-        overflow: hidden;
-    }
+.ipath_annotation_info {
+    padding: 4px;
+    overflow: hidden;
+    background-color: #f8faf8;
+}
 
-    .ipath_annotation_text {
-        padding: 4px;
-        padding-left: 1em;
-        width: 100%;
-        max-width: 720px;
-        background-color: #f8faf8;
-    }
+.ipath_annotation_info1{
+    font-weight: bold;
+}
+
+.ipath_annotation_text {
+    padding: 4px;
+    padding-left: 1em;
+    width: 100%;
+    max-width: 720px;
+}
 
     .ipath_annotation_footer {
         padding: 4px;

@@ -7,8 +7,9 @@
 
 <div class="ipath_annotation_block">
     <div class="ipath_annotation_info">
-        <strong><OwnerLink Owner="@Item.Owner" /></strong><br />
-        @Item.CreatedOn.ToString("g")</div>
+        <div class="ipath_annotation_info1"><OwnerLink Owner="@Item.Owner" /></div>
+        <div class="ipath_annotation_info2">@Item.CreatedOn.ToString("g")</div>
+        </div>
     <div class="ipath_annotation_text">
         @if (Item.Data?.Questionnaire is not null)
         {

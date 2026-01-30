@@ -2,6 +2,8 @@
 
 @inherits ServiceRequestViewComponentBase
 
+@attribute [Authorize]
+
 <ServiceRequestHeader />
 @if (vm.SelectedRequest != null)
 {

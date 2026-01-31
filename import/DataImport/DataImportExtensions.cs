@@ -10,13 +10,13 @@ namespace iPath.DataImport;
 
 public class UserDTO
 {
-    public Guid UserId { get; set; }   
+    public Guid UserId { get; set; }
     public string Username { get; set; }
 }
 
 
 public static class DataImportExtensions
-{ 
+{
 
     public static Dictionary<int, Guid> userIds = new();
     public static Guid? NewUserId(int? id) => id.HasValue && userIds.ContainsKey(id.Value) ? userIds[id.Value] : null;
@@ -31,37 +31,57 @@ public static class DataImportExtensions
     public static Dictionary<int, Guid> nodeIds = new();
     public static Guid? NewNodeId(int? id) => id.HasValue && nodeIds.ContainsKey(id.Value) ? nodeIds[id.Value] : null;
 
+
+    public static Dictionary<int, Guid> docIds = new();
+    public static Guid? NewDocId(int? id) => id.HasValue && docIds.ContainsKey(id.Value) ? docIds[id.Value] : null;
+
     public static Dictionary<int, Guid> annotationIds = new();
 
 
     private static Conversion conv = new Conversion();
 
+    public static Guid? AdminUserId;
+    public static Guid? DefaultCommunityId;
+
+
+    public static async Task InitUserIdDictAsync(iPathDbContext newDb)
+    {
+        userIds = await newDb.Users.AsNoTracking()
+            .Where(u => u.ipath2_id.HasValue)
+            .Select(u => new { u.ipath2_id, u.Id })
+            .ToDictionaryAsync(u => u.ipath2_id.Value, u => u.Id);
+    }
 
     public static async Task InitIdDictAsync(iPathDbContext newDb)
     {
         userIds = await newDb.Users.AsNoTracking()
             .Where(u => u.ipath2_id.HasValue)
-            .Select(u => new {u.ipath2_id, u.Id})
+            .Select(u => new { u.ipath2_id, u.Id })
             .ToDictionaryAsync(u => u.ipath2_id.Value, u => u.Id);
 
         groupIds = await newDb.Groups.AsNoTracking()
             .Where(u => u.ipath2_id.HasValue)
-            .Select(u => new {u.ipath2_id, u.Id})
+            .Select(u => new { u.ipath2_id, u.Id })
             .ToDictionaryAsync(u => u.ipath2_id.Value, u => u.Id);
 
         communityIds = await newDb.Communities.AsNoTracking()
             .Where(u => u.ipath2_id.HasValue)
-            .Select(u => new {u.ipath2_id, u.Id})
+            .Select(u => new { u.ipath2_id, u.Id })
             .ToDictionaryAsync(u => u.ipath2_id.Value, u => u.Id);
 
         nodeIds = await newDb.ServiceRequests.AsNoTracking()
             .Where(u => u.ipath2_id.HasValue)
-            .Select(u => new {u.ipath2_id, u.Id})
+            .Select(u => new { u.ipath2_id, u.Id })
+            .ToDictionaryAsync(u => u.ipath2_id.Value, u => u.Id);
+
+        docIds = await newDb.Documents.AsNoTracking()
+            .Where(u => u.ipath2_id.HasValue)
+            .Select(u => new { u.ipath2_id, u.Id })
             .ToDictionaryAsync(u => u.ipath2_id.Value, u => u.Id);
 
         annotationIds = await newDb.Annotations.AsNoTracking()
             .Where(u => u.ipath2_id.HasValue)
-            .Select(u => new {u.ipath2_id, u.Id})
+            .Select(u => new { u.ipath2_id, u.Id })
             .ToDictionaryAsync(u => u.ipath2_id.Value, u => u.Id);
 
         Console.WriteLine("dictionaries loaded");
@@ -86,7 +106,7 @@ public static class DataImportExtensions
             }
         }
     }
-    
+
     public static ServiceRequest ToServiceRequest(this i2object o)
     {
         var n = new ServiceRequest()
@@ -105,6 +125,7 @@ public static class DataImportExtensions
         }
         else
         {
+            n.OwnerId = DataImportExtensions.AdminUserId.Value;
             Console.WriteLine("--");
         }
         n.GroupId = NewGroupId(o.group_id).Value;
@@ -136,9 +157,14 @@ public static class DataImportExtensions
     {
         var n = new DocumentNode()
         {
-            Id = NewNodeId(o.id).Value,
+            Id = NewDocId(o.id) ?? Guid.CreateVersion7(),
             ipath2_id = o.id
         };
+
+        if (!docIds.ContainsKey(o.id))
+        {
+            docIds.Add(o.id, n.Id);
+        }
 
         n.CreatedOn = o.entered.ToUniversalTime();
         n.DocumentType = o.objclass ?? "file";
@@ -154,7 +180,10 @@ public static class DataImportExtensions
         }
 
         n.ServiceRequestId = NewNodeId(o.topparent_id).Value;
-        n.ParentNodeId = NewNodeId(o.parent_id);
+        if (o.topparent_id != o.parent_id)
+        {
+            n.ParentNodeId = NewDocId(o.parent_id);
+        }
 
         if (o.parent_id.HasValue && !n.ParentNodeId.HasValue)
         {
@@ -201,7 +230,7 @@ public static class DataImportExtensions
         {
             throw new Exception($"Annotation {a.id}: Owner user id {a.sender_id} not found");
         }
-        n.OwnerId = nn.Value; 
+        n.OwnerId = nn.Value;
         n.ServiceRequestId = NewNodeId(a.object_id);
 
         n.Data ??= new AnnotationData();
@@ -324,6 +353,7 @@ public static class DataImportExtensions
             Id = Guid.CreateVersion7(),
             ipath2_id = o.id,
             Name = o.name,
+            OwnerId = AdminUserId,
             CreatedOn = o.created_on.ToUniversalTime()
         };
         communityIds.Add(o.id, n.Id);
@@ -336,22 +366,32 @@ public static class DataImportExtensions
 
     public static Group ToNewEntity(this i2group g)
     {
+        Guid cid = g.communities.Any() ?
+            NewCommunityId(g.communities.First().community_id).Value :
+            DefaultCommunityId.Value;
+
+
         var n = new Group()
         {
             Id = Guid.CreateVersion7(),
             ipath2_id = g.id,
             Name = g.name,
+            CommunityId = cid,
+            Settings = new(),
             CreatedOn = g.entered.ToUniversalTime()
         };
         groupIds.Add(g.id, n.Id);
 
         // communities
-        foreach (var cg in g.communities)
+        if (true)
         {
-            if (NewCommunityId(cg.community_id).HasValue)
+            foreach (var cg in g.communities)
             {
-                n.AssignToCommunity(NewCommunityId(cg.community_id).Value);
-                // n.Communities.Add(new CommunityGroup { Group = n, CommunityId = NewCommunityId(cg.community_id).Value });
+                if (NewCommunityId(cg.community_id).HasValue)
+                {
+                    n.AssignToCommunity(NewCommunityId(cg.community_id).Value);
+                    // n.Communities.Add(new CommunityGroup { Group = n, CommunityId = NewCommunityId(cg.community_id).Value });
+                }
             }
         }
 

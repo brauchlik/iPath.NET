@@ -1,3 +1,4 @@
+using Ardalis.GuardClauses;
 using Cyrillic.Convert;
 using EFCore.BulkExtensions;
 using Humanizer;
@@ -68,7 +69,7 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
         sb.Append("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+");
         var conv = new Conversion();
 
-        await foreach(var username in oldDb.persons.Select(p => p.username).ToAsyncEnumerable())
+        await foreach (var username in oldDb.persons.Select(p => p.username).ToAsyncEnumerable())
         {
             var u = DataImportExtensions.CleanUsername(username);
             sb.Append(u);
@@ -128,6 +129,8 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
         // clean cache
         DataImportExtensions.usernames = new();
 
+        var failed = new List<i2person>();
+
         var bulk = new List<User>();
         var c = 0;
         await foreach (var u in users)
@@ -141,8 +144,8 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
                     var newUser = u.ToNewEntity();
                     var res = await um.CreateAsync(newUser);
                     if (!res.Succeeded)
-                        throw new Exception();
-                                       
+                        throw new Exception(res.Errors.FirstOrDefault().Description);
+
 
                     // User 1 = Admin
                     if (newUser.ipath2_id == 1)
@@ -171,7 +174,8 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
 
                 catch (Exception ex)
                 {
-                    OnMessage($"Error reading user {u.id}: {ex.Message}");
+                    failed.Add(u);
+                    OnMessage($"Error reading user {u.username} #{u.id}: {ex.Message}");
                     continue; // skip this user
                 }
             }
@@ -184,15 +188,23 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
 
         if (newCount != oldCount)
         {
-            throw new Exception("not all users have been imported");
+            Console.WriteLine($"not all users have been imported. {failed.Count} failed");
         }
 
         OnMessage($"{newCount} Users, {c} imported");
+
+        // reload User IDs
+        await DataImportExtensions.InitUserIdDictAsync(newDb);
     }
 
 
     public async Task ImportCommunitiesAsync(CancellationToken ctk = default)
     {
+        if (!DataImportExtensions.AdminUserId.HasValue)
+        {
+            DataImportExtensions.AdminUserId = newDb.Users.First(u => u.UserName.ToLower() == "admin").Id;
+        }
+
         var list = await oldDb.Set<i2community>()
             .Where(c => !DataImportExtensions.communityIds.Keys.Contains(c.id))
             .ToListAsync();
@@ -212,6 +224,15 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
 
     public async Task<bool> ImportGroupsAsync(CancellationToken ct = default)
     {
+        if (!DataImportExtensions.AdminUserId.HasValue)
+        {
+            DataImportExtensions.AdminUserId = newDb.Users.First(u => u.UserName.ToLower() == "admin").Id;
+        }
+        if (!DataImportExtensions.DefaultCommunityId.HasValue)
+        {
+            DataImportExtensions.DefaultCommunityId = newDb.Communities.First().Id;
+        }
+
         Console.WriteLine("group keys: " + DataImportExtensions.groupIds.Keys.Count().ToString());
 
         var q = oldDb.Set<i2group>()
@@ -246,12 +267,19 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
             if (!DataImportExtensions.groupIds.ContainsKey(group.id))
                 DataImportExtensions.groupIds.Add(group.id, n.Id);
 
+            newDb.Groups.Add(n);
+            await newDb.SaveChangesAsync(ct);
+
             // members
             foreach (var gm in group.members)
             {
                 // validate that the user_id is valid (contained in ownerCache)
-                if (DataImportExtensions.userIds.ContainsKey(gm.user_id) && !n.Members.Any(m => m.UserId == DataImportExtensions.NewUserId(gm.user_id).Value))
+                var nUserId = DataImportExtensions.NewUserId(gm.user_id);
+                if (nUserId.HasValue && !n.Members.Any(m => m.UserId == nUserId.Value))
                 {
+                    var xu1 = await newDb.Users.FirstOrDefaultAsync(u => u.Id == nUserId.Value);
+                    Guard.Against.Null(xu1);
+
                     // old status => role: 0=member, 4=moderator, 2=inactive, 8=guest
                     // new => user can have only one role in a group
                     eMemberRole role = eMemberRole.User;
@@ -259,7 +287,19 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
                     if ((gm.status & 2) != 0) role = eMemberRole.Banned;
                     if ((gm.status & 8) != 0) role = eMemberRole.Guest;
 
-                    n.AddMember(DataImportExtensions.NewUserId(gm.user_id).Value, role);
+                    n.AddMember(xu1.Id, role);
+                    /*
+                    try
+                    {
+                        await newDb.SaveChangesAsync();
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine($"Error adding User {gm.user_id} to group {n.Name}");
+                        var xu = await newDb.Users.FindAsync(nUserId);
+                        var xu2 = await newDb.Users.FirstOrDefaultAsync(u => u.ipath2_id == gm.user_id);
+                    }
+                    */
                 }
                 else
                 {
@@ -275,7 +315,14 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
 
             if (c % BulkSize == 0)
             {
-                await BulkInsertAsync(newDb, bulk, ct);
+                try
+                {
+                    await BulkInsertAsync(newDb, bulk, ct);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
                 bulk.Clear();
             }
         }
@@ -291,8 +338,21 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
 
     #region "-- Data Nodes --"
 
-    public async Task<bool> ImportNodesAsync(bool deleteExisting, CancellationToken ctk = default)
+    public async Task<bool> ImportRequestsAsync(bool deleteExisting, CancellationToken ctk = default)
     {
+        if (deleteExisting)
+        {
+            await newDb.DocumentImports.ExecuteDeleteAsync();
+            await newDb.Annotations.ExecuteDeleteAsync();
+            await newDb.ServiceRequestImports.ExecuteDeleteAsync();
+        }
+        if (!DataImportExtensions.AdminUserId.HasValue)
+        {
+            DataImportExtensions.AdminUserId = newDb.Users.First(u => u.UserName.ToLower() == "admin").Id;
+        }
+
+
+        var total = await newDb.Groups.CountAsync();
         var groupIds = await newDb.Groups.Where(g => g.ipath2_id.HasValue).Select(g => g.ipath2_id.Value).ToHashSetAsync();
         /*
         var groupIds = new HashSet<int>();
@@ -312,7 +372,7 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
         OnMessage($"{groupIds.Count} groups to be exported");
 
         // import over IAsyncEnumerable
-        await ImportGroupNodesAsync(groupIds, deleteExisting, newDb, oldDb, ctk);
+        await ÏmportRequestsAsync(groupIds, deleteExisting, newDb, oldDb, ctk);
 
         // import over in memory paged list
         // await ImportGroupNodesListAsync(deleteExitingData, reImportAll, groupIds, newDb, oldDb, ctk);
@@ -321,7 +381,7 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
     }
 
 
-    public async Task<bool> ImportGroupNodesAsync(HashSet<int> gid, bool deleteExitingData, iPathDbContext newDb, OldDB oldDb, CancellationToken ctk = default)
+    public async Task<bool> ÏmportRequestsAsync(HashSet<int> gid, bool deleteExitingData, iPathDbContext newDb, OldDB oldDb, CancellationToken ctk = default)
     {
         Stopwatch stopWatch = new Stopwatch();
         stopWatch.Start();
@@ -329,7 +389,7 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
         if (deleteExitingData)
         {
             Console.WriteLine("delete imported node data");
-            await newDb.NodeImports.ExecuteDeleteAsync();
+            await newDb.ServiceRequestImports.ExecuteDeleteAsync();
             await newDb.Annotations.Where(a => a.ipath2_id.HasValue).ExecuteDeleteAsync();
             await newDb.ServiceRequests.Where(n => n.ipath2_id.HasValue).ExecuteDeleteAsync();
             DataImportExtensions.nodeIds.Clear();
@@ -337,16 +397,12 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
 
 
         var q = oldDb.Set<i2object>()
+            .Include(o => o.Annotations)
             .Where(o => o.objclass != "imic")
             .Where(o => o.group_id.HasValue && gid.Contains(o.group_id.Value))
             .Where(o => !o.parent_id.HasValue)
             .Where(o => o.sender_id.HasValue && o.sender_id > 0)
             .Where(o => !DataImportExtensions.nodeIds.Keys.Contains(o.id))
-            // .Where(o => DataImportExtensions.userIds.Keys.Contains(o.sender_id.Value))
-            .Include(o => o.ChildNodes)
-            .Include(o => o.Annotations)
-            .AsNoTracking()
-            .AsSplitQuery()
             .AsQueryable();
 
         // if (!reImportAll) q = q.Where(o => !o.ExportTime.HasValue);
@@ -354,17 +410,16 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
         var total = await q.CountAsync(ctk);
         OnMessage($"Starting import of {total} root objects ... ");
 
-        var objects = q.OrderBy(o => o.id).AsAsyncEnumerable();
+        var objectsQuery = q.OrderBy(o => o.id);
 
         // debug => BulkSize = 1;
 
         var nodeBulk = new List<ServiceRequest>();
-        var docBulk = new List<DocumentNode>();
         var annotationBulk = new List<Annotation>();
-        var importDataBulk = new List<NodeImport>();
+        var importDataBulk = new List<ServiceRequestImport>();
         var count = 0;
 
-        await foreach (var o in objects)
+        await foreach (var o in objectsQuery.AsAsyncEnumerable().WithCancellation(ctk))
         {
             count++;
 
@@ -384,21 +439,7 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
             nodeBulk.Add(n);
 
             // data/info
-            importDataBulk.AddRange(new NodeImport { NodeId = n.Id, Info = o.info, Data = o.data });
-
-            // child nodes => sender mus be > 0 and there there must be something in the old data field
-            if (o.ChildNodes != null && o.ChildNodes.Any())
-            {
-                foreach (var c in o.ChildNodes.Where(c => c.sender_id > 0))
-                {
-                    Console.WriteLine("- Child Node #{0} on Parent #{1}", c.id, o.id);
-                    var document = c.ToDocument();
-                    docBulk.Add(document);
-
-                    // data/info
-                    importDataBulk.AddRange(new NodeImport { NodeId = document.Id, Info = c.info, Data = c.data });
-                }
-            }
+            importDataBulk.AddRange(new ServiceRequestImport { ServiceRequestId = n.Id, Info = o.info, Data = o.data });
 
             // annotations
             annotationBulk.AddRange(o.Annotations.Where(a => DataImportExtensions.userIds.Keys.Contains(a.sender_id)).Select(a => a.ToNewEntity()));
@@ -410,10 +451,6 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
                 // node Bulk
                 OnMessage($"saving {nodeBulk.Count()} nodes (incl child nodes) ... ");
                 await SaveNodeImportAsync(nodeBulk, newDb, oldDb, ctk);
-
-                // annotations
-                await BulkInsertAsync(newDb, docBulk, ctk);
-                docBulk.Clear();
 
                 // annotations
                 await BulkInsertAsync(newDb, annotationBulk, ctk);
@@ -431,9 +468,6 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
 
         await BulkInsertAsync(newDb, annotationBulk, ctk);
         annotationBulk.Clear();
-
-        await BulkInsertAsync(newDb, docBulk, ctk);
-        docBulk.Clear();
 
         await BulkInsertAsync(newDb, importDataBulk, ctk);
         importDataBulk.Clear();
@@ -458,15 +492,23 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
             // await newDb.Set<NodeImport>().Where(d => Microsoft.EntityFrameworkCore.EF.Constant(objIds).Contains(d.)).ExecuteDeleteAsync();
 
             // bulk insert in new db
-            await BulkInsertAsync(newDb, bulk, ctk);
+            try
+            {
+                await BulkInsertAsync(newDb, bulk, ctk);
+            }
+            catch(Exception x)
+            {
+                throw x;
+            }
 
             bulk.Clear();
 
             // update export flag
+            /*
             await oldDb.Set<i2object>()
                 .Where(o => Microsoft.EntityFrameworkCore.EF.Constant(objIds).Contains(o.id))
                 .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.ExportTime, DateTime.UtcNow), ctk);
-
+            */
         }
     }
 
@@ -484,7 +526,7 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
         // read old data into memory
         OnMessage($"Reading old data for {DataImportExtensions.userIds.Count} users and {DataImportExtensions.nodeIds.Count} nodes ... ");
         var total = await oldDb.lastvisits.CountAsync();
-        var data = oldDb.lastvisits.AsNoTracking().Where(v => v.user_id > 0 && v.object_id > 0).AsAsyncEnumerable(); 
+        var data = oldDb.lastvisits.AsNoTracking().Where(v => v.user_id > 0 && v.object_id > 0).AsAsyncEnumerable();
 
         var bulk = new List<ServiceRequestLastVisit>();
         var bulkSize = 10_000;
@@ -492,7 +534,7 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
         OnMessage($"Saving {total} Items ...");
         var count = 0;
         var skipped = 0;
-        
+
         await foreach (var d in data)
         {
             if (ctk.IsCancellationRequested)
@@ -544,67 +586,64 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
     {
         var sw = new Stopwatch();
         sw.Start();
-        using (var transaction = ctx.Database.BeginTransaction())
+        using var transaction = await ctx.Database.BeginTransactionAsync();
+        var entityType = ctx.Model.FindEntityType(typeof(T));
+        var schema = entityType.GetSchema();
+        string? tableName = entityType.GetTableName();
+
+        // check for update or insert
+        var bulkIds = bulk.Select(x => x.Id).ToHashSet();
+        var dbIds = await ctx.Set<T>().Where(e => Microsoft.EntityFrameworkCore.EF.Constant(bulkIds).Contains(e.Id)).Select(e => e.Id).ToListAsync();
+
+        var insertBulk = bulk.Where(b => !dbIds.Contains(b.Id)).ToList(); // list for insert
+        var updateBulk = bulk.Where(b => dbIds.Contains(b.Id)).ToList();  // list for update
+
+        OnMessage($"Saving {tableName}, Insert: {insertBulk.Count}, Update: {updateBulk.Count}");
+
+        if (insertBulk != null && insertBulk.Any())
         {
-            var entityType = ctx.Model.FindEntityType(typeof(T));
-            var schema = entityType.GetSchema();
-            string? tableName = entityType.GetTableName();
-
-            // check for update or insert
-            var bulkIds = bulk.Select(x => x.Id).ToHashSet();
-            var dbIds = await ctx.Set<T>().Where(e => Microsoft.EntityFrameworkCore.EF.Constant(bulkIds).Contains(e.Id)).Select(e => e.Id).ToListAsync();
-
-            var insertBulk = bulk.Where(b => !dbIds.Contains(b.Id)).ToList(); // list for insert
-            var updateBulk = bulk.Where(b => dbIds.Contains(b.Id)).ToList();  // list for update
-
-            OnMessage($"Saving {tableName}, Insert: {insertBulk.Count}, Update: {updateBulk.Count}");
-
-            if (insertBulk != null && insertBulk.Any())
-            {
-                await ctx.Set<T>().AddRangeAsync(insertBulk, ctk);
-            }
-            if (updateBulk != null && updateBulk.Any())
-            {
-                await ctx.AddRangeAsync(updateBulk, ctk);
-                ctx.UpdateRange(updateBulk);
-            }
-
-
-            /*
-            if (ctx.Database.ProviderName == "SqlServer" && tableName != null)
-            {
-                // for SqlServer activiate Identity Insert
-                await ctx.Database.ExecuteSqlRawAsync($"SET IDENTITY_INSERT {tableName} ON;");
-                await ctx.SaveChangesAsync(ctk);
-                await ctx.Database.ExecuteSqlRawAsync($"SET IDENTITY_INSERT {tableName} OFF;");
-            }
-            else
-            {
-                // for other ds just save
-                await ctx.SaveChangesAsync(ctk);
-            }
-            */
-
-            try
-            {
-                await ctx.SaveChangesAsync(ctk);
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                foreach (var entry in ex.Entries)
-                {
-                    Console.WriteLine("conflict: " + entry.Metadata.Name);
-                }
-            }
-
-            transaction.Commit();
+            await ctx.Set<T>().AddRangeAsync(insertBulk, ctk);
         }
+        if (updateBulk != null && updateBulk.Any())
+        {
+            await ctx.AddRangeAsync(updateBulk, ctk);
+            ctx.UpdateRange(updateBulk);
+        }
+
+
+        /*
+        if (ctx.Database.ProviderName == "SqlServer" && tableName != null)
+        {
+            // for SqlServer activiate Identity Insert
+            await ctx.Database.ExecuteSqlRawAsync($"SET IDENTITY_INSERT {tableName} ON;");
+            await ctx.SaveChangesAsync(ctk);
+            await ctx.Database.ExecuteSqlRawAsync($"SET IDENTITY_INSERT {tableName} OFF;");
+        }
+        else
+        {
+            // for other ds just save
+            await ctx.SaveChangesAsync(ctk);
+        }
+        */
+
+        try
+        {
+            await ctx.SaveChangesAsync(ctk);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            foreach (var entry in ex.Entries)
+            {
+                Console.WriteLine("conflict: " + entry.Metadata.Name);
+            }
+        }
+        await transaction.CommitAsync();
 
         // release entities from change tracker               
         ctx.ChangeTracker.Entries()
-            .Where(e => e.State != EntityState.Detached)
-            .ToList()
-            .ForEach(e => e.State = EntityState.Detached);
+                .Where(e => e.State != EntityState.Detached)
+                .ToList()
+                .ForEach(e => e.State = EntityState.Detached);
 
         ctx.ChangeTracker.Clear();
 

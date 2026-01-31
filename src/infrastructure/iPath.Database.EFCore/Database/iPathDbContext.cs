@@ -31,8 +31,10 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<ServiceRequest> ServiceRequests { get; set; }
     public DbSet<DocumentNode> Documents { get; set; }
     public DbSet<Annotation> Annotations { get; set; }
-    public DbSet<NodeImport> NodeImports { get; set; }
     public DbSet<ServiceRequestLastVisit> NodeLastVisits { get; set; }
+
+    public DbSet<ServiceRequestImport> ServiceRequestImports { get; set; }
+    public DbSet<DocumentImport> DocumentImports { get; set; }
 
     public DbSet<QuestionnaireEntity> Questionnaires { get; set; }
     public DbSet<WebContent> WebPages { get; set; }
@@ -126,6 +128,32 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
 
             b.HasIndex(x => x.ObjectId);
         });
+
+
+        builder.Entity<AuditableEntity>(b =>
+        {
+            // Use provider-specific SQL defaults instead of DateTime.UtcNow
+            if (Database.IsSqlServer())
+            {
+                b.Property(x => x.CreatedOn)
+                 .HasDefaultValueSql("SYSUTCDATETIME()")  // SQL Server UTC datetime
+                 .ValueGeneratedOnAdd();
+            }
+            else if (Database.IsSqlite())
+            {
+                b.Property(x => x.CreatedOn)
+                 .HasDefaultValueSql("CURRENT_TIMESTAMP") // SQLite
+                 .ValueGeneratedOnAdd();
+            }
+            else
+            {
+                // Fallback - use UTC at application side only when creating objects,
+                // or choose a constant if you seed with HasData.
+                b.Property(x => x.CreatedOn)
+                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                 .ValueGeneratedOnAdd();
+            }
+        });
     }
 
 
@@ -142,10 +170,6 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
             {
                 entry.State = EntityState.Modified;
                 delete.DeletedOn = DateTime.UtcNow;
-            }
-            if (entry is { State: EntityState.Added, Entity: AuditableEntity add })
-            {
-                add.CreatedOn ??= DateTime.UtcNow;
             }
             if (entry is { State: EntityState.Modified, Entity: AuditableEntity modify })
             {

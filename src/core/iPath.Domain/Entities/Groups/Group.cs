@@ -34,6 +34,7 @@ public class Group : AuditableEntity
             _Members.Add(m);
         }
         m.Role = role;
+        m.NotificationSettings ??= new();
         return m;
     }
 

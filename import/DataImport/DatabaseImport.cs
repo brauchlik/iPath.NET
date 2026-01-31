@@ -63,7 +63,7 @@ public static class DatabaseImport
         if (cfg.ImportNodes)
         {
             Console.WriteLine("importing nodes ... ");
-            await srv.ImportNodesAsync(true);
+            await srv.ImportRequestsAsync(true);
         }
 
         if (cfg.ImportNodeStats)

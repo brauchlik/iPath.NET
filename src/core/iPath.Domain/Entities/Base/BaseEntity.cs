@@ -17,7 +17,7 @@ public class BaseEntity : IBaseEntity
 
 public class AuditableEntity : BaseEntity
 {
-    public DateTime? CreatedOn { get; set; }
+    public DateTime CreatedOn { get; set; }
     public DateTime? DeletedOn { get; set; }
     public DateTime? LastModifiedOn { get; set; }
 }
@@ -31,9 +31,6 @@ public interface ISoftDelete
 
 public class AuditableEntityWithEvents : AuditableEntity, IHasDomainEvents, ISoftDelete
 {
-    public DateTime? DeletedOn { get; set; }
-    public DateTime? LastModifiedOn { get; set; }
-
     [JsonIgnore]
     public List<EventEntity> Events { get; set; } = new();
 

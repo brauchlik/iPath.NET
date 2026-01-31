@@ -1,4 +1,11 @@
 {
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.EntityFrameworkCore.Database": "Warning"
+    }
+  },
   "DbProvider": "Sqlite",
   "ConnectionStrings": {
     "Postgres_Dev": "Host=127.0.0.1:5433;Database=ipath_net;Username=postgres;Password=test1234;Include Error Detail=true;",
@@ -13,6 +20,6 @@
     "ImportCommunities": false,
     "ImportGroups": false,
     "ImportNodes": true,
-    "ImportNodeStats": true
+    "ImportNodeStats": false
   }
 }

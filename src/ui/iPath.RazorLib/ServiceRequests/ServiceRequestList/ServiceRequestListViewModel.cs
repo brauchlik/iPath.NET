@@ -11,64 +11,36 @@ public class ServiceRequestListViewModel(IPathApi api,
 {
     public Guid? GroupId { get; set; }
     public Guid? OwnerId { get; set; }
-    public eCaseListMode ListMode { get; set; } = eCaseListMode.Default;
+    public eRequestFilter ListMode { get; set; } = eRequestFilter.Group;
 
 
     public string SearchString { get; set; }
 
     public async Task<TableData<ServiceRequestListDto>> GetServiceRequestListAsync(TableState state, CancellationToken ct)
     {
-        if (ListMode == eCaseListMode.NewCases)
+        var query = state.BuildQuery(new GetServiceRequestsQuery
         {
-            return await GetNewRequestsListAsync(state, ct);
-        }
-        else if (ListMode == eCaseListMode.NewAnnotations)
+            SearchString = this.SearchString,
+            RequestFilter = ListMode,
+            IncludeDetails = true
+        });
+
+        if (GroupId.HasValue)
         {
-            return await GetNewAnnotationsListAsync(state, ct); 
+            query.GroupId = this.GroupId;
         }
 
-        if (GroupId.HasValue || OwnerId.HasValue)
-        {
-            var query = state.BuildQuery(new GetServiceRequestsQuery
-            {
-                GroupId = this.GroupId,
-                OwnerId = this.OwnerId,
-                IncludeDetails = true,
-                SearchString = this.SearchString
-            });
-            nvm.LastQuery = query;
-            nvm.IdList = null;
-            var resp = await api.GetRequestList(query);
-            if (resp.IsSuccessful)
-            {
-                return resp.Content.ToTableData();
-            }
-
-            snackbar.AddError(resp.ErrorMessage);
-        }
-        return new TableData<ServiceRequestListDto>();
-    }
-
-    private async Task<TableData<ServiceRequestListDto>> GetNewRequestsListAsync(TableState state, CancellationToken ct)
-    {
-        var resp = await api.GetNewServiceRequests();
+        nvm.LastQuery = query;
+        nvm.IdList = null;
+        var resp = await api.GetRequestList(query);
         if (resp.IsSuccessful)
         {
             return resp.Content.ToTableData();
         }
+
+        snackbar.AddError(resp.ErrorMessage);
         return new TableData<ServiceRequestListDto>();
     }
-
-    private async Task<TableData<ServiceRequestListDto>> GetNewAnnotationsListAsync(TableState state, CancellationToken ct)
-    {
-        var resp = await api.GetNewAnnotations();
-        if (resp.IsSuccessful)
-        {
-            return resp.Content.ToTableData();
-        }
-        return new TableData<ServiceRequestListDto>();
-    }
-
 
 
     public async Task CreateNewCase()
@@ -87,10 +59,3 @@ public class ServiceRequestListViewModel(IPathApi api,
     public bool CreateNewCaseDisabled => !GroupId.HasValue;
 }
 
-
-public enum eCaseListMode
-{
-    Default = 0,
-    NewCases = 1,
-    NewAnnotations = 2
-}

@@ -176,6 +176,7 @@ public class ServiceRequestViewModel(IPathApi api,
         if (SelectedRequest is not null)
         {
             await api.UpdateRequestVisit(SelectedRequest.Id);
+            appState.SeerviceRequestVisited(SelectedRequest.Id);
         }
     }
 
@@ -200,10 +201,14 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             if (LastQuery != null)
             {
-                if (LastQuery.GroupId.HasValue)
-                    return $"groups/{LastQuery.GroupId}";
-                else if (LastQuery.OwnerId.HasValue)
-                    return "mycases";
+                return LastQuery.RequestFilter switch
+                {
+                    eRequestFilter.Group => $"groups/{LastQuery.GroupId}",
+                    eRequestFilter.Owner => "mycases",
+                    eRequestFilter.NewCases => "user/newcases",
+                    eRequestFilter.NewAnnotations => "user/newannotations",
+                    _ => "groups"
+                };
             }
             return "groups";
         }

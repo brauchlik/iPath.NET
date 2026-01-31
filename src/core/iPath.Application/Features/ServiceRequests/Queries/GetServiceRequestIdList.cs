@@ -10,16 +10,18 @@ public class GetServiceRequestIdListQuery : PagedQuery<ServiceRequestListDto>
     }
 
     public GetServiceRequestIdListQuery(GetServiceRequestsQuery q) 
-    { 
+    {
+        RequestFilter = q.RequestFilter;
+        CommunityId = q.CommunityId;
         GroupId = q.GroupId;
-        OwnerId = q.OwnerId;
         Sorting = q.Sorting;
         Filter = q.Filter;
         PageSize = null;
         Page = 0;
     }
 
+    public eRequestFilter RequestFilter { get; set; }
     public Guid? GroupId { get; set; }
-    public Guid? OwnerId { get; set; }
+    public Guid? CommunityId { get; set; }
     public bool inclDrafts { get; set; } = false;
 }

@@ -11,13 +11,22 @@
             <MudIconButton OnClick="vm.GoNext" Icon="@Icons.Material.Filled.ArrowRight" Size="Size.Small" Title="Next" />
         </div>
         <div class="ipath_header_toolbar">
-            <MudToolBar>
+            <MudToolBar WrapContent="true">
                 <IPathToolbarButton Icon="@EditIcon" OnClick="OnEditClick" Disabled="vm.EditDisabled" />
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Save" OnClick="@(() => vm.Save())" Hidden="@hideSave" />
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => vm.Delete())" Disabled="vm.DeleteDisabled" />
-                <FileUploadButton Disabled="@vm.AttachFileDisabled" />
-                <IPathToolbarButton Icon="@Icons.Material.Outlined.Comment" OnClick="@(() => vm.StartAnnotation())" Disabled="vm.AnnotateDisabled" />
-                <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled=@(!vm.HasSlideShow) Tooltip=@T["Show images in fullscreen mode"] />
+                <MudTooltip Text=@T["Upload Files"]>
+                    <FileUploadButton Disabled="@vm.AttachFileDisabled" Icon="@Icons.Material.Filled.DriveFolderUpload"/>
+                </MudTooltip>
+                <MudButtonGroup>
+                    <MudMenu Icon="@Icons.Material.Filled.AttachFile" Style="align-self: auto;">
+                        <MudMenuItem Icon="@Icons.Material.Filled.Folder">Folder</MudMenuItem>
+                        <MudMenuItem Icon="@Icons.Material.Filled.DynamicForm">Form</MudMenuItem>
+                    </MudMenu>
+                </MudButtonGroup>
+                <IPathToolbarButton Icon="@Icons.Material.Outlined.AddComment" OnClick="@(() => vm.StartAnnotation())" Disabled="vm.AnnotateDisabled" />
+                <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled=@(!vm.HasSlideShow)
+                                    Tooltip=@T["Show images in fullscreen mode"] />
                 @if (vm.IsAdmin && vm.HasPreviewPlugin)
                 {
                     <IPathToolbarButton Icon="@Icons.Material.Outlined.Preview" OnClick="@(() => vm.ShowPreviewDialog())" />

@@ -2,11 +2,20 @@
 
 @inject GroupListViewModel vm
 
-<MudLink OnClick="GotoGroup">@GroupName</MudLink>
+<MudLink Class="@Class" Style="@Style" Typo="@Typo" OnClick="GotoGroup">@GroupName</MudLink>
 
 @code {
     [Parameter, EditorRequired]
     public Guid? GroupId { get; set; } = null;
+
+    [Parameter]
+    public string Class { get; set; }
+
+    [Parameter]
+    public string Style { get; set; }
+
+    [Parameter]
+    public Typo Typo { get; set; }
 
     GroupDto group;
     string GroupName => group is null ? "" : group.Name;

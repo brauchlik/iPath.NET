@@ -28,7 +28,7 @@ public class GetServiceRequestByIdQueryHandler(iPathDbContext db, IUserSession s
                 sess.AssertInGroup(node.GroupId);
             }
 
-            var spec = new NodeIsVisibleSpecifications(sess.IsAuthenticated ? sess.User.Id : null);
+            var spec = new ServiceRequestIsVisibleSpecifications(sess.IsAuthenticated ? sess.User.Id : null);
             if (!spec.IsSatisfiedBy(node))
             {
                 throw new NotAllowedException($"You are not allowed to access case");

@@ -36,6 +36,7 @@ public static class ServiceRequestEndpoints
             .Produces<ServiceRequestUpdatesDto>()
             .RequireAuthorization();
 
+        /*
         grp.MapGet("new", async ([FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(new GetNewServiceRequestsQuery(), ct))
             .Produces<PagedResultList<ServiceRequestListDto>>()
@@ -47,7 +48,7 @@ public static class ServiceRequestEndpoints
             .Produces<PagedResultList<ServiceRequestListDto>>()
             .WithName("New Annotations")
             .RequireAuthorization();
-
+        */
 
         // Commands
         grp.MapPost("create", async (CreateServiceRequestCommand request, [FromServices] IMediator mediator, CancellationToken ct)

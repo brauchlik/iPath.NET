@@ -4,11 +4,20 @@
 
 @inject UserViewModel vm
 
-<MudLink OnClick="ShowProfileAsync">@Username</MudLink>
+<MudLink Class="@Class" Style="@Style" Typo="@Typo" OnClick="ShowProfileAsync">@Username</MudLink>
 
 @code {
     [Parameter, EditorRequired]
     public OwnerDto? Owner { get; set; } = null!;
+
+    [Parameter]
+    public string Class { get; set; }
+
+    [Parameter]
+    public string Style { get; set; }
+
+    [Parameter]
+    public Typo Typo { get; set; }
 
     string Username => Owner is null ? "--" : Owner.Username;
 

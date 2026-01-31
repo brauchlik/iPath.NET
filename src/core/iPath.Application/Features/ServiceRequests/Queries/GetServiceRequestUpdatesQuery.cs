@@ -4,16 +4,3 @@ public class GetServiceRequestUpdatesQuery : IRequest<GetServiceRequestUpdatesQu
 {
     public Guid? CommunityId { get; set; }
 }
-
-public class GetNewServiceRequestsQuery : PagedQuery<ServiceRequestListDto>
-    , IRequest<GetNewServiceRequestsQuery, Task<PagedResultList<ServiceRequestListDto>>>
-{
-    public Guid? CommunityId { get; set; }
-}
-
-
-public class GetServiceRequestsWithNewAnnotationsQuery : PagedQuery<ServiceRequestListDto>
-    , IRequest<GetServiceRequestsWithNewAnnotationsQuery, Task<PagedResultList<ServiceRequestListDto>>>
-{
-    public Guid? CommunityId { get; set; }
-}

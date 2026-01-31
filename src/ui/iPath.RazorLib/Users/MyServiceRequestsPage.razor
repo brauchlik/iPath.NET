@@ -13,7 +13,7 @@
 
 @if (UserId.HasValue)
 {
-    <ServiceRequestListTable OwnerId="UserId" />
+    <ServiceRequestListTable ListMode="eRequestFilter.Owner" />
 }
 
 @code {

@@ -1,15 +1,15 @@
 ﻿<AuthorizeView>
     <NotAuthorized>
-        <MudNavLink Href="Account/Login" Icon="@Icons.Material.Filled.Login">Login</MudNavLink>
-        <MudNavLink Href="Account/Register" Icon="@Icons.Material.Filled.AppRegistration">Register</MudNavLink>
+        <MudNavLink Href="Account/Login" Icon="@Icons.Material.TwoTone.Login">Login</MudNavLink>
+        <MudNavLink Href="Account/Register" Icon="@Icons.Material.TwoTone.AppRegistration">Register</MudNavLink>
     </NotAuthorized>
     <Authorized>
-        <MudNavLink Href="user/groups" Icon="@Icons.Material.Filled.Groups">My Groups</MudNavLink>
-        <MudNavLink Href="user/cases" Icon="@Icons.Material.Filled.Folder">My Cases</MudNavLink>
+        <MudNavLink Href="user/groups" Icon="@Icons.Material.TwoTone.Group">My Groups</MudNavLink>
+        <MudNavLink Href="user/cases" Icon="@Icons.Material.TwoTone.FolderShared">My Cases</MudNavLink>
 
         @if (NewRequestCount > 0)
         {
-            <MudNavLink Href="user/newcases" Icon="@Icons.Material.Filled.Groups">
+            <MudNavLink Href="user/newcases" Icon="@Icons.Material.TwoTone.CreateNewFolder">
                 <MudBadge Content="@NewRequestCount" Origin="Origin.CenterRight" BadgeClass="mx-2" Color="Color.Info">
                     New Cases
                 </MudBadge>
@@ -18,7 +18,7 @@
         }
         @if (NewAnnotationCount > 0)
         {
-            <MudNavLink Href="user/newannotations" Icon="@Icons.Material.Filled.Folder">
+            <MudNavLink Href="user/newannotations" Icon="@Icons.Material.TwoTone.Comment">
                 <MudBadge Content="@NewAnnotationCount" Origin="Origin.CenterRight" BadgeClass="mx-2" Color="Color.Info">
                     New Annotations
                 </MudBadge>
@@ -26,9 +26,9 @@
         }
 
         <MudDivider />
-        <MudNavLink Href="user/profile" Icon="@Icons.Material.Filled.ManageAccounts">My Profile</MudNavLink>
+        <MudNavLink Href="user/profile" Icon="@Icons.Material.TwoTone.ManageAccounts">My Profile</MudNavLink>
         <MudDivider />
-        <MudNavLink Href="Account/Logout" Icon="@Icons.Material.Filled.Logout">Logout</MudNavLink>
+        <MudNavLink Href="Account/Logout" Icon="@Icons.Material.TwoTone.Logout">Logout</MudNavLink>
     </Authorized>
 </AuthorizeView>
 
@@ -47,6 +47,7 @@
         {
             stats = await state.GetNewRequestStats(false);
             StateHasChanged();
+            state.OnChange += (() => StateHasChanged());
         }
     }
 }

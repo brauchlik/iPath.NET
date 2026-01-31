@@ -7,7 +7,7 @@
     <ToolBarContent>
         <MudToolBar>
             <MudTooltip Text=@T["create a new case"]>
-                <MudIconButton Icon="@Icons.Material.Outlined.Add"
+                <MudIconButton Icon="@Icons.Material.Filled.CreateNewFolder"
                                OnClick="vm.CreateNewCase" Disabled="vm.CreateNewCaseDisabled" />
             </MudTooltip>
             <MudTooltip Text=@T["export data"]>
@@ -70,13 +70,18 @@
             <i>@context.Description.BodySite?.Code</i>
         </MudTd>
         <MudTd DataLabel="Owner" Class="ipath_node_sender2" HideSmall="true">
-            @if (GroupId.HasValue)
+            @if (ListMode == eRequestFilter.Group)
             {
                 <OwnerLink Owner="@context.Owner" />                
             }
-            else
+            else if (ListMode == eRequestFilter.Owner)
             {
                 <GroupLink GroupId="@context.GroupId" />
+            }
+            else 
+            {
+                <OwnerLink Style="font-weight: bold;" Owner="@context.Owner" /><br />
+                <GroupLink Typo="Typo.body2" GroupId="@context.GroupId"/>
             }
         </MudTd>
         <MudTd DataLabel="CreatedOn" Class="ipath_node_date2" HideSmall="true">
@@ -122,7 +127,7 @@
     }
 
     [Parameter]
-    public eCaseListMode ListMode {
+    public eRequestFilter ListMode {
         get => vm.ListMode;
         set => vm.ListMode = value; 
     }

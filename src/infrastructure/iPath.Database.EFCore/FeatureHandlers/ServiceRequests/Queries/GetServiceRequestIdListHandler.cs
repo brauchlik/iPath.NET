@@ -8,22 +8,51 @@ public class GetServiceRequestIdListHandler(iPathDbContext db, IUserSession sess
 {
     public async Task<IReadOnlyList<Guid>> Handle(GetServiceRequestIdListQuery request, CancellationToken cancellationToken)
     {
+        Guard.Against.Null(sess.User);
+
         // prepare query (only root nodes)
         var q = db.ServiceRequests.AsNoTracking();
+
+        var spec = Specification<ServiceRequest>.All;
 
         if (request.GroupId.HasValue)
         {
             sess.AssertInGroup(request.GroupId.Value);
-            q = q.Where(n => n.GroupId == request.GroupId.Value);
+            spec = spec.And(new ServiceRequestIsInGroupSpecifications(request.GroupId.Value));
+            // q = q.Where(n => n.GroupId == request.GroupId.Value);
         }
 
-        if (request.OwnerId.HasValue)
+        if (request.CommunityId.HasValue)
         {
-            q = q.Where(n => n.OwnerId == request.OwnerId.Value);
+            spec = spec.And(new ServiceRequestIsInCommunitySpecifications(request.CommunityId.Value));
+        }
+
+        if (request.RequestFilter == eRequestFilter.Owner)
+        {
+            spec = spec.And(new ServiceRequestOwnerSpecifications(sess.User.Id));
+            // q = q.Where(n => n.OwnerId == request.OwnerId.Value);
+        }
+        else if (request.RequestFilter == eRequestFilter.NewCases)
+        {
+            spec = spec.And(new ServiceRequestIsInGroupListSpecifications(sess.GroupIds()));
+            spec = spec.And(new ServicerequestIsNewForUserSpecifications(sess.User.Id));
+        }
+        else if (request.RequestFilter == eRequestFilter.NewAnnotations)
+        {
+            spec = spec.And(new ServiceRequestIsInGroupListSpecifications(sess.GroupIds()));
+            spec = spec.And(new ServiceRequestHasNewAnnotationForUserSpecifications(sess.User.Id));
+        }
+
+        if (request.Filter is not null)
+        {
+            foreach (var f in request.Filter)
+            {
+                q = q.ApplyNodeFilter(f);
+            }
         }
 
         // Filter out drafts & private cases
-        var spec = new NodeIsVisibleSpecifications(sess.IsAuthenticated ? sess.User.Id : null);
+        spec = spec.And(new ServiceRequestIsVisibleSpecifications(sess.IsAuthenticated ? sess.User.Id : null));
         q = q.Where(spec.ToExpression());
 
 

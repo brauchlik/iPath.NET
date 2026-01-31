@@ -91,7 +91,7 @@ public class DbSeeder(iPathDbContext db,
             await db.Groups.AddAsync(group);
 
             // add member
-            admin.AddToGroup(group, eMemberRole.User);
+            admin.AddToGroup(group, eMemberRole.User, false);
         }
 
 

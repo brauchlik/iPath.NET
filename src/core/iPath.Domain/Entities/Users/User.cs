@@ -55,7 +55,7 @@ public class User : IdentityUser<Guid>, IBaseEntity, IHasDomainEvents
         {
             ret.Role = role.Value;
         }
-        if (isConsultant.HasValue){ }
+        if (isConsultant.HasValue)
         {
             ret.IsConsultant = isConsultant.Value;
         }

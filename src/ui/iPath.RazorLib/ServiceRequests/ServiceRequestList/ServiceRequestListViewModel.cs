@@ -10,7 +10,7 @@ public class ServiceRequestListViewModel(IPathApi api,
     ServiceRequestViewModel nvm) : IViewModel
 {
     public Guid? GroupId { get; set; }
-    public Guid? OwnerId { get; set; }
+    // public Guid? OwnerId { get; set; }
     public eRequestFilter ListMode { get; set; } = eRequestFilter.Group;
 
 

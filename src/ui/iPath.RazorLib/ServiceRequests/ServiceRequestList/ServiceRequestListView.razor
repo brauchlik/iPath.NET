@@ -1,0 +1,23 @@
+﻿@namespace iPath.Blazor.Componenents.ServiceRequests
+@inject IStringLocalizer T
+
+
+<MudHidden Breakpoint="Breakpoint.SmAndUp">
+    <ServiceRequestCompactList GroupId="@GroupId" ListMode="@ListMode" />
+</MudHidden>
+<MudHidden Breakpoint="Breakpoint.Xs">
+    <ServiceRequestListTable GroupId="@GroupId" ListMode="@ListMode" />
+</MudHidden>
+
+
+
+@inject ServiceRequestListViewModel vm
+@inject GroupViewModel gvm
+
+@code {
+    [Parameter]
+    public Guid? GroupId { get; set; }
+
+    [Parameter]
+    public eRequestFilter ListMode { get; set; }
+}

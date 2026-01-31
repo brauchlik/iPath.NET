@@ -32,22 +32,22 @@
         <MudTh>@T["Actions"]</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd Class="ipath_table">
+        <MudTd DataLabel="Username" Class="ipath_table">
             <MudLink Href=@($"admin/users/{context.Id}")>
                 <MudHighlighter Text="@context.Username" HighlightedText="@vm.SearchString" />
             </MudLink>
         </MudTd>
-        <MudTd Class="ipath_table">
+        <MudTd DataLabel="Email" Class="ipath_table">
             <MudHighlighter Text="@context.Email" HighlightedText="@vm.SearchString" />
         </MudTd>
-        <MudTd Class="ipath_table">@context.Roles.ToCSV()</MudTd>
-        <MudTd Class="ipath_table">
+        <MudTd Class="ipath_table" HideSmall="true">@context.Roles.ToCSV()</MudTd>
+        <MudTd Class="ipath_table" HideSmall="true">
             <MudCheckBox Value="@context.IsActive" ReadOnly="true" />
         </MudTd>
-        <MudTd Class="ipath_table">
+        <MudTd Class="ipath_table" HideSmall="true">
             <MudCheckBox Value="@context.EmailConfirmed" ReadOnly="true" />
         </MudTd>
-        <MudTd Class="ipath_table d-flex justify-end">
+        <MudTd Class="ipath_table d-flex justify-end" HideSmall="true">
             <MudIconButton Href=@($"admin/users/{context.Id}/members") Size="Size.Small"
                            Icon="@Icons.Material.Filled.Person" />
             <MudIconButton Href=@($"admin/users/{context.Id}/groups") Size="Size.Small"

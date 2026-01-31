@@ -13,7 +13,7 @@ else
     <IPathHeader Title="@vm.Model.Name" Typo="Typo.h6" />
 
     <MudHidden Breakpoint="Breakpoint.SmAndUp">
-        <ServiceRequestCompactList GroupId="@vm.Model.Id"/>
+        <ServiceRequestCompactList GroupId="@vm.Model.Id" ListMode="eRequestFilter.Group" />
     </MudHidden>
     <MudHidden Breakpoint="Breakpoint.Xs">
         <ServiceRequestListTable GroupId="@vm.Model.Id" ListMode="eRequestFilter.Group" />

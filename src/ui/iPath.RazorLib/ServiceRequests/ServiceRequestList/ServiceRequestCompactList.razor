@@ -27,22 +27,14 @@
     public Guid? GroupId
     {
         get => vm.GroupId;
-        set
-        {
-            vm.OwnerId = null;
-            vm.GroupId = value;
-        }
+        set => vm.GroupId = value;
     }
 
     [Parameter]
-    public Guid? OwnerId
+    public eRequestFilter ListMode
     {
-        get => vm.OwnerId;
-        set
-        {
-            vm.OwnerId = value;
-            vm.GroupId = null;
-        }
+        get => vm.ListMode;
+        set => vm.ListMode = value;
     }
 
 

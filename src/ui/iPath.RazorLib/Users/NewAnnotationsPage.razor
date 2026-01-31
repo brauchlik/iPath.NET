@@ -1,4 +1,5 @@
-﻿@page "/user/newannotations"
+﻿@page "/newannotations"
+@page "/user/newannotations"
 
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
@@ -12,7 +13,7 @@
 
 @if (UserId.HasValue)
 {
-    <ServiceRequestListTable ListMode="eRequestFilter.NewAnnotations" />
+    <ServiceRequestListView ListMode="eRequestFilter.NewAnnotations" />
 }
 
 @code {

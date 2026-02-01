@@ -1,5 +1,7 @@
 ﻿using Ardalis.GuardClauses;
+using iPath.EF.Core.Database;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 
@@ -39,16 +41,14 @@ public static class TestEndpoints
 
 
 
-
-        test.MapGet("test/osd/{id}", (string? id) =>
+        test.MapGet("stats/documents", async (iPathDbContext db, CancellationToken ct) =>
         {
-            id ??= "019bc860-cf64-75ce-89fd-8920bde320b1";
-            var srv = new OpenSeadragon.OsdViewerHtml();
-            var html = srv.CreateIframeHtml($"/files/{id}");
-            return Results.Content(html, contentType: "text/html; charset=utf-8");
-        })
-            .Produces(statusCode: StatusCodes.Status200OK, contentType: "text/html");
-
+            return await db.Documents.AsNoTracking()
+                .GroupBy(x => x.DocumentType)
+                .Select(g => new { Type = g.Key, Count = g.Count() })
+                .OrderByDescending(g => g.Count)
+                .ToListAsync();
+        });
 
         return route;
     }

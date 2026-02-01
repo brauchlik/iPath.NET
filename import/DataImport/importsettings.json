@@ -20,7 +20,7 @@
     "ImportCommunities": false,
     "ImportGroups": false,
     "ImportServiceRequests": false,
-    "ImportDocuments":  false,
+    "ImportDocuments":  true,
     "ImportNodeStats": true
   }
 }

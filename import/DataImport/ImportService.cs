@@ -560,6 +560,8 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
     public async Task<HashSet<int>> ImportDocumentsAsync(HashSet<int> parentIds, CancellationToken ctk = default)
     {
         var q = oldDb.Set<i2object>()
+            .AsNoTracking()
+            .Where(o => !DataImportExtensions.docIds.Keys.Contains(o.id))
             .Where(o => o.parent_id.HasValue && parentIds.Contains(o.parent_id.Value))
             .Where(o => o.sender_id.HasValue && o.sender_id > 0)
             .AsQueryable();

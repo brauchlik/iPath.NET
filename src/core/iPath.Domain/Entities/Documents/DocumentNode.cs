@@ -7,8 +7,6 @@ public class DocumentNode
 
     public string? StorageId { get; set; }
 
-    public DateTime CreatedOn { get; set; }
-
     public Guid OwnerId { get; set; }
     public User Owner { get; set; } = null!;
 

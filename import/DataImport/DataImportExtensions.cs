@@ -33,7 +33,18 @@ public static class DataImportExtensions
 
 
     public static Dictionary<int, Guid> docIds = new();
-    public static Guid? NewDocId(int? id) => id.HasValue && docIds.ContainsKey(id.Value) ? docIds[id.Value] : null;
+    public static Guid? NewDocId(int? id)
+    {
+        if (id.HasValue)
+        {
+            if (!docIds.ContainsKey(id.Value))
+            {
+                docIds.Add(id.Value, Guid.CreateVersion7());
+            }
+            return docIds[id.Value];
+        }
+        return null;
+    }
 
     public static Dictionary<int, Guid> annotationIds = new();
 
@@ -84,6 +95,12 @@ public static class DataImportExtensions
             .Select(u => new { u.ipath2_id, u.Id })
             .ToDictionaryAsync(u => u.ipath2_id.Value, u => u.Id);
 
+
+        if (!AdminUserId.HasValue)
+        {
+            AdminUserId = newDb.Users.First(u => u.NormalizedUserName == "ADMIN").Id;
+        }
+
         Console.WriteLine("dictionaries loaded");
     }
 
@@ -96,14 +113,7 @@ public static class DataImportExtensions
         }
         else
         {
-            Debug.WriteLine("new node id for #{0} exists already", o.id);
-        }
-        if (o.ChildNodes != null && o.ChildNodes.Any())
-        {
-            foreach (var c in o.ChildNodes)
-            {
-                c.CreateNewId();
-            }
+            Debug.WriteLine("new request id for #{0} exists already", o.id);
         }
     }
 
@@ -125,7 +135,7 @@ public static class DataImportExtensions
         }
         else
         {
-            n.OwnerId = DataImportExtensions.AdminUserId.Value;
+            n.OwnerId = DataImportExtensions.AdminUserId.Value; // assign not imported owners to admin user
             Console.WriteLine("--");
         }
         n.GroupId = NewGroupId(o.group_id).Value;
@@ -153,11 +163,25 @@ public static class DataImportExtensions
     }
 
 
+
+
+    public static void CreateNewDocId(this i2object o)
+    {
+        if (!docIds.ContainsKey(o.id))
+        {
+            docIds.Add(o.id, Guid.CreateVersion7());
+        }
+        else
+        {
+            Debug.WriteLine("new document id for #{0} exists already", o.id);
+        }
+    }
+
     public static DocumentNode ToDocument(this i2object o)
     {
         var n = new DocumentNode()
         {
-            Id = NewDocId(o.id) ?? Guid.CreateVersion7(),
+            Id = NewDocId(o.id).Value,
             ipath2_id = o.id
         };
 
@@ -176,18 +200,19 @@ public static class DataImportExtensions
         }
         else
         {
+            // return null;
+            n.OwnerId = DataImportExtensions.AdminUserId.Value; // assign not imported owners to admin user
             Console.WriteLine("--");
         }
 
         n.ServiceRequestId = NewNodeId(o.topparent_id).Value;
-        if (o.topparent_id != o.parent_id)
+        if (o.parent_id.HasValue && o.topparent_id != o.parent_id)
         {
             n.ParentNodeId = NewDocId(o.parent_id);
-        }
-
-        if (o.parent_id.HasValue && !n.ParentNodeId.HasValue)
-        {
-            Console.WriteLine("Parent Node {0} not found in import of child {1}", o.parent_id, n.ipath2_id);
+            if (o.parent_id.HasValue && !n.ParentNodeId.HasValue)
+            {
+                Console.WriteLine("Parent Node {0} not found in import of child {1}", o.parent_id, n.ipath2_id);
+            }
         }
 
         n.SortNr = o.sort_nr ?? 0;

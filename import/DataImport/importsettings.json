@@ -19,7 +19,8 @@
     "ImportUsers": false,
     "ImportCommunities": false,
     "ImportGroups": false,
-    "ImportNodes": true,
-    "ImportNodeStats": false
+    "ImportServiceRequests": false,
+    "ImportDocuments":  false,
+    "ImportNodeStats": true
   }
 }

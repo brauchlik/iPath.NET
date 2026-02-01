@@ -60,15 +60,21 @@ public static class DatabaseImport
             await srv.ImportGroupsAsync();
         }
 
-        if (cfg.ImportNodes)
+        if (cfg.ImportServiceRequests)
         {
-            Console.WriteLine("importing nodes ... ");
+            Console.WriteLine("importing ServiceRequests ... ");
             await srv.ImportRequestsAsync(true);
         }
 
-        if (cfg.ImportNodeStats)
+        if (cfg.ImportDocuments)
         {
-            Console.WriteLine("importing node visit statitics ... ");
+            Console.WriteLine("importing Documents ... ");
+            await srv.ÏmportDocumentsAsync(true);
+        }
+
+        if (cfg.ImportVisitStats)
+        {
+            Console.WriteLine("importing visit statitics ... ");
             await srv.ImportUserStatsAsync();
         }
 

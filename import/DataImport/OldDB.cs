@@ -34,7 +34,8 @@ public class OldDB(DbContextOptions<OldDB> opts) : DbContext(opts)
         modelBuilder.Entity<i2object>()
             .HasOne(o => o.parent).WithMany().HasForeignKey(o => o.parent_id);
         modelBuilder.Entity<i2object>()
-            .HasMany(o => o.ChildNodes).WithOne().HasForeignKey(o => o.topparent_id);
+            .HasMany(o => o.ChildNodes).WithOne(o => o.TopParent)
+            .HasForeignKey(o => o.topparent_id).IsRequired(false);
         modelBuilder.Entity<i2object>()
             .HasMany(o => o.Annotations).WithOne().HasForeignKey(o => o.object_id);
 
@@ -169,6 +170,7 @@ public class i2object
 
     public DateTime? ExportTime { get; set; }
 
+    public i2object TopParent { get; set; }
     public ICollection<i2object> ChildNodes { get; set; }
 
     public ICollection<i2annotation> Annotations { get; set; }

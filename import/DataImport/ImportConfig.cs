@@ -7,6 +7,7 @@ public class ImportConfig
     public bool ImportUsers { get; set; }
     public bool ImportCommunities { get; set; }
     public bool ImportGroups { get; set; }
-    public bool ImportNodes { get; set; }
-    public bool ImportNodeStats { get; set; }
+    public bool ImportServiceRequests { get; set; }
+    public bool ImportDocuments { get; set; }
+    public bool ImportVisitStats { get; set; }
 }

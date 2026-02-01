@@ -2,9 +2,12 @@ using Ardalis.GuardClauses;
 using Cyrillic.Convert;
 using EFCore.BulkExtensions;
 using Humanizer;
+using iPath.Application.Features.Documents;
 using iPath.EF.Core.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Internal;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
@@ -346,10 +349,6 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
             await newDb.Annotations.ExecuteDeleteAsync();
             await newDb.ServiceRequestImports.ExecuteDeleteAsync();
         }
-        if (!DataImportExtensions.AdminUserId.HasValue)
-        {
-            DataImportExtensions.AdminUserId = newDb.Users.First(u => u.UserName.ToLower() == "admin").Id;
-        }
 
 
         var total = await newDb.Groups.CountAsync();
@@ -389,8 +388,10 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
         if (deleteExitingData)
         {
             Console.WriteLine("delete imported node data");
-            await newDb.ServiceRequestImports.ExecuteDeleteAsync();
+            await newDb.DocumentImports.ExecuteDeleteAsync();
+            await newDb.Documents.Where(n => n.ipath2_id.HasValue).ExecuteDeleteAsync();
             await newDb.Annotations.Where(a => a.ipath2_id.HasValue).ExecuteDeleteAsync();
+            await newDb.ServiceRequestImports.ExecuteDeleteAsync();
             await newDb.ServiceRequests.Where(n => n.ipath2_id.HasValue).ExecuteDeleteAsync();
             DataImportExtensions.nodeIds.Clear();
         }
@@ -408,15 +409,15 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
         // if (!reImportAll) q = q.Where(o => !o.ExportTime.HasValue);
 
         var total = await q.CountAsync(ctk);
-        OnMessage($"Starting import of {total} root objects ... ");
+        OnMessage($"Starting import of {total} root objects => ServiceRequest ... ");
 
         var objectsQuery = q.OrderBy(o => o.id);
 
         // debug => BulkSize = 1;
 
-        var nodeBulk = new List<ServiceRequest>();
+        var requestBulk = new List<ServiceRequest>();
+        var requestImportDataBulk = new List<ServiceRequestImport>();
         var annotationBulk = new List<Annotation>();
-        var importDataBulk = new List<ServiceRequestImport>();
         var count = 0;
 
         await foreach (var o in objectsQuery.AsAsyncEnumerable().WithCancellation(ctk))
@@ -434,12 +435,13 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
             // create new Ids
             o.CreateNewId();
 
-            // convert root node
+            // convert root node => ServiceReqeust
             var n = o.ToServiceRequest();
-            nodeBulk.Add(n);
+            requestBulk.Add(n);
 
             // data/info
-            importDataBulk.AddRange(new ServiceRequestImport { ServiceRequestId = n.Id, Info = o.info, Data = o.data });
+            requestImportDataBulk.AddRange(new ServiceRequestImport { Id = Guid.CreateVersion7(), ServiceRequestId = n.Id, Info = o.info, Data = o.data });
+
 
             // annotations
             annotationBulk.AddRange(o.Annotations.Where(a => DataImportExtensions.userIds.Keys.Contains(a.sender_id)).Select(a => a.ToNewEntity()));
@@ -449,32 +451,33 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
             if (count % BulkSize == 0)
             {
                 // node Bulk
-                OnMessage($"saving {nodeBulk.Count()} nodes (incl child nodes) ... ");
-                await SaveNodeImportAsync(nodeBulk, newDb, oldDb, ctk);
+                OnMessage($"saving {requestBulk.Count()} nodes (incl child nodes) ... ");
+                await SaveNodeImportAsync(requestBulk, newDb, oldDb, ctk);
+                requestBulk.Clear();
+
+                // data/info
+                await BulkInsertAsync(newDb, requestImportDataBulk, ctk);
+                requestImportDataBulk.Clear();
 
                 // annotations
                 await BulkInsertAsync(newDb, annotationBulk, ctk);
                 annotationBulk.Clear();
-
-                // data/info
-                await BulkInsertAsync(newDb, importDataBulk, ctk);
-                importDataBulk.Clear();
             }
         }
 
         OnMessage("saving remaining changes ... ");
-        await SaveNodeImportAsync(nodeBulk, newDb, oldDb, ctk);
-        nodeBulk.Clear();
+        await SaveNodeImportAsync(requestBulk, newDb, oldDb, ctk);
+        requestBulk.Clear();
 
         await BulkInsertAsync(newDb, annotationBulk, ctk);
         annotationBulk.Clear();
 
-        await BulkInsertAsync(newDb, importDataBulk, ctk);
-        importDataBulk.Clear();
+        await BulkInsertAsync(newDb, requestImportDataBulk, ctk);
+        requestImportDataBulk.Clear();
 
         stopWatch.Stop();
         TimeSpan ts = stopWatch.Elapsed;
-        OnMessage($"{count} nodes exported in {ts.TotalSeconds}s");
+        OnMessage($"{count} nodes imported as ServiceRequests in {ts.TotalSeconds}s");
 
 
         return true;
@@ -511,6 +514,126 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
             */
         }
     }
+
+
+
+
+
+    public async Task<bool> ÏmportDocumentsAsync(bool deleteExitingData, CancellationToken ctk = default)
+    {
+        Stopwatch stopWatch = new Stopwatch();
+        stopWatch.Start();
+
+        if (deleteExitingData)
+        {
+            Console.WriteLine("delete imported documents data");
+            await newDb.DocumentImports.ExecuteDeleteAsync();
+            await newDb.Documents.Where(n => n.ipath2_id.HasValue).ExecuteDeleteAsync();
+            var nc = await newDb.Documents.CountAsync();
+            Console.WriteLine($"statring from {nc} documents.");
+        }
+
+
+        int importCount = 0;
+        int level = 1;
+        var parentIda = DataImportExtensions.nodeIds.Keys.ToHashSet();
+        while (parentIda.Any())
+        {
+            Console.WriteLine($"--------------------------------------------------------------------");
+            Console.WriteLine($"Importing Child-Nodes, Level {level} ....");
+            var tmp = await ImportDocumentsAsync(parentIda, ctk);
+            parentIda = tmp;
+            importCount += tmp.Count();
+            Console.WriteLine($"Imported {tmp.Count} Documents in Level {level}");
+            level++;
+        }
+
+        stopWatch.Stop();
+        Console.WriteLine($"Imported {importCount} Documents in {stopWatch.Elapsed.TotalSeconds}s");
+
+        return true;
+    }
+
+
+
+
+    public async Task<HashSet<int>> ImportDocumentsAsync(HashSet<int> parentIds, CancellationToken ctk = default)
+    {
+        var q = oldDb.Set<i2object>()
+            .Where(o => o.parent_id.HasValue && parentIds.Contains(o.parent_id.Value))
+            .Where(o => o.sender_id.HasValue && o.sender_id > 0)
+            .AsQueryable();
+
+        var total = await q.CountAsync(ctk);
+        OnMessage($"Starting import of {total} child objects => Documents ... ");
+
+        // BulkSize = 100;
+        // var objectsQuery = q.OrderBy(o => o.id).Skip(4500);
+        var objectsQuery = q.OrderBy(o => o.id);
+
+        var docBuklBulk = new List<DocumentNode>();
+        var docImportDataBulk = new List<DocumentImport>();
+        var count = 0;
+
+        var importedIds = new HashSet<int>();
+
+        await foreach (var o in objectsQuery.AsAsyncEnumerable().WithCancellation(ctk))
+        {
+            count++;
+
+            if (ctk.IsCancellationRequested)
+            {
+                ctk.ThrowIfCancellationRequested();
+            }
+
+            // nodes (incl. ChildNodes)
+            Debug.WriteLine("Child Node #{0}", o.id);
+            importedIds.Add(o.id);
+
+            // create new Ids
+            o.CreateNewDocId();
+
+            // convert root node => ServiceReqeust
+            var n = o.ToDocument();
+            if (n is not null)
+            {
+                docBuklBulk.Add(n);
+
+                // data/info
+                docImportDataBulk.AddRange(new DocumentImport { Id = Guid.CreateVersion7(), DocumentId = n.Id, Info = o.info, Data = o.data });
+            }
+
+            // OnProgress((int)(double)(count * 100 / total), $"{count} / {total}");
+
+            if (count % BulkSize == 0)
+            {
+                OnProgress((int)(double)(count * 100 / total), $"{count} / {total}");
+
+                // node Bulk
+                await BulkInsertAsync(newDb, docBuklBulk, ctk);
+                docBuklBulk.Clear();
+
+                // data/info
+                await BulkInsertAsync(newDb, docImportDataBulk, ctk);
+                docImportDataBulk.Clear();
+            }
+        }
+
+        OnMessage("saving remaining changes ... ");
+        // node Bulk
+        await BulkInsertAsync(newDb, docBuklBulk, ctk);
+        docBuklBulk.Clear();
+
+        // data/info
+        await BulkInsertAsync(newDb, docImportDataBulk, ctk);
+        docImportDataBulk.Clear();
+
+
+        return importedIds;
+    }
+
+
+
 
 
     public async Task ImportUserStatsAsync(CancellationToken ctk = default)
@@ -636,6 +759,12 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
             {
                 Console.WriteLine("conflict: " + entry.Metadata.Name);
             }
+        }
+        catch (Exception e2)
+        {
+            Console.WriteLine(e2.InnerException?.Message);
+            Console.WriteLine(e2.Message);
+            throw e2;
         }
         await transaction.CommitAsync();
 

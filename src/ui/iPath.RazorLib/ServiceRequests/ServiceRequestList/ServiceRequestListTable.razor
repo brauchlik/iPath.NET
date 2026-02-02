@@ -32,11 +32,11 @@
         -->
     </ToolBarContent>
     <HeaderContent>
-        <MudTh Style="width: 60%;"><MudTableSortLabel SortLabel="Description.Title" T="ServiceRequestListDto">Title</MudTableSortLabel></MudTh>
+        <MudTh Style="width: 40%;"><MudTableSortLabel SortLabel="Description.Title" T="ServiceRequestListDto">Title</MudTableSortLabel></MudTh>
         <MudTh Style="min-width: 50px;"></MudTh>
         <MudTh Style="width: 8rem;"><MudTableSortLabel SortLabel="Description.CaseType" T="ServiceRequestListDto">Type</MudTableSortLabel></MudTh>
-        <MudTh Style="width: 8rem;"><MudTableSortLabel SortLabel="Owner" T="ServiceRequestListDto">Sender</MudTableSortLabel></MudTh>
-        <MudTh Style="width: 12rem;"><MudTableSortLabel SortLabel="CreatedOn" T="ServiceRequestListDto" InitialDirection="SortDirection.Descending">Date</MudTableSortLabel></MudTh>
+        <MudTh Style="width: 16rem;"><MudTableSortLabel SortLabel="Owner" T="ServiceRequestListDto">Sender</MudTableSortLabel></MudTh>
+        <MudTh Style="width: 10rem;"><MudTableSortLabel SortLabel="CreatedOn" T="ServiceRequestListDto" InitialDirection="SortDirection.Descending">Date</MudTableSortLabel></MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Title" Class="ipath_node_title2" @onclick="@(() => vm.GotoNode(context))">

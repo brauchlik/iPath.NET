@@ -10,7 +10,7 @@
             <div class="ipath_node_title">
                 <div class="ipath_bold">
                     <MudHighlighter Text="@vm.SelectedRequest.Title" HighlightedText="@vm.SearchString" />
-                    <span>@vm.SelectedRequest.Description.BodySite?.ToAppend()</span>
+                    <MudHighlighter Text=@vm.SelectedRequest.Description.BodySite?.ToAppend() HighlightedText="@vm.SearchString" />
                 </div>
                 <div>@vm.SelectedRequest.SubTitle</div>
                 @if (!string.IsNullOrEmpty(PatientText))

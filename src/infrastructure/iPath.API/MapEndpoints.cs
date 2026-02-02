@@ -24,6 +24,7 @@ public static class MapEndpoints
             .MapQuesionnairesApi()
             .MapFhirApi()
             .MapTestApi()
+            .MapStatisticsApi()
             .MapCmsApi()
             .MapIPathHubs();
 

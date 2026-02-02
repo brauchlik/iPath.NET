@@ -15,8 +15,14 @@ public static class NodeFilterExtensions
                 EF.Functions.Like(n.Description!.Subtitle, s) ||
                 EF.Functions.Like(n.Description!.Text, s) ||
                 EF.Functions.Like(n.Description!.CaseType, s) ||
-                EF.Functions.Like(n.Description!.AccessionNo, s)
+                EF.Functions.Like(n.Description!.AccessionNo, s) ||
+                EF.Functions.Like(n.Description!.BodySite!.Display, s) ||
+                EF.Functions.Like(n.Description!.BodySite!.Code, s)
             ));
+
+            // maybe search in questionnaire text?
+            // || EF.Functions.Like(n.Description!.Questionnaire!.GeneratedText, s)
+
         }
         return q;
     }

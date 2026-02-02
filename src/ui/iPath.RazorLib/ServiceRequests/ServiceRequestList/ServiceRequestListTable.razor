@@ -26,6 +26,10 @@
                       Placeholder="Search" Clearable="true"
                       Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
                       Class="mt-0"></MudTextField>
+        <!--
+                <TopoLookup Placeholder="Body Site" ValueSetId="icdo-topo" Class="ml-2"
+                            @bind-Concept="@vm.SearchBodySite" @bind-Concept:after=@(() => table.ReloadServerData()) />
+        -->
     </ToolBarContent>
     <HeaderContent>
         <MudTh Style="width: 60%;"><MudTableSortLabel SortLabel="Description.Title" T="ServiceRequestListDto">Title</MudTableSortLabel></MudTh>
@@ -41,7 +45,8 @@
             </MudLink>
             @if (@context.Description.BodySite is not null)
             {
-                <span class="ml-1">(@context.Description.BodySite?.ToString())</span>
+                <span>, </span>
+                <MudHighlighter Text="@context.Description.BodySite?.ToString()" HighlightedText="@vm.SearchString" />
             }
             <MudHidden Breakpoint="Breakpoint.Xs">
                 <div><MudHighlighter Text="@context.SubTitle" HighlightedText="@vm.SearchString" /></div>
@@ -72,16 +77,18 @@
         <MudTd DataLabel="Owner" Class="ipath_node_sender2" HideSmall="true">
             @if (ListMode == eRequestFilter.Group)
             {
-                <OwnerLink Owner="@context.Owner" />                
+                <OwnerLink Owner="@context.Owner" />
             }
             else if (ListMode == eRequestFilter.Owner)
             {
                 <GroupLink GroupId="@context.GroupId" />
             }
-            else 
+            else
             {
-                <OwnerLink Style="font-weight: bold;" Owner="@context.Owner" /><br />
-                <GroupLink Typo="Typo.body2" GroupId="@context.GroupId"/>
+                <OwnerLink Style="font-weight: bold;" Owner="@context.Owner" />
+
+                <br />
+                <GroupLink Typo="Typo.body2" GroupId="@context.GroupId" />
             }
         </MudTd>
         <MudTd DataLabel="CreatedOn" Class="ipath_node_date2" HideSmall="true">
@@ -110,11 +117,18 @@
         get => vm.GroupId;
         set => vm.GroupId = value;
     }
+    [Parameter]
+    public Guid? CommunityId
+    {
+        get => vm.CommunityId;
+        set => vm.CommunityId = value;
+    }
 
     [Parameter]
-    public eRequestFilter ListMode {
+    public eRequestFilter ListMode
+    {
         get => vm.ListMode;
-        set => vm.ListMode = value; 
+        set => vm.ListMode = value;
     }
 
     MudTable<ServiceRequestListDto> table;

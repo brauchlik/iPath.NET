@@ -10,11 +10,12 @@ public class ServiceRequestListViewModel(IPathApi api,
     ServiceRequestViewModel nvm) : IViewModel
 {
     public Guid? GroupId { get; set; }
-    // public Guid? OwnerId { get; set; }
+    public Guid? CommunityId { get; set; }
     public eRequestFilter ListMode { get; set; } = eRequestFilter.Group;
 
 
     public string SearchString { get; set; }
+    public CodedConcept? SearchBodySite { get; set; }
 
     public async Task<TableData<ServiceRequestListDto>> GetServiceRequestListAsync(TableState state, CancellationToken ct)
     {
@@ -28,6 +29,10 @@ public class ServiceRequestListViewModel(IPathApi api,
         if (GroupId.HasValue)
         {
             query.GroupId = this.GroupId;
+        }
+        if (CommunityId.HasValue)
+        {
+            query.CommunityId = this.CommunityId;
         }
 
         nvm.LastQuery = query;

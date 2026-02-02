@@ -38,7 +38,6 @@ public class CodingLookup : MudAutocomplete<CodeDisplay>
     public EventCallback<CodedConcept> ConceptChanged { get; set; }
 
 
-
     public string CodeSystemUrl { get; private set; }
 
     protected ValueSetDisplay vs;

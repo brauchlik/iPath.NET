@@ -1,7 +1,4 @@
-﻿using Ardalis.GuardClauses;
-using iPath.EF.Core.Database;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 
@@ -38,17 +35,6 @@ public static class TestEndpoints
             return Results.BadRequest("Invalid file.");
         })
             .DisableAntiforgery();
-
-
-
-        test.MapGet("stats/documents", async (iPathDbContext db, CancellationToken ct) =>
-        {
-            return await db.Documents.AsNoTracking()
-                .GroupBy(x => x.DocumentType)
-                .Select(g => new { Type = g.Key, Count = g.Count() })
-                .OrderByDescending(g => g.Count)
-                .ToListAsync();
-        });
 
         return route;
     }

@@ -69,7 +69,7 @@ public static class DatabaseImport
         if (cfg.ImportDocuments)
         {
             Console.WriteLine("importing Documents ... ");
-            await srv.ÏmportDocumentsAsync(false);
+            await srv.ImportDocumentsAsync(false);
         }
 
         if (cfg.ImportVisitStats)

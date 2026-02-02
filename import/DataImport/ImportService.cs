@@ -518,7 +518,7 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
 
 
 
-    public async Task<bool> ÏmportDocumentsAsync(bool deleteExitingData, CancellationToken ctk = default)
+    public async Task<bool> ImportDocumentsAsync(bool deleteExitingData, CancellationToken ctk = default)
     {
         Stopwatch stopWatch = new Stopwatch();
         stopWatch.Start();

@@ -371,7 +371,7 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
         OnMessage($"{groupIds.Count} groups to be exported");
 
         // import over IAsyncEnumerable
-        await ÏmportRequestsAsync(groupIds, deleteExisting, newDb, oldDb, ctk);
+        await ImportRequestsAsync(groupIds, deleteExisting, newDb, oldDb, ctk);
 
         // import over in memory paged list
         // await ImportGroupNodesListAsync(deleteExitingData, reImportAll, groupIds, newDb, oldDb, ctk);
@@ -380,7 +380,7 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
     }
 
 
-    public async Task<bool> ÏmportRequestsAsync(HashSet<int> gid, bool deleteExitingData, iPathDbContext newDb, OldDB oldDb, CancellationToken ctk = default)
+    public async Task<bool> ImportRequestsAsync(HashSet<int> gid, bool deleteExitingData, iPathDbContext newDb, OldDB oldDb, CancellationToken ctk = default)
     {
         Stopwatch stopWatch = new Stopwatch();
         stopWatch.Start();

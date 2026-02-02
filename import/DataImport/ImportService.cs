@@ -396,7 +396,6 @@ public class ImportService(OldDB oldDb, iPathDbContext newDb,
             DataImportExtensions.nodeIds.Clear();
         }
 
-
         var q = oldDb.Set<i2object>()
             .Include(o => o.Annotations)
             .Where(o => o.objclass != "imic")

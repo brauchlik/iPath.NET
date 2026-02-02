@@ -19,7 +19,7 @@ public class ServiceRequestListViewModel(IPathApi api,
 
     public async Task<TableData<ServiceRequestListDto>> GetServiceRequestListAsync(TableState state, CancellationToken ct)
     {
-        var query = state.BuildQuery(new GetServiceRequestsQuery
+        var query = state.BuildQuery(new GetServiceRequestListQuery
         {
             SearchString = this.SearchString,
             RequestFilter = ListMode,
@@ -36,7 +36,6 @@ public class ServiceRequestListViewModel(IPathApi api,
         }
 
         nvm.LastQuery = query;
-        nvm.IdList = null;
         var resp = await api.GetRequestList(query);
         if (resp.IsSuccessful)
         {

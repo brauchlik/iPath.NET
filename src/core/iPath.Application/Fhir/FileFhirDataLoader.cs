@@ -1,12 +1,11 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using iPath.Application.Fhir;
 using iPath.Domain.Config;
 using Microsoft.Extensions.Options;
 using System.IO.Pipelines;
 using System.Text.Json;
 
-namespace iPath.Blazor.ServiceLib.Fhir;
+namespace iPath.Application.Fhir;
 
 public class FileFhirDataLoader(IOptions<iPathConfig> opts) : IFhirDataLoader
 {  

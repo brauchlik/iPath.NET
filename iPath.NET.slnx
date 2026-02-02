@@ -4,7 +4,9 @@
     <Project Path="src/core/iPath.Domain/iPath.Domain.csproj" Id="ffc8493c-c7e8-4868-8ac3-67b5de8b8ba7" />
   </Folder>
   <Folder Name="/DataImport/">
+    <Project Path="import/CodingAgent/CodingAgent.csproj" Id="024984ee-07e6-4c9a-a732-c7c9f87e48d8" />
     <Project Path="import/DataImport/iPath.DataImport.csproj" />
+    <Project Path="import/GoogleDriveAccess/GoogleDriveAccess.csproj" Id="078ab2e6-f66e-4113-a5e2-65521496b5f5" />
   </Folder>
   <Folder Name="/Doc/">
     <File Path="doc/DEBUG.md" />

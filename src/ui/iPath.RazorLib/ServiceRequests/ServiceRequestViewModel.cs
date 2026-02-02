@@ -194,7 +194,14 @@ public class ServiceRequestViewModel(IPathApi api,
 
 
     #region "-- Navigation --"
-    public GetServiceRequestsQuery LastQuery { get; set; }
+    public GetServiceRequestListQuery LastQuery { 
+        get;
+        set {
+            field = value;
+            IdList = null;
+        }
+    }
+
     public string NavUrl
     {
         get
@@ -207,6 +214,7 @@ public class ServiceRequestViewModel(IPathApi api,
                     eRequestFilter.Owner => "mycases",
                     eRequestFilter.NewCases => "user/newcases",
                     eRequestFilter.NewAnnotations => "user/newannotations",
+                    eRequestFilter.Search => "requests/search",
                     _ => "groups"
                 };
             }
@@ -219,7 +227,7 @@ public class ServiceRequestViewModel(IPathApi api,
     {
         if (IdList is null && LastQuery is not null)
         {
-            var cmd = new GetServiceRequestIdListQuery(LastQuery);
+            var cmd =  GetServiceRequestIdListQuery.From(LastQuery);
             var resp = await api.GetRequestIdList(cmd);
             if (resp.IsSuccessful)
             {

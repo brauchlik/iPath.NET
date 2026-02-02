@@ -144,7 +144,7 @@ public interface IPathApi
     Task<IApiResponse<ServiceRequestDto>> GetRequestById(Guid id);
 
     [Post("/api/v1/requests/list")]
-    Task<IApiResponse<PagedResultList<ServiceRequestListDto>>> GetRequestList(GetServiceRequestsQuery query);
+    Task<IApiResponse<PagedResultList<ServiceRequestListDto>>> GetRequestList(GetServiceRequestListQuery query);
 
     [Post("/api/v1/requests/idlist")]
     Task<IApiResponse<IReadOnlyList<Guid>>> GetRequestIdList(GetServiceRequestIdListQuery query);

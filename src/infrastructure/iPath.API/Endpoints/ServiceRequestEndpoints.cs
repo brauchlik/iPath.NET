@@ -20,7 +20,7 @@ public static class ServiceRequestEndpoints
             .Produces<ServiceRequestDto>()
             .RequireAuthorization();
 
-        grp.MapPost("list", async (GetServiceRequestsQuery request, [FromServices] IMediator mediator, CancellationToken ct)
+        grp.MapPost("list", async (GetServiceRequestListQuery request, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(request, ct))
             .Produces<PagedResultList<ServiceRequestListDto>>()
             .RequireAuthorization();

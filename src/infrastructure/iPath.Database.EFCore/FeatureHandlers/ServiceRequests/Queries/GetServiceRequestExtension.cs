@@ -2,22 +2,14 @@
 
 namespace iPath.EF.Core.FeatureHandlers.ServiceRequests;
 
-
-public class GetServiceRequestIdListHandler(iPathDbContext db, IUserSession sess)
-    : IRequestHandler<GetServiceRequestIdListQuery, Task<IReadOnlyList<Guid>>>
+public static class GetServiceRequestExtension
 {
-    public async Task<IReadOnlyList<Guid>> Handle(GetServiceRequestIdListQuery request, CancellationToken cancellationToken)
+    public static IQueryable<ServiceRequest> ApplyRequest(this IQueryable<ServiceRequest> q, GetServiceRequestsQueryBase request, IUserSession sess)
     {
-        Guard.Against.Null(sess.User);
 
-        // prepare query (only root nodes)
-        var q = db.ServiceRequests.AsNoTracking();
-        q = q.ApplyRequest(request, sess);
-
-        /*
         var spec = Specification<ServiceRequest>.All;
 
-        if (request.GroupId.HasValue)
+        if (request.RequestFilter == eRequestFilter.Group && request.GroupId.HasValue)
         {
             sess.AssertInGroup(request.GroupId.Value);
             spec = spec.And(new ServiceRequestIsInGroupSpecifications(request.GroupId.Value));
@@ -49,7 +41,7 @@ public class GetServiceRequestIdListHandler(iPathDbContext db, IUserSession sess
         if (!string.IsNullOrEmpty(request.SearchString))
         {
             q = q.ApplySearchString(request.SearchString);
-        } 
+        }
 
         if (request.Filter is not null)
         {
@@ -66,12 +58,7 @@ public class GetServiceRequestIdListHandler(iPathDbContext db, IUserSession sess
 
         // filter & sort
         q = q.ApplyQuery(request);
-        */
 
-        // project
-        var projeted = q.Select(n => n.Id);
-
-        // paginate
-        return await projeted.ToListAsync(cancellationToken);
+        return q;
     }
 }

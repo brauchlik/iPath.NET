@@ -12,12 +12,16 @@ else
 {
     <IPathHeader Title="@vm.Model.Name" Typo="Typo.h6" />
 
+    <ServiceRequestListView GroupId="@vm.Model.Id" ListMode="eRequestFilter.Group" />
+
+    <!--
     <MudHidden Breakpoint="Breakpoint.SmAndUp">
         <ServiceRequestCompactList GroupId="@vm.Model.Id" ListMode="eRequestFilter.Group" />
     </MudHidden>
     <MudHidden Breakpoint="Breakpoint.Xs">
         <ServiceRequestListTable GroupId="@vm.Model.Id" ListMode="eRequestFilter.Group" />
     </MudHidden>
+    -->
 }
 
 

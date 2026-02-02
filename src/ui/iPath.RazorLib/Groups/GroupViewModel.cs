@@ -9,20 +9,26 @@ public class GroupViewModel(IPathApi api,
     ISnackbar snackbar,
     IDialogService dialog,
     IStringLocalizer T,
-    ServiceRequestViewModel nvm) : IViewModel
+    ServiceRequestListViewModel srvm) : IViewModel
 {
     public GroupDto Model { get; private set; }
 
     public async Task LoadGroup(Guid id)
     {
-        var resp = await api.GetGroup(id);
-        if (resp.IsSuccessful)
+        // only reload on group change
+        if (Model == null || Model.Id != id)
         {
-            Model = resp.Content;
-        }
-        else
-        {
-            snackbar.AddError(resp.ErrorMessage);
+            var resp = await api.GetGroup(id);
+            if (resp.IsSuccessful)
+            {
+                // reset search string when opening a new group
+                srvm.SearchString = string.Empty;
+                Model = resp.Content;
+            }
+            else
+            {
+                snackbar.AddError(resp.ErrorMessage);
+            }
         }
     }
 

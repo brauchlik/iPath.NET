@@ -7,6 +7,6 @@ public class GetServiceRequestsQueryBase : PagedQuery<ServiceRequestListDto>
     // limit query to a community
     public Guid? CommunityId { get; set; }
 
-    public required eRequestFilter RequestFilter { get; set; } = eRequestFilter.Group;
+    public required eRequestFilter RequestFilter { get; set; } = eRequestFilter.None;
     public string SearchString { get; set; }
 }

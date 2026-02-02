@@ -11,7 +11,18 @@ public class ServiceRequestListViewModel(IPathApi api,
 {
     public Guid? GroupId { get; set; }
     public Guid? CommunityId { get; set; }
-    public eRequestFilter ListMode { get; set; } = eRequestFilter.Group;
+    public eRequestFilter ListMode { 
+        get;
+        set
+        {
+            if (value != field)
+            {
+                field = value;
+                // reset search string when changing the ListMode
+                SearchString = string.Empty;
+            }
+        }
+    }
 
 
     public string SearchString { get; set; }

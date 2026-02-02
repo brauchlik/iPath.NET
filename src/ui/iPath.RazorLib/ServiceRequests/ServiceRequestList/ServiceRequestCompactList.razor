@@ -22,7 +22,7 @@
 @inject ServiceRequestListViewModel vm
 @inject GroupViewModel gvm
 
-@code {
+    @code {
     [Parameter]
     public Guid? GroupId
     {
@@ -42,6 +42,9 @@
 
     protected async Task LoadData()
     {
+        // do not use any search string in mobile view as there is not yet any input box for search
+        vm.SearchString = string.Empty;
+
         var state = new TableState { Page = 0, PageSize = 25 };
         data = await vm.GetServiceRequestListAsync(state, default);
     }

@@ -134,19 +134,12 @@
                     {
                         <iPath.LHCForms.LhcForm @ref="qrForm" ReadOnly="false" OnAfterRendered="wizzardVM.LoadQuestionnaireForm" />
                     }
+                }
 
-                    <MudTextField @bind-Value="@wizzardVM.Data.Text" Label=@T["Additional comments"]
-                                  Lines="3" Required="false" class="mt-4"
-                                  HelperText=@T["please make sure it does not contain any sensitive patient details like name or exact date of birth"]
-                                  Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
-                }
-                else
-                {
-                    <MudTextField @bind-Value="@wizzardVM.Data.Text" Label=@T["Clinical History"]
-                                  Lines="3" Required="true"
-                                  HelperText=@T["please make sure it does not contain any sensitive patient details like name or exact date of birth"]
-                                  Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
-                }
+                <MudTextField @bind-Value="@wizzardVM.Data.Text" Label=@T["Clinical History"]
+                              Lines="3" Required="true"
+                              HelperText=@T["please make sure it does not contain any sensitive patient details like name or exact date of birth"]
+                              Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
             </MudStack>
         </MudStep>
 

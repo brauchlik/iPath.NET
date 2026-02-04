@@ -441,3 +441,10 @@
 .ipath_news_body li {
     margin-left: 2em;
 }
+
+.ipath_gentextinfo{
+    font-style: italic;
+    color: darkgrey;
+    border-bottom: 1px inset;
+    margin-bottom: 2px;
+}

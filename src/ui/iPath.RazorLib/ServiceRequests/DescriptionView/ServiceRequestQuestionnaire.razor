@@ -4,8 +4,8 @@
 <MudExpansionPanels>
     <MudExpansionPanel ExpandedChanged="OnExpanded">
         <TitleContent >
-            <strong>@QName (@T["automatically generated text"])</strong>
-            <div>@Model.Questionnaire.GeneratedText</div>
+            <div class="ipath_gentextinfo">@QName (@T["automatically generated text"])</div>
+            <div>@((MarkupString)Model.Questionnaire.GeneratedText)</div>
         </TitleContent>
         <ChildContent>
             <QuestionnaireResponseView Data="Model.Questionnaire" @ref="qv"/>

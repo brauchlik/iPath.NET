@@ -153,7 +153,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
             var qr = await PreviewForm.GetDataAsync();
             var r = JsonSerializer.Deserialize<QuestionnaireResponse>(qr, options);
 
-            var q2t = new GenericQuestionnaireToTextService();
+            var q2t = new GenericQuestionnaireToCvsTextService();
             return q2t.CreateText(r, q);
         }
         catch(Exception ex)

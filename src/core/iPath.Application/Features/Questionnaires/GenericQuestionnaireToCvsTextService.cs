@@ -3,7 +3,7 @@ using Hl7.Fhir.Model;
 namespace iPath.Application.Features.Questionnaires;
 
 // generic suggestion by copilot
-public class GenericQuestionnaireToTextService : IQuestionnaireToTextService
+public class GenericQuestionnaireToCvsTextService : IQuestionnaireToTextService
 {
     public string CreateText(QuestionnaireResponse response, Questionnaire questionnaire)
     {

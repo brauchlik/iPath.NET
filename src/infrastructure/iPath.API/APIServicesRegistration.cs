@@ -104,7 +104,8 @@ public static class APIServicesRegistration
 
         // Questionnaire handling
         services.AddScoped<QuestionnaireCacheServer>();
-        services.AddTransient<IQuestionnaireToTextService, GenericQuestionnaireToTextService>();
+        // services.AddTransient<IQuestionnaireToTextService, GenericQuestionnaireToCvsTextService>();
+        services.AddTransient<IQuestionnaireToTextService, GenericQuestionnaireToListTextService>();
 
         // Caching
         services.AddMemoryCache();

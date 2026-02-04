@@ -1,8 +1,9 @@
 ﻿@namespace iPath.Blazor.Componenents.ServiceRequests
-@using iPath.Application.Features.ServiceRequests
 
 @inject ServiceRequestViewModel vm;
 @inject IStringLocalizer T
+@inject IGroupCache groupCache
+@inject IDialogService srvDialog
 
 <MudForm Model="Model" Class="@Class" @ref="frm">
     <MudGrid>
@@ -23,6 +24,17 @@
                 {
                     <MudTextField @bind-Value="Model.Text" Label=@T["Clinical information"] Lines="4" Variant="Variant" ShrinkLabel="true" Margin="Margin.Dense" />
                     <iPath.LHCForms.LhcForm @ref="lhcForm" ReadOnly="false" />
+
+                    @if (validForms.Count > 1)
+                    {
+                        <MudMenu Label=@T["select questionnaire"] Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.KeyboardArrowDown">
+                            @foreach (var q in validForms)
+                            {
+                                <MudMenuItem Label="@q.QuestinnaireName" OnClick=@(() => SelectQuestionnaire(q)) Disabled=@(q.QuestinnaireId == Model.Questionnaire?.QuestionnaireId) />
+                            }
+                        </MudMenu>
+                    }
+
                 }
                 else if (useHtmlEditor)
                 {
@@ -95,19 +107,69 @@
     bool useQuestionnaire => Model?.Questionnaire != null;
     bool useHtmlEditor => false; // vm.ActiveGroup.Settings.DescriptionAllowHtml;
 
+    IReadOnlyCollection<QuestionnaireForGroupDto> validForms = new List<QuestionnaireForGroupDto>();
+
     private MudForm frm;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadQuestionnaires();
+    }
+
+
+    protected async Task LoadQuestionnaires()
+    {
+        if (vm.SelectedRequest?.GroupId is not null)
+        {
+            var grp = await groupCache.GetGroupAsync(vm.SelectedRequest.GroupId.Value);
+
+            // find all questionnaires that are valid for Usage as CaseDescription and that match the body site
+            validForms = await grp.Questionnaires
+                .OrderBy(f => f.Priority)
+                .FilterAsync(eQuestionnaireUsage.CaseDescription, Model.BodySite.Code);
+        }
+        else
+        {
+            validForms = new List<QuestionnaireForGroupDto>();
+        }
+    }
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && useQuestionnaire)
         {
-            var qResource = await vm.GetQuesiotnnaire(Model);
-            if (!string.IsNullOrEmpty(qResource))
-            {
-                await lhcForm.LoadFormAsync(qResource, Model.Questionnaire.Resource);
-            }
+            await LoadQuestionnaire();
         }
     }
+
+    protected async Task LoadQuestionnaire()
+    {
+        var qResource = await vm.GetQuesiotnnaire(Model);
+        if (!string.IsNullOrEmpty(qResource))
+        {
+            await lhcForm.LoadFormAsync(qResource, Model.Questionnaire.Resource);
+        }
+    }
+
+
+    async Task SelectQuestionnaire(QuestionnaireForGroupDto q)
+    {
+        if (q.QuestinnaireId != Model.Questionnaire?.QuestionnaireId)
+        {
+            var r = await srvDialog.ShowMessageBoxAsync(title: T["warning"], message: T["data will be lost when changing the questionnaire form"], yesText: T["OK"], noText: T["Cancel"]);
+            if (r.HasValue && r.Value)
+            {
+                Model.Questionnaire ??= new();
+                Model.Questionnaire.QuestionnaireId = q.QuestinnaireId;
+                // reset? 
+                Model.Questionnaire.Resource = string.Empty;
+                await LoadQuestionnaire();
+            }
+        }    
+    }
+
 
     async Task OnOwnerChanged()
     {

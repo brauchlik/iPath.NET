@@ -79,7 +79,7 @@ public class GenericQuestionnaireToListTextService : IQuestionnaireToTextService
                     {
                         var questionText = !string.IsNullOrEmpty(q.Text) ? q.Text : $"[{q.LinkId}]";
                         var answersCombined = string.Join("; ", allAnswers);
-                        sb.AppendLine($"<strong>{questionText}:</strong> {answersCombined}<br />");
+                        sb.AppendLine($"<span class=\"ipath_question\">{questionText}:</span> {answersCombined}<br />");
                     }
                 }
 
@@ -128,7 +128,7 @@ public class GenericQuestionnaireToListTextService : IQuestionnaireToTextService
 
                     if (allAnswers.Any())
                     {
-                        sb.AppendLine($"{title}: {string.Join("; ", allAnswers)}");
+                        sb.AppendLine($"<span class=\"ipath_question\">{title}: </span>{string.Join("; ", allAnswers)}<br />");
                     }
 
                     if (r.Item != null)

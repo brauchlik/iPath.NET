@@ -11,8 +11,8 @@
 {
 
     <MudCard Style="width: 100%;">
-        <MudCardHeader Class="mud-theme-info">
-            <MudText Typo="Typo.subtitle1">Register with an external account</MudText>
+        <MudCardHeader Class="mud-theme-info py-2">
+            <MudText Typo="Typo.subtitle1">@Title</MudText>
         </MudCardHeader>
         <MudCardContent>
             <form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
@@ -43,6 +43,9 @@
 }
 
 @code {
+    [Parameter, EditorRequired]
+    public string Title { get; set; }
+
     private AuthenticationScheme[] externalLogins = [];
 
     [SupplyParameterFromQuery]

@@ -18,67 +18,65 @@
 @inject iPathDbContext dbContext
 @inject UserManager<User> um
 @inject IEmailSender<User> EmailSender
+@inject IStringLocalizer T
 
 
 <PageTitle>Log in</PageTitle>
 
-<MudText Typo="Typo.h4" GutterBottom="true">Log in</MudText>
+<MudPaper Elevation="0" MaxWidth="480px">
+    <MudStack Spacing="10">
+        <MudCard Style="width: 100%;">
+            <MudCardHeader Class="mud-theme-info py-2">
+                <MudText Typo="Typo.subtitle1">Login</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <StatusMessage Message="@errorMessage" />
+                <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+                    <DataAnnotationsValidator />
 
-<MudGrid>
-    <MudItem md="6">
-        <StatusMessage Message="@errorMessage" />
-        <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
-            <DataAnnotationsValidator />
+                    <MudText GutterBottom="true" Typo="Typo.body1">log in with your iPath account.</MudText>
 
-            <MudText GutterBottom="true" Typo="Typo.body1">log in with your iPath account.</MudText>
-
-            <MudGrid Spacing="2">
-                <MudItem md="12">
                     <MudStaticTextField For="@(() => Input.Username)" @bind-Value="Input.Username"
                                         Label="Username or Email" Placeholder="name@example.com"
                                         Margin="Margin.Dense" Variant="Variant.Outlined" ShrinkLabel="true"
                                         UserAttributes="@(new() { { "autocomplete", "username" }, { "aria-required", "true" } })" />
-                </MudItem>
-                <MudItem md="12">
                     <MudStaticTextField For="@(() => Input.Password)" @bind-Value="Input.Password"
                                         Label="Password" InputType="InputType.Password" Placeholder="password"
                                         Margin="Margin.Dense" Variant="Variant.Outlined" ShrinkLabel="true"
                                         UserAttributes="@(new() { { "autocomplete", "current-password" }, { "aria-required", "true" } })" />
-                </MudItem>
-                <MudItem md="12">
-                    <MudStaticCheckBox For="@(() => Input.RememberMe)" @bind-Value="Input.RememberMe">Remember me</MudStaticCheckBox>
-                </MudItem>
+                    <MudStack Row Class="mt-2">
+                        <MudStaticCheckBox For="@(() => Input.RememberMe)" @bind-Value="Input.RememberMe">Remember me</MudStaticCheckBox>
+                        <MudSpacer />
+                        <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" FormAction="FormAction.Submit">Log in</MudStaticButton>
+                    </MudStack>
+                    
+                    <MudDivider Class="my-2"/>
 
-                @if (!string.IsNullOrEmpty(InitialAdminPassword))
-                {
-                    <MudAlert Severity="Severity.Info" Class="ma-4">
-                        <strong>This is a new Database.</strong><br /> 
-                        You may login with username 'Admin' and the following password: 
-                        <pre style="border: 1px: solid; padding: 4px; background-color: lightgrey;">@InitialAdminPassword</pre>
-                    </MudAlert>
-                }
+                    @if (!string.IsNullOrEmpty(InitialAdminPassword))
+                    {
+                        <MudAlert Severity="Severity.Info" Class="ma-4">
+                            <strong>This is a new Database.</strong><br />
+                            You may login with username 'Admin' and the following password:
+                            <pre style="border: 1px: solid; padding: 4px; background-color: lightgrey;">@InitialAdminPassword</pre>
+                        </MudAlert>
+                    }
+                </EditForm>
 
-                <MudItem md="12">
-                    <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" FormAction="FormAction.Submit">Log in</MudStaticButton>
-                </MudItem>
-            </MudGrid>
-        </EditForm>
-
-        <MudGrid Class="mt-4">
-            <MudItem md="12">
-                <MudLink Href="Account/ForgotPassword">Forgot your password?</MudLink><br />
-                <MudLink Href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</MudLink><br />
-                <MudLink Href="Account/ResendEmailConfirmation">Resend email confirmation</MudLink>
-            </MudItem>
-        </MudGrid>
-    </MudItem>
-    <MudItem md="6">
+                <MudPaper Elevation="0">
+                    <MudLink Href="Account/ForgotPassword">Forgot your password?</MudLink><br />
+                    <MudLink Href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</MudLink><br />
+                    <MudLink Href="Account/ResendEmailConfirmation">Resend email confirmation</MudLink>
+                </MudPaper>
+            </MudCardContent>
+        </MudCard>
         <!--
             <MudText GutterBottom="true" Typo="Typo.body1">Use another service to log in.</MudText>
         -->
-        <ExternalLoginPicker />
-    </MudItem>
-</MudGrid>
+
+        <ExternalLoginPicker Title=@T["Login with an external account"] />
+    </MudStack>
+</MudPaper>
+
 
 @code {
     private string? errorMessage;
@@ -140,7 +138,7 @@
                 var user = await um.FindByEmailAsync(Input.Username);
                 Input.Username = user is not null ? user.UserName : Input.Username;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.LogError("Login by Email falied", ex);
                 errorMessage = "Error: Email is not unique. Please login with your username.";

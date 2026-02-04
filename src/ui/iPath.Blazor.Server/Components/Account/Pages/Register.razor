@@ -27,16 +27,20 @@
 <MudText Typo="Typo.h6" GutterBottom="true">@T["User Registration"]</MudText>
 -->
 
-<MudGrid>
-    <MudItem sm="12" md="6">
+<MudPaper Elevation="0" MaxWidth="640px">
+    <MudStack Spacing="10">
         <MudCard Style="width: 100%;">
-            <MudCardHeader Class="mud-theme-info">
+            <MudCardHeader Class="mud-theme-info py-2">
                 <MudText Typo="Typo.subtitle1">@T["Create a new account"]</MudText>
             </MudCardHeader>
             <MudCardContent>
                 <StatusMessage Message="@Message" />
                 <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
                     <DataAnnotationsValidator />
+
+                    <MudAlert Severity="Severity.Info">
+                        Register a new account for accessing this iPath instance. You maybe also register with an external account below.
+                    </MudAlert>
 
                     <MudGrid Spacing="2">
                         <MudItem sm="12">
@@ -47,7 +51,8 @@
                         </MudItem>
                         <MudItem sm="12">
                             <MudStaticTextField For="@(() => Input.Username)" @bind-Value="Input.Username"
-                                                Label=@T["Username"] Placeholder="Username" HelperText=@T["optional username. email will be used when empty"]
+                                                Label=@T["Username"] Placeholder=@T["Chose a username"] 
+                                                HelperText=@T["optional username to display in the system. email will be used when empty"]
                                                 Margin="Margin.Dense" Variant="Variant.Outlined" ShrinkLabel="true"
                                                 UserAttributes="@(new() { { "autocomplete", "username" } })" />
                         </MudItem>
@@ -70,11 +75,11 @@
                 </EditForm>
             </MudCardContent>
         </MudCard>
-    </MudItem>
-    <MudItem sm="12" md="6">
-        <ExternalLoginPicker />
-    </MudItem>
-</MudGrid>
+
+
+        <ExternalLoginPicker Title=@T["Register with an external account"] />
+    </MudStack>
+</MudPaper>
 
 @code {
     private IEnumerable<IdentityError>? identityErrors;

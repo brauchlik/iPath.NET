@@ -15,17 +15,14 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
     ILogger<LocalStorageService> logger)
     : IStorageService
 {
-
-    private string _storagePath;
     public string StoragePath 
     {
         get
         {
-            if( string.IsNullOrEmpty(_storagePath)) _storagePath = opts.Value.LocalDataPath;
-            return _storagePath;
+            if( string.IsNullOrEmpty(field)) field = opts.Value.LocalDataPath;
+            return field;
         }
     }
-
 
     public async Task<StorageRepsonse> GetFileAsync(Guid DocumentId, CancellationToken ct = default!)
     {

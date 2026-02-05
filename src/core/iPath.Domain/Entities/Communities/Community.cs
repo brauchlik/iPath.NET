@@ -4,6 +4,8 @@ namespace iPath.Domain.Entities;
 
 public class Community : AuditableEntity
 {
+    public string? StorageId { get; set; }
+
     public string Name { get; set; } = "";
 
     public DateTime CreatedOn { get; set; }

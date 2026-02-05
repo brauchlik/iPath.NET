@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="FluentResults" Version="4.0.0" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.73.0.4045" />
     <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.2" />
@@ -21,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\core\iPath.Application\iPath.Application.csproj" />
+    <ProjectReference Include="..\iPath.Database.EFCore\iPath.Database.EFCore.csproj" />
   </ItemGroup>
 
 </Project>

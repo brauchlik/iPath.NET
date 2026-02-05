@@ -46,7 +46,7 @@ public static class DocumentExtensions
                 }
                 else if (document.ipath2_id.HasValue)
                 {
-                    return $"https://www.ipath-network.com/ipath/image/src/{document.ipath2_id}";
+                    return $"https://www.ipath-network.com/ipath/image/src/{document.ipath2_id}?thumb=1";
                 }
 
                 return "";

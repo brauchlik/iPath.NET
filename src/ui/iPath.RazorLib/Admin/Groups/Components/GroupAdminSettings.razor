@@ -12,7 +12,7 @@
             <OwnerLookup Label=@T["Group Owner"] Class="mt-4" @bind-Value="EditModel.Owner" Variant="Variant.Outlined" Margin="Margin.Dense" />
         </MudItem>        
         <MudItem xs="12" sm="6">
-            <CommunityLookup Label=@T["Community"] Class="mt-4" @bind-Value="EditModel.Community" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            <CommunityLookup Label=@T["Community"] Class="mt-4" @bind-Value="EditModel.Community" Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly="true" />
         </MudItem>
     </MudGrid>
     <iPath.Blazor.Componenents.Groups.GroupSettingsForm Model="@EditModel.Settings" />

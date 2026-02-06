@@ -3,7 +3,6 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Services;
-using Hl7.Fhir.Model.CdsHooks;
 using iPath.Application.Contracts;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Domain.Config;
@@ -12,7 +11,9 @@ using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Net.NetworkInformation;
+using Microsoft.Identity.Client;
+using System.Reflection.Metadata;
+using System.Xml.Linq;
 using Upload = Google.Apis.Upload;
 using v3 = Google.Apis.Drive.v3;
 
@@ -20,7 +21,9 @@ namespace iPath.Google.Storage;
 
 public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
     IOptions<iPathConfig> opts,
+    IOptions<iPathClientConfig> clientOpts,
     iPathDbContext db,
+    IMimetypeService mime,
     IGroupCache groupCache,
     ILogger<GoogleDriveStorageService> logger)
     : IRemoteStorageService
@@ -318,7 +321,7 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
 
         FilesResource.ListRequest listRequest = GDrive.Files.List();
         listRequest.Q = $"'{sr.StorageId}' in parents and trashed = false";
-        listRequest.Fields = "nextPageToken, files(id, name, mimeType)";
+        listRequest.Fields = "nextPageToken, files(id, name, mimeType, owners)";
 
         IList<v3.Data.File> items = listRequest.Execute().Files;
         List<v3.Data.File> newitems = new();
@@ -341,6 +344,7 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
                             OwnerId = sr.OwnerId,
                             SortNr = sr.Documents.Max(x => x.SortNr) + 1,
                             StorageId = item.Id,
+                            DocumentType = "file",
                             File = new NodeFile
                             {
                                 Filename = item.Name,
@@ -348,7 +352,29 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
                             }
                         };
                         await db.Documents.AddAsync(newDoc, ctk);
-                        newDoc.File.PublicUrl = await CreateViewLink(newDoc, ctk);
+
+
+                        // node type
+                        // newDoc.DocumentType = newDoc.File.MimeType.ToLower().StartsWith("image") ? "image" : "file";
+
+
+                        if (mime.IsImage(item.Name))
+                        {
+                            // thumnail
+                            newDoc.File.ThumbData = await GetThumbnailBase64Async(item.Id);
+                            newDoc.DocumentType = "image";
+                        }
+                        if (System.IO.Path.GetExtension(item.Name) == ".svs")
+                        {
+                            // 
+                            newDoc.File.PublicUrl = await CreatePublicRangeLinkAsync(item.Id, ctk);
+                            newDoc.DocumentType = "wsi";
+                        }
+                        else
+                        {
+                            // view link for images & files
+                            newDoc.File.PublicUrl = await CreateViewLink(newDoc, ctk);
+                        }
                     }
                 }
             }
@@ -356,5 +382,52 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         }
 
         return newitems.Count();
+    }
+
+
+    private async Task<string?> GetThumbnailBase64Async(string fileId, CancellationToken ct = default)
+    {
+        // Get the thumbnail link from Google Drive
+        var request = GDrive.Files.Get(fileId);
+        request.Fields = "thumbnailLink";
+        var file = await request.ExecuteAsync(ct);
+
+        if (string.IsNullOrEmpty(file.ThumbnailLink))
+            return null;
+
+        // Adjust the thumbnail URL to request 120x120 pixels
+        var baseUrl = file.ThumbnailLink;
+        int index = baseUrl.LastIndexOf('=');
+        if (index > 0)
+            baseUrl = baseUrl.Substring(0, index);
+        var thumbnailUrl = $"{baseUrl}=s" + clientOpts.Value.ThumbSize;
+
+        // Download the thumbnail image
+        using var httpClient = new HttpClient();
+        var imageBytes = await httpClient.GetByteArrayAsync(thumbnailUrl, ct);
+
+        // Convert to base64 string
+        return Convert.ToBase64String(imageBytes);
+    }
+
+    private async Task<string> CreatePublicRangeLinkAsync(string fileId, CancellationToken ct = default)
+    {
+        // 1. Make the file public (Anyone with link can view)
+        var publicPermission = new Permission
+        {
+            Type = "anyone",
+            Role = "reader"
+        };
+
+        await GDrive.Permissions.Create(publicPermission, fileId).ExecuteAsync(ct);
+
+        // 2. Generate the Direct Download URL
+        // This format allows HTTP Range requests (206 Partial Content)
+        // Format: https://www.googleapis.com/drive/v3/files/{fileId}?alt=media&key={YOUR_API_KEY}
+        // Note: For truly public access without OAuth tokens in the header, 
+        // you usually append an API Key or use a specific proxy URL.
+
+        string directUrl = $"https://www.googleapis.com/drive/v3/files/{fileId}?alt=media&key={gdriveOpts.Value.PUBLIC_API_KEY}";
+        return directUrl;
     }
 }

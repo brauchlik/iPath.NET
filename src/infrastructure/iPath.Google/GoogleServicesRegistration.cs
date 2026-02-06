@@ -32,6 +32,9 @@ public static class GoogleServicesRegistration
         {
             services.Configure<GoogleDriveConfig>(config.GetSection(nameof(GoogleDriveConfig)));
             services.AddScoped<IRemoteStorageService, GoogleDriveStorageService>();
+            services.AddHttpClient("GoogleDrive");
+            // services.AddCors(options => options.AddDefaultPolicy(p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+
             return true;
         }
 

@@ -1,6 +1,7 @@
 ﻿using iPath.API.Endpoints;
 using iPath.API.Middleware;
 using iPath.EF.Core.FeatureHandlers;
+using iPath.Google;
 using Microsoft.Extensions.Configuration;
 using Scalar.AspNetCore;
 
@@ -26,6 +27,7 @@ public static class MapEndpoints
             .MapTestApi()
             .MapStatisticsApi()
             .MapCmsApi()
+            .MapGoogleProxy()
             .MapIPathHubs();
 
         // OpenAPI Documentation

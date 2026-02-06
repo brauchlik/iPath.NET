@@ -53,6 +53,8 @@ public static class DocumentExtensions
             }
         }
 
+        public string WsiUrl => $"/api/v1/google/proxy/{document.Id}";
+
         public string BinarayDataUrl => string.IsNullOrWhiteSpace(document.File?.PublicUrl) ?
             $"/files/{document.Id}" :
             document.File.PublicUrl;

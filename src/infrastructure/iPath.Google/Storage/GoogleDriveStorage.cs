@@ -1,17 +1,19 @@
 ﻿using Ardalis.GuardClauses;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
+using Google.Apis.Drive.v3.Data;
 using Google.Apis.Services;
 using iPath.Application.Contracts;
+using iPath.Application.Features.ServiceRequests;
 using iPath.Domain.Config;
 using iPath.Domain.Entities;
 using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using iPath.Application.Features.ServiceRequests;
-using v3 = Google.Apis.Drive.v3;
+using Microsoft.Identity.Client.Extensions.Msal;
 using Upload = Google.Apis.Upload;
+using v3 = Google.Apis.Drive.v3;
 
 namespace iPath.Google.Storage;
 
@@ -63,7 +65,7 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
 
                 // copy to local file
                 var localFile = Path.Combine(opts.Value.TempDataPath, document.Id.ToString());
-                if (File.Exists(localFile)) File.Delete(localFile);
+                if (System.IO.File.Exists(localFile)) System.IO.File.Delete(localFile);
 
                 using var fileStream = new FileStream(localFile, FileMode.Create, FileAccess.Write);
                 await stream.CopyToAsync(fileStream, ct);
@@ -88,7 +90,7 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
 
             // check local file in temp
             var localFile = Path.Combine(opts.Value.TempDataPath, document.Id.ToString());
-            if (!File.Exists(localFile))
+            if (!System.IO.File.Exists(localFile))
                 return StorageRepsonse.Fail($"Local file not found: {localFile}");
 
             if (document.ServiceRequest?.GroupId is null)
@@ -116,6 +118,7 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
             if (file.Status == Upload.UploadStatus.Completed)
             {
                 document.StorageId = request.ResponseBody.Id;
+                document.File.PublicUrl = await CreateViewLink(document, ct);
                 document.File.LastStorageExportDate = DateTime.UtcNow;
                 db.Documents.Update(document);
                 await db.SaveChangesAsync(ct);
@@ -259,5 +262,48 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         {
             logger.LogError(ex, ex.Message);
         }
+    }
+
+    public async Task<string?> CreateViewLink(DocumentNode doc, CancellationToken ct = default)
+    {
+        if (string.IsNullOrEmpty(doc.StorageId)) return null;
+
+        // Permission logic remains the same
+        var newPermission = new Permission
+        {
+            Type = "anyone",
+            Role = "reader"
+        };
+        await GDrive.Permissions.Create(newPermission, doc.StorageId).ExecuteAsync();
+
+
+        // create a preview link
+        var request = GDrive.Files.Get(doc.StorageId);
+        // Request both thumbnail and the original link as a fallback
+        request.Fields = "thumbnailLink, webContentLink";
+        var file = await request.ExecuteAsync();
+
+        if (!string.IsNullOrEmpty(file.ThumbnailLink))
+        {
+            // Google links usually end in =s220 or =w200-h200
+            // We use Regex or IndexOf to safely swap the ending
+            string baseUrl = file.ThumbnailLink;
+            int index = baseUrl.LastIndexOf('=');
+
+            if (index > 0)
+            {
+                baseUrl = baseUrl.Substring(0, index);
+            }
+
+            // Use =s1280 for the size. 
+            // Ensure there are no trailing spaces or weird characters.
+            return $"{baseUrl}=s1280";
+        }
+
+        // Fallback: If no thumbnail exists, we might have to use the direct link
+        return file.WebContentLink;
+
+        // alternative: https://drive.google.com/uc?export=view&id={StorageId}
+        return $"https://drive.google.com/uc?export=view&id={doc.StorageId}";
     }
 }

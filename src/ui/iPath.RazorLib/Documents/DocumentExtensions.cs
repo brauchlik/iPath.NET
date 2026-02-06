@@ -55,11 +55,15 @@ public static class DocumentExtensions
 
         public string BinarayDataUrl => $"/files/{document.Id}";
 
-        public string FileUrl
+        public string PreviewFileUrl
         {
             get
             {
-                if (!document.ipath2_id.HasValue)
+                if (!string.IsNullOrEmpty(document.File?.PublicUrl))
+                {
+                    return document.File.PublicUrl;
+                }
+                else if (!document.ipath2_id.HasValue)
                 {
                     return $"/api/v1/documents/{document.Id}/{document.File.Filename}";
                 }

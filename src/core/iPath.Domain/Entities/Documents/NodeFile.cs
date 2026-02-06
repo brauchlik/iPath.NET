@@ -6,6 +6,9 @@ public class NodeFile
     public string? Filename { get; set; }
     public string? MimeType { get; set; }
     public string? ThumbData { get; set; }
+
+    public string? PublicUrl { get; set; }
+
     public int? ImageWidth { get; set; }
     public int? ImageHeight { get; set; }
 

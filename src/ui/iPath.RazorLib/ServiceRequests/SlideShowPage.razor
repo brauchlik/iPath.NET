@@ -25,7 +25,7 @@
         <MudPaper Class="ipath_image slideshow" Style="background-color: black;" Elevation="0" @onclick="GotoNext">
             @if (vm.SelectedDocument.IsImage)
             {
-                <MudImage src="@vm.SelectedDocument.FileUrl" Class="ipath_image_slideshow" Alt="@vm.SelectedDocument.GalleryCaption" />
+                <MudImage src="@vm.SelectedDocument.PreviewFileUrl" Class="ipath_image_slideshow" Alt="@vm.SelectedDocument.GalleryCaption" />
             }
             else if (Wsi && vm.SelectedDocument.IsWSI)
             {

@@ -11,6 +11,11 @@ public interface IRemoteStorageService
     // Task<StorageRepsonse> PutServiceRequestJsonAsync(Guid Id, CancellationToken ctk = default!);
     Task<StorageRepsonse> PutServiceRequestJsonAsync(ServiceRequest request, CancellationToken ctk = default!);
 
+
+    Task<string?> CreateViewLink(DocumentNode doc, CancellationToken ct = default);
+
+
+
     Task RenameRequest(ServiceRequest request);
     Task RenameGroup(Group group);
     Task RenameCommunity(Community community);

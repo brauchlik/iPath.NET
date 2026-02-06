@@ -203,4 +203,8 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
         return dir;
     }
 
+    public Task<string?> CreateViewLink(DocumentNode doc, CancellationToken ct = default)
+    {
+        return null;
+    }
 }

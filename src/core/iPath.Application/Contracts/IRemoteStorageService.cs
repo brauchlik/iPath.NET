@@ -13,7 +13,7 @@ public interface IRemoteStorageService
 
 
     Task<string?> CreateViewLink(DocumentNode doc, CancellationToken ct = default);
-
+    Task<int> ScanNewFilesAsync(Guid requestId, CancellationToken ctk = default!);
 
 
     Task RenameRequest(ServiceRequest request);

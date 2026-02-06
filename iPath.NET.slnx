@@ -27,6 +27,7 @@
     <Project Path="test/iPath.Test.xUnit2/iPath.Test.xUnit2.csproj" Id="c840be28-4fa1-4c8f-902f-1e91144f5d16" />
   </Folder>
   <Folder Name="/UI/">
+    <Project Path="aspire/iPath.NET.AppHost/iPath.NET.AppHost.csproj" Id="117e718c-88a3-4c2f-bfc7-1f3d39d726ce" />
     <Project Path="src/ui/iPath.Blazor.Client/iPath.Blazor.Client.csproj" />
     <Project Path="src/ui/iPath.Blazor.Server/iPath.Blazor.Server.csproj" />
     <Project Path="src/ui/iPath.Blazor.ServiceLib/iPath.Blazor.ServiceLib.csproj" Id="43a84d05-ac2f-40c9-abaf-a0b6f33fdad7" />
@@ -34,6 +35,5 @@
     <Project Path="src/ui/iPath.OpenSeadragon/iPath.OpenSeadragon.csproj" />
     <Project Path="src/ui/iPath.RazorLib/iPath.Blazor.Componenents.csproj" Id="88037264-2022-4498-8a31-917fe2095996" />
   </Folder>
-  <Project Path="aspire/iPath.NET.AppHost/iPath.NET.AppHost.csproj" Id="117e718c-88a3-4c2f-bfc7-1f3d39d726ce" />
   <Project Path="aspire/iPath.NET.ServiceDefaults/iPath.NET.ServiceDefaults.csproj" />
 </Solution>

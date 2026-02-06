@@ -53,7 +53,9 @@ public static class DocumentExtensions
             }
         }
 
-        public string BinarayDataUrl => $"/files/{document.Id}";
+        public string BinarayDataUrl => string.IsNullOrWhiteSpace(document.File?.PublicUrl) ?
+            $"/files/{document.Id}" :
+            document.File.PublicUrl;
 
         public string PreviewFileUrl
         {

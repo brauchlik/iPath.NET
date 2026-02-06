@@ -84,6 +84,18 @@ public static class ServiceRequestEndpoints
             .RequireAuthorization();
 
 
+
+        // dev
+        grp.MapGet("{id}/scan", async (string id, [FromServices] IRemoteStorageService srv) => 
+        {
+            if (Guid.TryParse(id, out var srid))
+            {
+                var res = await srv.ScanNewFilesAsync(srid);
+                return Results.Ok(res);
+            }
+            return Results.NotFound();
+        });
+
         return builder;
     }
 }

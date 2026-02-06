@@ -207,4 +207,9 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
     {
         return null;
     }
+
+    public async Task<int> ScanNewFilesAsync(Guid sr, CancellationToken ctk = default)
+    {
+        return 0;
+    }
 }

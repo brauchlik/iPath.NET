@@ -3,6 +3,7 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Services;
+using Hl7.Fhir.Model.CdsHooks;
 using iPath.Application.Contracts;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Domain.Config;
@@ -11,7 +12,7 @@ using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client.Extensions.Msal;
+using System.Net.NetworkInformation;
 using Upload = Google.Apis.Upload;
 using v3 = Google.Apis.Drive.v3;
 
@@ -305,5 +306,55 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
 
         // alternative: https://drive.google.com/uc?export=view&id={StorageId}
         return $"https://drive.google.com/uc?export=view&id={doc.StorageId}";
+    }
+
+    public async Task<int> ScanNewFilesAsync(Guid requestId, CancellationToken ctk = default)
+    {
+        var sr = await db.ServiceRequests
+            .Include(sr => sr.Documents)
+            .SingleOrDefaultAsync(x => x.Id == requestId, ctk);
+
+        if (sr?.StorageId is null) return 0;
+
+        FilesResource.ListRequest listRequest = GDrive.Files.List();
+        listRequest.Q = $"'{sr.StorageId}' in parents and trashed = false";
+        listRequest.Fields = "nextPageToken, files(id, name, mimeType)";
+
+        IList<v3.Data.File> items = listRequest.Execute().Files;
+        List<v3.Data.File> newitems = new();
+
+        Console.WriteLine("Items in folder:");
+        if (items != null && items.Count > 0)
+        {
+            foreach (var item in items)
+            {
+                if (item.MimeType != "application/vnd.google-apps.folder")
+                {
+                    if (!sr.Documents.Any(d => d.StorageId == item.Id))
+                    {
+                        newitems.Add(item);
+                        var newDoc = new DocumentNode
+                        {
+                            Id = Guid.CreateVersion7(),
+                            ServiceRequestId = sr.Id,
+                            CreatedOn = DateTime.UtcNow,
+                            OwnerId = sr.OwnerId,
+                            SortNr = sr.Documents.Max(x => x.SortNr) + 1,
+                            StorageId = item.Id,
+                            File = new NodeFile
+                            {
+                                Filename = item.Name,
+                                MimeType = item.MimeType
+                            }
+                        };
+                        await db.Documents.AddAsync(newDoc, ctk);
+                        newDoc.File.PublicUrl = await CreateViewLink(newDoc, ctk);
+                    }
+                }
+            }
+            await db.SaveChangesAsync(ctk);
+        }
+
+        return newitems.Count();
     }
 }

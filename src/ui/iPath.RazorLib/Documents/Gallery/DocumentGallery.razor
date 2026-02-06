@@ -23,7 +23,7 @@
             else if (Wsi && vm.SelectedDocument.FileExtension == ".svs")
             {
                 <div class="d-flex justify-center">
-                    <iPath.OpenSeadragon.OsdViewerIFrame ImagePath=@($"/files/{vm.SelectedDocument.Id}") MaxHeight="700" />
+                    <iPath.OpenSeadragon.OsdViewerIFrame ImagePath="@vm.SelectedDocument.BinarayDataUrl" MaxHeight="700" />
                 </div>
                 <MudAlert NoIcon="true" Severity="Severity.Info">
                     WSI viewer using <a href="https://openseadragon.github.io/">OpenSeadragon</a>

@@ -38,7 +38,7 @@
         vm.OnBeforeSaveEvent += OnBeforeSaveEventHandler;
     }
 
-    protected override void OnDisposed()
+    protected override async ValueTask OnDisposedAsync()
     {
         vm.OnBeforeSaveEvent -= OnBeforeSaveEventHandler;
     }

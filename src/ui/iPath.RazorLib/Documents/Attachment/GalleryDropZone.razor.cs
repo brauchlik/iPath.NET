@@ -36,10 +36,10 @@ public partial class GalleryDropZone
         }
     }
 
-    protected override void OnDisposed()
+    protected override async ValueTask OnDisposedAsync()
     {
         vm.OnUploadStarted -= OnUploadStartedHandler;
-        base.OnDisposed();
+        await base.OnDisposedAsync();
     }
 
 
@@ -58,6 +58,5 @@ public partial class GalleryDropZone
     private void OnUploadStartedHandler(UploadTask t)
     {
         _uploads.Add(t);
-        InvokeAsync(StateHasChanged);
     }
 }

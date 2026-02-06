@@ -160,3 +160,5 @@ public static class GroupExtensions
         return new GroupListDto(Id: group.Id, Name: group.Name, Visibility: group.Visibility);
     }
 }
+
+

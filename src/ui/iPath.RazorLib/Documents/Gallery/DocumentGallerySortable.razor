@@ -84,7 +84,7 @@
     }
 
 
-    protected override void OnDisposed()
+    protected override async ValueTask OnDisposedAsync()
     {
         if (_dotNetHelper is not null)
         {

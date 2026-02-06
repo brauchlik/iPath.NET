@@ -5,7 +5,7 @@ namespace iPath.EF.Core.FeatureHandlers.Documents.Queries;
 
 
 public class GetDocumentFileHandler(iPathDbContext db,
-    IStorageService srvStorage, 
+    IRemoteStorageService srvStorage, 
     IUserSession sess,
     IOptions<iPathConfig> opts)
     : IRequestHandler<GetDocumentFileQuery, Task<FetchFileResponse>>

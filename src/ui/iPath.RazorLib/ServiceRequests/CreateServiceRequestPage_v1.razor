@@ -104,9 +104,9 @@ else
         }
     }
 
-    protected override void OnDisposed()
+    protected override async ValueTask OnDisposedAsync()
     {
         if (vm.IsEditing)
-            vm.CancelEdit();
+            await vm.CancelEdit();
     }
 }

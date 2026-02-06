@@ -1,6 +1,7 @@
-﻿namespace iPath.Blazor.Componenents.ServiceRequests;
+﻿
+namespace iPath.Blazor.Componenents.ServiceRequests;
 
-public abstract class ServiceRequestViewComponentBase : ComponentBase, IDisposable
+public abstract class ServiceRequestViewComponentBase : ComponentBase, IAsyncDisposable
 {
     [Inject] 
     protected ServiceRequestViewModel vm { get; set; }
@@ -17,13 +18,13 @@ public abstract class ServiceRequestViewComponentBase : ComponentBase, IDisposab
         vm.OnChange += OnChangedHandler;
     }
 
-    void IDisposable.Dispose()
+    public async ValueTask DisposeAsync()
     {
         vm.OnChange -= OnChangedHandler;
-        OnDisposed();
+        await OnDisposedAsync();
     }
 
-    protected virtual void OnDisposed() { }
+    protected virtual ValueTask OnDisposedAsync() => ValueTask.CompletedTask;
 
     protected virtual void OnChangedHandler()
     {

@@ -1,5 +1,6 @@
 ﻿using iPath.Application.Contracts;
 using iPath.Google.Email;
+using iPath.Google.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,5 +20,21 @@ public static class GoogleServicesRegistration
         }
 
         return services;
+    }
+
+
+    public static bool AddGoogleDriveServices(this IServiceCollection services, IConfiguration config)
+    {
+        var cfg = new GoogleDriveConfig();
+        config.GetSection(nameof(GoogleDriveConfig)).Bind(cfg);
+
+        if (cfg.Active)
+        {
+            services.Configure<GoogleDriveConfig>(config.GetSection(nameof(GoogleDriveConfig)));
+            services.AddScoped<IRemoteStorageService, GoogleDriveStorageService>();
+            return true;
+        }
+
+        return false;
     }
 }

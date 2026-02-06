@@ -1,12 +1,13 @@
 using Ardalis.GuardClauses;
+using static iPath.Domain.Entities.Group;
 
 namespace iPath.Domain.Entities;
 
-public class Community : AuditableEntity
+public class Community : AuditableEntityWithEvents
 {
     public string? StorageId { get; set; }
 
-    public string Name { get; set; } = "";
+    public string Name { get; private set; } = "";
 
     public DateTime CreatedOn { get; set; }
 
@@ -95,6 +96,16 @@ public class Community : AuditableEntity
             OwnerId = OwnerId,
         };
     }
+
+    public void UpdateName(string newName)
+    {
+        Guard.Against.NullOrEmpty(newName);    
+        if (Name != newName)
+        {
+            Name = newName;
+            Events.Add(new CommunityCreatedEvent());
+        }
+    }
 }
 
 
@@ -106,8 +117,3 @@ public enum eCommunityVisibility
     Inactive = 3
 }
 
-
-
-public class CommunityCreatedEvent : EventEntity;
-public class CommunityUpdatedEvent : EventEntity;
-public class CommunityDeletedEvent : EventEntity;

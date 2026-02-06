@@ -6,12 +6,12 @@ using iPath.API.Services.Notifications.Processors;
 using iPath.API.Services.Notifications.Publisher;
 using iPath.API.Services.Storage;
 using iPath.API.Services.Thumbnail;
-using iPath.API.Services.Uploads;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Questionnaires;
 using iPath.Application.Localization;
 using iPath.Blazor.ServiceLib.Services;
 using iPath.Google;
+using iPath.Google.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Serialization;
@@ -88,18 +88,21 @@ public static class APIServicesRegistration
 
 
         // Upload Handling
-        services.AddSingleton<IUploadQueue, UploadQueue>(ctx =>
+        services.AddSingleton<IRemoteStorageUploadQueue, RemoteStorageUploadQueue>(ctx =>
         {
-            return new UploadQueue(100);
+            return new RemoteStorageUploadQueue(100);
         });
         services.AddTransient<IImageInfoService, ImageSharpImageInfo>();
         services.AddScoped<IThumbImageService, ThumbImageService>();
 
         // file storage
         services.AddTransient<IMimetypeService, MimetypeService>();
-        services.AddTransient<IStorageService, LocalStorageService>();
-        // TODO: services.AddSingleton<BackgroundUploadWorker>();
-        // TODO: services.AddHostedService(p => p.GetRequiredService<BackgroundUploadWorker>());
+        if (!services.AddGoogleDriveServices(config))
+        {
+            // fallback to local storage if google not configured
+            services.AddScoped<IRemoteStorageService, LocalStorageService>();
+        }
+        services.AddHostedService<RemoteStorageUploadWorker>(); // Worker for IRemoteStorageUploadQueue
         services.AddScoped<LocalChacheService>();
 
         // Questionnaire handling

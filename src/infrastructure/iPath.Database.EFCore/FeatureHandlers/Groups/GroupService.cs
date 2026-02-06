@@ -210,7 +210,7 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
         if (cmd.Name != null)
         {
             await AssertNameNotExists(cmd.Name, group.Id, ct);
-            group.Name = cmd.Name;
+            group.RenameGroup(cmd.Name);
         }
 
         if (cmd.Settings != null) group.Settings = cmd.Settings;

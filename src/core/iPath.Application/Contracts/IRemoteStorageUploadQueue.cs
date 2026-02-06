@@ -1,8 +1,8 @@
 ﻿namespace iPath.Application.Contracts;
 
-public interface IUploadQueue
+public interface IRemoteStorageUploadQueue
 {
-    ValueTask EnqueueAsync(Guid item);
+    ValueTask EnqueueAsync(Guid docId, CancellationToken cancellationToken);
 
     ValueTask<Guid> DequeueAsync(CancellationToken cancellationToken);
 

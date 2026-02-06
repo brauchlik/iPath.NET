@@ -2,10 +2,10 @@ using Ardalis.GuardClauses;
 
 namespace iPath.Domain.Entities;
 
-public class Group : AuditableEntity
+public class Group : AuditableEntityWithEvents
 {
     public string? StorageId { get; set; }
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; private set; } = string.Empty;
 
     public Guid? OwnerId { get; set; }
     public User? Owner { get; set; }
@@ -42,12 +42,12 @@ public class Group : AuditableEntity
     public ICollection<QuestionnaireForGroup> Quesionnaires { get; set; } = [];
 
     public GroupSettings Settings { get; set; } = new();
-    
+
     public int? ipath2_id { get; set; }
 
 
     public Group()
-    {   
+    {
     }
 
     public static Group Create(string Name, User Owner, Community Community)
@@ -93,6 +93,18 @@ public class Group : AuditableEntity
         }
 
         return this;
+    }
+
+    public void RenameGroup(string newName)
+    {
+        Guard.Against.NullOrEmpty(newName);
+        if (newName != Name)
+        {
+            {
+                Name = newName;
+                AddEventEntity(new GroupRenamedEvent { Group = this });
+            }
+        }
     }
 }
 

@@ -13,10 +13,11 @@ public class UpdateCommunityHandler(iPathDbContext db, IUserSession sess)
 
         if (request.Name is not null)
         {
+            var orig = community.Name;
             Guard.Against.Empty(request.Name, "Name must not be empty");
             var existing = await db.Communities.AsNoTracking().IgnoreQueryFilters().AnyAsync(x => x.Id != request.Id && x.Name == request.Name, ct);
             if (existing) throw new CommunityNameExistsException(request.Name);
-            community.Name = request.Name;
+            community.UpdateName(request.Name);
         }
 
         if (request.OwnerId.HasValue)

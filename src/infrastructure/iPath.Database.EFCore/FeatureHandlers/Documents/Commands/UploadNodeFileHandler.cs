@@ -15,7 +15,7 @@ public class UploadDocumentFileCommandHandler(iPathDbContext db,
     IUserSession sess,
     IThumbImageService srvThumb,
     IMediator mediator,
-    IUploadQueue queue,
+    IRemoteStorageUploadQueue queue,
     IMimetypeService srvMime,
     ILogger<UploadDocumentFileCommandHandler> logger)
     : IRequestHandler<UploadDocumentCommand, Task<DocumentDto>>
@@ -89,7 +89,7 @@ public class UploadDocumentFileCommandHandler(iPathDbContext db,
             await tran.CommitAsync(ct);
 
             // copy to storage
-            await queue.EnqueueAsync(document.Id);
+            await queue.EnqueueAsync(document.Id, ct);
 
             // return dto
             var dto = document.ToDto();

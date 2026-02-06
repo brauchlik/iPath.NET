@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace iPath.Application.Features;
 
@@ -87,3 +88,7 @@ public static class CommunityExtensions
     public static CommunityListDto? ToListDto(this CommunityDto? dto)
         => dto is null ? null : new CommunityListDto(Id: dto.Id, Name: dto.Name, Owner: dto.Owner);    
 }
+
+
+
+

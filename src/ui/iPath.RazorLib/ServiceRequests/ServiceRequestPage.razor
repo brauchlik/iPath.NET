@@ -36,7 +36,7 @@ else
         vm.OnLoadingStarted += StartLoding;
     }
 
-    protected override void OnDisposed()
+    protected override async ValueTask OnDisposedAsync()
     {
         vm.OnLoadingStarted -= StartLoding;
         vm.OnLoadingStarted -= StartLoding;

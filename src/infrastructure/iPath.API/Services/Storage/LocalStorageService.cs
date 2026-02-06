@@ -13,7 +13,7 @@ namespace iPath.API.Services.Storage;
 public class LocalStorageService(IOptions<iPathConfig> opts, 
     iPathDbContext db, 
     ILogger<LocalStorageService> logger)
-    : IStorageService
+    : IRemoteStorageService
 {
     public string StoragePath 
     {
@@ -175,8 +175,20 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
         return new StorageRepsonse(true);
     }
 
-     
+    public async Task RenameRequest(ServiceRequest request)
+    {
+        // do nothing
+    }
 
+    public async Task RenameGroup(Group group)
+    {
+        // do nothing
+    }
+
+    public async Task RenameCommunity(Community community)
+    {
+        // do nothing
+    }
 
     private string GetServiceRequestPath(ServiceRequest node)
     {

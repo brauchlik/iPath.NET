@@ -20,6 +20,10 @@
                 </MudTooltip>
                 <MudButtonGroup>
                     <MudMenu Icon="@Icons.Material.Filled.AttachFile" Style="align-self: auto;">
+                        @if (vm.DocumentImportEnabled)
+                        {
+                            <MudMenuItem Icon="@Icons.Material.Filled.ImportExport" OnClick="@(() => vm.StartDocumentImport())">Import from Google</MudMenuItem>
+                        }
                         <MudMenuItem Icon="@Icons.Material.Filled.Folder">Folder</MudMenuItem>
                         <MudMenuItem Icon="@Icons.Material.Filled.DynamicForm">Form</MudMenuItem>
                     </MudMenu>

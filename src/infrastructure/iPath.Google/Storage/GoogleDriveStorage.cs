@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using FluentResults;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
@@ -11,9 +12,6 @@ using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
-using System.Reflection.Metadata;
-using System.Xml.Linq;
 using Upload = Google.Apis.Upload;
 using v3 = Google.Apis.Drive.v3;
 
@@ -28,6 +26,8 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
     ILogger<GoogleDriveStorageService> logger)
     : IRemoteStorageService
 {
+
+    public string ProviderName => "GoogleDrive";
 
     DriveService GDrive
     {
@@ -54,8 +54,17 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
     }
 
 
+    private async Task<DocumentNode?> GetDocument(Guid Id, CancellationToken ct = default)
+    {
+        return await db.Documents
+            .Include(d => d.ServiceRequest)
+            .SingleOrDefaultAsync(x => x.Id == Id, ct);
+    }
 
-    public async Task<StorageRepsonse> GetFileAsync(DocumentNode document, CancellationToken ct = default)
+    public async Task<StorageRepsonse> GetFileAsync(Guid Id, CancellationToken ct = default)
+        => await GetFileAsync(await GetDocument(Id, ct), ct);
+
+    private async Task<StorageRepsonse> GetFileAsync(DocumentNode? document, CancellationToken ct = default)
     {
         try
         {
@@ -85,10 +94,20 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         }
     }
 
-    public async Task<StorageRepsonse> PutFileAsync(DocumentNode document, CancellationToken ct = default)
+    public Task<StorageRepsonse> DeleteFileAsync(Guid Id, CancellationToken ctk = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<StorageRepsonse> PutFileAsync(Guid Id, CancellationToken ct = default)
+        => await PutFileAsync(await GetDocument(Id, ct), ct);
+
+    private async Task<StorageRepsonse> PutFileAsync(DocumentNode? document, CancellationToken ct = default)
     {
         try
         {
+            Guard.Against.Null(document);
+
             if (!string.IsNullOrEmpty(document.StorageId))
                 return StorageRepsonse.Fail("document has already been stored");
 
@@ -142,10 +161,31 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         }
     }
 
-    public Task<StorageRepsonse> PutServiceRequestJsonAsync(ServiceRequest request, CancellationToken ctk = default)
+
+
+
+    private async Task<ServiceRequest?> GetRequest(Guid id, CancellationToken ct)
+        => await db.ServiceRequests
+                        .Include(d => d.Documents)
+                        .Include(d => d.Annotations)
+                        .SingleOrDefaultAsync(x => x.Id == id, ct);
+
+    public async Task<StorageRepsonse> PutServiceRequestJsonAsync(Guid Id, CancellationToken ct = default)
+        => await PutServiceRequestJsonAsync(await GetRequest(Id, ct), ct);
+
+    public Task<StorageRepsonse> PutServiceRequestJsonAsync(ServiceRequest? request, CancellationToken ctk = default)
     {
         throw new NotImplementedException();
     }
+
+    public Task<StorageRepsonse> DeleteServiceRequestJsonAsync(Guid Id, CancellationToken ctk = default)
+    {
+        throw new NotImplementedException();
+    }
+
+
+
+
 
     private async Task<string?> GetOrCreateCommunityFolder(Guid CommunityId, CancellationToken ct = default)
     {
@@ -192,7 +232,7 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         return sr.StorageId;
     }
 
-    private string RequestFolderName(ServiceRequest sr) =>  sr.CreatedOn.ToString("yyyy-MM-dd") + " - " +sr.Description.FullTitle();
+    private string RequestFolderName(ServiceRequest sr) => sr.CreatedOn.ToString("yyyy-MM-dd") + " - " + sr.Description.FullTitle();
 
     private async Task<string> CreateOrGetFolderAsync(string parentId, string newFolderName, CancellationToken ct = default)
     {
@@ -311,13 +351,54 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         return $"https://drive.google.com/uc?export=view&id={doc.StorageId}";
     }
 
-    public async Task<int> ScanNewFilesAsync(Guid requestId, CancellationToken ctk = default)
+
+
+
+    public async Task<ScanExternalDocumentResponse> ScanNewFilesAsync(Guid requestId, CancellationToken ctk = default!)
+    {
+        var sr = await db.ServiceRequests
+            .AsNoTracking()
+            .Include(sr => sr.Documents)
+            .SingleOrDefaultAsync(x => x.Id == requestId, ctk);
+
+        if (sr?.StorageId is null) return new ScanExternalDocumentResponse("Google", null);
+
+        FilesResource.ListRequest listRequest = GDrive.Files.List();
+        listRequest.Q = $"'{sr.StorageId}' in parents and trashed = false";
+        listRequest.Fields = "nextPageToken, files(id, name, mimeType, owners, size, createdTime)";
+
+        IList<v3.Data.File> items = listRequest.Execute().Files;
+
+        List<ExternalFile> newitems = new();
+
+        Console.WriteLine("Items in folder:");
+        if (items != null && items.Count > 0)
+        {
+            foreach (var item in items)
+            {
+                if (item.MimeType != "application/vnd.google-apps.folder")
+                {
+                    if (!sr.Documents.Any(d => d.StorageId == item.Id))
+                    {
+                        var newItem = new ExternalFile(StorageId: item.Id, Filename: item.Name, Mimetype: item.MimeType,
+                            FileSize: item.Size, CreatedOn: item.CreatedTimeDateTimeOffset);
+                        newitems.Add(newItem);
+                    }
+                }
+            }
+        }
+
+        return new ScanExternalDocumentResponse("Google", newitems);
+    }
+
+
+    public async Task ImportNewFilesAsync(Guid requestId, IReadOnlyList<string> storageIds, CancellationToken ctk = default!)
     {
         var sr = await db.ServiceRequests
             .Include(sr => sr.Documents)
             .SingleOrDefaultAsync(x => x.Id == requestId, ctk);
 
-        if (sr?.StorageId is null) return 0;
+        if (sr?.StorageId is null) return;
 
         FilesResource.ListRequest listRequest = GDrive.Files.List();
         listRequest.Q = $"'{sr.StorageId}' in parents and trashed = false";
@@ -331,7 +412,7 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         {
             foreach (var item in items)
             {
-                if (item.MimeType != "application/vnd.google-apps.folder")
+                if (item.MimeType != "application/vnd.google-apps.folder" && storageIds.Contains(item.Id))
                 {
                     if (!sr.Documents.Any(d => d.StorageId == item.Id))
                     {
@@ -353,18 +434,13 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
                         };
                         await db.Documents.AddAsync(newDoc, ctk);
 
-
-                        // node type
-                        // newDoc.DocumentType = newDoc.File.MimeType.ToLower().StartsWith("image") ? "image" : "file";
-
-
                         if (mime.IsImage(item.Name))
                         {
                             // thumnail
                             newDoc.File.ThumbData = await GetThumbnailBase64Async(item.Id);
                             newDoc.DocumentType = "image";
                         }
-                        if (System.IO.Path.GetExtension(item.Name) == ".svs")
+                        if (clientOpts.Value.WsiExtensions.Contains(System.IO.Path.GetExtension(item.Name)))
                         {
                             // 
                             newDoc.File.PublicUrl = await CreatePublicRangeLinkAsync(item.Id, ctk);
@@ -380,8 +456,6 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
             }
             await db.SaveChangesAsync(ctk);
         }
-
-        return newitems.Count();
     }
 
 
@@ -430,4 +504,42 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         string directUrl = $"https://www.googleapis.com/drive/v3/files/{fileId}?alt=media&key={gdriveOpts.Value.PUBLIC_API_KEY}";
         return directUrl;
     }
+
+
+
+
+
+    #region "-- Upload Folder --
+    public bool UserUploadFolderActive => true;
+
+    public Task CreateUserUploadFolderAsync(Domain.Entities.User user, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteUserUploadFolderAsync(Domain.Entities.User user, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ServiceRequestUploadFolder> CreateRequestUploadFolderAsync(Guid ServiceRequestId, Guid UserId, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteRequestUploadFolderAsync(Guid FolderId, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ScanExternalDocumentResponse> ScanNewFilesAsync(ServiceRequestUploadFolder folder, CancellationToken ctk = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task ImportNewFilesAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string> storageIds, CancellationToken ctk = default)
+    {
+        throw new NotImplementedException();
+    }
+    #endregion
 }

@@ -89,7 +89,7 @@ public class UploadDocumentFileCommandHandler(iPathDbContext db,
             await tran.CommitAsync(ct);
 
             // copy to storage
-            await queue.EnqueueAsync(document.Id, ct);
+            await queue.EnqueueAsync(new RemoteStorageCommand(document.Id, eRemoteStorageCommand.UploadDocument), ct);
 
             // return dto
             var dto = document.ToDto();

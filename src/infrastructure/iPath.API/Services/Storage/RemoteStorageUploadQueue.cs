@@ -4,11 +4,11 @@ namespace iPath.API.Services.Storage;
 
 public class RemoteStorageUploadQueue : IRemoteStorageUploadQueue
 {
-    private readonly Channel<Guid> _channel;
+    private readonly Channel<RemoteStorageCommand> _channel;
 
     public RemoteStorageUploadQueue(int maxQueueSize)
     {
-        _channel = Channel.CreateBounded<Guid>(new BoundedChannelOptions(maxQueueSize)
+        _channel = Channel.CreateBounded<RemoteStorageCommand>(new BoundedChannelOptions(maxQueueSize)
         {
             SingleReader = false,
             SingleWriter = false,
@@ -18,12 +18,12 @@ public class RemoteStorageUploadQueue : IRemoteStorageUploadQueue
 
     public int QueueSize => _channel.Reader.Count;
 
-    public async ValueTask<Guid> DequeueAsync(CancellationToken ct)
+    public async ValueTask<RemoteStorageCommand> DequeueAsync(CancellationToken ct)
     {
         return await _channel.Reader.ReadAsync(ct);
     }
 
-    public async ValueTask EnqueueAsync(Guid id, CancellationToken ct)
+    public async ValueTask EnqueueAsync(RemoteStorageCommand id, CancellationToken ct)
     {
         await _channel.Writer.WriteAsync(id, ct);
     }

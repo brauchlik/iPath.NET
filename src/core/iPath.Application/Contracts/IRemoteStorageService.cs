@@ -2,18 +2,32 @@
 
 public interface IRemoteStorageService
 {
-    // Task<StorageRepsonse> PutFileAsync(Guid DocumentId, CancellationToken ctk = default!);
-    Task<StorageRepsonse> PutFileAsync(DocumentNode document, CancellationToken ctk = default!);
+    string ProviderName { get; }
 
-    // Task<StorageRepsonse> GetFileAsync(Guid DocumentId, CancellationToken ctk = default!);
-    Task<StorageRepsonse> GetFileAsync(DocumentNode document, CancellationToken ctk = default!);
+    Task<StorageRepsonse> PutFileAsync(Guid Id, CancellationToken ctk = default!);
+    // Task<StorageRepsonse> PutFileAsync(DocumentNode document, CancellationToken ctk = default!);
 
-    // Task<StorageRepsonse> PutServiceRequestJsonAsync(Guid Id, CancellationToken ctk = default!);
-    Task<StorageRepsonse> PutServiceRequestJsonAsync(ServiceRequest request, CancellationToken ctk = default!);
+    Task<StorageRepsonse> GetFileAsync(Guid Id, CancellationToken ctk = default!);
+    // Task<StorageRepsonse> GetFileAsync(DocumentNode document, CancellationToken ctk = default!);
+    Task<StorageRepsonse> DeleteFileAsync(Guid Id, CancellationToken ctk = default!);
+
+    Task<StorageRepsonse> PutServiceRequestJsonAsync(Guid Id, CancellationToken ctk = default!);
+    //Task<StorageRepsonse> PutServiceRequestJsonAsync(ServiceRequest request, CancellationToken ctk = default!);
+    Task<StorageRepsonse> DeleteServiceRequestJsonAsync(Guid Id, CancellationToken ctk = default!);
 
 
     Task<string?> CreateViewLink(DocumentNode doc, CancellationToken ct = default);
-    Task<int> ScanNewFilesAsync(Guid requestId, CancellationToken ctk = default!);
+
+
+    bool UserUploadFolderActive { get; }
+    Task CreateUserUploadFolderAsync(User user, CancellationToken ct);
+    Task DeleteUserUploadFolderAsync(User user, CancellationToken ct);
+
+    Task<ServiceRequestUploadFolder> CreateRequestUploadFolderAsync(Guid ServiceRequestId, Guid UserId, CancellationToken ct);
+    Task DeleteRequestUploadFolderAsync(Guid FolderId, CancellationToken ct);
+
+    Task<ScanExternalDocumentResponse> ScanNewFilesAsync(ServiceRequestUploadFolder folder, CancellationToken ctk = default!);
+    Task ImportNewFilesAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string> storageIds, CancellationToken ctk = default!);
 
 
     Task RenameRequest(ServiceRequest request);

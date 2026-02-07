@@ -44,6 +44,10 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<EventEntity> EventStore { get; set; }
 
 
+    public DbSet<UserUploadFolder> UserUploadFolders { get; set; }
+    public DbSet<ServiceRequestUploadFolder> ServiceRequestUploadFolders { get; set; }
+
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         // don't user SnakeCase as this is disturbing with Json mapping
@@ -68,6 +72,7 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
             b.HasMany(e => e.Roles).WithMany().UsingEntity<IdentityUserRole<Guid>>();
             b.HasMany(e => e.GroupMembership).WithOne(m => m.User).HasForeignKey(m => m.UserId).IsRequired(true);
             b.HasMany(e => e.CommunityMembership).WithOne(m => m.User).HasForeignKey(m => m.UserId).IsRequired(true);
+            b.HasMany(e => e.UploadFolders).WithOne(f => f.User).HasForeignKey(f => f.UserId).IsRequired(true);
         });
 
         builder.Entity<Role>(b =>

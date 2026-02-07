@@ -88,7 +88,6 @@ public static class DocumentEndpoints
             .Produces<DocumentDto>()
             .RequireAuthorization();
 
-
         return builder;
     }
 }

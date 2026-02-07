@@ -176,10 +176,16 @@ public interface IPathApi
 
     [Get("/api/v1/requests/newannotations")]
     Task<IApiResponse<PagedResultList<ServiceRequestListDto>>> GetNewAnnotations();
+
+    [Get("/api/v1/requests/{id}/scandocuments")]
+    Task<IApiResponse<ScanExternalDocumentResponse>> ScanExternalDocuments(string id);
+
+    [Post("/api/v1/requests/{id}/importdocuments")]
+    Task<IApiResponse> ImportExternalDocuments(string id, IReadOnlyList<string> storageIds);
     #endregion
 
 
-    #region "-- Request-Documents --"
+    #region "-- Documents --"
     [Multipart]
     [Post("/api/v1/documents/upload/{requestId}")]
     Task<IApiResponse<DocumentDto>> UploadDocument([AliasAs("file")] StreamPart file, Guid requestId, [AliasAs("parentId")] Guid? parentId = null);

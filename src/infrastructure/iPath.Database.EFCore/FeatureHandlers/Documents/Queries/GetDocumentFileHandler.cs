@@ -34,7 +34,7 @@ public class GetDocumentFileHandler(iPathDbContext db,
         // get file form store if no local copy exists
         if (!System.IO.File.Exists(fn))
         {
-            await srvStorage.GetFileAsync(document, cancellationToken);
+            await srvStorage.GetFileAsync(document.Id, cancellationToken);
         }
 
         if (!System.IO.File.Exists(fn))

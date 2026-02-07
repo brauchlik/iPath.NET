@@ -904,5 +904,17 @@ public class ServiceRequestViewModel(IPathApi api,
             }
         }
     }
+
+
+    public bool DocumentImportEnabled => opts.Value.ExternalDocumentImportActive;
+
+    public async Task StartDocumentImport()
+    {
+        var resp = await api.ScanExternalDocuments(SelectedRequest.Id.ToString());
+        if (snackbar.CheckSuccess(resp))
+        {
+
+        }
+    }
 }
 

@@ -38,6 +38,7 @@ public class iPathClientConfig
     public long MaxFileSizeBytes => (long)(ByteSize.TryParse(MaxFileSize, out var size) ? size.Bytes : 10.Megabytes().Bytes);
 
 
+    public bool ExternalDocumentImportActive { get; set; }
     public HashSet<string> WsiExtensions { get; set; } = [];
 
 }

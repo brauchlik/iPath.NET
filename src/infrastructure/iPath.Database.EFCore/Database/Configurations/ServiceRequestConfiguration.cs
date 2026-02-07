@@ -38,6 +38,10 @@ internal class ServiceRequestConfiguration : IEntityTypeConfiguration<ServiceReq
             .HasForeignKey(x => x.ServiceRequestId)
             .IsRequired(false);
 
+        b.HasMany(x => x.UploadFolders).WithOne(f => f.ServiceRequest)
+            .HasForeignKey(f => f.ServiceRequestId)
+            .IsRequired(true);
+
         b.HasQueryFilter(x => !x.DeletedOn.HasValue);
     }
 }

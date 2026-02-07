@@ -2,6 +2,7 @@
 using Ardalis.GuardClauses;
 using DispatchR;
 using iPath.Application.Features.Documents;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace iPath.API.Endpoints;
@@ -75,26 +76,29 @@ public static class ServiceRequestEndpoints
         // Annotations
         grp.MapPost("annotation", async (CreateAnnotationCommand request, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(request, ct))
-            .Produces<AnnotationDto>()
+            .Produces<AnnotationDto>(200)
             .RequireAuthorization();
 
         grp.MapDelete("annotation/{id}", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(new DeleteAnnotationCommand(Guid.Parse(id)), ct))
-            .Produces<Guid>()
+            .Produces<Guid>(200)
             .RequireAuthorization();
 
 
 
-        // dev
-        grp.MapGet("{id}/scan", async (string id, [FromServices] IRemoteStorageService srv) => 
-        {
-            if (Guid.TryParse(id, out var srid))
-            {
-                var res = await srv.ScanNewFilesAsync(srid);
-                return Results.Ok(res);
-            }
-            return Results.NotFound();
-        });
+        // external document import
+        grp.MapGet("{id}/scandocuments", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new ScanExternalDocumentsQuery(Guid.Parse(id)), ct))
+            .Produces<ScanExternalDocumentResponse>(200)
+            .Produces(200)
+            .RequireAuthorization();
+
+
+        grp.MapPost("{id}/importdocuments", async (string id, [FromBody] IReadOnlyList<string> storageIds, [FromServices] IMediator mediator, CancellationToken ct)
+                => await mediator.Send(new ImportExternalDocumentsCommand(Guid.Parse(id), storageIds), ct))
+            .Produces(200)
+            .Produces(404)
+            .RequireAuthorization();
 
         return builder;
     }

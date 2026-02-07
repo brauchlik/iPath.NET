@@ -15,6 +15,8 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
     ILogger<LocalStorageService> logger)
     : IRemoteStorageService
 {
+    public string ProviderName => "LocalFiles";
+
     public string StoragePath 
     {
         get
@@ -23,6 +25,7 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
             return field;
         }
     }
+
 
     public async Task<StorageRepsonse> GetFileAsync(Guid DocumentId, CancellationToken ct = default!)
     {
@@ -208,8 +211,53 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
         return null;
     }
 
-    public async Task<int> ScanNewFilesAsync(Guid sr, CancellationToken ctk = default)
+
+
+    public Task<StorageRepsonse> DeleteFileAsync(Guid Id, CancellationToken ctk = default)
     {
-        return 0;
+        throw new NotImplementedException();
     }
+
+    public Task<StorageRepsonse> DeleteServiceRequestJsonAsync(Guid Id, CancellationToken ctk = default)
+    {
+        throw new NotImplementedException();
+    }
+
+
+
+    #region "-- Upload Folder --
+
+
+    public bool UserUploadFolderActive => false;
+
+    public Task CreateUserUploadFolderAsync(User user, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteUserUploadFolderAsync(User user, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ServiceRequestUploadFolder> CreateRequestUploadFolderAsync(Guid ServiceRequestId, Guid UserId, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteRequestUploadFolderAsync(Guid FolderId, CancellationToken ct)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ScanExternalDocumentResponse> ScanNewFilesAsync(ServiceRequestUploadFolder folder, CancellationToken ctk = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task ImportNewFilesAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string> storageIds, CancellationToken ctk = default)
+    {
+        throw new NotImplementedException();
+    }
+    #endregion
 }

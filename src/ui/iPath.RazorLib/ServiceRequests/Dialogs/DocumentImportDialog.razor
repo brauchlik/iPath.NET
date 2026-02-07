@@ -1,0 +1,32 @@
+﻿@using iPath.Application.Contracts
+<MudDialog ContentStyle="width: 720px; min-height: 350px;">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@MudDialog.Title</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudList T="ExternalFile" SelectionMode="SelectionMode.MultiSelection">
+            @foreach(var f in Model.files)
+            {
+                <MudListItem Value="f" Text="@f.Filename" />
+            }
+        </MudList>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@MudDialog.Cancel" Variant="Variant.Filled">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@inject ServiceRequestViewModel vm
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public ScanExternalDocumentResponse Model { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+}

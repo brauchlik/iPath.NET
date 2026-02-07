@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi;
 
 namespace iPath.API.Services.Storage;
 
@@ -27,7 +26,7 @@ public class RemoteStorageUploadWorker(IServiceProvider sp)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var id = await queue.DequeueAsync(stoppingToken);
+            var cmd = await queue.DequeueAsync(stoppingToken);
             try
             {
                 // scoped services
@@ -35,18 +34,19 @@ public class RemoteStorageUploadWorker(IServiceProvider sp)
                 using var db = scope.ServiceProvider.GetRequiredService<iPathDbContext>();
                 IRemoteStorageService srv = scope.ServiceProvider.GetRequiredService<IRemoteStorageService>();
 
-                var doc = await db.Documents.Include(d => d.ServiceRequest).SingleOrDefaultAsync(x => x.Id == id, stoppingToken);
-                if (doc != null)
+                var res = cmd.command switch {
+                    eRemoteStorageCommand.UploadDocument => await srv.PutFileAsync(cmd.objId, stoppingToken),
+                    eRemoteStorageCommand.DeleteServiceRequest => await srv.DeleteFileAsync(cmd.objId, stoppingToken),
+                    eRemoteStorageCommand.UploadServiceRequest => await srv.PutServiceRequestJsonAsync(cmd.objId, stoppingToken)
+                };
+
+                if (res.Success)
                 {
-                    var res = await (srv.PutFileAsync(doc));
-                    if (res.Success)
-                    {
-                        logger.LogInformation("Document {id} sucessfully put to remote storage", doc.Id);
-                    }
-                    else
-                    {
-                        logger.LogWarning("Upload problem with document {id}: {error}", doc.Id, res.Message);
-                    }
+                    logger.LogInformation("{cmd} {id} sucessfull", cmd.command, cmd.objId);
+                }
+                else
+                {
+                    logger.LogWarning("{cmd} {id} failed: {err}", cmd.command, cmd.objId, res.Message);
                 }
             }
             catch (Exception ex)

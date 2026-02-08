@@ -35,8 +35,9 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public string SearchString { get; set; }
 
-    public ServiceRequestDto? SelectedRequest { 
-        get; 
+    public ServiceRequestDto? SelectedRequest
+    {
+        get;
         private set
         {
             RequestOwner = value?.Owner;
@@ -160,7 +161,7 @@ public class ServiceRequestViewModel(IPathApi api,
     {
         if (SelectedRequest != null)
         {
-            var respN = await api.GetRequestById(SelectedRequest.Id);            
+            var respN = await api.GetRequestById(SelectedRequest.Id);
             if (respN.IsSuccessful)
             {
                 SelectedRequest = respN.Content;
@@ -183,8 +184,8 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public bool HasDocument(Guid? id)
     {
-        if (id.HasValue && SelectedRequest is not null) 
-        { 
+        if (id.HasValue && SelectedRequest is not null)
+        {
             return SelectedRequest.Documents.Any(d => d.Id == id.Value);
         }
         return false;
@@ -194,9 +195,11 @@ public class ServiceRequestViewModel(IPathApi api,
 
 
     #region "-- Navigation --"
-    public GetServiceRequestListQuery LastQuery { 
+    public GetServiceRequestListQuery LastQuery
+    {
         get;
-        set {
+        set
+        {
             field = value;
             IdList = null;
         }
@@ -227,7 +230,7 @@ public class ServiceRequestViewModel(IPathApi api,
     {
         if (IdList is null && LastQuery is not null)
         {
-            var cmd =  GetServiceRequestIdListQuery.From(LastQuery);
+            var cmd = GetServiceRequestIdListQuery.From(LastQuery);
             var resp = await api.GetRequestIdList(cmd);
             if (resp.IsSuccessful)
             {
@@ -845,7 +848,7 @@ public class ServiceRequestViewModel(IPathApi api,
     public async Task<string?> GetQuesiotnnaireResource(string questionnaireId, int? version = null)
         => await qCache.GetQuestionnaireResourceAsync(questionnaireId, version);
 
-    public async Task<string?> QuestionnaireName(string id, int? version = null) 
+    public async Task<string?> QuestionnaireName(string id, int? version = null)
         => await qCache.GetQuestionnaireNameAsync(id, version);
 
 
@@ -906,9 +909,23 @@ public class ServiceRequestViewModel(IPathApi api,
     }
 
 
-    public bool DocumentImportEnabled => opts.Value.ExternalDocumentImportActive;
+    public bool DocumentImportEnabled => opts.Value.ExternalDocumentImportActive && appState.IsOwner(SelectedRequest);
 
-    public async Task StartDocumentImport()
+    public async Task ExternalDocumentImport()
+    {
+        if (SelectedRequest is null) return;
+
+        if (!SelectedRequest.UploadFolderId.HasValue)
+        {
+            await CreateDocumentImportFolder();
+        }
+        else
+        {
+            await ImportExternalDocuments();
+        }
+    }
+
+    public async Task CreateDocumentImportFolder()
     {
         var respU = await api.GetUser(SelectedRequest.OwnerId);
         if (snackbar.CheckSuccess(respU))
@@ -924,6 +941,22 @@ public class ServiceRequestViewModel(IPathApi api,
                 {
                     snackbar.Add("upload foder is ready now", Severity.Success);
                 }
+            }
+        }
+    }
+
+    public async Task ImportExternalDocuments()
+    {
+        if (SelectedRequest is not null && SelectedRequest.UploadFolderId.HasValue)
+        {
+            snackbar.Add($"scanning google drive ...", Severity.Info);
+
+            var resp = await api.ImportExternalDocuments(SelectedRequest.UploadFolderId.Value, null);
+            if (snackbar.CheckSuccess(resp))
+            {
+                snackbar.Add($"{resp.Content} documents have been imported", Severity.Success);
+                if (resp.Content > 0)
+                    await ReloadNode();
             }
         }
     }

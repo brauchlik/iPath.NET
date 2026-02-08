@@ -31,6 +31,8 @@ public class ServiceRequestDto
     public ICollection<DocumentDto> Documents { get; init; } = [];
     public ICollection<AnnotationDto> Annotations { get; init; } = [];
 
+    public Guid? UploadFolderId { get; init; }
+
     public void ResetDescription()
     {
         if (!IsDraft) throw new Exception("Description can be reset on drafts only");
@@ -59,7 +61,8 @@ public static class NodeExtension
             // File = node.File,
             ipath2_id = node.ipath2_id,
             Documents = node.Documents is not null ? node.Documents.Select(n => n.ToDto()).ToArray() : [],
-            Annotations = node.Annotations is not null ? node.Annotations.Select(a => a.ToDto()).ToArray() : []
+            Annotations = node.Annotations is not null ? node.Annotations.Select(a => a.ToDto()).ToArray() : [],
+            UploadFolderId = node.UploadFolders.IsEmpty() ? null : node.UploadFolders.First().Id
         };
     }
 

@@ -195,11 +195,11 @@ public interface IPathApi
 
 
 
-    [Get("/api/v1/requests/{id}/scandocuments")]
-    Task<IApiResponse<ScanExternalDocumentResponse>> ScanExternalDocuments(string id);
+    [Get("/api/v1/requests/{uploadFolderId}/scandocuments")]
+    Task<IApiResponse<ScanExternalDocumentResponse>> ScanExternalDocuments(Guid uploadFolderId);
 
-    [Post("/api/v1/requests/{id}/importdocuments")]
-    Task<IApiResponse> ImportExternalDocuments(string id, IReadOnlyList<string> storageIds);
+    [Post("/api/v1/requests/{uploadFolderId}/importdocuments")]
+    Task<IApiResponse<int>> ImportExternalDocuments(Guid uploadFolderId, IReadOnlyList<string>? storageIds);
     #endregion
 
 

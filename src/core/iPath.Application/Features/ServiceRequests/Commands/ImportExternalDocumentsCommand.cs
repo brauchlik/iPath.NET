@@ -1,4 +1,4 @@
 ﻿namespace iPath.Application.Features.ServiceRequests;
 
-public record ImportExternalDocumentsCommand(Guid serviceRequestId, IReadOnlyList<string> storgeIds)
-    : IRequest<ImportExternalDocumentsCommand, Task>;
+public record ImportExternalDocumentsCommand(Guid uploadFolderId, IReadOnlyList<string>? storgeIds)
+    : IRequest<ImportExternalDocumentsCommand, Task<int>>;

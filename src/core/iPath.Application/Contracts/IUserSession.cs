@@ -60,6 +60,11 @@ public static class UserSessionExtensions
             => session.IsAuthenticated && (session.IsAdmin || UserId == session.User.Id);
 
 
+        // Admin or user himself
+        public bool IsOwner(ServiceRequestDto dto)
+            => dto is not null && session.IsAuthenticated && dto.OwnerId == session.User.Id;
+
+
         public string Username => session.Username;
 
         public bool CanEditNode(ServiceRequestDto? node)

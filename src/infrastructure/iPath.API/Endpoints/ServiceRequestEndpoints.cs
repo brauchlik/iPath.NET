@@ -1,11 +1,4 @@
-﻿
-using Ardalis.GuardClauses;
-using DispatchR;
-using iPath.Application.Features.Documents;
-using iPath.Application.Features.ServiceRequests.Commands;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using iPath.Application.Features.ServiceRequests.Commands;
 
 namespace iPath.API.Endpoints;
 
@@ -107,9 +100,9 @@ public static class ServiceRequestEndpoints
             .RequireAuthorization();
 
 
-        grp.MapPost("{id}/importdocuments", async (string id, [FromBody] IReadOnlyList<string> storageIds, [FromServices] IMediator mediator, CancellationToken ct)
+        grp.MapPost("{id}/importdocuments", async (string id, [FromBody] IReadOnlyList<string>? storageIds, [FromServices] IMediator mediator, CancellationToken ct)
                 => await mediator.Send(new ImportExternalDocumentsCommand(Guid.Parse(id), storageIds), ct))
-            .Produces(200)
+            .Produces<int>(200)
             .Produces(404)
             .RequireAuthorization();
 

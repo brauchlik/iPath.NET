@@ -2,22 +2,25 @@
 namespace iPath.EF.Core.FeatureHandlers.ServiceRequests.Commands;
 
 public class ImportExternalDocumentsCommandHandler(IRemoteStorageService store, iPathDbContext db, IUserSession sess)
-    : IRequestHandler<ImportExternalDocumentsCommand, Task>
+    : IRequestHandler<ImportExternalDocumentsCommand, Task<int>>
 {
-    public async Task Handle(ImportExternalDocumentsCommand request, CancellationToken ct)
+    public async Task<int> Handle(ImportExternalDocumentsCommand request, CancellationToken ct)
     {
         // only owner or admins
-        var serviceRequest = await db.ServiceRequests.FindAsync(request.serviceRequestId, ct);
-        Guard.Against.NotFound(request.serviceRequestId, serviceRequest);
+        var folder = await db.ServiceRequestUploadFolders
+            .AsNoTracking()
+            .Include(f => f.ServiceRequest).ThenInclude(sr => sr.Documents)
+            .SingleOrDefaultAsync(x => x.Id == request.uploadFolderId, ct);
+        Guard.Against.NotFound(request.uploadFolderId, folder);
 
         if (!sess.IsAdmin)
         {
-            if (serviceRequest.OwnerId != sess.User.Id)
+            if (folder.ServiceRequest.OwnerId != sess.User.Id)
             {
                 throw new NotAllowedException();
             }
         }
 
-        // await store.ImportNewFilesAsync(request.serviceRequestId, request.storgeIds, ct);
+        return await store.ImportUploadFolderAsync(folder, request.storgeIds, ct);
     }
 }

@@ -250,12 +250,12 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
         throw new NotImplementedException();
     }
 
-    public Task<ScanExternalDocumentResponse> ScanNewFilesAsync(ServiceRequestUploadFolder folder, CancellationToken ctk = default)
+    public Task<ScanExternalDocumentResponse> ScanUploadFolderAsync(ServiceRequestUploadFolder folder, CancellationToken ctk = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task ImportNewFilesAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string> storageIds, CancellationToken ctk = default)
+    public Task<int> ImportUploadFolderAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string> storageIds, CancellationToken ctk = default)
     {
         throw new NotImplementedException();
     }

@@ -4,6 +4,7 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Services;
+using iPath.Application;
 using iPath.Application.Contracts;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Domain.Config;
@@ -648,14 +649,77 @@ and you can upload images and other files directly into that folder. From there 
         throw new NotImplementedException();
     }
 
-    public Task<ScanExternalDocumentResponse> ScanNewFilesAsync(ServiceRequestUploadFolder folder, CancellationToken ctk = default)
+    public Task<ScanExternalDocumentResponse> ScanUploadFolderAsync(ServiceRequestUploadFolder folder, CancellationToken ctk = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task ImportNewFilesAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string> storageIds, CancellationToken ctk = default)
+    public async Task<int> ImportUploadFolderAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string>? storageIds, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        // scan the folder with Id = folder.StorageId on google drive and list all files with name, id and mimetype
+
+        FilesResource.ListRequest listRequest = GDrive.Files.List();
+        listRequest.Q = $"'{folder.StorageId}' in parents and trashed = false";
+        listRequest.Fields = "nextPageToken, files(id, name, mimeType)";
+
+        var result = await listRequest.ExecuteAsync(ct);
+
+        int newCount = 0;
+        if (result.Files != null && result.Files.Count > 0)
+        {
+            foreach (var item in result.Files)
+            {
+                if (item.MimeType != "application/vnd.google-apps.folder")
+                {
+                    // filter if the file is in import list
+                    if (storageIds is null || storageIds.Contains(item.Id))
+                    {
+                        // filter already imported
+                        if (!folder.ServiceRequest.Documents.Any(d => d.StorageId == item.Id))
+                        {
+                            newCount++;
+                            var newDoc = new DocumentNode
+                            {
+                                Id = Guid.CreateVersion7(),
+                                ServiceRequestId = folder.ServiceRequestId,
+                                CreatedOn = DateTime.UtcNow,
+                                OwnerId = folder.ServiceRequest.OwnerId,
+                                SortNr = folder.ServiceRequest.Documents.IsEmpty() ? 0 : folder.ServiceRequest.Documents.Max(x => x.SortNr) + 1,
+                                StorageId = item.Id,
+                                DocumentType = "file",
+                                File = new NodeFile
+                                {
+                                    Filename = item.Name,
+                                    MimeType = item.MimeType
+                                }
+                            };
+                            await db.Documents.AddAsync(newDoc, ct);
+
+                            if (mime.IsImage(item.Name))
+                            {
+                                // thumnail
+                                newDoc.File.ThumbData = await GetThumbnailBase64Async(item.Id);
+                                newDoc.DocumentType = "image";
+                            }
+                            if (clientOpts.Value.WsiExtensions.Contains(System.IO.Path.GetExtension(item.Name)))
+                            {
+                                // 
+                                newDoc.File.PublicUrl = await CreatePublicRangeLinkAsync(item.Id, ct);
+                                newDoc.DocumentType = "wsi";
+                            }
+                            else
+                            {
+                                // view link for images & files
+                                newDoc.File.PublicUrl = await CreateViewLink(newDoc, ct);
+                            }
+                        }
+                    }
+                }
+            }
+            await db.SaveChangesAsync(ct);
+        }
+        return newCount;
+
     }
     #endregion
 }

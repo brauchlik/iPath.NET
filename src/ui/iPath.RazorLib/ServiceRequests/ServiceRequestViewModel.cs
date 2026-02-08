@@ -910,10 +910,21 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public async Task StartDocumentImport()
     {
-        var resp = await api.ScanExternalDocuments(SelectedRequest.Id.ToString());
-        if (snackbar.CheckSuccess(resp))
+        var respU = await api.GetUser(SelectedRequest.OwnerId);
+        if (snackbar.CheckSuccess(respU))
         {
-
+            if (!respU.Content.UploadFolderId.HasValue)
+            {
+                snackbar.AddWarning("No upload folder has been created for your account yet");
+            }
+            else
+            {
+                var resp = await api.CreateServiceRequestUploadFolder(SelectedRequest.Id);
+                if (snackbar.CheckSuccess(resp))
+                {
+                    snackbar.Add("upload foder is ready now", Severity.Success);
+                }
+            }
         }
     }
 }

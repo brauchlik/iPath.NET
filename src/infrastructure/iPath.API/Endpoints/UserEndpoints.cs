@@ -1,5 +1,6 @@
 ﻿using DispatchR;
 using iPath.Application.Features.Users;
+using iPath.Application.Features.Users.Commands;
 using Scalar.AspNetCore;
 
 namespace iPath.API;
@@ -82,6 +83,15 @@ public static class UserEndpoints
             => await mediator.Send(cmd, ct))
             .RequireAuthorization();
 
+
+        // upload folders
+        grp.MapPost("{id}/uploadfolder", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new CreateRequestUploadFolderCommand(Guid.Parse(id)), ct))
+            .RequireAuthorization("Admin");
+
+        grp.MapDelete("{id}/uploadfolder", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new DeleteUserUploadFolderCommand(Guid.Parse(id)), ct))
+            .RequireAuthorization("Admin");
 
         return route;
     }

@@ -18,22 +18,20 @@ public interface IRemoteStorageService
 
     Task<string?> CreateViewLink(DocumentNode doc, CancellationToken ct = default);
 
+    Task RenameRequest(ServiceRequest request);
+    Task RenameGroup(Group group);
+    Task RenameCommunity(Community community);
+
 
     bool UserUploadFolderActive { get; }
-    Task CreateUserUploadFolderAsync(User user, CancellationToken ct);
-    Task DeleteUserUploadFolderAsync(User user, CancellationToken ct);
+    Task<UserUploadFolder> CreateUserUploadFolderAsync(Guid userId, CancellationToken ct);
+    Task DeleteUserUploadFolderAsync(Guid userId, CancellationToken ct);
 
     Task<ServiceRequestUploadFolder> CreateRequestUploadFolderAsync(Guid ServiceRequestId, Guid UserId, CancellationToken ct);
     Task DeleteRequestUploadFolderAsync(Guid FolderId, CancellationToken ct);
 
     Task<ScanExternalDocumentResponse> ScanNewFilesAsync(ServiceRequestUploadFolder folder, CancellationToken ctk = default!);
     Task ImportNewFilesAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string> storageIds, CancellationToken ctk = default!);
-
-
-    Task RenameRequest(ServiceRequest request);
-    Task RenameGroup(Group group);
-    Task RenameCommunity(Community community);
-
 }
 
 

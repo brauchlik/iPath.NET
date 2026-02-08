@@ -28,7 +28,8 @@ string rootFolderId = "1loAXoV8vJD-44OBuE_ZWirEm-fEZMrKt";
 
 // Query to get all files and folders inside the specified folder
 FilesResource.ListRequest listRequest = service.Files.List();
-listRequest.Q = $"'{rootFolderId}' in parents and trashed = false";
+// listRequest.Q = $"'{rootFolderId}' in parents and trashed = false";
+listRequest.Q = "mimeType = 'application/vnd.google-apps.folder' and trashed = false";
 listRequest.Fields = "nextPageToken, files(id, name, mimeType)";
 
 IList<Google.Apis.Drive.v3.Data.File> items = listRequest.Execute().Files;

@@ -81,6 +81,14 @@ public interface IPathApi
 
     [Post("/api/v1/users/notifications")]
     Task<IApiResponse<UserDto>> UpdateUserNotification(UpdateUserNotificationsCommand cmd);
+
+
+    // upload folder
+    [Post("/api/v1/users/{id}/uploadfolder")]
+    Task<IApiResponse> CreateUploadFolder(Guid id);
+
+    [Delete("/api/v1/users/{id}/uploadfolder")]
+    Task<IApiResponse> DeleteUploadFolder(Guid id);
     #endregion
 
 
@@ -176,6 +184,16 @@ public interface IPathApi
 
     [Get("/api/v1/requests/newannotations")]
     Task<IApiResponse<PagedResultList<ServiceRequestListDto>>> GetNewAnnotations();
+
+
+
+    [Post("/api/v1/requests/{id}/uploadfolder")]
+    Task<IApiResponse<Guid>> CreateServiceRequestUploadFolder(Guid id);
+
+    [Delete("/api/v1/requests/{id}/uploadfolder")]
+    Task<IApiResponse> DeleteServiceRequestUploadFolder(Guid id);
+
+
 
     [Get("/api/v1/requests/{id}/scandocuments")]
     Task<IApiResponse<ScanExternalDocumentResponse>> ScanExternalDocuments(string id);

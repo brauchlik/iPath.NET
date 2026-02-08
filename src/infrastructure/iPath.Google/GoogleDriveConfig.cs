@@ -10,4 +10,5 @@ public class GoogleDriveConfig
     public string ApplicationName { get; set; }
 
     public string RootFolderId { get; set; }
+    public string UserUploadFolderId { get; set; }
 }

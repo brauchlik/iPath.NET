@@ -1,0 +1,47 @@
+﻿@namespace iPath.Blazor.Componenents.Admin.Users
+
+@inject IPathApi api
+@inject ISnackbar nackbar
+
+
+
+<MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+    <MudText>Google Upload Folder</MudText>
+    <ProgressButton OnClick="ToggleUploadFolder" Text="@ButtonText" Icon="@ButtonIcon" Color="@ButtonColor" />
+</MudStack>
+
+@code {
+    [Parameter]
+    public UserDto? User { get; set; }
+
+
+    string ButtonText => HasUploadFolder ? "Delete" : "Create";
+    string ButtonIcon => HasUploadFolder ? Icons.Material.Filled.FolderDelete : Icons.Material.Filled.FolderShared;
+    Color ButtonColor => HasUploadFolder ? Color.Primary : Color.Surface;
+
+    bool HasUploadFolder { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if (User is not null)
+        {
+            HasUploadFolder = User.UploadFolderId.HasValue;
+        }
+    }
+
+
+
+    async Task ToggleUploadFolder()
+    {
+        if (User is not null)
+        {
+            var res = await (HasUploadFolder ? api.DeleteUploadFolder(User.Id) : api.CreateUploadFolder(User.Id));
+            if (snackbar.CheckSuccess(res))
+            {
+                HasUploadFolder = !HasUploadFolder;
+                StateHasChanged();
+            }
+        }
+    }
+}

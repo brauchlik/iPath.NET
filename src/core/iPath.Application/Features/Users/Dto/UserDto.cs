@@ -17,4 +17,6 @@ public record UserDto
     public bool IsNew { get; init; }
 
     public DateTime CreatedOn { get; init; } 
+
+    public Guid? UploadFolderId { get; init; }
 }

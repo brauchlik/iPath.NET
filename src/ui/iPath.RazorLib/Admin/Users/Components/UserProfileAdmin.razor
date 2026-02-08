@@ -26,6 +26,8 @@ else
                 <MudStack Row Spacing="4" Class="mt-2">
                     <MudCheckBox Label="active" @bind-Value="Model.IsActive" />
                     <MudButton StartIcon="@Icons.Material.Filled.Password" Variant="Variant.Outlined" OnClick="vm.ResetPassword">@T["Password"]</MudButton>
+                    <MudSpacer />
+                    <UserUploadFolderButton User="@User" />
                 </MudStack>
             </MudItem>
             <MudItem xs="12" sm="4">

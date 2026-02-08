@@ -230,12 +230,12 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
 
     public bool UserUploadFolderActive => false;
 
-    public Task CreateUserUploadFolderAsync(User user, CancellationToken ct)
+    public Task<UserUploadFolder> CreateUserUploadFolderAsync(Guid userId, CancellationToken ct)
     {
         throw new NotImplementedException();
     }
 
-    public Task DeleteUserUploadFolderAsync(User user, CancellationToken ct)
+    public Task DeleteUserUploadFolderAsync(Guid userId, CancellationToken ct)
     {
         throw new NotImplementedException();
     }

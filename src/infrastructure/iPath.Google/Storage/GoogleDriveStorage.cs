@@ -9,6 +9,7 @@ using iPath.Application.Features.ServiceRequests;
 using iPath.Domain.Config;
 using iPath.Domain.Entities;
 using iPath.EF.Core.Database;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,6 +22,7 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
     IOptions<iPathConfig> opts,
     IOptions<iPathClientConfig> clientOpts,
     iPathDbContext db,
+    UserManager<Domain.Entities.User> um,
     IMimetypeService mime,
     IGroupCache groupCache,
     ILogger<GoogleDriveStorageService> logger)
@@ -263,6 +265,56 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         var folder = await createRequest.ExecuteAsync(ct);
 
         return folder.Id;
+    }
+
+    private async Task ShareFolderWithUserAsync(string folderId, string userEmail, string role = "writer", CancellationToken ct = default)
+    {
+        var userPermission = new Permission
+        {
+            Type = "user",
+            Role = role, // "writer", "reader", or "commenter"
+            EmailAddress = userEmail
+        };
+
+        var request = GDrive.Permissions.Create(userPermission, folderId);
+        request.SendNotificationEmail = true; // This triggers the invitation email
+        request.EmailMessage = """
+A folder to upload images to iPath.NET has been created for you on google workspace. 
+You may include this folder into your personal google drive space.
+
+When you create new requests on iPath, the server can now create a fodler for each new request
+and you can upload images and other files directly into that folder. From there it will be importaed automatically into the iPath system.
+""";
+        await request.ExecuteAsync(ct);
+    }
+
+    private async Task DeleteFolderAsync(string folderId, CancellationToken ct = default)
+    {
+        // List all items in the folder
+        FilesResource.ListRequest listRequest = GDrive.Files.List();
+        listRequest.Q = $"'{folderId}' in parents and trashed = false";
+        listRequest.Fields = "files(id, mimeType)";
+        var result = await listRequest.ExecuteAsync(ct);
+
+        if (result.Files != null)
+        {
+            foreach (var item in result.Files)
+            {
+                if (item.MimeType == "application/vnd.google-apps.folder")
+                {
+                    // Recursively delete subfolder
+                    await DeleteFolderAsync(item.Id, ct);
+                }
+                else
+                {
+                    // Delete file
+                    await GDrive.Files.Delete(item.Id).ExecuteAsync(ct);
+                }
+            }
+        }
+
+        // Delete the folder itself
+        await GDrive.Files.Delete(folderId).ExecuteAsync(ct);
     }
 
     public async Task RenameRequest(ServiceRequest request)
@@ -510,21 +562,85 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
 
 
     #region "-- Upload Folder --
-    public bool UserUploadFolderActive => true;
+    public bool UserUploadFolderActive => !string.IsNullOrEmpty(gdriveOpts.Value.UserUploadFolderId);
 
-    public Task CreateUserUploadFolderAsync(Domain.Entities.User user, CancellationToken ct)
+
+
+    public async Task<UserUploadFolder> CreateUserUploadFolderAsync(Guid userId, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var user = await db.Users
+            .Include(u => u.UploadFolders)
+            .SingleOrDefaultAsync(u => u.Id == userId, ct);
+        Guard.Against.NotFound(userId, user);
+
+        // validate that the user is linked to a google account
+        var logins = await um.GetLoginsAsync(user);
+        if (!logins.Any(x => x.LoginProvider == "Google"))
+        {
+            throw new Exception("user account is not linked to a google login");
+        }
+
+        var folder = user.UploadFolders.FirstOrDefault(x => x.StorageProvider == this.ProviderName);
+        if (folder == null)
+        {
+            var gDir = await CreateOrGetFolderAsync(gdriveOpts.Value.UserUploadFolderId, user.UserName);
+
+            // TODO: pleace a instrctions.txt file inside the users upload folder.
+
+            await ShareFolderWithUserAsync(gDir, user.Email, ct: ct);
+
+            var uFolder = UserUploadFolder.Create(user.Id, this.ProviderName, gDir);
+            await db.UserUploadFolders.AddAsync(uFolder, ct);
+            await db.SaveChangesAsync(ct);
+        }
+        return folder;
     }
 
-    public Task DeleteUserUploadFolderAsync(Domain.Entities.User user, CancellationToken ct)
+    public async Task DeleteUserUploadFolderAsync(Guid userId, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var user = await db.Users.Include(u => u.UploadFolders)
+            .SingleOrDefaultAsync(u => u.Id == userId, ct);
+        Guard.Against.NotFound(userId, user);
+
+        var folder = user.UploadFolders.FirstOrDefault(x => x.StorageProvider == this.ProviderName);
+        if (folder != null)
+        {
+            await DeleteFolderAsync(folder.StorageId, ct);
+            db.UserUploadFolders.Remove(folder);
+            user.UploadFolders.Remove(folder);
+            await db.SaveChangesAsync(ct);
+        }
     }
 
-    public Task<ServiceRequestUploadFolder> CreateRequestUploadFolderAsync(Guid ServiceRequestId, Guid UserId, CancellationToken ct)
+    public async Task<ServiceRequestUploadFolder> CreateRequestUploadFolderAsync(Guid ServiceRequestId, Guid UserId, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var sr = await db.ServiceRequests.
+            AsNoTracking()
+            .Include(x => x.UploadFolders)
+            .FirstOrDefaultAsync(f => f.Id == ServiceRequestId, ct);
+        Guard.Against.NotFound(ServiceRequestId, sr);
+
+        if (sr.UploadFolders.Any())
+        {
+            return sr.UploadFolders.First();
+        }
+        else
+        {
+            var userFolder = await db.Set<UserUploadFolder>()
+               .SingleOrDefaultAsync(f => f.UserId == UserId && f.StorageProvider == this.ProviderName, ct);
+            if (userFolder is null)
+            {
+                throw new Exception("no uload folder for user account configured");
+            }
+
+            var folderName = sr.Description.FullTitle();
+            var gDir = await CreateOrGetFolderAsync(userFolder.StorageId, folderName);
+
+            var folder = ServiceRequestUploadFolder.Create(uploadFolderId: userFolder.Id, serviceRequestId: sr.Id, storageId: gDir);
+            await db.ServiceRequestUploadFolders.AddAsync(folder, ct);
+            await db.SaveChangesAsync(ct);
+            return folder;
+        }
     }
 
     public Task DeleteRequestUploadFolderAsync(Guid FolderId, CancellationToken ct)

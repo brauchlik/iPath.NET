@@ -2,6 +2,8 @@
 using Ardalis.GuardClauses;
 using DispatchR;
 using iPath.Application.Features.Documents;
+using iPath.Application.Features.ServiceRequests.Commands;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -87,6 +89,17 @@ public static class ServiceRequestEndpoints
 
 
         // external document import
+        grp.MapPost("{id}/uploadfolder", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
+             => await mediator.Send(new CreateServiceRequestUploadFolderCommand(Guid.Parse(id)), ct))
+            .Produces(200)
+            .RequireAuthorization();
+
+        grp.MapDelete("{id}/uploadfolder", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
+             => await mediator.Send(new DeleteServiceRequestUploadFolderCommand(Guid.Parse(id)), ct))
+            .Produces(200)
+            .RequireAuthorization();
+
+
         grp.MapGet("{id}/scandocuments", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(new ScanExternalDocumentsQuery(Guid.Parse(id)), ct))
             .Produces<ScanExternalDocumentResponse>(200)
@@ -99,6 +112,8 @@ public static class ServiceRequestEndpoints
             .Produces(200)
             .Produces(404)
             .RequireAuthorization();
+
+
 
         return builder;
     }

@@ -2,9 +2,9 @@
 namespace iPath.EF.Core.FeatureHandlers.ServiceRequests.Commands;
 
 public class ImportExternalDocumentsCommandHandler(IRemoteStorageService store, iPathDbContext db, IUserSession sess)
-    : IRequestHandler<ImportExternalDocumentsCommand, Task<int>>
+    : IRequestHandler<ImportExternalDocumentsCommand, Task<FolderImportResponse>>
 {
-    public async Task<int> Handle(ImportExternalDocumentsCommand request, CancellationToken ct)
+    public async Task<FolderImportResponse> Handle(ImportExternalDocumentsCommand request, CancellationToken ct)
     {
         // only owner or admins
         var folder = await db.ServiceRequestUploadFolders

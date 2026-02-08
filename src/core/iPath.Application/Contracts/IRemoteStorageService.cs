@@ -31,12 +31,18 @@ public interface IRemoteStorageService
     Task DeleteRequestUploadFolderAsync(Guid FolderId, CancellationToken ct);
 
     Task<ScanExternalDocumentResponse> ScanUploadFolderAsync(ServiceRequestUploadFolder folder, CancellationToken ctk = default!);
-    Task<int> ImportUploadFolderAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string>? storageIds, CancellationToken ctk = default!);
+    Task<FolderImportResponse> ImportUploadFolderAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string>? storageIds, CancellationToken ctk = default!);
 }
 
 
-public record StorageRepsonse(bool Success, string? StorageId = null, string? Message = null!)
+public record StorageRepsonse(bool Success, StorageInfo? Storage = null, string? Message = null!)
 {
-    public static StorageRepsonse Ok(string storageId) => new StorageRepsonse(true, StorageId: storageId);
+    public static StorageRepsonse Ok(StorageInfo storage) => new StorageRepsonse(true, Storage: storage);
     public static StorageRepsonse Fail(string error) => new StorageRepsonse(false, Message: error);
+}
+
+public record FolderImportResponse(bool Success, int ImportCount, string? Message = null)
+{
+    public static FolderImportResponse Ok(int count) => new FolderImportResponse(true, count);
+    public static FolderImportResponse Fail(string msg) => new FolderImportResponse(false, 0, msg);
 }

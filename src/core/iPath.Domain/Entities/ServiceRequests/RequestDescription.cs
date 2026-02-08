@@ -2,6 +2,8 @@ namespace iPath.Domain.Entities;
 
 public class RequestDescription
 {
+    public StorageInfo? Storage { get; set; }
+
     public string? Subtitle { get; set; }
     public string? CaseType { get; set; }
     public string? AccessionNo { get; set; }

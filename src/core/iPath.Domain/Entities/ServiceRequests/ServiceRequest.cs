@@ -6,8 +6,6 @@ public class ServiceRequest : AuditableEntityWithEvents
 {
     public int? ipath2_id { get; set; }
 
-    public string? StorageId { get; set; }
-
     // public DateTime CreatedOn { get; set; }
     public Guid OwnerId { get; set; }
     public User Owner { get; set; } = null!;

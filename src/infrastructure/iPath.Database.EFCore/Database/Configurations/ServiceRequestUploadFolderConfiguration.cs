@@ -10,7 +10,7 @@ public class ServiceRequestUploadFolderConfiguration : IEntityTypeConfiguration<
         builder.HasOne(x => x.ServiceRequest).WithMany(s => s.UploadFolders)
             .HasForeignKey(x => x.ServiceRequestId)
             .IsRequired(true);
-        builder.HasOne(x => x.UploadFolder).WithMany()
+        builder.HasOne(x => x.UploadFolder).WithMany(u => u.RequestUploadFolders)
             .HasForeignKey(x => x.UploadFolderId)
             .IsRequired(true);
     }

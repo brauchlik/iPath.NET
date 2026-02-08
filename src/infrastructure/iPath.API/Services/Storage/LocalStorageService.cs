@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using iPath.Application.Contracts;
 using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -43,7 +44,7 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
         {
             var msg = string.Format("Error getting NodeFile {0}: {1}", DocumentId, ex.Message);
             logger.LogError(msg);
-            return new StorageRepsonse(false, Message: msg);
+            return StorageRepsonse.Fail(msg);
         }
     }
 
@@ -54,11 +55,11 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
             Guard.Against.Null(document);
 
             if (document.ServiceRequest is null)
-                return new StorageRepsonse(false, "Document node does not belong to a group");
+                return StorageRepsonse.Fail("Document node does not belong to a group");
 
-            if (string.IsNullOrEmpty(document.StorageId)) throw new Exception("File does not have a StorageId. It has not been previously exported to storage");
+            if (!document.File.Storage.IsLocal()) throw new Exception("File does not have a StorageId. It has not been previously exported to storage");
 
-            var filePath = Path.Combine(GetServiceRequestPath(document.ServiceRequest), document.StorageId);
+            var filePath = Path.Combine(GetServiceRequestPath(document.ServiceRequest), document.File.Storage.StorageId);
             if (!File.Exists(filePath)) throw new Exception($"File not found: {filePath}");
 
             // copy to local file
@@ -68,14 +69,14 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
 
             logger.LogInformation($"Node {0} retrieved", document.Id);
 
-            return new StorageRepsonse(true);
+            return StorageRepsonse.Ok(document.File.Storage);
 
         }
         catch (Exception ex)
         {
             var msg = string.Format("Error getting NodeFile {0}: {1}", document?.Id, ex.Message);
             logger.LogError(msg);
-            return new StorageRepsonse(false, Message: msg);
+            return StorageRepsonse.Fail(msg);
         }
     }
 
@@ -93,7 +94,7 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
         {
             var msg = string.Format("Error putting NodeFile {0}: {1}", DocumentId, ex.Message);
             logger.LogError(msg);
-            return new StorageRepsonse(false, Message: msg);
+            return StorageRepsonse.Fail(msg);
         }
     }
 
@@ -105,17 +106,17 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
 
             if (document.ServiceRequest is null) throw new Exception("ServiceRequest does not beldong to a group");
 
-            if (string.IsNullOrEmpty(document.StorageId))
+            if (!document.File.Storage.IsLocal())
             {
                 // create a new storygeId
-                document.StorageId = Guid.CreateVersion7().ToString();
+                document.File.Storage = new StorageInfo(this.ProviderName, Guid.CreateVersion7().ToString());
             }
 
             // check local file in temp
             var localFile = Path.Combine(opts.Value.TempDataPath, document.Id.ToString());
             if (!File.Exists(localFile)) throw new Exception($"Local file not found: {localFile}");
 
-            var fn = Path.Combine(GetServiceRequestPath(document.ServiceRequest), document.StorageId);
+            var fn = Path.Combine(GetServiceRequestPath(document.ServiceRequest), document.File.Storage.StorageId);
 
             // delete storage file if exists
             if (File.Exists(fn)) File.Delete(fn);
@@ -128,14 +129,14 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
             db.Documents.Update(document);
             await db.SaveChangesAsync(ct);
 
-            return new StorageRepsonse(true, StorageId: document.StorageId);
+            return StorageRepsonse.Ok(document.File.Storage);
 
         }
         catch (Exception ex)
         {
             var msg = string.Format("Error putting NodeFile {0}: {1}", document?.Id, ex.Message);
             logger.LogError(msg);
-            return new StorageRepsonse(false, Message: msg);
+            return StorageRepsonse.Fail(msg);
         }
     }
 
@@ -157,7 +158,7 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
         {
             var msg = string.Format("Error putting NodeFile {0}: {1}", Id, ex.Message);
             logger.LogError(msg);
-            return new StorageRepsonse(false, Message: msg);
+            return StorageRepsonse.Fail(msg);
         }
     }
 
@@ -255,9 +256,18 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
         throw new NotImplementedException();
     }
 
-    public Task<int> ImportUploadFolderAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string> storageIds, CancellationToken ctk = default)
+    public async Task<FolderImportResponse> ImportUploadFolderAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string> storageIds, CancellationToken ctk = default)
     {
-        throw new NotImplementedException();
+        return FolderImportResponse.Fail("not implemented");
     }
     #endregion
+}
+
+
+public static class LocalStorageExtension
+{
+    public static bool IsLocal(this StorageInfo s)
+    {
+        return s is not null && s.ProviderName == "LocalFiles" && !string.IsNullOrEmpty(s.StorageId);
+    }
 }

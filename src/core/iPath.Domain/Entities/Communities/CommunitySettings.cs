@@ -16,5 +16,7 @@ public class CommunitySettings
     public string? TopographyValueSet { get; set; }
 
 
+    public StorageInfo? Storage { get; set; }
+
     public CommunitySettings Clone() => (CommunitySettings)MemberwiseClone();
 }

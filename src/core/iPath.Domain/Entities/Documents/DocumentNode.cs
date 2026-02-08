@@ -5,8 +5,6 @@ public class DocumentNode
 {
     public int? ipath2_id { get; set; }
 
-    public string? StorageId { get; set; }
-
     public Guid OwnerId { get; set; }
     public User Owner { get; set; } = null!;
 

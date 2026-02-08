@@ -26,5 +26,7 @@ public class GroupSettings
     public ICollection<eAnnotationType> AllowedAnnotationTypes { get; set; } = [ eAnnotationType.Comment, eAnnotationType.FinalAssesment, eAnnotationType.FollowUp ];
 
 
+    public StorageInfo? Storage { get; set; }
+
     public GroupSettings Clone() => (GroupSettings)MemberwiseClone();
 }

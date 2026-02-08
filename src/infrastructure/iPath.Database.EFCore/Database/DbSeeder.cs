@@ -25,7 +25,7 @@ public class DbSeeder(iPathDbContext db,
             }
             catch (Exception ex)
             {
-                logger.LogError("Error during DB Migration", ex);
+                logger.LogError(ex, "Error during DB Migration");
                 var cs = db.Database.GetConnectionString();
                 logger.LogInformation("ConnectionString: {0}", cs);
                 throw new Exception("No connection to database", ex);

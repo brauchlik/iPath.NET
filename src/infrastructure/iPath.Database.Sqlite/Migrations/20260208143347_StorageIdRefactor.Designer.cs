@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using iPath.EF.Core.Database;
 
@@ -11,9 +12,11 @@ using iPath.EF.Core.Database;
 namespace iPath.Database.Sqlite.Migrations
 {
     [DbContext(typeof(iPathDbContext))]
-    partial class iPathDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260208143347_StorageIdRefactor")]
+    partial class StorageIdRefactor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,8 +272,10 @@ namespace iPath.Database.Sqlite.Migrations
 
                             b1.Property<string>("TopographyValueSet");
 
-                            b1.ComplexProperty(typeof(Dictionary<string, object>), "Storage", "iPath.Domain.Entities.Community.Settings#CommunitySettings.Storage#StorageInfo", b2 =>
+                            b1.ComplexCollection(typeof(List<Dictionary<string, object>>), "Storage", "iPath.Domain.Entities.Community.Settings#CommunitySettings.Storage#StorageInfo", b2 =>
                                 {
+                                    b2.IsRequired();
+
                                     b2.Property<string>("ProviderName")
                                         .IsRequired();
 
@@ -427,8 +432,10 @@ namespace iPath.Database.Sqlite.Migrations
 
                             b1.Property<string>("ThumbData");
 
-                            b1.ComplexProperty(typeof(Dictionary<string, object>), "Storage", "iPath.Domain.Entities.DocumentNode.File#NodeFile.Storage#StorageInfo", b2 =>
+                            b1.ComplexCollection(typeof(List<Dictionary<string, object>>), "Storage", "iPath.Domain.Entities.DocumentNode.File#NodeFile.Storage#StorageInfo", b2 =>
                                 {
+                                    b2.IsRequired();
+
                                     b2.Property<string>("ProviderName")
                                         .IsRequired();
 
@@ -600,8 +607,10 @@ namespace iPath.Database.Sqlite.Migrations
 
                             b1.Property<bool>("UseDescriptionWizzard");
 
-                            b1.ComplexProperty(typeof(Dictionary<string, object>), "Storage", "iPath.Domain.Entities.Group.Settings#GroupSettings.Storage#StorageInfo", b2 =>
+                            b1.ComplexCollection(typeof(List<Dictionary<string, object>>), "Storage", "iPath.Domain.Entities.Group.Settings#GroupSettings.Storage#StorageInfo", b2 =>
                                 {
+                                    b2.IsRequired();
+
                                     b2.Property<string>("ProviderName")
                                         .IsRequired();
 
@@ -1063,8 +1072,10 @@ namespace iPath.Database.Sqlite.Migrations
                                     b2.Property<int?>("Version");
                                 });
 
-                            b1.ComplexProperty(typeof(Dictionary<string, object>), "Storage", "iPath.Domain.Entities.ServiceRequest.Description#RequestDescription.Storage#StorageInfo", b2 =>
+                            b1.ComplexCollection(typeof(List<Dictionary<string, object>>), "Storage", "iPath.Domain.Entities.ServiceRequest.Description#RequestDescription.Storage#StorageInfo", b2 =>
                                 {
+                                    b2.IsRequired();
+
                                     b2.Property<string>("ProviderName")
                                         .IsRequired();
 
@@ -1712,9 +1723,9 @@ namespace iPath.Database.Sqlite.Migrations
                         .IsRequired();
 
                     b.HasOne("iPath.Domain.Entities.UserUploadFolder", "UploadFolder")
-                        .WithMany("RequestUploadFolders")
+                        .WithMany()
                         .HasForeignKey("UploadFolderId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ServiceRequest");
@@ -1817,11 +1828,6 @@ namespace iPath.Database.Sqlite.Migrations
                     b.Navigation("OwnedNodes");
 
                     b.Navigation("UploadFolders");
-                });
-
-            modelBuilder.Entity("iPath.Domain.Entities.UserUploadFolder", b =>
-                {
-                    b.Navigation("RequestUploadFolders");
                 });
 
             modelBuilder.Entity("iPath.Domain.Entities.WebContent", b =>

@@ -1,5 +1,5 @@
 ﻿using Ardalis.GuardClauses;
-using FluentResults;
+using iPath.Domain.Entities;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
@@ -8,7 +8,6 @@ using iPath.Application;
 using iPath.Application.Contracts;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Domain.Config;
-using iPath.Domain.Entities;
 using iPath.EF.Core.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Upload = Google.Apis.Upload;
 using v3 = Google.Apis.Drive.v3;
+using Google;
 
 namespace iPath.Google.Storage;
 
@@ -30,7 +30,8 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
     : IRemoteStorageService
 {
 
-    public string ProviderName => "GoogleDrive";
+    public const string GoogleDriveName = "GoogleDrive";
+    public string ProviderName => GoogleDriveName;
 
     DriveService GDrive
     {
@@ -72,10 +73,11 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         try
         {
             Guard.Against.Null(document);
-            if (!string.IsNullOrEmpty(document.StorageId))
+            
+            if (document.File.Storage.IsGoogle())
             {
                 var stream = new MemoryStream();
-                var request = GDrive.Files.Get(document.StorageId);
+                var request = GDrive.Files.Get(document.File?.Storage.StorageId);
                 await request.DownloadAsync(stream, ct);
                 stream.Position = 0; // Reset stream position for reading
 
@@ -111,7 +113,7 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         {
             Guard.Against.Null(document);
 
-            if (!string.IsNullOrEmpty(document.StorageId))
+            if (document.File.Storage.IsGoogle())
                 return StorageRepsonse.Fail("document has already been stored");
 
             // check local file in temp
@@ -143,13 +145,13 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
 
             if (file.Status == Upload.UploadStatus.Completed)
             {
-                document.StorageId = request.ResponseBody.Id;
+                document.File.Storage = new StorageInfo(this.ProviderName, request.ResponseBody.Id);
                 document.File.PublicUrl = await CreateViewLink(document, ct);
                 document.File.LastStorageExportDate = DateTime.UtcNow;
                 db.Documents.Update(document);
                 await db.SaveChangesAsync(ct);
 
-                return StorageRepsonse.Ok(document.StorageId);
+                return StorageRepsonse.Ok(document.File.Storage);
             }
             else
             {
@@ -193,35 +195,35 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
     private async Task<string?> GetOrCreateCommunityFolder(Guid CommunityId, CancellationToken ct = default)
     {
         var community = await db.Communities.FindAsync(CommunityId);
-        if (string.IsNullOrEmpty(community.StorageId))
+        if (!community.Settings.Storage.IsGoogle())
         {
             var storageId = await CreateOrGetFolderAsync(gdriveOpts.Value.RootFolderId, community.Name, ct);
-            community.StorageId = storageId;
+            community.Settings.Storage = new StorageInfo(this.ProviderName,  storageId);
             await db.SaveChangesAsync(ct);
         }
-        return community.StorageId;
+        return community.Settings.Storage.StorageId;
     }
 
     private async Task<string?> GetOrCreateGroupFolder(Guid groupId, CancellationToken ct = default)
     {
         var group = await db.Groups.FindAsync(groupId);
-        if (group.CommunityId.HasValue && string.IsNullOrEmpty(group.StorageId))
+        if (group.CommunityId.HasValue && !group.Settings.Storage.IsGoogle())
         {
             // get community folder
             var communityStorageId = await GetOrCreateCommunityFolder(group.CommunityId.Value, ct);
 
             // create group folder
             var storageId = await CreateOrGetFolderAsync(communityStorageId, group.Name, ct);
-            group.StorageId = storageId;
+            group.Settings.Storage = new StorageInfo(this.ProviderName, storageId);
             await db.SaveChangesAsync(ct);
         }
-        return group.StorageId;
+        return group.Settings.Storage.StorageId;
     }
 
     private async Task<string?> GetOrCreateServiceRequestFolder(Guid requestId, CancellationToken ct = default)
     {
         var sr = await db.ServiceRequests.FindAsync(requestId);
-        if (string.IsNullOrEmpty(sr.StorageId))
+        if (!sr.Description.Storage.IsGoogle())
         {
             // get group folder
             var groupStorageId = await GetOrCreateGroupFolder(sr.GroupId, ct);
@@ -229,10 +231,10 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
             // create request folder
             var requestFolderName = RequestFolderName(sr);
             var storageId = await CreateOrGetFolderAsync(groupStorageId, requestFolderName, ct);
-            sr.StorageId = storageId;
+            sr.Description.Storage = new StorageInfo(this.ProviderName, storageId); 
             await db.SaveChangesAsync(ct);
         }
-        return sr.StorageId;
+        return sr.Description.Storage.StorageId;
     }
 
     private string RequestFolderName(ServiceRequest sr) => sr.CreatedOn.ToString("yyyy-MM-dd") + " - " + sr.Description.FullTitle();
@@ -266,6 +268,30 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         var folder = await createRequest.ExecuteAsync(ct);
 
         return folder.Id;
+    }
+
+    private async Task<bool> FolderExistsAsync(string folderId, CancellationToken ct = default)
+    {
+        try
+        {
+            var request = GDrive.Files.Get(folderId);
+            request.Fields = "id, mimeType, trashed";
+            var file = await request.ExecuteAsync(ct);
+
+            return file != null
+                && file.MimeType == "application/vnd.google-apps.folder"
+                && file.Trashed == false;
+        }
+        catch (GoogleApiException ex) when (ex.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            // Folder does not exist
+            return false;
+        }
+        catch
+        {
+            // Optionally log or handle other errors
+            return false;
+        }
     }
 
     private async Task ShareFolderWithUserAsync(string folderId, string userEmail, string role = "writer", CancellationToken ct = default)
@@ -320,25 +346,25 @@ and you can upload images and other files directly into that folder. From there 
 
     public async Task RenameRequest(ServiceRequest request)
     {
-        if (!string.IsNullOrEmpty(request.StorageId))
+        if (request.Description.Storage.IsGoogle())
         {
-            await RenameFolder(request.StorageId, RequestFolderName(request));
+            await RenameFolder(request.Description.Storage.StorageId, RequestFolderName(request));
         }
     }
 
     public async Task RenameGroup(Group group)
     {
-        if (!string.IsNullOrEmpty(group.StorageId))
+        if (group.Settings.Storage.IsGoogle())
         {
-            await RenameFolder(group.StorageId, group.Name);
+            await RenameFolder(group.Settings.Storage.StorageId, group.Name);
         }
     }
 
     public async Task RenameCommunity(Community community)
     {
-        if (!string.IsNullOrEmpty(community.StorageId))
+        if (community.Settings.Storage.IsGoogle())
         {
-            await RenameFolder(community.StorageId, community.Name);
+            await RenameFolder(community.Settings.Storage.StorageId, community.Name);
         }
     }
 
@@ -363,7 +389,7 @@ and you can upload images and other files directly into that folder. From there 
 
     public async Task<string?> CreateViewLink(DocumentNode doc, CancellationToken ct = default)
     {
-        if (string.IsNullOrEmpty(doc.StorageId)) return null;
+        if (!doc.File.Storage.IsGoogle()) return null;
 
         // Permission logic remains the same
         var newPermission = new Permission
@@ -371,11 +397,11 @@ and you can upload images and other files directly into that folder. From there 
             Type = "anyone",
             Role = "reader"
         };
-        await GDrive.Permissions.Create(newPermission, doc.StorageId).ExecuteAsync();
+        await GDrive.Permissions.Create(newPermission, doc.File.Storage.StorageId).ExecuteAsync();
 
 
         // create a preview link
-        var request = GDrive.Files.Get(doc.StorageId);
+        var request = GDrive.Files.Get(doc.File.Storage.StorageId);
         // Request both thumbnail and the original link as a fallback
         request.Fields = "thumbnailLink, webContentLink";
         var file = await request.ExecuteAsync();
@@ -401,12 +427,12 @@ and you can upload images and other files directly into that folder. From there 
         return file.WebContentLink;
 
         // alternative: https://drive.google.com/uc?export=view&id={StorageId}
-        return $"https://drive.google.com/uc?export=view&id={doc.StorageId}";
+        return $"https://drive.google.com/uc?export=view&id={doc.File.Storage.StorageId}";
     }
 
 
 
-
+    /*
     public async Task<ScanExternalDocumentResponse> ScanNewFilesAsync(Guid requestId, CancellationToken ctk = default!)
     {
         var sr = await db.ServiceRequests
@@ -443,8 +469,9 @@ and you can upload images and other files directly into that folder. From there 
 
         return new ScanExternalDocumentResponse("Google", newitems);
     }
+    */
 
-
+    /*
     public async Task ImportNewFilesAsync(Guid requestId, IReadOnlyList<string> storageIds, CancellationToken ctk = default!)
     {
         var sr = await db.ServiceRequests
@@ -510,6 +537,7 @@ and you can upload images and other files directly into that folder. From there 
             await db.SaveChangesAsync(ctk);
         }
     }
+    */
 
 
     private async Task<string?> GetThumbnailBase64Async(string fileId, CancellationToken ct = default)
@@ -631,7 +659,7 @@ and you can upload images and other files directly into that folder. From there 
                .SingleOrDefaultAsync(f => f.UserId == UserId && f.StorageProvider == this.ProviderName, ct);
             if (userFolder is null)
             {
-                throw new Exception("no uload folder for user account configured");
+                throw new Exception("no upload folder for user account configured");
             }
 
             var folderName = sr.Description.FullTitle();
@@ -654,10 +682,19 @@ and you can upload images and other files directly into that folder. From there 
         throw new NotImplementedException();
     }
 
-    public async Task<int> ImportUploadFolderAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string>? storageIds, CancellationToken ct = default)
+    public async Task<FolderImportResponse> ImportUploadFolderAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string>? storageIds, CancellationToken ct = default)
     {
-        // scan the folder with Id = folder.StorageId on google drive and list all files with name, id and mimetype
+        // check that folder exists
+        bool exists = await FolderExistsAsync(folder.StorageId, ct);
+        if (!exists)
+        {
+            // delete the upload folder
+            db.Remove(folder);
+            await db.SaveChangesAsync(ct);
+            return FolderImportResponse.Fail("import folder on google drive not found");
+        }
 
+        // scan the folder with Id = folder.StorageId on google drive and list all files with name, id and mimetype
         FilesResource.ListRequest listRequest = GDrive.Files.List();
         listRequest.Q = $"'{folder.StorageId}' in parents and trashed = false";
         listRequest.Fields = "nextPageToken, files(id, name, mimeType)";
@@ -667,6 +704,8 @@ and you can upload images and other files directly into that folder. From there 
         int newCount = 0;
         if (result.Files != null && result.Files.Count > 0)
         {
+            var srFolderId = await GetOrCreateServiceRequestFolder(folder.ServiceRequestId, ct);
+
             foreach (var item in result.Files)
             {
                 if (item.MimeType != "application/vnd.google-apps.folder")
@@ -675,42 +714,56 @@ and you can upload images and other files directly into that folder. From there 
                     if (storageIds is null || storageIds.Contains(item.Id))
                     {
                         // filter already imported
-                        if (!folder.ServiceRequest.Documents.Any(d => d.StorageId == item.Id))
+                        if (!folder.ServiceRequest.Documents.Any(d => d.File.Storage.StorageId == item.Id))
                         {
-                            newCount++;
-                            var newDoc = new DocumentNode
+                            try
                             {
-                                Id = Guid.CreateVersion7(),
-                                ServiceRequestId = folder.ServiceRequestId,
-                                CreatedOn = DateTime.UtcNow,
-                                OwnerId = folder.ServiceRequest.OwnerId,
-                                SortNr = folder.ServiceRequest.Documents.IsEmpty() ? 0 : folder.ServiceRequest.Documents.Max(x => x.SortNr) + 1,
-                                StorageId = item.Id,
-                                DocumentType = "file",
-                                File = new NodeFile
-                                {
-                                    Filename = item.Name,
-                                    MimeType = item.MimeType
-                                }
-                            };
-                            await db.Documents.AddAsync(newDoc, ct);
+                                // move file to service request folder => update parent from (importFolder to srFolder)
+                                var updateRequest = GDrive.Files.Update(new v3.Data.File(), item.Id);
+                                updateRequest.AddParents = srFolderId;
+                                updateRequest.RemoveParents = folder.StorageId;
+                                updateRequest.Fields = "id, parents, name, mimeType";
+                                var moved = await updateRequest.ExecuteAsync(ct);
 
-                            if (mime.IsImage(item.Name))
-                            {
-                                // thumnail
-                                newDoc.File.ThumbData = await GetThumbnailBase64Async(item.Id);
-                                newDoc.DocumentType = "image";
+                                newCount++;
+                                var newDoc = new DocumentNode
+                                {
+                                    Id = Guid.CreateVersion7(),
+                                    ServiceRequestId = folder.ServiceRequestId,
+                                    CreatedOn = DateTime.UtcNow,
+                                    OwnerId = folder.ServiceRequest.OwnerId,
+                                    SortNr = folder.ServiceRequest.Documents.IsEmpty() ? 0 : folder.ServiceRequest.Documents.Max(x => x.SortNr) + 1,
+                                    DocumentType = "file",
+                                    File = new NodeFile
+                                    {
+                                        Filename = moved.Name,
+                                        MimeType = moved.MimeType,
+                                        Storage = new StorageInfo(this.ProviderName, moved.Id)
+                                    }
+                                };
+                                await db.Documents.AddAsync(newDoc, ct);
+
+                                if (mime.IsImage(item.Name))
+                                {
+                                    // thumnail
+                                    newDoc.File.ThumbData = await GetThumbnailBase64Async(item.Id);
+                                    newDoc.DocumentType = "image";
+                                }
+                                if (clientOpts.Value.WsiExtensions.Contains(System.IO.Path.GetExtension(item.Name)))
+                                {
+                                    // 
+                                    newDoc.File.PublicUrl = await CreatePublicRangeLinkAsync(item.Id, ct);
+                                    newDoc.DocumentType = "wsi";
+                                }
+                                else
+                                {
+                                    // view link for images & files
+                                    newDoc.File.PublicUrl = await CreateViewLink(newDoc, ct);
+                                }
                             }
-                            if (clientOpts.Value.WsiExtensions.Contains(System.IO.Path.GetExtension(item.Name)))
+                            catch (Exception ex)
                             {
-                                // 
-                                newDoc.File.PublicUrl = await CreatePublicRangeLinkAsync(item.Id, ct);
-                                newDoc.DocumentType = "wsi";
-                            }
-                            else
-                            {
-                                // view link for images & files
-                                newDoc.File.PublicUrl = await CreateViewLink(newDoc, ct);
+                                logger.LogError(ex, "Error importing from google");
                             }
                         }
                     }
@@ -718,7 +771,7 @@ and you can upload images and other files directly into that folder. From there 
             }
             await db.SaveChangesAsync(ct);
         }
-        return newCount;
+        return FolderImportResponse.Ok(newCount);
 
     }
     #endregion

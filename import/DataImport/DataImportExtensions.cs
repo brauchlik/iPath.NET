@@ -373,14 +373,8 @@ public static class DataImportExtensions
 
     public static Community ToNewEntity(this i2community o)
     {
-        var n = new Community
-        {
-            Id = Guid.CreateVersion7(),
-            ipath2_id = o.id,
-            Name = o.name,
-            OwnerId = AdminUserId,
-            CreatedOn = o.created_on.ToUniversalTime()
-        };
+        var n = Community.Create(o.name, AdminUserId.Value);
+        n.ipath2_id = o.id;
         communityIds.Add(o.id, n.Id);
 
         n.OwnerId = NewUserId(o.created_by);
@@ -396,15 +390,8 @@ public static class DataImportExtensions
             DefaultCommunityId.Value;
 
 
-        var n = new Group()
-        {
-            Id = Guid.CreateVersion7(),
-            ipath2_id = g.id,
-            Name = g.name,
-            CommunityId = cid,
-            Settings = new(),
-            CreatedOn = g.entered.ToUniversalTime()
-        };
+        var n = Group.Create(g.name, AdminUserId.Value, cid);
+        n.ipath2_id = g.id;
         groupIds.Add(g.id, n.Id);
 
         // communities

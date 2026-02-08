@@ -15,7 +15,7 @@ public class CreateServiceRequestUploadFolderHandler(iPathDbContext db, IRemoteS
             throw new NotAllowedException();
         }
 
-        var f = await storage.CreateRequestUploadFolderAsync(sr.Id, sess.User.Id, ct);
+        var f = await storage.CreateRequestUploadFolderAsync(sr.Id, sr.OwnerId, ct);
         return f.Id;
     }
 }

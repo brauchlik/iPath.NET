@@ -1,16 +1,17 @@
 ﻿using FluentResults;
+using iPath.Application.Contracts;
 using iPath.Application.Features;
+using iPath.Application.Features.Admin;
+using iPath.Application.Features.CMS;
 using iPath.Application.Features.Documents;
-using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.Notifications;
+using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.Users;
 using iPath.Application.Localization;
 using iPath.Application.Querying;
 using iPath.Domain.Config;
 using iPath.Domain.Entities;
 using Refit;
-using iPath.Application.Features.CMS;
-using iPath.Application.Features.Admin;
 
 namespace iPath.Blazor.ServiceLib.ApiClient;
 
@@ -199,7 +200,7 @@ public interface IPathApi
     Task<IApiResponse<ScanExternalDocumentResponse>> ScanExternalDocuments(Guid uploadFolderId);
 
     [Post("/api/v1/requests/{uploadFolderId}/importdocuments")]
-    Task<IApiResponse<int>> ImportExternalDocuments(Guid uploadFolderId, IReadOnlyList<string>? storageIds);
+    Task<IApiResponse<FolderImportResponse>> ImportExternalDocuments(Guid uploadFolderId, IReadOnlyList<string>? storageIds);
     #endregion
 
 

@@ -2,12 +2,9 @@ using Ardalis.GuardClauses;
 using Cyrillic.Convert;
 using EFCore.BulkExtensions;
 using Humanizer;
-using iPath.Application.Features.Documents;
 using iPath.EF.Core.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Internal;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 

@@ -4,7 +4,6 @@ namespace iPath.Domain.Entities;
 
 public class Group : AuditableEntityWithEvents
 {
-    public string? StorageId { get; set; }
     public string Name { get; private set; } = string.Empty;
 
     public Guid? OwnerId { get; set; }
@@ -60,7 +59,24 @@ public class Group : AuditableEntityWithEvents
             CreatedOn = DateTime.UtcNow,
             Name = Name,
             Owner = Owner,
-            Community = Community
+            Community = Community,
+            Settings = new()
+        };
+
+        return grp;
+    }
+
+    public static Group Create(string Name, Guid OwnerId, Guid? CommunityId)
+    {
+        Guard.Against.NullOrEmpty(Name);
+        var grp = new Group
+        {
+            Id = Guid.CreateVersion7(),
+            CreatedOn = DateTime.UtcNow,
+            Name = Name,
+            OwnerId = OwnerId,
+            CommunityId = CommunityId,
+            Settings = new()
         };
 
         return grp;

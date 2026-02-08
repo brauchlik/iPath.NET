@@ -56,7 +56,7 @@ public class AppState(IPathApi api, ILogger<AppState> logger) : IUserSession
     }
     public bool StatsLoaded => _stats is not null;
 
-    public void SeerviceRequestVisited(Guid id)
+    public void ServiceRequestVisited(Guid id)
     {
         if (_stats is not null)
         {

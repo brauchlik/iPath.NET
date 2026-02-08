@@ -1,4 +1,4 @@
-﻿using Azure;
+﻿using iPath.Domain.Entities;
 using iPath.EF.Core.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -22,9 +22,12 @@ public static class GoogleProxyEndpoints
             var doc = await db.Documents.FindAsync(Guid.Parse(docId));
             // if (doc == null) return Results.NotFound();
 
+            doc.AssertGoogle();
+
             var client = clientFactory.CreateClient("GoogleDrive");
             var apiKey = opts.Value.PUBLIC_API_KEY;
-            var requestUrl = $"https://www.googleapis.com/drive/v3/files/{doc.StorageId}?alt=media&key={apiKey}";
+            var storageId = doc.File.Storage.StorageId;
+            var requestUrl = $"https://www.googleapis.com/drive/v3/files/{storageId}?alt=media&key={apiKey}";
 
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
 

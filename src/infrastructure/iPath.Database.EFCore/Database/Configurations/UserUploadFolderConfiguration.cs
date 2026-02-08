@@ -8,5 +8,9 @@ public class UserUploadFolderConfiguration : IEntityTypeConfiguration<UserUpload
         builder.ToTable("useruploadfolder");
         builder.HasKey(x => x.Id);
         builder.HasOne(x => x.User).WithMany(u => u.UploadFolders).HasForeignKey(x => x.UserId).IsRequired(true);
+        builder.HasMany(x => x.RequestUploadFolders)
+            .WithOne(f => f.UploadFolder)
+            .IsRequired(true)
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

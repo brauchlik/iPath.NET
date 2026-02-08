@@ -102,8 +102,7 @@ public static class ServiceRequestEndpoints
 
         grp.MapPost("{id}/importdocuments", async (string id, [FromBody] IReadOnlyList<string>? storageIds, [FromServices] IMediator mediator, CancellationToken ct)
                 => await mediator.Send(new ImportExternalDocumentsCommand(Guid.Parse(id), storageIds), ct))
-            .Produces<int>(200)
-            .Produces(404)
+            .Produces<FolderImportResponse>(200)
             .RequireAuthorization();
 
 

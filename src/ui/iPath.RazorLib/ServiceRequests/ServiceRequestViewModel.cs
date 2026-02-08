@@ -176,8 +176,15 @@ public class ServiceRequestViewModel(IPathApi api,
     {
         if (SelectedRequest is not null)
         {
-            await api.UpdateRequestVisit(SelectedRequest.Id);
-            appState.SeerviceRequestVisited(SelectedRequest.Id);
+            try
+            {
+                await api.UpdateRequestVisit(SelectedRequest.Id);
+                appState.ServiceRequestVisited(SelectedRequest.Id);
+            }
+            catch(Exception ex)
+            {
+                logger.LogWarning(ex.Message);
+            }
         }
     }
 
@@ -909,7 +916,7 @@ public class ServiceRequestViewModel(IPathApi api,
     }
 
 
-    public bool DocumentImportEnabled => opts.Value.ExternalDocumentImportActive && appState.IsOwner(SelectedRequest);
+    public bool DocumentImportEnabled => !string.IsNullOrEmpty(opts.Value.ExternalStorageName) && appState.IsOwner(SelectedRequest);
 
     public async Task ExternalDocumentImport()
     {
@@ -923,9 +930,10 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             await ImportExternalDocuments();
         }
+        await ReloadNode();
     }
 
-    public async Task CreateDocumentImportFolder()
+    private async Task CreateDocumentImportFolder()
     {
         var respU = await api.GetUser(SelectedRequest.OwnerId);
         if (snackbar.CheckSuccess(respU))
@@ -945,7 +953,7 @@ public class ServiceRequestViewModel(IPathApi api,
         }
     }
 
-    public async Task ImportExternalDocuments()
+    private async Task ImportExternalDocuments()
     {
         if (SelectedRequest is not null && SelectedRequest.UploadFolderId.HasValue)
         {
@@ -954,9 +962,7 @@ public class ServiceRequestViewModel(IPathApi api,
             var resp = await api.ImportExternalDocuments(SelectedRequest.UploadFolderId.Value, null);
             if (snackbar.CheckSuccess(resp))
             {
-                snackbar.Add($"{resp.Content} documents have been imported", Severity.Success);
-                if (resp.Content > 0)
-                    await ReloadNode();
+                snackbar.Add($"{resp.Content.ImportCount} documents have been imported", Severity.Success);                   
             }
         }
     }

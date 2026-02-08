@@ -8,6 +8,8 @@ public class UserUploadFolder : BaseEntity
     public string StorageProvider { get; set; }
     public string StorageId { get; set; }
 
+    public ICollection<ServiceRequestUploadFolder> RequestUploadFolders { get; set; } = [];
+
     private UserUploadFolder()
     {
     }

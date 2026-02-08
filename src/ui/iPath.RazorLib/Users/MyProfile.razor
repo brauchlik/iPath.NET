@@ -10,7 +10,30 @@
         <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true"
                  TabPanelsClass="pa-6" Color="Color.Info" IconColor="Color.Surface">
             <MudTabPanel Text="Profile">
-                <UserProfileForm Model="Model.Profile" OnValidSubmit="OnSubmit" RedirectUrl="/"/>
+                @if (Model.HasGoogleAccount)
+                {
+                    <MudAlert Severity="Severity.Info" Class="my-4">
+                        <MudStack Spacing="2">
+                            @if (Model.UploadFolderId.HasValue)
+                            {
+                                <MudText>
+                                    You have activated image upload over google drive. if you no longer use this feature
+                                    you may delete your upload folder here.
+                                </MudText>
+                            }
+                            else
+                            {
+                                <MudText>
+                                    You are logged in with a google account. You may upload images over google drive
+                                    by creating a personal upload folder. Documentation to follow.
+                                </MudText>
+                            }
+                            <UserUploadFolderButton User="@Model" />
+                        </MudStack>
+                    </MudAlert>
+                }
+
+                <UserProfileForm Model="Model.Profile" OnValidSubmit="OnSubmit" RedirectUrl="/" />
             </MudTabPanel>
             <MudTabPanel Text="Notifications">
                 <UserNotificationGrid User="Model" />
@@ -19,7 +42,7 @@
     }
     else
     {
-        <MudProgressCircular Indeterminate="true" Size="Size.Small" />    
+        <MudProgressCircular Indeterminate="true" Size="Size.Small" />
         <p>loading ... </p>
     }
 </MudContainer>
@@ -27,7 +50,7 @@
 @inject UserViewModel vm
 @inject IStringLocalizer T
 
-    @code {
+@code {
     UserDto? Model;
     SessionUserDto sess;
 

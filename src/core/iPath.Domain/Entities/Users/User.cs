@@ -73,7 +73,9 @@ public class User : IdentityUser<Guid>, IBaseEntity, IHasDomainEvents
     public ICollection<ServiceRequestLastVisit> NodeVisitis { get; set; } = [];
 
     public ICollection<Role> Roles { get; set; } = [];
+    public ICollection<IdentityUserLogin<Guid>> Logins { get; set; } = [];
     public ICollection<UserUploadFolder> UploadFolders { get; set; } = [];
+
 
     public int? ipath2_id { get; set; }
     public string? ipath2_username { get; set; }

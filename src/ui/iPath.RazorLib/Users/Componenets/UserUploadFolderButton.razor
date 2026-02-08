@@ -1,23 +1,26 @@
-﻿@namespace iPath.Blazor.Componenents.Admin.Users
+﻿@namespace iPath.Blazor.Componenents.Users
 
 @inject IPathApi api
-@inject ISnackbar nackbar
-
+@inject ISnackbar snackbar
 
 
 <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
-    <MudText>Google Upload Folder</MudText>
-    <ProgressButton OnClick="ToggleUploadFolder" Text="@ButtonText" Icon="@ButtonIcon" Color="@ButtonColor" />
+    <ProgressButton OnClick="ToggleUploadFolder" Text="@ButtonText" Icon="@ButtonIcon" 
+        Color="@ButtonColor" Disabled="@ButtonDisaabled" Class="@Class"/>
 </MudStack>
 
 @code {
     [Parameter]
     public UserDto? User { get; set; }
 
+    [Parameter]
+    public string Class { get; set; } = "";
 
-    string ButtonText => HasUploadFolder ? "Delete" : "Create";
+
+    string ButtonText => HasUploadFolder ? "Delete Google folder" : "Create Google folder";
     string ButtonIcon => HasUploadFolder ? Icons.Material.Filled.FolderDelete : Icons.Material.Filled.FolderShared;
     Color ButtonColor => HasUploadFolder ? Color.Primary : Color.Surface;
+    bool ButtonDisaabled => !User.HasGoogleAccount;
 
     bool HasUploadFolder { get; set; }
 

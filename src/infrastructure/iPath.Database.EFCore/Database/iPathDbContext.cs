@@ -70,6 +70,7 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
             b.ToTable("users");
             b.ComplexProperty(u => u.Profile, b => b.ToJson("profile"));
             b.HasMany(e => e.Roles).WithMany().UsingEntity<IdentityUserRole<Guid>>();
+            b.HasMany(e => e.Logins).WithOne().HasForeignKey(l => l.UserId).IsRequired();
             b.HasMany(e => e.GroupMembership).WithOne(m => m.User).HasForeignKey(m => m.UserId).IsRequired(true);
             b.HasMany(e => e.CommunityMembership).WithOne(m => m.User).HasForeignKey(m => m.UserId).IsRequired(true);
             b.HasMany(e => e.UploadFolders).WithOne(f => f.User).HasForeignKey(f => f.UserId).IsRequired(true);

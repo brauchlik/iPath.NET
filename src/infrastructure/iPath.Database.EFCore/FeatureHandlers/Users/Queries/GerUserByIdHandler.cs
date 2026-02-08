@@ -16,6 +16,7 @@ public class GetUserByIdHandler(iPathDbContext db, IUserSession sess)
                 IsActive = u.IsActive,
                 IsNew = u.IsNew,
                 Roles = u.Roles.Select(r => new RoleDto(r.Id, r.Name)).ToArray(),
+                HasGoogleAccount = u.Logins != null && u.Logins.Any(x => x.LoginProvider == "Google"),
                 UploadFolderId = u.UploadFolders.FirstOrDefault().Id,
                 GroupMembership = u.GroupMembership.Select(m => new UserGroupMemberDto(GroupId: m.Group.Id, Groupname: m.Group.Name, 
                     Role: m.Role, IsConsultant: m.IsConsultant)).ToArray(),

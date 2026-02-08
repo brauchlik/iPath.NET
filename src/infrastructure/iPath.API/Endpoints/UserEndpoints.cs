@@ -87,11 +87,11 @@ public static class UserEndpoints
         // upload folders
         grp.MapPost("{id}/uploadfolder", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(new CreateRequestUploadFolderCommand(Guid.Parse(id)), ct))
-            .RequireAuthorization("Admin");
+            .RequireAuthorization();
 
         grp.MapDelete("{id}/uploadfolder", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(new DeleteUserUploadFolderCommand(Guid.Parse(id)), ct))
-            .RequireAuthorization("Admin");
+            .RequireAuthorization();
 
         return route;
     }

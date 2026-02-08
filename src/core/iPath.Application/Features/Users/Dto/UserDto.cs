@@ -18,5 +18,6 @@ public record UserDto
 
     public DateTime CreatedOn { get; init; } 
 
+    public bool HasGoogleAccount { get; set; }
     public Guid? UploadFolderId { get; init; }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using iPath.Domain.Config;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace iPath.Blazor.Componenents.Users;
 
@@ -7,6 +8,7 @@ public class UserViewModel(IPathApi api,
     IDialogService srvDialog,
     IMemoryCache cache,
     IStringLocalizer T,
+    IOptions<iPathClientConfig> clientOpts,
     NavigationManager nm,
     ILogger<UserViewModel> logger) : IViewModel
 {
@@ -21,6 +23,9 @@ public class UserViewModel(IPathApi api,
         var dialog = await srvDialog.ShowAsync<UserProfileDialog>("User Profile", parameters: parameters, options: options);
         var result = await dialog.Result;
     }
+
+
+    public string ExternalStorageName => clientOpts.Value.ExternalStorageName;
 
 
     private readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1);
@@ -146,4 +151,6 @@ public class UserViewModel(IPathApi api,
         var d = await srvDialog.ShowAsync<UserNotificationsDialog>("notifications", parameters: p);
         var r = await d.Result;
     }
+
+
 }

@@ -117,10 +117,25 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 });
 
 
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.AllowAnyOrigin() // TODO: restrict to URL in production
+              .WithMethods("GET", "OPTIONS")
+              .WithHeaders("Range", "Authorization", "X-Requested-With")
+              .WithExposedHeaders("Content-Range", "Accept-Ranges", "Content-Length");
+    });
+});
+
+
+
 
 var app = builder.Build();
 var opts = app.Services.GetRequiredService<IOptions<iPathConfig>>();
 
+app.UseCors("CorsPolicy");
 
 // Header forwarding for Reverse Proxy Integration
 app.UseForwardedHeaders(new ForwardedHeadersOptions

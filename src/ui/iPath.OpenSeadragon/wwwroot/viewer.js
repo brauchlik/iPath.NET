@@ -24,6 +24,18 @@ svs.loadImage = async (elemId, url) => {
     {
         elem.innerHTML = ""
 
+        var viewer = OpenSeadragon({
+            id: elem.id,
+            prefixUrl: "_content/iPath.OpenSeadragon/images/",
+            tileSources: {
+                type: 'image',
+                url: url,
+                buildPyramid: false, // Essential for GeoTIFF plugin
+                // Use the GeoTIFF tile source plugin here
+            }
+        });
+
+        /*
         var tileSources = await OpenSeadragon.GeoTIFFTileSource.getAllTileSources(url, { logLatency: false, cache: true, slideOnly: true });
         var dim = tileSources[0].dimensions;
 
@@ -39,6 +51,7 @@ svs.loadImage = async (elemId, url) => {
         });
 
         osd.open(tileSources);
+        */
 
         return dim.toString();
 

@@ -7,7 +7,7 @@
 @inject IBrowserViewportService BrowserViewportService
 
 
-<MudPaper Elevation="2" Style="background-color: black;" Width="@paperW" Height="@paperH" >
+<MudPaper id="wsiContainer" Elevation="2" Style="background-color: black;" Width="@paperW" Height="@paperH" >
     <iframe id="wsiFrame" title="WSI Viewer"
             width="@pxWidth" height="@pxHeight" style="border:none; max-height: @pxHeight;"
             srcdoc="@iframe">
@@ -113,5 +113,7 @@
         LoadHtml();
         return InvokeAsync(StateHasChanged);
     }
+
+
 }
 

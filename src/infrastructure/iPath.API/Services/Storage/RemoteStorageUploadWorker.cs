@@ -27,31 +27,39 @@ public class RemoteStorageUploadWorker(IServiceProvider sp)
         while (!stoppingToken.IsCancellationRequested)
         {
             var cmd = await queue.DequeueAsync(stoppingToken);
-            try
+            if (cmd is not null)
             {
-                // scoped services
-                using var scope = sp.CreateAsyncScope();
-                using var db = scope.ServiceProvider.GetRequiredService<iPathDbContext>();
-                IRemoteStorageService srv = scope.ServiceProvider.GetRequiredService<IRemoteStorageService>();
-
-                var res = cmd.command switch {
-                    eRemoteStorageCommand.UploadDocument => await srv.PutFileAsync(cmd.objId, stoppingToken),
-                    eRemoteStorageCommand.DeleteServiceRequest => await srv.DeleteFileAsync(cmd.objId, stoppingToken),
-                    eRemoteStorageCommand.UploadServiceRequest => await srv.PutServiceRequestJsonAsync(cmd.objId, stoppingToken)
-                };
-
-                if (res.Success)
+                try
                 {
-                    logger.LogInformation("{cmd} {id} sucessfull", cmd.command, cmd.objId);
+                    // scoped services
+                    using var scope = sp.CreateAsyncScope();
+                    using var db = scope.ServiceProvider.GetRequiredService<iPathDbContext>();
+                    IRemoteStorageService srv = scope.ServiceProvider.GetRequiredService<IRemoteStorageService>();
+
+                    var res = cmd.command switch
+                    {
+                        eRemoteStorageCommand.UploadDocument => await srv.PutFileAsync(cmd.objId, stoppingToken),
+                        eRemoteStorageCommand.DeleteServiceRequest => await srv.DeleteFileAsync(cmd.objId, stoppingToken),
+                        eRemoteStorageCommand.UploadServiceRequest => await srv.PutServiceRequestJsonAsync(cmd.objId, stoppingToken)
+                    };
+
+                    if (res.Success)
+                    {
+                        logger.LogInformation("{cmd} {id} sucessfull", cmd.command, cmd.objId);
+                    }
+                    else
+                    {
+                        logger.LogWarning("{cmd} {id} failed: {err}", cmd.command, cmd.objId, res.Message);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    logger.LogWarning("{cmd} {id} failed: {err}", cmd.command, cmd.objId, res.Message);
+                    logger.LogError(ex, ex.Message);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                logger.LogError(ex, ex.Message);
+                await Task.Delay(5000);
             }
         }
     }

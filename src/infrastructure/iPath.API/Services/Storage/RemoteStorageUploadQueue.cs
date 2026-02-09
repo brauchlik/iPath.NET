@@ -20,7 +20,14 @@ public class RemoteStorageUploadQueue : IRemoteStorageUploadQueue
 
     public async ValueTask<RemoteStorageCommand> DequeueAsync(CancellationToken ct)
     {
-        return await _channel.Reader.ReadAsync(ct);
+        try
+        { 
+            return await _channel.Reader.ReadAsync(ct);
+        }
+        catch(Exception ex)
+        {
+            return null;
+        }
     }
 
     public async ValueTask EnqueueAsync(RemoteStorageCommand id, CancellationToken ct)

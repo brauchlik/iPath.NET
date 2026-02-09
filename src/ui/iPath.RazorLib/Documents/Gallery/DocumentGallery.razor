@@ -20,10 +20,10 @@
             {
                 <img src="@vm.SelectedDocument.PreviewFileUrl" @onclick="@vm.GoNext" />
             }
-            else if (Wsi && vm.SelectedDocument.FileExtension == ".svs")
+            else if (Wsi && vm.SelectedDocument.IsWSI)
             {
                 <div class="d-flex justify-center">
-                    <iPath.OpenSeadragon.OsdViewerIFrame ImagePath="@vm.SelectedDocument.WsiUrl" MaxHeight="700" />
+                    <iPath.OpenSeadragon.OsdViewerIFrame ImagePath="@vm.SelectedDocument.WsiUrl" MaxHeight="720" MaxWidth="1200" />
                 </div>
                 <MudAlert NoIcon="true" Severity="Severity.Info">
                     WSI viewer using <a href="https://openseadragon.github.io/">OpenSeadragon</a>

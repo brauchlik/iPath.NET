@@ -1,25 +1,33 @@
-﻿@page "/Account/ConfirmMigration"
+@page "/Account/ConfirmMigration"
 
 @using System.ComponentModel.DataAnnotations
 @using System.Text
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
+@using iPath.Domain.Authentication
+@using iPath.API.Authentication
 
 
-@inject SignInManager<User> SignInManager
-@inject ILogger<Login> Logger
+@inject IPathSignInManager SignInManager
+@inject ILogger<ConfirmMigration> Logger
 @inject IdentityRedirectManager RedirectManager
 @inject UserManager<User> UserManager
 
 
-<PageTitle>Reset password</PageTitle>
+<PageTitle>Account Migration - Set New Password</PageTitle>
 
 
 <MudContainer MaxWidth="MaxWidth.Small">
 
-    <MudText Typo="Typo.h4">Reset password</MudText>
+    <MudAlert Severity="Severity.Info" Elevation="1" Variant="Variant.Outlined" Class="mb-4">
+        <MudText Typo="Typo.h6">Account Migration Required</MudText>
+        <MudText Typo="Typo.body2">
+            Your account is using our legacy authentication system. For enhanced security, 
+            please set a new password for your account.
+        </MudText>
+    </MudAlert>
 
-    <MudDivider Class="mb-4" />
+    <MudText Typo="Typo.h4" Class="mb-4">Set Your New Password</MudText>
 
     <StatusMessage Message="@Message" />
     <EditForm Model="Input" FormName="reset-password" OnValidSubmit="OnValidSubmitAsync" method="post">
@@ -31,21 +39,26 @@
         <MudStack Spacing="4">
 
             <MudStaticTextField For="@(() => Input.Email)" @bind-Value="Input.Email"
-                                Label="Email" Placeholder="name@example.com"
-                                UserAttributes="@(new() { { "autocomplete", "off" }, { "aria-required", "true" } })" />
+                                Label="Email Address" Placeholder="name@example.com" Disabled="true"
+                                UserAttributes="@(new() { { "aria-required", "true" } })"
+                                HelperText="Your email address cannot be changed during migration." />
 
             <MudStaticTextField For="@(() => Input.Password)" @bind-Value="Input.Password"
-                                Label="Password" InputType="InputType.Password" Placeholder="Please enter a new password."
-                                UserAttributes="@(new() { { "autocomplete", "off" }, { "aria-required", "true" } })" />
+                                Label="New Password" InputType="InputType.Password" 
+                                Placeholder="Enter your new secure password"
+                                UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } })" />
 
             <MudStaticTextField For="@(() => Input.ConfirmPassword)" @bind-Value="Input.ConfirmPassword"
-                                Label="Password" InputType="InputType.Password" Placeholder="Please confirm the new password."
-                                UserAttributes="@(new() { { "autocomplete", "off" }, { "aria-required", "true" } })" />
+                                Label="Confirm New Password" InputType="InputType.Password" 
+                                Placeholder="Confirm your new password"
+                                UserAttributes="@(new() { { "autocomplete", "new-password" }, { "aria-required", "true" } })" />
 
         </MudStack>
 
         <MudButton ButtonType="ButtonType.Submit" Class="mt-4"
-        Variant="Variant.Filled" Color="Color.Primary">Confirm</MudButton>
+        Variant="Variant.Filled" Color="Color.Primary" FullWidth="true">
+            Complete Migration & Set Password
+        </MudButton>
 
     </EditForm>
 </MudContainer>
@@ -80,34 +93,64 @@
 
     private async Task OnValidSubmitAsync()
     {
-        var user = await UserManager.FindByEmailAsync(Input.Email);
-        if (user is null)
+        try
         {
-            // Don't reveal that the user does not exist
-            RedirectManager.RedirectTo("Account/ResetPasswordConfirmation");
-        }
-
-        var result = await UserManager.ResetPasswordAsync(user, Input.Code, Input.Password);
-        if (result.Succeeded)
-        {
-            // confirm email
-            user.EmailConfirmed = true;
-            user.ipath2_password = null; // clear old password hash
-            await UserManager.UpdateAsync(user);
-
-            // try to login the user immediately after account migration
-            var lRresult = await SignInManager.PasswordSignInAsync(user.UserName, Input.Password, false, lockoutOnFailure: false);
-            if (lRresult.Succeeded)
+            var user = await UserManager.FindByEmailAsync(Input.Email);
+            if (user is null)
             {
-                Logger.LogInformation("User logged in.");
-                RedirectManager.RedirectTo("/");
+                // Don't reveal that the user does not exist
+                Logger.LogWarning("Migration attempt with non-existent email: {Email}", Input.Email);
+                RedirectManager.RedirectTo("Account/ResetPasswordConfirmation");
+                return;
             }
 
-            // redirect to login page if login fails for any reason
-            RedirectManager.RedirectTo("Account/Login");
-        }
+            // Reset the password
+            var result = await UserManager.ResetPasswordAsync(user, Input.Code, Input.Password);
+            if (result.Succeeded)
+            {
+                Logger.LogInformation("Password migration completed for user {UserId}", user.Id);
 
-        identityErrors = result.Errors;
+                // Confirm email and clear legacy password
+                user.EmailConfirmed = true;
+                user.ipath2_password = null; // clear old password hash
+                var updateResult = await UserManager.UpdateAsync(user);
+                
+                if (!updateResult.Succeeded)
+                {
+                    Logger.LogError("Failed to update user after migration: {Errors}", 
+                        string.Join(", ", updateResult.Errors.Select(e => e.Description)));
+                    identityErrors = updateResult.Errors;
+                    return;
+                }
+
+                // Try to log in the user immediately after account migration
+                var loginResult = await SignInManager.PasswordSignInAsync(user.UserName, Input.Password, false, lockoutOnFailure: false);
+                if (loginResult.Succeeded)
+                {
+                    Logger.LogInformation("User successfully logged in after migration: {UserId}", user.Id);
+                    RedirectManager.RedirectTo("/");
+                    return;
+                }
+
+                // Redirect to login page if login fails for any reason
+                Logger.LogWarning("Auto-login failed after migration for user {UserId}", user.Id);
+                RedirectManager.RedirectTo("Account/Login?migrationSuccess=true");
+            }
+            else
+            {
+                Logger.LogWarning("Password reset failed during migration for user {UserId}: {Errors}", 
+                    user.Id, string.Join(", ", result.Errors.Select(e => e.Description)));
+                identityErrors = result.Errors;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error during password migration for email: {Email}", Input.Email);
+            identityErrors = new List<IdentityError> 
+            { 
+                new IdentityError { Description = "An error occurred during migration. Please try again or contact support." }
+            };
+        }
     }
 
     private sealed class InputModel

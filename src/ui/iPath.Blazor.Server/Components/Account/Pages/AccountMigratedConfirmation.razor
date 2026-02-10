@@ -1,24 +1,63 @@
-﻿@page "/Account/AccountMigrationConfirmation"
+@page "/Account/AccountMigrationConfirmation"
 @page "/Account/AccountMigrationConfirmation/{base64}"
 @using System.Text
 
 
-<PageTitle>Account migration confirmation</PageTitle>
+<PageTitle>Account Migration - Confirmation</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Small">
-    <MudText Typo="Typo.h4" GutterBottom="true">Account Migration</MudText>
-    <MudAlert Severity="Severity.Info" Elevation="1" Variant="Variant.Outlined">
-        <MudText Typo="Typo.body1">
-            Your account has been successfully migrated to our new system.
+    <MudAlert Severity="Severity.Success" Elevation="1" Variant="Variant.Outlined" Class="mb-4">
+        <MudText Typo="Typo.h6" Class="d-flex align-center">
+            <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Class="mr-2" />
+            Legacy Account Detected
         </MudText>
-        <MudText Typo="Typo.body2">
-            Before you can start using your account, we ask you to confirm your email 
-            and set a new password for security reasons.<br /><br />
-            We have sent a password reset link to @email. 
-            Please check your inbox and follow the instructions to set a new password and access 
-            your account.
+        <MudText Typo="Typo.body1" Class="mt-2">
+            We've detected that your account is using our legacy authentication system. 
+            For enhanced security, we need to migrate your account to our new system.
         </MudText>
     </MudAlert>
+
+    <MudText Typo="Typo.h4" Class="mb-4">Next Steps</MudText>
+    
+    <MudCard Elevation="2" Class="mb-4">
+        <MudCardContent>
+            <MudStack Spacing="3">
+                <MudText Typo="Typo.body1">
+                    <strong>1. Check Your Email</strong><br />
+                    We've sent a migration link to <strong>@email</strong>. 
+                    This link will allow you to set a new, secure password.
+                </MudText>
+                
+                <MudDivider />
+                
+                <MudText Typo="Typo.body1">
+                    <strong>2. Set New Password</strong><br />
+                    Click the link in the email and choose a new password that meets our security requirements.
+                </MudText>
+                
+                <MudDivider />
+                
+                <MudText Typo="Typo.body1">
+                    <strong>3. Login Securely</strong><br />
+                    Once you've set your new password, you can login with your enhanced security credentials.
+                </MudText>
+            </MudStack>
+        </MudCardContent>
+    </MudCard>
+
+    <MudAlert Severity="Severity.Warning" Elevation="1" Variant="Variant.Outlined">
+        <MudText Typo="Typo.body2">
+            <strong>Important:</strong> If you don't receive the email within a few minutes, 
+            please check your spam folder. The migration link will expire after 24 hours for security reasons.
+        </MudText>
+    </MudAlert>
+
+    <MudStack Class="mt-4" Spacing="2" Alignment="Alignment.Center">
+        <MudText Typo="Typo.body2">Didn't receive the email?</MudText>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" Href="/Account/ForgotPassword">
+            Resend Migration Email
+        </MudButton>
+    </MudStack>
 </MudContainer>
 
 @code {

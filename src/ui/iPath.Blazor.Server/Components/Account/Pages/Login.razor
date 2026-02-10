@@ -1,4 +1,4 @@
-﻿@page "/Account/Login"
+@page "/Account/Login"
 
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authentication
@@ -8,15 +8,16 @@
 @using System.Text
 @using System.Text.Encodings.Web
 @using iPath.EF.Core.Database
+@using iPath.Domain.Authentication
+@using iPath.API.Authentication
 
 
 
-@inject SignInManager<User> SignInManager
+@inject IPathSignInManager SignInManager
+@inject UserManager<User> um
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
-@inject iPathDbContext dbContext
-@inject UserManager<User> um
 @inject IEmailSender<User> EmailSender
 @inject IStringLocalizer T
 
@@ -49,8 +50,8 @@
                         <MudSpacer />
                         <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" FormAction="FormAction.Submit">Log in</MudStaticButton>
                     </MudStack>
-                    
-                    <MudDivider Class="my-2"/>
+
+                    <MudDivider Class="my-2" />
 
                     @if (!string.IsNullOrEmpty(InitialAdminPassword))
                     {
@@ -129,91 +130,76 @@
         // This doesn't count login failures towards account lockout
         // To enable password failures to trigger account lockout, set lockoutOnFailure: true
 
-        // convert email to username if needed
-        var attr = new EmailAddressAttribute();
-        if (attr.IsValid(Input.Username))
-        {
-            try
-            {
-                var user = await um.FindByEmailAsync(Input.Username);
-                Input.Username = user is not null ? user.UserName : Input.Username;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Login by Email falied", ex);
-                errorMessage = "Error: Email is not unique. Please login with your username.";
-                return;
-            }
-        }
+        var result = await SignInManager.PasswordSignInWithEmailOrUsernameAsync(
+            Input.Username, Input.Password, Input.RememberMe, lockoutOnFailure: false);
 
-        var result = await SignInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberMe, lockoutOnFailure: false);
         if (result.Succeeded)
         {
             DbSeeder.InitialAdminPassword = null;
-            Logger.LogInformation("User logged in.");
+            Logger.LogInformation("User logged in successfully.");
             RedirectManager.RedirectTo(ReturnUrl);
         }
-        else if (result.RequiresTwoFactor)
+
+        try
         {
-            RedirectManager.RedirectTo(
-                "Account/LoginWith2fa",
-                new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
-        }
-        else if (result.IsLockedOut)
-        {
-            Logger.LogWarning("User account locked out.");
-            RedirectManager.RedirectTo("Account/Lockout");
-        }
-        else
-        {
-            // IPATH => Legacy fallback: verify old ipath2 password (MD5) and migrate account to Identity
-            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.UserName == Input.Username || u.Email == Input.Username);
-            if (user is not null && !string.IsNullOrWhiteSpace(user.ipath2_password))
+            if (result.RequiresTwoFactor)
             {
-                var check = CreateMD5(Input.Password).ToLowerInvariant();
-                if (check == user.ipath2_password.ToLowerInvariant())
-                {
-                    // password matches => migrate account
-                    if (attr.IsValid(user.Email))
-                    {
-                        string mailB64 = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(user.Email));
-
-                        var code = await um.GeneratePasswordResetTokenAsync(user);
-                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-                        var callbackUrl = NavigationManager.GetUriWithQueryParameters(
-                            NavigationManager.ToAbsoluteUri("Account/ConfirmMigration").AbsoluteUri,
-                            new Dictionary<string, object?> { ["code"] = code, ["email"] = mailB64, ["migrate"] = "true" });
-
-                        await EmailSender.SendPasswordResetLinkAsync(user, user.Email, HtmlEncoder.Default.Encode(callbackUrl));
-
-                        RedirectManager.RedirectTo("Account/AccountMigrationConfirmation/" + mailB64);
-
-                        return;
-                    }
-                }
+                RedirectManager.RedirectTo(
+                    "Account/LoginWith2fa",
+                    new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
             }
-
-            errorMessage = "Error: Invalid login attempt.";
+            else if (result.IsLockedOut)
+            {
+                Logger.LogWarning("User account locked out.");
+                RedirectManager.RedirectTo("Account/Lockout");
+            }
+            else if (result.RequiresLegacyMigration)
+            {
+                // Legacy password detected - show migration dialog
+                await ShowLegacyMigrationDialog(result);
+            }
+            else
+            {
+                errorMessage = result.ErrorMessage ?? "Error: Invalid login attempt.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error during login attempt for {Username}", Input.Username);
+            errorMessage = "An error occurred during login. Please try again.";
         }
     }
 
-
-    private static string CreateMD5(string input)
+    private async Task ShowLegacyMigrationDialog(IPathSignInResult result)
     {
-        // Use input string to calculate MD5 hash
-        using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+        if (result.User == null || string.IsNullOrEmpty(result.MigrationToken))
         {
-            byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
-            byte[] hashBytes = md5.ComputeHash(inputBytes);
+            errorMessage = "Error: Unable to initiate password migration. Please contact support.";
+            return;
+        }
 
-            // Convert the byte array to hexadecimal string
-            System.Text.StringBuilder sb = new();
-            for (int i = 0; i < hashBytes.Length; i++)
-            {
-                sb.Append(hashBytes[i].ToString("X2"));
-            }
-            return sb.ToString();
+        try
+        {
+            // Send migration email
+            var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+                NavigationManager.ToAbsoluteUri("Account/ConfirmMigration").AbsoluteUri,
+                new Dictionary<string, object?>
+                {
+                    ["code"] = result.MigrationToken,
+                    ["email"] = result.MigrationEmail,
+                    ["migrate"] = "true"
+                });
+
+            var email = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(result.MigrationEmail!));
+            await EmailSender.SendPasswordResetLinkAsync(result.User, email, HtmlEncoder.Default.Encode(callbackUrl));
+
+            // Redirect to migration confirmation page
+            RedirectManager.RedirectTo("Account/AccountMigrationConfirmation/" + result.MigrationEmail);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error sending migration email for user {UserId}", result.User.Id);
+            errorMessage = "Error: Unable to send migration email. Please contact support.";
         }
     }
 

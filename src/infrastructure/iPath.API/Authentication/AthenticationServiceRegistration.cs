@@ -1,4 +1,4 @@
-﻿using iPath.API.Authentication;
+using iPath.API.Authentication;
 using iPath.EF.Core.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +31,7 @@ public static class AthenticationServiceRegistration
         })
             .AddRoles<Role>()
             .AddEntityFrameworkStores<iPathDbContext>()
-            .AddSignInManager()
+            .AddSignInManager<IPathSignInManager>()
             .AddDefaultTokenProviders();
 
 

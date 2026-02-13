@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using MudBlazor.Services;
@@ -50,7 +49,11 @@ if (builder.Environment.IsDevelopment())
 }
 
 
+// Observability 
+//builder.Logging.AddOTLPLogging();
+//builder.Services.AddObservability();
 builder.AddServiceDefaults();
+
 
 // builder.WebHost.UseStaticWebAssets();
 

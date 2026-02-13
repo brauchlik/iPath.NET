@@ -33,6 +33,7 @@
     <ProjectReference Include="..\iPath.Blazor.Client\iPath.Blazor.Client.csproj" />
     <ProjectReference Include="..\iPath.RazorLib\iPath.Blazor.Componenents.csproj" />
     <PackageReference Include="DispatchR.Mediator" Version="2.1.1" />
+    <PackageReference Include="Grafana.OpenTelemetry" Version="1.5.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.*" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.*" />

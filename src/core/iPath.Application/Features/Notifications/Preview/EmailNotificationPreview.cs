@@ -1,8 +1,7 @@
-﻿using iPath.Application.Contracts;
-using iPath.Application.Features.Notifications;
+﻿using Ardalis.GuardClauses;
+using iPath.Application.Contracts;
 using iPath.Domain.Config;
 using Microsoft.Extensions.Options;
-using System.Threading.Tasks;
 
 namespace iPath.Application.Features.Notifications;
 
@@ -14,8 +13,10 @@ public class EmailNotificationPreview(IOptions<iPathClientConfig> opts, IGroupCa
 
     public async Task<string> CreatePreview(NotificationDto n, ServiceRequestDto sr)
     {
-        var grp = await cache.GetGroupAsync(sr.GroupId.Value);
-        var grpLink = opts.Value.BaseAddress + $"<a href=\"groups/{grp.Id}\">{grp.Name}</a>";
+        var group = await cache.GetGroupAsync(sr.GroupId.Value);
+        Guard.Against.NotFound(sr.GroupId.Value, group);
+
+        var grpLink = $"<a href=\"{opts.Value.BaseAddress}groups/{group.Id}\">{group.Name}</a>";
 
         var msg = n.EventType switch
         {
@@ -139,6 +140,7 @@ public class EmailNotificationPreview(IOptions<iPathClientConfig> opts, IGroupCa
             </style>
         </head>
             <body>
+                <div class="message">{msg}</div>
                 <div class="cont">
                     <div class="title">{title}</div>
                     <div class="sender">{sender}</div>

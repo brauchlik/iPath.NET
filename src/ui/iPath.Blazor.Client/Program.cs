@@ -3,7 +3,6 @@ using iPath.Domain.Config;
 using iPath.RazorLib;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
-using System.Runtime.CompilerServices;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -45,4 +44,12 @@ Console.WriteLine("Blazor WASM starting with Base: " + baseAddress);
 await builder.Services.AddRazorLibServices(baseAddress, true);
 
 Console.WriteLine("Blazor WASM RunAsync()");
+
+
+
+var app = builder.Build();
+
+// DI for Extensions
+app.Services.InitComponenetsExtensions();
+
 await builder.Build().RunAsync();

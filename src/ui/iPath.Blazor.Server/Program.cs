@@ -1,9 +1,12 @@
 using iPath.API;
+using iPath.Application.Coding;
+using iPath.Blazor.Componenents.Questionaires;
 using iPath.Blazor.Server;
 using iPath.Blazor.Server.Components;
 using iPath.Blazor.Server.Components.Account;
 using iPath.Domain.Config;
 using iPath.RazorLib;
+using iPath.Blazor.Componenents.Documents;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +16,12 @@ using Microsoft.Extensions.Options;
 using MudBlazor.Services;
 using Serilog;
 using System.Net;
+using Serilog.Enrichers.Span;
+using Serilog.Exceptions;
+using Serilog.Exceptions.Core;
+using Serilog.Exceptions.Destructurers;
+using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
+using Serilog.Exceptions.Refit.Destructurers;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,9 +75,20 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents()
     .AddAuthenticationStateSerialization();
 
-//Add support to logging with SERILOG
+// Add support to logging with SERILOG
 builder.Host.UseSerilog((context, configuration) =>
-    configuration.ReadFrom.Configuration(context.Configuration));
+    configuration.ReadFrom.Configuration(context.Configuration)
+        .Enrich.WithSpan()
+    .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()
+        .WithDefaultDestructurers()
+        .WithDestructurers(new IExceptionDestructurer[]
+        {
+            new DbUpdateExceptionDestructurer(),
+            new ApiExceptionDestructurer()
+        }))
+    .Enrich.WithDemystifiedStackTraces());
+
+builder.Services.AddHttpLogging();
 
 // Authentication Frontend
 builder.Services.AddScoped<IdentityUserAccessor>();
@@ -97,7 +117,7 @@ builder.Configuration.GetSection(iPathClientConfig.ConfigName).Bind(clcfg);
 
 
 var baseAddress = clcfg.BaseAddress ?? "http://localhost:5000/";
-builder.Services.AddRazorLibServices(baseAddress, false);
+await builder.Services.AddRazorLibServices(baseAddress, false);
 
 // testing SSE
 builder.Services.AddSingleton<NotificationService>();
@@ -136,7 +156,13 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+app.UseHttpLogging();
 var opts = app.Services.GetRequiredService<IOptions<iPathConfig>>();
+
+
+// DI for Extensions
+app.Services.InitComponenetsExtensions();
+
 
 app.UseCors("CorsPolicy");
 

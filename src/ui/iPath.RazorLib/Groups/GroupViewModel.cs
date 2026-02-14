@@ -9,6 +9,7 @@ public class GroupViewModel(IPathApi api,
     ISnackbar snackbar,
     IDialogService dialog,
     IStringLocalizer T,
+    ILogger<GroupViewModel> logger,
     ServiceRequestListViewModel srvm) : IViewModel
 {
     public GroupDto Model { get; private set; }
@@ -24,6 +25,7 @@ public class GroupViewModel(IPathApi api,
                 // reset search string when opening a new group
                 srvm.SearchString = string.Empty;
                 Model = resp.Content;
+                logger.LogInformation("Group {group} loaded", Model.Name);
             }
             else
             {

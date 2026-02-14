@@ -34,8 +34,11 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        await vm.LoadGroup(Guid.Parse(groupId));
-        Model = vm.Model;
-        StateHasChanged();
+        if (!string.IsNullOrEmpty(groupId))
+        {
+            await vm.LoadGroup(Guid.Parse(groupId));
+            Model = vm.Model;
+            StateHasChanged();
+        }
     }
 }

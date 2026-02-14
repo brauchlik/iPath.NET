@@ -12,6 +12,7 @@ using iPath.Blazor.Componenents.Users;
 using iPath.Blazor.Server;
 using iPath.Blazor.ServiceLib.Fhir;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using MudBlazor.Translations;
 using Refit;
 using System.Text.Json;
@@ -83,15 +84,17 @@ public static class RazorLibServiceRegistration
         // html preview
         services.AddTransient<IServiceRequestHtmlPreview, EmailNotificationPreview>();
 
-
-        // DI for Extensions
-        var sp = services.BuildServiceProvider();
-        DocumentExtensions.Initialize(sp);
-        QuestionnaireExtension.Initialize(sp.GetKeyedService<CodingService>("icdo"));
-
         services.AddScoped<AppState>();
 
         return services;
+    }
+
+    public static void InitComponenetsExtensions(this IServiceProvider sp)
+    {
+        DocumentExtensions.Initialize(sp);
+
+        var coding = sp.GetKeyedService<CodingService>("icdo");
+        QuestionnaireExtension.Initialize(coding);
     }
 
 

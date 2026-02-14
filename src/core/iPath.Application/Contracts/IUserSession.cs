@@ -65,7 +65,7 @@ public static class UserSessionExtensions
             => dto is not null && session.IsAuthenticated && dto.OwnerId == session.User.Id;
 
 
-        public string Username => session.Username;
+        public string Username => session.User?.Username;
 
         public bool CanEditNode(ServiceRequestDto? node)
         {

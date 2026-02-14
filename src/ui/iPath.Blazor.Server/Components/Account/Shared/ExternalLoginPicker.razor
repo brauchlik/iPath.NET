@@ -2,9 +2,10 @@
 @using Microsoft.AspNetCore.Identity
 @using MudBlazor
 @using MudBlazor.StaticInput
+@using iPath.API.Authentication
 
 
-@inject SignInManager<User> SignInManager
+@inject IPathSignInManager SignInManager
 @inject IdentityRedirectManager RedirectManager
 
 @if (externalLogins.Any())

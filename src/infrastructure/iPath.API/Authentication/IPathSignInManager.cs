@@ -63,6 +63,7 @@ public class IPathSignInManager : SignInManager<User>
             
             if (standardResult.Succeeded)
             {
+                _logger.LogInformation("User {user} logged in.", resolvedUsername);
                 var user = await UserManager.FindByNameAsync(resolvedUsername);
                 return IPathSignInResult.Success(user!);
             }

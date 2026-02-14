@@ -31,6 +31,7 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
 
         Guard.Against.NotFound(GroupId, group);
 
+        logger.LogInformation("Group '{group}' loaded by User '{user}'", group.Name, sess.Username);
         return group;
     }
 

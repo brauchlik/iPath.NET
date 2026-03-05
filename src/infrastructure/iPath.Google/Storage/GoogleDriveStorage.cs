@@ -714,7 +714,7 @@ and you can upload images and other files directly into that folder. From there 
                     if (storageIds is null || storageIds.Contains(item.Id))
                     {
                         // filter already imported
-                        if (!folder.ServiceRequest.Documents.Any(d => d.File.Storage.StorageId == item.Id))
+                        if (!folder.ServiceRequest.Documents.Any(d => d.File.Storage?.StorageId == item.Id))
                         {
                             try
                             {

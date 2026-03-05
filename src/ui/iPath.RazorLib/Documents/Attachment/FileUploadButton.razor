@@ -5,7 +5,7 @@
 
 <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="StartUpload"
                MaxFileSize="opts.Value.MaxFileSizeBytes" MaximumFileCount="@MaximumFileCount">
-    <ActivatorContent>
+    <CustomContent>
         @if (uploading)
         {
             <MudProgressCircular Value="@progress" StrokeWidth="4" Size="Size.Medium">
@@ -18,5 +18,5 @@
         {
             <MudIconButton Icon="@Icon" Disabled="@Disabled" />
         }
-    </ActivatorContent>
+    </CustomContent>
 </MudFileUpload>

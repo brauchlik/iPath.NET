@@ -7,8 +7,7 @@ using iPath.Blazor.Componenents.ServiceRequests.Dialogs;
 using iPath.Blazor.Componenents.Shared;
 using iPath.Domain.Config;
 using Refit;
-using System;
-using System.Linq;
+using System.Data;
 
 namespace iPath.Blazor.Componenents.ServiceRequests;
 
@@ -127,9 +126,15 @@ public class ServiceRequestViewModel(IPathApi api,
         return false;
     }
 
-    public async Task LoadNode(Guid id)
+    public async Task LoadNode(Guid id, bool forceReload = true)
     {
+        if (!forceReload && SelectedRequest is not null && SelectedRequest.Id == id)
+        {
+            return;
+        }
+
         ClearData();
+        IsEditing = false;
 
         OnLoadingStarted?.Invoke();
         var respN = await api.GetRequestById(id);

@@ -38,6 +38,7 @@ else
 
     protected override async ValueTask OnDisposedAsync()
     {
+        vm.ClearData();
         vm.OnLoadingStarted -= StartLoding;
         vm.OnLoadingStarted -= StartLoding;
     }
@@ -52,10 +53,9 @@ else
         Loading = false;
     }
 
-
     protected override async Task OnParametersSetAsync()
     {
-        await vm.LoadNode(Guid.Parse(id));
+        await vm.LoadNode(Guid.Parse(id), false);
         StateHasChanged();
 
         await vm.MarkAsVisited();

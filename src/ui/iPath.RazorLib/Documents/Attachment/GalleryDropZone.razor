@@ -28,7 +28,7 @@
                InputClass="file-upload-input"
                @ondrop="@ClearDragClass" @ondragenter="@SetDragClass"
                @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
-    <ActivatorContent>
+    <CustomContent>
         <MudPaper Class="@_dragClass" Style="min-height: 300px;" Outlined="true" Elevation="0">
             <MudText Typo="Typo.h6">
                 Drag and drop files here or click (Maximum @MaximumFileCount Files, @opts.Value.MaxFileSize)
@@ -43,5 +43,5 @@
                 }
             </div>
         </MudPaper>
-    </ActivatorContent>
+    </CustomContent>
 </MudFileUpload>

@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.70.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.73.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.70.0-alpha" />
     <PackageReference Include="System.CommandLine" Version="2.0.3" />
   </ItemGroup>

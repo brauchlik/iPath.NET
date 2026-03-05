@@ -3,7 +3,7 @@ using EFunc = Microsoft.EntityFrameworkCore.EF;
 
 namespace iPath.EF.Core.FeatureHandlers.Groups;
 
-public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupService> logger)
+public class GroupService(iPathDbContext db, IUserSession sess, IGroupCache cache, ILogger<GroupService> logger)
     : IGroupService
 {
     #region "-- Queries --"
@@ -164,6 +164,7 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
         await db.EventStore.AddAsync(evt, ct);
 
         await db.SaveChangesAsync(ct);
+        await cache.ClearGroup(group.Id);
         return evt;
     }
 
@@ -220,6 +221,7 @@ public class GroupService(iPathDbContext db, IUserSession sess, ILogger<GroupSer
         if (cmd.CommunityId.HasValue) group.CommunityId = cmd.CommunityId.Value;
 
         await db.SaveChangesAsync(ct);
+        await cache.ClearGroup(group.Id);
     }
 
 

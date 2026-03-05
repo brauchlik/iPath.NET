@@ -58,7 +58,7 @@
             <MudTextField Label=@T["Accession No"] Placeholder=@T["Sender reference no"] @bind-Value="Model.AccessionNo"
                           Variant="@Variant" Margin="@Margin" ShrinkLabel="true" />
 
-            @if (!vm.ActiveGroup.CaseTypeActive)
+            @if (vm.ActiveGroup.CaseTypeActive)
             {
                 @if (vm.ActiveGroup.Settings.CaseTypes.IsEmpty())
                 {
@@ -127,7 +127,7 @@
             // find all questionnaires that are valid for Usage as CaseDescription and that match the body site
             validForms = await grp.Questionnaires
                 .OrderBy(f => f.Priority)
-                .FilterAsync(eQuestionnaireUsage.CaseDescription, Model.BodySite.Code);
+                .FilterAsync(eQuestionnaireUsage.CaseDescription, Model.BodySite?.Code);
         }
         else
         {

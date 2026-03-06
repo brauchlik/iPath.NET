@@ -16,7 +16,7 @@
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Save" OnClick="@(() => vm.Save())" Hidden="@hideSave" />
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => vm.Delete())" Disabled="vm.DeleteDisabled" />
                 <MudTooltip Text=@T["Upload Files"]>
-                    <FileUploadButton Disabled="@vm.AttachFileDisabled" Icon="@Icons.Material.Filled.DriveFolderUpload"/>
+                    <FileUploadButton Disabled="@vm.AttachFileDisabled" Icon="@Icons.Material.Filled.DriveFolderUpload" />
                 </MudTooltip>
                 <MudButtonGroup>
                     <MudMenu Icon="@Icons.Material.Filled.AttachFile" Style="align-self: auto;">
@@ -31,6 +31,10 @@
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.AddComment" OnClick="@(() => vm.StartAnnotation())" Disabled="vm.AnnotateDisabled" />
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled=@(!vm.HasSlideShow)
                                     Tooltip=@T["Show images in fullscreen mode"] />
+                @if (vm.CanMoveRequest)
+                {
+                    <IPathToolbarButton Icon="@Icons.Material.Outlined.DriveFileMove" OnClick="@(() => vm.MoveRequest())" />
+                }
                 @if (vm.IsAdmin && vm.HasPreviewPlugin)
                 {
                     <IPathToolbarButton Icon="@Icons.Material.Outlined.Preview" OnClick="@(() => vm.ShowPreviewDialog())" />

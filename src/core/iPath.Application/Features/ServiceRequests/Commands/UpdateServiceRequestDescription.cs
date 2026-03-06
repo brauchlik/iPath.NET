@@ -2,7 +2,11 @@
 
 namespace iPath.Application.Features.ServiceRequests;
 
-public record UpdateServiceRequestCommand(Guid NodeId, RequestDescription? Description, Guid? NewOwnerId = null, bool? IsDraft = null)
+public record UpdateServiceRequestCommand(Guid ServiceRequestId, 
+    RequestDescription? Description = null, 
+    Guid? NewOwnerId = null, 
+    bool? IsDraft = null,
+    Guid? NewGroupId = null)
     : IRequest<UpdateServiceRequestCommand, Task<bool>>
     , IEventInput
 {
@@ -19,6 +23,7 @@ public static partial class ServiceRequestCommandExtensions
 
         if (request.Description is not null)
             sr.Description = request.Description;
+
         if (request.IsDraft.HasValue)
             sr.IsDraft = request.IsDraft.Value;
 

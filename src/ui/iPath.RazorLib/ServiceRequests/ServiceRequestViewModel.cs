@@ -623,7 +623,7 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             Guid? newOwnerId = SelectedRequest.OwnerId != RequestOwner?.Id ? RequestOwner.Id : null;
 
-            var cmd = new UpdateServiceRequestCommand(NodeId: SelectedRequest.Id, Description: SelectedRequest.Description, NewOwnerId: newOwnerId, IsDraft: false);
+            var cmd = new UpdateServiceRequestCommand(ServiceRequestId: SelectedRequest.Id, Description: SelectedRequest.Description, NewOwnerId: newOwnerId, IsDraft: false);
             var resp = await api.UpdateRequest(cmd);
             if (!resp.IsSuccessful)
             {
@@ -650,7 +650,7 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             Guid? newOwnerId = SelectedRequest.OwnerId != RequestOwner?.Id ? RequestOwner.Id : null;
 
-            var cmd = new UpdateServiceRequestCommand(NodeId: SelectedRequest.Id, Description: SelectedRequest.Description, NewOwnerId: newOwnerId, IsDraft: isDraft);
+            var cmd = new UpdateServiceRequestCommand(ServiceRequestId: SelectedRequest.Id, Description: SelectedRequest.Description, NewOwnerId: newOwnerId, IsDraft: isDraft);
             var resp = await api.UpdateRequest(cmd);
             if (!resp.IsSuccessful)
             {
@@ -680,7 +680,7 @@ public class ServiceRequestViewModel(IPathApi api,
                 else
                 {
                     // when cancelling a draft, save current state ...
-                    var cmd = new UpdateServiceRequestCommand(NodeId: SelectedRequest.Id, Description: SelectedRequest.Description);
+                    var cmd = new UpdateServiceRequestCommand(ServiceRequestId: SelectedRequest.Id, Description: SelectedRequest.Description);
                     resp = await api.UpdateRequest(cmd);
                 }
 
@@ -749,6 +749,25 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             logger.LogError("Upload Error", ex);
             snackbar.AddError(ex.Message);
+        }
+    }
+
+
+    public bool CanMoveRequest => SelectedRequest is not null && appState.IsGroupModerator(SelectedRequest.GroupId);
+
+    public async Task MoveRequest()
+    {
+        if (SelectedRequest is not null)
+        {
+            var dlg = await srvDialog.ShowAsync<MoveRequestDialog>();
+            var res = await dlg.Result;
+            if (res?.Data is Guid groupId)
+            {
+                var cmd = new UpdateServiceRequestCommand(ServiceRequestId: SelectedRequest.Id, NewGroupId: groupId);
+                var resp = await api.UpdateRequest(cmd);
+                snackbar.CheckSuccess(resp);
+                nm.NavigateTo($"groups/{cmd.NewGroupId}");
+            }
         }
     }
 

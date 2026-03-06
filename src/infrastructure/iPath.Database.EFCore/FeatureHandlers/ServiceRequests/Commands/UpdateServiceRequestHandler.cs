@@ -17,8 +17,8 @@ public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator,
     public async Task<bool> Handle(UpdateServiceRequestCommand request, CancellationToken ct)
     {
         var node = await db.ServiceRequests
-            .SingleOrDefaultAsync(n => n.Id == request.NodeId, ct);
-        Guard.Against.NotFound(request.NodeId, node);
+            .SingleOrDefaultAsync(n => n.Id == request.ServiceRequestId, ct);
+        Guard.Against.NotFound(request.ServiceRequestId, node);
 
         // permission
         if (!sess.IsAdmin)
@@ -70,6 +70,21 @@ public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator,
 
             Guard.Against.NotFound(request.NewOwnerId.Value, newOwner);
             node.OwnerId = newOwner.Id;
+        }
+
+        if (request.NewGroupId.HasValue)
+        {
+            // Specification for UserId and Group Membership (Owner must be in new group and not banned)
+            Specification<User> spec = new UserHasIdSpecifications(node.OwnerId);
+            spec = spec.And(new UserIsGroupMemberSpecifications(request.NewGroupId.Value));
+
+            var newOwner = await db.Users
+                .AsNoTracking()
+                .Where(spec.ToExpression())
+                .SingleOrDefaultAsync(ct);
+
+            Guard.Against.Null(newOwner, "NewGroupId", "Request owner is not member of the new group");
+            node.GroupId = request.NewGroupId.Value;
         }
 
         await db.SaveChangesAsync(ct);

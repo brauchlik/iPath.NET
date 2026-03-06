@@ -1,0 +1,45 @@
+﻿@using iPath.Application.Contracts
+<MudDialog ContentStyle="width: 720px; min-height: 350px;">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Move Request to Group</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (user is not null)
+        {
+            <MudList T="UserGroupMemberDto" SelectionMode="SelectionMode.SingleSelection" @bind-SelectedValue="selection">
+                @foreach (var m in user.GroupMembership)
+                {
+                    <MudListItem Value="m" Text="@m.Groupname" />
+                }
+            </MudList>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="OnMove" Color="Color.Primary" Variant="Variant.Filled">Move</MudButton>
+        <MudButton OnClick="@MudDialog.Cancel" Variant="Variant.Filled">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@inject ServiceRequestViewModel vm
+@inject UserViewModel uvm
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    private UserGroupMemberDto selection;
+    private UserDto user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (vm.SelectedRequest is not null)
+        {
+            user = await uvm.GetUserAsync(vm.SelectedRequest.Owner.Id);            
+        }
+    }
+
+    protected void OnMove()
+    {
+        MudDialog.Close(selection.GroupId);
+    }
+}

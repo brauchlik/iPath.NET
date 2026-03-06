@@ -757,6 +757,21 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public bool AnnotateDisabled => IsEditing;
 
+    public List<eAnnotationType> AllowedAnnotationTypes
+    {
+        get
+        {
+            var ret = new List<eAnnotationType>() { eAnnotationType.Comment };
+            var gm = appState.User.groups.FirstOrDefault(x => x.GroupId == ActiveGroup.Id);
+            if (gm is not null && gm.IsConsultant)
+            {
+                ret.Add(eAnnotationType.FinalAssesment);
+            }
+            ret.Add(eAnnotationType.FollowUp);
+            return ret;
+        }
+    }
+
     public async Task Annotate(DocumentDto document = null)
     {
         if (AnnotateDisabled) return;

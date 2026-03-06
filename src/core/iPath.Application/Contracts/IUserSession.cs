@@ -25,14 +25,14 @@ public static class UserSessionExtensions
         {
             if (!session.IsAdmin)
             {
-                if (!GroupId.HasValue || !session.User.groups.ContainsKey(GroupId.Value))
+                if (!GroupId.HasValue || !session.User.groups.Any(m => m.GroupId == GroupId.Value))
                 {
                     throw new NotAllowedException($"You are not allowed to access group {GroupId}");
                 }
             }
         }
 
-        public HashSet<Guid> GroupIds() => !session.User.IsAuthenticated ? [] : session.User.groups.Keys.ToHashSet();
+        public HashSet<Guid> GroupIds() => !session.User.IsAuthenticated ? [] : session.User.groups.Select(m => m.GroupId).ToHashSet();
 
         public void AssertInRole(string Role)
         {
@@ -49,7 +49,7 @@ public static class UserSessionExtensions
             {
                 if (AllowAdminAsModerator && session.IsAdmin)
                     return true;
-                if (session.User.groups.ContainsKey(groupId.Value) && session.User.groups[groupId.Value] == eMemberRole.Moderator)
+                if (session.User.groups.FirstOrDefault(m => m.GroupId == groupId)?.Role == eMemberRole.Moderator)
                     return true;
             }
             return false;

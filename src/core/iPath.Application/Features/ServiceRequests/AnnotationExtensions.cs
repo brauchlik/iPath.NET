@@ -30,4 +30,11 @@ public static class AnnotationExtensions
             return false;
         }
     }
+
+    extension (ICollection<AnnotationDto> list)
+    {
+        public ICollection<AnnotationDto> Comments => list.Where(x => x.Data.Type == eAnnotationType.Comment || x.Data.Type == eAnnotationType.FinalAssesment).ToList();
+        public ICollection<AnnotationDto> FollowUp => list.Where(x => x.Data.Type == eAnnotationType.FollowUp).ToList(); 
+        public ICollection<AnnotationDto> Notes => list.Where(x => x.Data.Type == eAnnotationType.Note || x.Data.Type == eAnnotationType.FurtherRequest).ToList();
+    }
 }

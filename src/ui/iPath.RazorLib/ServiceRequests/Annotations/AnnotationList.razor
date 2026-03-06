@@ -1,0 +1,28 @@
+﻿@if (Items is not null)
+{
+    @foreach (var a in Items.OrderByDirection(Sort, a => a.CreatedOn))
+    {
+        @if (ShowAnnotations)
+        {
+            <AnnotationItemView Item="a" OnDelete="OnDelete" />
+        }
+        else
+        {
+            <AnnotationSkeleton />
+        }
+    }
+}
+
+@code {
+    [Parameter]
+    public ICollection<AnnotationDto>? Items { get; set; }
+
+    [Parameter]
+    public bool ShowAnnotations { get; set; }
+
+    [Parameter]
+    public SortDirection Sort { get; set; }
+
+    [Parameter]
+    public EventCallback<AnnotationDto> OnDelete { get; set;  }
+}

@@ -1,4 +1,5 @@
 ﻿@namespace iPath.Blazor.Componenents.ServiceRequests
+@using iPath.Blazor.Componenents.ServiceRequests.Annotations
 
 @inherits ServiceRequestViewComponentBase
 
@@ -38,18 +39,26 @@
                 </MudFocusTrap>
             }
 
-
-            @foreach (var a in vm.SelectedRequest.Annotations.OrderByDirection(Sort, a => a.CreatedOn))
-            {
-                @if (ShowAnnotations)
+            <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" TabPanelsClass="py-1">
+                <MudTabPanel Text=@T["Comments / Assessment"]>
+                    <AnnotationList Items="vm.SelectedRequest.Annotations.Comments" Sort="Sort"
+                                    ShowAnnotations="ShowAnnotations" OnDelete="OnDelete" />
+                </MudTabPanel>
+                @if (!vm.SelectedRequest.Annotations.FollowUp.IsEmpty())
                 {
-                    <AnnotationItemView Item="a" OnDelete="OnDelete" />
+                    <MudTabPanel Text=@T["Follow-Up"]>
+                        <AnnotationList Items="vm.SelectedRequest.Annotations.FollowUp" Sort="Sort"
+                                        ShowAnnotations="ShowAnnotations" OnDelete="OnDelete" />
+                    </MudTabPanel>
                 }
-                else
+                @if (!vm.SelectedRequest.Annotations.Notes.IsEmpty())
                 {
-                    <AnnotationSkeleton />
+                    <MudTabPanel Text=@T["Notes / Further Requests"]>
+                        <AnnotationList Items="vm.SelectedRequest.Annotations.Notes" Sort="Sort"
+                                        ShowAnnotations="ShowAnnotations" OnDelete="OnDelete" />
+                    </MudTabPanel>
                 }
-            }
+            </MudTabs>
         </div>
     }
 </MudPaper>

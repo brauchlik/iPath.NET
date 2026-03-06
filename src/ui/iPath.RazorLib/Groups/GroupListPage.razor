@@ -3,6 +3,7 @@
 
 @attribute [Authorize]
 
+@implements IDisposable
 @inject GroupListViewModel vm
 @inject IStringLocalizer T
 
@@ -38,4 +39,17 @@ else
             <MudSpacer />
         </MudStack>
     </MudAlert>
+}
+
+@code
+{
+    protected override void OnInitialized()
+    {
+        vm.OnChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        vm.OnChanged -= StateHasChanged;
+    }
 }

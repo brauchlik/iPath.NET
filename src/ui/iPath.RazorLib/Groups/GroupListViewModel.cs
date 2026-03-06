@@ -7,12 +7,16 @@ public class GroupListViewModel(IPathApi api, IGroupCache cache, ISnackbar snack
     public CommunityListDto? SelectedCommunity {  get; set; }
     public string SearchString { get; set; }
 
+    public Action OnChanged { get; set; }
+
     public async Task<GridData<GroupListDto>> GetGridAsync(GridState<GroupListDto> state, CancellationToken ct = default)
     {
         var query = state.BuildQuery(new GetGroupListQuery { IncludeCounts = true });
         var resp = await api.GetGroupList(query);
         if (resp.IsSuccessful)
         {
+            GroupCount = resp.Content.TotalItems;
+            OnChanged?.Invoke();
             return resp.Content.ToGridData();
         }
 
@@ -28,6 +32,7 @@ public class GroupListViewModel(IPathApi api, IGroupCache cache, ISnackbar snack
         if (resp.IsSuccessful)
         {
             GroupCount = resp.Content.TotalItems;
+            OnChanged?.Invoke();
             return resp.Content.ToTableData();
         }
 

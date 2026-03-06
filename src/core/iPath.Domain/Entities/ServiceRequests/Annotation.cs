@@ -56,5 +56,7 @@ public enum eAnnotationType
     None = 0,
     Comment = 1,
     FinalAssesment = 10,
-    FollowUp = 20
+    FollowUp = 20,
+    Note = 30,
+    FurtherRequest = 31
 }

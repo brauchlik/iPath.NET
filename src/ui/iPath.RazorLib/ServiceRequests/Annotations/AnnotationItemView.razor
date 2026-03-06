@@ -16,7 +16,14 @@
             <QuestionnaireResponseView Data="Item.Data.Questionnaire" />
         }
 
-        @((MarkupString)Item.Data.Text)
+        @if(Item.Data.Type != eAnnotationType.Comment)
+        {
+            <div class="ipath_annotation_type">@Item.Data.Type</div>
+        }
+
+        <div class="ipath_annotation_textboby">
+            @((MarkupString)Item.Data.Text)
+        </div>
 
         @if (Item.Data?.Morphology is not null)
         {

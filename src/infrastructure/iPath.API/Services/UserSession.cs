@@ -70,7 +70,9 @@ public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemory
 
         var groups = await db.Set<GroupMember>()
             .Where(m => m.UserId == user.Id && m.Role != eMemberRole.Banned)
-            .ToDictionaryAsync(m => m.GroupId, m => m.Role);
+            .Select(m => new UserGroupMemberDto(m.GroupId, m.Group.Name, m.Role, m.IsConsultant))
+            .ToListAsync();
+            // .ToDictionaryAsync(m => m.GroupId, m => m.ToD);
 
         var communities = await db.Set<CommunityMember>()
             .Where(m => m.UserId == user.Id && m.Role != eMemberRole.Banned)

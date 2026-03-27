@@ -1,4 +1,7 @@
-﻿using iPath.Application.Features.ServiceRequests.Commands;
+﻿using iPath.Application.Features.Notifications;
+using iPath.Application.Features.ServiceRequests;
+using iPath.Application.Features.ServiceRequests.Commands;
+using iPath.Domain.Entities;
 
 namespace iPath.API.Endpoints;
 
@@ -104,6 +107,18 @@ public static class ServiceRequestEndpoints
                 => await mediator.Send(new ImportExternalDocumentsCommand(Guid.Parse(id), storageIds), ct))
             .Produces<FolderImportResponse>(200)
             .RequireAuthorization();
+
+
+        // Events and Notifications (Admin/Developer only)
+        grp.MapGet("{id}/events", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new GetServiceRequestEventsQuery(Guid.Parse(id)), ct))
+            .Produces<List<EventEntity>>()
+            .RequireAuthorization("Admin", "Developer");
+
+        grp.MapGet("{id}/notifications", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new GetServiceRequestNotificationsQuery(Guid.Parse(id)), ct))
+            .Produces<List<NotificationDto>>()
+            .RequireAuthorization("Admin", "Developer");
 
 
 

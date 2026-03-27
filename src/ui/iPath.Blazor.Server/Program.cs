@@ -1,12 +1,9 @@
 using iPath.API;
-using iPath.Application.Coding;
-using iPath.Blazor.Componenents.Questionaires;
 using iPath.Blazor.Server;
 using iPath.Blazor.Server.Components;
 using iPath.Blazor.Server.Components.Account;
 using iPath.Domain.Config;
 using iPath.RazorLib;
-using iPath.Blazor.Componenents.Documents;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;

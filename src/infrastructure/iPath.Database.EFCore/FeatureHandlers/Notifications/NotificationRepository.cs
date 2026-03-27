@@ -13,7 +13,7 @@ public class NotificationRepository(iPathDbContext db) : INotificationRepository
             .OrderBy(n => n.CreatedOn);
 
         var projected = q.Select(n => new NotificationDto(n.Id, n.CreatedOn, n.EventType, n.Target, 
-            new OwnerDto(n.Id, n.User.UserName, n.User.Email), n.Data));
+            new OwnerDto(n.UserId, n.User.UserName, n.User.Email), n.ServiceRequestId, n.EventId, n.Data));
         var data = await projected.ToPagedResultAsync(query, ct);
         return data;
     }

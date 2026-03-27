@@ -6,6 +6,7 @@ using iPath.API.Services.Notifications.Processors;
 using iPath.API.Services.Notifications.Publisher;
 using iPath.API.Services.Storage;
 using iPath.API.Services.Thumbnail;
+using iPath.Application.Coding;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Questionnaires;
 using iPath.Application.Localization;
@@ -78,6 +79,8 @@ public static class APIServicesRegistration
         // Notification Handling
         services.AddSingleton<IServiceRequestEventQueue>(ctx => new ServiceRequestEventQueue(100));
         services.AddSingleton<INotificationQueue>(ctx => new NotificationQueue(100));
+        services.AddScoped<INotificationFilterService>(ctx => 
+            new NotificationFilterService(ctx.GetRequiredKeyedService<CodingService>("icdo")));
         services.AddHostedService<Services.Notifications.ServiceRequestEventProcessor>();
         services.AddScoped<IServiceRequestEventProcessor, Services.Notifications.Processors.ServiceRequestEventProcessor>();
 

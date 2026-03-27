@@ -15,6 +15,8 @@ public class Notification : BaseEntity
     public Guid? ServiceRequestId { get; private set; }
     public ServiceRequest? ServiceRequest { get; private set; }
 
+    public Guid? EventId { get; private set; }
+
     public eNodeNotificationType EventType { get; private set; } = eNodeNotificationType.None;
     public eNotificationTarget Target { get; private set; } = eNotificationTarget.None;
     public bool DailySummary { get; private set; }
@@ -44,7 +46,7 @@ public class Notification : BaseEntity
         };
     }
 
-    public static Notification Create(eNodeNotificationType type, eNotificationTarget target, bool dailySummary, Guid userId, Guid ServiceRequestId)
+    public static Notification Create(eNodeNotificationType type, eNotificationTarget target, bool dailySummary, Guid userId, Guid ServiceRequestId, Guid eventId)
     {
         return new Notification
         {
@@ -55,7 +57,8 @@ public class Notification : BaseEntity
             Target = target,
             DailySummary = dailySummary,
             Status = NotificationStatus.Pending,
-            ServiceRequestId = ServiceRequestId 
+            ServiceRequestId = ServiceRequestId,
+            EventId = eventId
         };
     }
 

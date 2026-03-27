@@ -1,3 +1,4 @@
+using iPath.Application.Features.Admin;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.ServiceRequests;
 using iPath.EF.Core.Database;
@@ -6,14 +7,32 @@ using Microsoft.EntityFrameworkCore;
 namespace iPath.EF.Core.FeatureHandlers.ServiceRequests;
 
 public class GetServiceRequestEventsQueryHandler(iPathDbContext db)
-    : IRequestHandler<GetServiceRequestEventsQuery, Task<List<EventEntity>>>
+    : IRequestHandler<GetServiceRequestEventsQuery, Task<List<EventDto>>>
 {
-    public async Task<List<EventEntity>> Handle(GetServiceRequestEventsQuery request, CancellationToken ct)
+    public async Task<List<EventDto>> Handle(GetServiceRequestEventsQuery request, CancellationToken ct)
     {
-        return await db.EventStore
+        var events = await db.EventStore
             .Where(e => e.ObjectId == request.ServiceRequestId)
             .OrderByDescending(e => e.EventDate)
             .ToListAsync(ct);
+
+        var eventIds = events.Select(e => e.EventId).ToList();
+        
+        var notificationCounts = await db.NotificationQueue
+            .Where(n => n.EventId != null && eventIds.Contains(n.EventId!.Value))
+            .GroupBy(n => n.EventId)
+            .Select(g => new { EventId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.EventId!.Value, x => x.Count, ct);
+
+        return events.Select(e => new EventDto(
+            e.EventId,
+            e.EventDate,
+            e.UserId,
+            e.EventName,
+            e.ObjectName,
+            e.ObjectId,
+            notificationCounts.GetValueOrDefault(e.EventId, 0)
+        )).ToList();
     }
 }
 
@@ -22,9 +41,11 @@ public class GetServiceRequestNotificationsQueryHandler(iPathDbContext db)
 {
     public async Task<List<NotificationDto>> Handle(GetServiceRequestNotificationsQuery request, CancellationToken ct)
     {
-        var notifications = await db.NotificationQueue
+        var query = db.NotificationQueue
             .Include(n => n.User)
-            .Where(n => n.ServiceRequestId == request.ServiceRequestId)
+            .Where(n => n.ServiceRequestId == request.ServiceRequestId);
+
+        var notifications = await query
             .OrderByDescending(n => n.CreatedOn)
             .Select(n => new NotificationDto(
                 n.Id,

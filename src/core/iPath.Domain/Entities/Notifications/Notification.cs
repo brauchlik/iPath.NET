@@ -16,6 +16,7 @@ public class Notification : BaseEntity
     public ServiceRequest? ServiceRequest { get; private set; }
 
     public Guid? EventId { get; private set; }
+    public EventEntity Event { get; private set; }
 
     public eNodeNotificationType EventType { get; private set; } = eNodeNotificationType.None;
     public eNotificationTarget Target { get; private set; } = eNotificationTarget.None;

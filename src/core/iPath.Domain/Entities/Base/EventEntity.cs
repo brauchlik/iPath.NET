@@ -34,6 +34,7 @@ public class EventEntity : IDomainEvent
     public Guid ObjectId { get; init; }
     public string Payload { get; init; } = "";
 
+    public ICollection<Notification> Notifications { get; private set; } = [];
 
     public static TEvent Create<TEvent, TInput>(TInput input, Guid objectId, Guid userId) where TEvent : IDomainEvent, new() where TInput : IEventInput
     {

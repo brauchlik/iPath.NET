@@ -1,12 +1,14 @@
 @page "/admin/servicerequest/{id}/events"
 @attribute [Authorize(Roles = "Admin,Developer")]
 
+@using iPath.Application.Features.Admin
 @using iPath.Application.Features.ServiceRequests
 @using iPath.Blazor.ServiceLib.ApiClient
 @using iPath.Domain.Entities
 
 @inject IPathApi api
 @inject ISnackbar snackbar
+@inject NavigationManager nm
 
 <MudStack Row="true" Spacing="2" Class="mb-4">
     <MudText Typo="Typo.h5">Events & Notifications</MudText>
@@ -46,12 +48,20 @@ else
         </div>
     </MudPaper>
 
-    <MudTabs Elevation="2" ApplyEffectsToContainer="true" PanelClass="pa-4">
+    <MudTabs Elevation="2" ApplyEffectsToContainer="true" PanelClass="pa-4" @bind-ActivePanelIndex="activeTabIndex">
         <MudTabPanel Text="@($"Events ({Events?.Count ?? 0})")" Icon="@Icons.Material.Filled.History">
-            <ServiceRequestEventsGrid ServiceRequestId="@ServiceRequestId" Events="@Events" />
+            <ServiceRequestEventsGrid ServiceRequestId="@ServiceRequestId" Events="@Events" OnNotificationClick="SwitchToNotificationsTab" />
         </MudTabPanel>
-        <MudTabPanel Text="@($"Notifications ({Notifications?.Count ?? 0})")" Icon="@Icons.Material.Filled.Notifications">
-            <ServiceRequestNotificationsGrid ServiceRequestId="@ServiceRequestId" Notifications="@Notifications" />
+        <MudTabPanel Text="@($"Notifications ({FilteredNotifications?.Count ?? 0})")" Icon="@Icons.Material.Filled.Notifications">
+            @if (EventIdFilter is not null)
+            {
+                var eventIdStr = EventIdFilter.Value.ToString();
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" 
+                          OnClick="ClearEventIdFilter" Class="mb-2">
+                    Event: @eventIdStr[..8] <MudIcon Icon="@Icons.Material.Filled.Close" Size="Size.Small" />
+                </MudButton>
+            }
+            <ServiceRequestNotificationsGrid ServiceRequestId="@ServiceRequestId" Notifications="@FilteredNotifications" />
         </MudTabPanel>
     </MudTabs>
 }
@@ -60,11 +70,19 @@ else
     [Parameter]
     public string id { get; set; } = string.Empty;
 
-    private Guid ServiceRequestId => Guid.TryParse(id, out var result) ? result : Guid.Empty;
+    [Parameter]
+    public string? eventId { get; set; }
 
-    private List<EventEntity>? Events { get; set; }
+    private Guid ServiceRequestId => Guid.TryParse(id, out var result) ? result : Guid.Empty;
+    private Guid? EventIdFilter => string.IsNullOrEmpty(eventId) ? null : Guid.TryParse(eventId, out var e) ? e : null;
+
+    private List<EventDto>? Events { get; set; }
     private List<NotificationDto>? Notifications { get; set; }
+    private List<NotificationDto>? FilteredNotifications => EventIdFilter is null 
+        ? Notifications 
+        : Notifications?.Where(n => n.EventId == EventIdFilter).ToList();
     private bool isLoading = true;
+    private int activeTabIndex = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,7 +94,6 @@ else
     {
         try
         {
-            // Load ServiceRequest first for header display
             var srResp = await api.GetRequestById(ServiceRequestId);
             if (srResp.IsSuccessful && srResp.Content is not null)
             {
@@ -98,7 +115,7 @@ else
                 snackbar.AddWarning(eventsResp.ErrorMessage);
             }
 
-            var notifResp = await api.GetServiceRequestNotifications(ServiceRequestId);
+            var notifResp = await api.GetServiceRequestNotifications(ServiceRequestId, EventIdFilter);
             if (notifResp.IsSuccessful)
             {
                 Notifications = notifResp.Content;
@@ -112,6 +129,17 @@ else
         {
             snackbar.AddError(ex.Message);
         }
+    }
+
+    private void SwitchToNotificationsTab(Guid eventId)
+    {
+        var eventIdStr = eventId.ToString();
+        nm.NavigateTo($"/admin/servicerequest/{id}/events?eventId={eventIdStr}", forceLoad: false);
+    }
+
+    private void ClearEventIdFilter()
+    {
+        nm.NavigateTo($"/admin/servicerequest/{id}/events");
     }
 
     private ServiceRequestDto? _serviceRequest;

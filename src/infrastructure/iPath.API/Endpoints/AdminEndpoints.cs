@@ -84,13 +84,12 @@ public static class AdminEndpoints
 
         route.MapPost("admin/events", (GetEventsQuery query, [FromServices] IMediator mediator, CancellationToken ct)
             => mediator.Send(query, ct))
-            .Produces<PagedResultList<EventEntity>>()
+            .Produces<PagedResultList<EventDto>>()
             .WithTags("Admin")
             .RequireAuthorization("Admin");
 
 
-
-        route.MapGet("session", ([FromServices] IUserSession? sess) 
+        route.MapGet("session", ([FromServices] IUserSession? sess)
             => sess is null || sess.User is null ? Results.NotFound() : Results.Ok(sess.User))
             .Produces<SessionUserDto>()
             .WithTags("Session");

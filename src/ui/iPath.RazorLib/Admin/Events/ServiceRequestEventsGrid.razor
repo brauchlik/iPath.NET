@@ -1,8 +1,8 @@
 @namespace iPath.Blazor.Componenets.Admin.Events
+@using iPath.Application.Features.Admin
 @using iPath.Application.Features.Notifications
-@using iPath.Domain.Entities
 
-<MudDataGrid T="EventEntity" Items="@Events" Dense="true" Hover="true" Striped="true">
+<MudDataGrid T="EventDto" Items="@Events" Dense="true" Hover="true" Striped="true">
     <Columns>
         <PropertyColumn Property="x => x.EventDate" Title="Date">
             <CellTemplate>
@@ -16,6 +16,17 @@
             </CellTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.ObjectName" Title="Object" />
+        <TemplateColumn Title="Notif">
+            <CellTemplate>
+                @if ((context.Item.NotificationsCount ?? 0) > 0)
+                {
+                    <MudBadge Content="@context.Item.NotificationsCount" Color="Color.Primary"
+                              OnClick="@(() => OnNotificationClick.InvokeAsync(context.Item.EventId))">
+                        <MudIcon Icon="@Icons.Material.Filled.Notifications" />
+                    </MudBadge>
+                }
+            </CellTemplate>
+        </TemplateColumn>
     </Columns>
 </MudDataGrid>
 
@@ -24,5 +35,8 @@
     public Guid ServiceRequestId { get; set; }
 
     [Parameter]
-    public IEnumerable<EventEntity> Events { get; set; } = [];
+    public IEnumerable<EventDto> Events { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<Guid> OnNotificationClick { get; set; }
 }

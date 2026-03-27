@@ -1,4 +1,5 @@
-﻿using iPath.Application.Features.Notifications;
+﻿using iPath.Application.Features.Admin;
+using iPath.Application.Features.Notifications;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.ServiceRequests.Commands;
 using iPath.Domain.Entities;
@@ -112,7 +113,7 @@ public static class ServiceRequestEndpoints
         // Events and Notifications (Admin/Developer only)
         grp.MapGet("{id}/events", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(new GetServiceRequestEventsQuery(Guid.Parse(id)), ct))
-            .Produces<List<EventEntity>>()
+            .Produces<List<EventDto>>()
             .RequireAuthorization("Admin", "Developer");
 
         grp.MapGet("{id}/notifications", async (string id, [FromServices] IMediator mediator, CancellationToken ct)

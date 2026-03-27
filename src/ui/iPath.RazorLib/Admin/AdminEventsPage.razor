@@ -3,7 +3,7 @@
 <MudBreadcrumbs Items="BreadCrumbs" Class="mt-0 pt-0"></MudBreadcrumbs>
 
 
-<MudDataGrid T="EventEntity" ServerData="GetDataAsync" Dense="true" Hover="true" Striped="true" >
+<MudDataGrid T="EventDto" ServerData="GetDataAsync" Dense="true" Hover="true" Striped="true">
     <Columns>
         <PropertyColumn Property="x => x.ObjectName" />
         <PropertyColumn Title="ObjectId" Property="x => x.ObjectId">
@@ -47,7 +47,7 @@
     }
 
 
-    async Task<GridData<EventEntity>> GetDataAsync(GridState<EventEntity> state, CancellationToken ct)
+    async Task<GridData<EventDto>> GetDataAsync(GridState<EventDto> state, CancellationToken ct)
     {
         var query = state.BuildQuery(new GetEventsQuery());
         var resp = await api.GetEvents(query);
@@ -55,6 +55,6 @@
         if (resp.IsSuccessful) return resp.Content.ToGridData();
 
         snackbar.AddWarning(resp.ErrorMessage);
-        return new GridData<EventEntity>();
+        return new GridData<EventDto>();
     }
 }

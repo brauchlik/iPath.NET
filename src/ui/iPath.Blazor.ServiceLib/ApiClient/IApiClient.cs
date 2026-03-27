@@ -255,17 +255,16 @@ public interface IPathApi
     Task<IApiResponse<IEnumerable<RoleDto>>> GetRoles();
 
     [Post("/api/v1/admin/events")]
-    Task<IApiResponse<PagedResultList<EventEntity>>> GetEvents(GetEventsQuery query);
-
+    Task<IApiResponse<PagedResultList<EventDto>>> GetEvents(GetEventsQuery query);
     #endregion
 
 
     #region "-- ServiceRequest Events --"
     [Get("/api/v1/requests/{id}/events")]
-    Task<IApiResponse<List<EventEntity>>> GetServiceRequestEvents(Guid id);
+    Task<IApiResponse<List<EventDto>>> GetServiceRequestEvents(Guid id);
 
     [Get("/api/v1/requests/{id}/notifications")]
-    Task<IApiResponse<List<NotificationDto>>> GetServiceRequestNotifications(Guid id);
+    Task<IApiResponse<List<NotificationDto>>> GetServiceRequestNotifications(Guid id, [Query] Guid? eventId = null);
     #endregion
 
 

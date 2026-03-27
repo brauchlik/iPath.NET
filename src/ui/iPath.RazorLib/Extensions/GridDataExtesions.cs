@@ -1,10 +1,12 @@
-﻿using iPath.Application.Querying;
+using System.Reflection;
+using iPath.Application.Attributes;
+using iPath.Application.Querying;
 using MudBlazor;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace iPath.Blazor.Componenents.Extensions;
 
-internal static  class GridDataExtesions
+internal static class GridDataExtesions
 {
     public static GridData<T> ToGridData<T>(this PagedResultList<T> data) where T : class
     {
@@ -22,19 +24,38 @@ internal static  class GridDataExtesions
 
     public static string[]? ToSorting<T>(this GridState<T> state) where T : class
     {
+        var mapping = GetSortPropertyMapping<T>();
         var ret = new List<string>();
 
         if (state.SortDefinitions != null)
         {
             foreach (var sd in state.SortDefinitions)
             {
-                ret.Add(sd.SortBy + (sd.Descending ? " DESC" : " ASC"));
+                var sortBy = sd.SortBy ?? string.Empty;
+                var entityField = mapping.GetValueOrDefault(sortBy) ?? sortBy;
+                ret.Add(entityField + (sd.Descending ? " DESC" : " ASC"));
             }
         }
 
         return ret.ToArray();
     }
 
+    private static Dictionary<string, string> GetSortPropertyMapping<T>() where T : class
+    {
+        var mapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        foreach (var prop in properties)
+        {
+            var attr = prop.GetCustomAttribute<SortByAttribute>();
+            if (attr != null)
+            {
+                mapping[attr.SortBy] = attr.EntityField;
+            }
+        }
+
+        return mapping;
+    }
 
 
 

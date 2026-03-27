@@ -1,4 +1,6 @@
-﻿using iPath.Application.Features.Notifications;
+﻿using iPath.Application;
+using iPath.Application.Features.Notifications;
+using iPath.EF.Core;
 
 namespace iPath.EF.Core.FeatureHandlers.Notifications;
 
@@ -9,8 +11,9 @@ public class NotificationRepository(iPathDbContext db) : INotificationRepository
         var q = db.NotificationQueue
             .Include(n => n.User)
             .AsNoTracking()
-            .Where(n => n.Target.HasFlag(query.Target))
-            .OrderBy(n => n.CreatedOn);
+            .Where(n => n.Target.HasFlag(query.Target));
+
+        q = q.ApplyQuery(query, "CreatedOn DESC");
 
         var projected = q.Select(n => new NotificationDto(n.Id, n.CreatedOn, n.EventType, n.Target, 
             new OwnerDto(n.UserId, n.User.UserName, n.User.Email), n.ServiceRequestId, n.EventId, n.Data));

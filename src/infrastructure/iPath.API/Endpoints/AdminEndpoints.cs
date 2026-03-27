@@ -56,8 +56,9 @@ public static class AdminEndpoints
             .WithTags("Notifications");
 
         notify.MapGet("list",
-            ([DefaultValue(0)] int page, [DefaultValue(10)] int pagesize, eNotificationTarget target, [FromServices] INotificationRepository repo, CancellationToken ct)
-            => repo.GetPage(new GetNotificationsQuery { Page = page, PageSize = pagesize, Target = target }, ct))
+            ([DefaultValue(0)] int page, [DefaultValue(10)] int pagesize, eNotificationTarget target, 
+             [FromQuery] string[]? sort, [FromServices] INotificationRepository repo, CancellationToken ct)
+            => repo.GetPage(new GetNotificationsQuery { Page = page, PageSize = pagesize, Target = target, Sorting = sort }, ct))
             .Produces<PagedResult<NotificationDto>>()
             .RequireAuthorization("Admin");
 

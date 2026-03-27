@@ -243,7 +243,7 @@ public interface IPathApi
 
     #region "-- Notifications --"
     [Get("/api/v1/notifications/list")]
-    Task<IApiResponse<PagedResultList<NotificationDto>>> GetNotifications(int page, int pageSize, eNotificationTarget target);
+    Task<IApiResponse<PagedResultList<NotificationDto>>> GetNotifications(int page, int pageSize, eNotificationTarget target, [Query] string[]? sort = null);
 
     [Delete("/api/v1/notifications/all")]
     Task<IApiResponse> DeleteAllNotifications();

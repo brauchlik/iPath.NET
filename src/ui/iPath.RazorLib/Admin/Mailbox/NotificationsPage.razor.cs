@@ -1,4 +1,7 @@
+using iPath.Application;
 using iPath.Application.Features.Notifications;
+using iPath.Blazor.Componenents.Extensions;
+using MudBlazor;
 
 namespace iPath.Blazor.Componenents.Admin.Mailbox;
 
@@ -11,7 +14,40 @@ public partial class NotificationsPage(IPathApi api, ISnackbar snackbar, IDialog
     {
         try
         {
-            var resp = await api.GetNotifications(state.Page, state.PageSize, Target);
+            if (!state.SortDefinitions.IsEmpty())
+            {
+                // TODO: make mapping generic
+                var current = state.SortDefinitions.First();
+                if (current.SortBy == "Date") 
+                { 
+                    var sd = new SortDefinition<NotificationDto>(
+                        "CreatedOn",
+                        current.Descending,
+                        current.Index,
+                        n => n.Date,
+                        null
+                    );
+                    state.SortDefinitions.Clear();
+                    state.SortDefinitions.Add(sd);
+                }
+                if (current.SortBy == "Receiver.Username") 
+                { 
+                    var sd = new SortDefinition<NotificationDto>(
+                        "User.Username",
+                        current.Descending,
+                        current.Index,
+                        n => n.Date,
+                        null
+                    );
+                    state.SortDefinitions.Clear();
+                    state.SortDefinitions.Add(sd);
+                }
+            }
+
+            var query = state.BuildQuery(new GetNotificationsQuery { Target = Target });
+
+            var pageSize = query.PageSize ?? 10;
+            var resp = await api.GetNotifications(query.Page, pageSize, Target, query.Sorting);
             if (resp.IsSuccessful)
                 return resp.Content.ToGridData();
         }

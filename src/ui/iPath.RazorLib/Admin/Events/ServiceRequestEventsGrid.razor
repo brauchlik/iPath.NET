@@ -1,0 +1,28 @@
+@namespace iPath.Blazor.Componenets.Admin.Events
+@using iPath.Application.Features.Notifications
+@using iPath.Domain.Entities
+
+<MudDataGrid T="EventEntity" Items="@Events" Dense="true" Hover="true" Striped="true">
+    <Columns>
+        <PropertyColumn Property="x => x.EventDate" Title="Date">
+            <CellTemplate>
+                @context.Item.EventDate.ToString("g")
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.EventName" Title="Type" />
+        <PropertyColumn Property="x => x.UserId" Title="User">
+            <CellTemplate>
+                @context.Item.UserId
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.ObjectName" Title="Object" />
+    </Columns>
+</MudDataGrid>
+
+@code {
+    [Parameter]
+    public Guid ServiceRequestId { get; set; }
+
+    [Parameter]
+    public IEnumerable<EventEntity> Events { get; set; } = [];
+}

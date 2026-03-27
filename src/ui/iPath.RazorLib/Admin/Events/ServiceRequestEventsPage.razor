@@ -1,0 +1,119 @@
+@page "/admin/servicerequest/{id}/events"
+@attribute [Authorize(Roles = "Admin,Developer")]
+
+@using iPath.Application.Features.ServiceRequests
+@using iPath.Blazor.ServiceLib.ApiClient
+@using iPath.Domain.Entities
+
+@inject IPathApi api
+@inject ISnackbar snackbar
+
+<MudStack Row="true" Spacing="2" Class="mb-4">
+    <MudText Typo="Typo.h5">Events & Notifications</MudText>
+</MudStack>
+
+@if (isLoading)
+{
+    <MudProgressLinear Indeterminate="true" />
+}
+else if (_serviceRequest is null)
+{
+    <MudAlert Severity="MudBlazor.Severity.Warning">ServiceRequest not found</MudAlert>
+}
+else
+{
+    <MudPaper Class="mb-4 p-2">
+        <div class="ipath_node">
+            <div class="ipath_node_title">
+                <div class="ipath_bold">
+                    <MudHighlighter Text="@_serviceRequest.Title" />
+                    <MudHighlighter Text="@_serviceRequest.Description.BodySite?.ToAppend()" />
+                </div>
+                <div>@_serviceRequest.SubTitle</div>
+            </div>
+            <div class="ipath_node_type">
+                <div class="ipath_bold">Type:</div>
+                <div>@_serviceRequest.CaseType</div>
+            </div>
+            <div class="ipath_node_sender">
+                <div class="ipath_bold">Sender:</div>
+                <OwnerLink Owner="@_serviceRequest.Owner" />
+            </div>
+            <div class="ipath_node_date">
+                <b><GroupLink GroupId="@_serviceRequest.GroupId" /></b>
+                <div>@_serviceRequest.CreatedOn.ToString("d")</div>
+            </div>
+        </div>
+    </MudPaper>
+
+    <MudTabs Elevation="2" ApplyEffectsToContainer="true" PanelClass="pa-4">
+        <MudTabPanel Text="@($"Events ({Events?.Count ?? 0})")" Icon="@Icons.Material.Filled.History">
+            <ServiceRequestEventsGrid ServiceRequestId="@ServiceRequestId" Events="@Events" />
+        </MudTabPanel>
+        <MudTabPanel Text="@($"Notifications ({Notifications?.Count ?? 0})")" Icon="@Icons.Material.Filled.Notifications">
+            <ServiceRequestNotificationsGrid ServiceRequestId="@ServiceRequestId" Notifications="@Notifications" />
+        </MudTabPanel>
+    </MudTabs>
+}
+
+@code {
+    [Parameter]
+    public string id { get; set; } = string.Empty;
+
+    private Guid ServiceRequestId => Guid.TryParse(id, out var result) ? result : Guid.Empty;
+
+    private List<EventEntity>? Events { get; set; }
+    private List<NotificationDto>? Notifications { get; set; }
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+        isLoading = false;
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            // Load ServiceRequest first for header display
+            var srResp = await api.GetRequestById(ServiceRequestId);
+            if (srResp.IsSuccessful && srResp.Content is not null)
+            {
+                _serviceRequest = srResp.Content;
+            }
+            else
+            {
+                snackbar.AddWarning("ServiceRequest not found");
+                return;
+            }
+
+            var eventsResp = await api.GetServiceRequestEvents(ServiceRequestId);
+            if (eventsResp.IsSuccessful)
+            {
+                Events = eventsResp.Content;
+            }
+            else
+            {
+                snackbar.AddWarning(eventsResp.ErrorMessage);
+            }
+
+            var notifResp = await api.GetServiceRequestNotifications(ServiceRequestId);
+            if (notifResp.IsSuccessful)
+            {
+                Notifications = notifResp.Content;
+            }
+            else
+            {
+                snackbar.AddWarning(notifResp.ErrorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            snackbar.AddError(ex.Message);
+        }
+    }
+
+    private ServiceRequestDto? _serviceRequest;
+    private string RequestTitle => _serviceRequest?.Title ?? "Loading...";
+}

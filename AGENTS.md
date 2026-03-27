@@ -182,6 +182,15 @@ var result = _service.DoWorkAsync().Result;
 
 ## 📋 Special Instructions
 
+### Razor Components & Namespaces
+When adding new Razor components in a custom namespace, add the namespace to the folder's `_Imports.razor` file:
+
+```razor
+@using iPath.Blazor.Componenents.Admin.Events
+```
+
+**Note:** Unresolved component namespaces don't give build errors - they just render as empty. Always verify the `@using` is in place.
+
 ### Copilot Guidelines
 - Prefer using FHIR R4 for questionnaire to text conversion
 

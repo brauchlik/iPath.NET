@@ -1,0 +1,32 @@
+@namespace iPath.Blazor.Componenets.Admin.Events
+@using iPath.Application.Features.Notifications
+
+<MudDataGrid T="NotificationDto" Items="@Notifications" Dense="true" Hover="true" Striped="true">
+    <Columns>
+        <PropertyColumn Property="x => x.Date" Title="Created">
+            <CellTemplate>
+                @context.Item.Date.ToString("g")
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.EventType" Title="Type" />
+        <PropertyColumn Property="x => x.Target" Title="Target" />
+        <PropertyColumn Property="x => x.Receiver" Title="To User">
+            <CellTemplate>
+                @context.Item.Receiver?.Username
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.EventId" Title="Event">
+            <CellTemplate>
+                @context.Item.EventId?.ToString()[..8]
+            </CellTemplate>
+        </PropertyColumn>
+    </Columns>
+</MudDataGrid>
+
+@code {
+    [Parameter]
+    public Guid ServiceRequestId { get; set; }
+
+    [Parameter]
+    public IEnumerable<NotificationDto> Notifications { get; set; } = [];
+}

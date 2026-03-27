@@ -39,6 +39,13 @@
                 {
                     <IPathToolbarButton Icon="@Icons.Material.Outlined.Preview" OnClick="@(() => vm.ShowPreviewDialog())" />
                 }
+                @if (vm.IsAdmin)
+                {
+                    <MudTooltip Text="View Events & Notifications">
+                        <MudIconButton Icon="@Icons.Material.Filled.History" 
+                                       Href="@($"/admin/servicerequest/{vm.SelectedRequest?.Id}/events")" />
+                    </MudTooltip>
+                }
             </MudToolBar>
         </div>
     </div>

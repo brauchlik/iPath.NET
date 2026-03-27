@@ -260,6 +260,15 @@ public interface IPathApi
     #endregion
 
 
+    #region "-- ServiceRequest Events --"
+    [Get("/api/v1/requests/{id}/events")]
+    Task<IApiResponse<List<EventEntity>>> GetServiceRequestEvents(Guid id);
+
+    [Get("/api/v1/requests/{id}/notifications")]
+    Task<IApiResponse<List<NotificationDto>>> GetServiceRequestNotifications(Guid id);
+    #endregion
+
+
     #region "-- Questionnaires --"
     [Get("/api/v1/questionnaires/{id}")]
     Task<IApiResponse<QuestionnaireEntity>> GetQuestionnaireById(Guid id);

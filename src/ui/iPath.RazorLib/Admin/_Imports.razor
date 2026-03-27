@@ -1,6 +1,9 @@
 ﻿@attribute [Authorize(Roles = "Admin")]
 
 @using iPath.Application.Features.Admin
+@using iPath.Application.Features.Notifications
+@using iPath.Domain.Entities
+@using iPath.Blazor.Componenets.Admin.Events
 
 @inject NavigationManager nm
 @inject ISnackbar snackbar

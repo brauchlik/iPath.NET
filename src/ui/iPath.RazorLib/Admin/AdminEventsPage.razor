@@ -6,7 +6,20 @@
 <MudDataGrid T="EventEntity" ServerData="GetDataAsync" Dense="true" Hover="true" Striped="true" >
     <Columns>
         <PropertyColumn Property="x => x.ObjectName" />
-        <PropertyColumn Property="x => x.ObjectId" />
+        <PropertyColumn Title="ObjectId" Property="x => x.ObjectId">
+            <CellTemplate>
+                @if (context.Item.ObjectName == "ServiceRequest")
+                {
+                    <MudLink Href="@($"/admin/servicerequest/{context.Item.ObjectId}/events")">
+                        @context.Item.ObjectId
+                    </MudLink>
+                }
+                else
+                {
+                    @context.Item.ObjectId
+                }
+            </CellTemplate>
+        </PropertyColumn>
         <PropertyColumn Property="x => x.EventName" />
         <PropertyColumn Property="x => x.EventDate" />
     </Columns>

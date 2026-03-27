@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Dynamic.Core;
+using System.Linq.Dynamic.Core.Exceptions;
 
 namespace iPath.EF.Core;
 
@@ -16,8 +17,14 @@ internal static class QueryExtensions
             {
                 if (!string.IsNullOrWhiteSpace(sd))
                 {
-                    q = q.OrderBy(sd);
-                    hasSort = true;
+                    try
+                    {
+                        q = q.OrderBy(sd);
+                        hasSort = true;
+                    }
+                    catch (ParseException)
+                    {
+                    }
                 }
             }
         }

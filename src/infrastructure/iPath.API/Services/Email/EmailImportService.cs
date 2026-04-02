@@ -1,3 +1,4 @@
+using iPath.Application.Contracts;
 using iPath.Application.Features.Documents;
 using iPath.Application.Features.EmailImport;
 using iPath.EF.Core.Database;
@@ -10,7 +11,7 @@ namespace iPath.API.Services.Email;
 public class EmailImportService : IEmailImportService
 {
     private readonly iPathDbContext _db;
-    private readonly IEmailImportClientFactory _clientFactory;
+    private readonly IMailBoxFactory _mailBoxFactory;
     private readonly IEmailImportGroupResolver _groupResolver;
     private readonly IEmailBodyTextSanitizer _bodySanitizer;
     private readonly IEmailAttachmentNameSanitizer _filenameSanitizer;
@@ -20,7 +21,7 @@ public class EmailImportService : IEmailImportService
 
     public EmailImportService(
         iPathDbContext db,
-        IEmailImportClientFactory clientFactory,
+        IMailBoxFactory mailBoxFactory,
         IEmailImportGroupResolver groupResolver,
         IEmailBodyTextSanitizer bodySanitizer,
         IEmailAttachmentNameSanitizer filenameSanitizer,
@@ -29,7 +30,7 @@ public class EmailImportService : IEmailImportService
         ILogger<EmailImportService> logger)
     {
         _db = db;
-        _clientFactory = clientFactory;
+        _mailBoxFactory = mailBoxFactory;
         _groupResolver = groupResolver;
         _bodySanitizer = bodySanitizer;
         _filenameSanitizer = filenameSanitizer;
@@ -46,9 +47,11 @@ public class EmailImportService : IEmailImportService
         {
             try
             {
-                using var client = _clientFactory.Create(mailboxConfig);
-                await client.ConnectAsync(ct);
-                var pending = await client.GetPendingAsync(ct);
+                var since = DateTime.Now.AddDays(-mailboxConfig.DaysToLookBack);
+
+                await using var mailbox = _mailBoxFactory.Create(mailboxConfig);
+                await mailbox.ConnectAsync(ct);
+                var headers = await mailbox.ListEmailsAsync(since, ct);
 
                 var lastLog = await _db.Set<EmailImportLog>()
                     .Where(l => l.MailboxName == mailboxConfig.Name)
@@ -57,7 +60,7 @@ public class EmailImportService : IEmailImportService
 
                 summaries.Add(new ImportMailboxSummary(
                     mailboxConfig.Name,
-                    pending.Count,
+                    headers.Count,
                     lastLog?.ProcessedOn
                 ));
             }
@@ -77,21 +80,33 @@ public class EmailImportService : IEmailImportService
         if (mailboxConfig == null)
             throw new ArgumentException($"Mailbox '{mailboxName}' not found");
 
-        using var client = _clientFactory.Create(mailboxConfig);
-        await client.ConnectAsync(ct);
-        var messages = await client.GetPendingAsync(ct);
+        var since = DateTime.Now.AddDays(-mailboxConfig.DaysToLookBack);
 
-        return messages.Select(m => new ImportEmailPreview(
-            m.MessageId,
-            m.Subject,
-            m.SenderEmail,
-            m.SenderName,
-            m.ReceivedDate,
-            GetPreviewText(m),
-            _bodySanitizer.Sanitize(m.HtmlBody, m.PlainTextBody),
-            m.Attachments.Count,
-            m.Attachments.Select(a => a.Filename).ToList()
-        )).ToList();
+        await using var mailbox = _mailBoxFactory.Create(mailboxConfig);
+        await mailbox.ConnectAsync(ct);
+        var headers = await mailbox.ListEmailsAsync(since, ct);
+        var previews = new List<ImportEmailPreview>();
+
+        foreach (var header in headers)
+        {
+            var message = await mailbox.GetEmailAsync(header.MessageId, ct);
+            if (message != null)
+            {
+                previews.Add(new ImportEmailPreview(
+                    message.MessageId,
+                    message.Subject,
+                    message.SenderEmail,
+                    message.SenderName,
+                    message.ReceivedDate,
+                    GetPreviewText(message),
+                    _bodySanitizer.Sanitize(message.HtmlBody, message.PlainTextBody),
+                    message.Attachments.Count,
+                    message.Attachments.Select(a => a.Filename).ToList()
+                ));
+            }
+        }
+
+        return previews;
     }
 
     public async Task<ImportEmailPreview?> GetPreviewAsync(string mailboxName, string messageId, CancellationToken ct)
@@ -100,9 +115,9 @@ public class EmailImportService : IEmailImportService
         if (mailboxConfig == null)
             return null;
 
-        using var client = _clientFactory.Create(mailboxConfig);
-        await client.ConnectAsync(ct);
-        var message = await client.GetAsync(messageId, ct);
+        await using var mailbox = _mailBoxFactory.Create(mailboxConfig);
+        await mailbox.ConnectAsync(ct);
+        var message = await mailbox.GetEmailAsync(messageId, ct);
 
         if (message == null)
             return null;
@@ -120,20 +135,20 @@ public class EmailImportService : IEmailImportService
         );
     }
 
-    public async Task<ImportEmailResult> ImportSingleAsync(string mailboxName, string messageId, CancellationToken ct)
+    public async Task<ImportEmailResult> ImportSingleAsync(string mailboxName, string messageId, bool forceReimport = false, CancellationToken ct = default)
     {
         var mailboxConfig = _config.Mailboxes.FirstOrDefault(m => m.Name == mailboxName);
         if (mailboxConfig == null)
             return new ImportEmailResult(false, EmailImportStatus.Failed, null, $"Mailbox '{mailboxName}' not found", messageId);
 
-        using var client = _clientFactory.Create(mailboxConfig);
-        await client.ConnectAsync(ct);
-        var message = await client.GetAsync(messageId, ct);
+        await using var mailbox = _mailBoxFactory.Create(mailboxConfig);
+        await mailbox.ConnectAsync(ct);
+        var message = await mailbox.GetEmailAsync(messageId, ct);
 
         if (message == null)
             return new ImportEmailResult(false, EmailImportStatus.Failed, null, "Message not found", messageId);
 
-        return await ImportEmailAsync(client, mailboxConfig, message, ct);
+        return await ImportEmailAsync(mailbox, mailboxConfig, message, forceReimport, ct);
     }
 
     public async Task<IReadOnlyList<ImportEmailResult>> ImportAllPendingAsync(CancellationToken ct)
@@ -144,14 +159,20 @@ public class EmailImportService : IEmailImportService
         {
             try
             {
-                using var client = _clientFactory.Create(mailboxConfig);
-                await client.ConnectAsync(ct);
-                var messages = await client.GetPendingAsync(ct);
+                var since = DateTime.Now.AddDays(-mailboxConfig.DaysToLookBack);
 
-                foreach (var message in messages)
+                await using var mailbox = _mailBoxFactory.Create(mailboxConfig);
+                await mailbox.ConnectAsync(ct);
+                var headers = await mailbox.ListEmailsAsync(since, ct);
+
+                foreach (var header in headers)
                 {
-                    var result = await ImportEmailAsync(client, mailboxConfig, message, ct);
-                    results.Add(result);
+                    var message = await mailbox.GetEmailAsync(header.MessageId, ct);
+                    if (message != null)
+                    {
+                        var result = await ImportEmailAsync(mailbox, mailboxConfig, message, false, ct);
+                        results.Add(result);
+                    }
                 }
             }
             catch (Exception ex)
@@ -169,9 +190,9 @@ public class EmailImportService : IEmailImportService
         if (mailboxConfig == null)
             throw new ArgumentException($"Mailbox '{mailboxName}' not found");
 
-        using var client = _clientFactory.Create(mailboxConfig);
-        await client.ConnectAsync(ct);
-        await client.DeleteAsync(messageId, ct);
+        await using var mailbox = _mailBoxFactory.Create(mailboxConfig);
+        await mailbox.ConnectAsync(ct);
+        await mailbox.DeleteEmailAsync(messageId, ct);
 
         var log = new EmailImportLog
         {
@@ -187,65 +208,68 @@ public class EmailImportService : IEmailImportService
     }
 
     private async Task<ImportEmailResult> ImportEmailAsync(
-        IEmailImportClient client,
-        ImportMailboxConfig mailboxConfig,
-        ImportEmailMessage message,
+        IMailBox mailbox,
+        ImapConfig mailboxConfig,
+        MailMessage message,
+        bool forceReimport,
         CancellationToken ct)
     {
-        var existingLog = await _db.Set<EmailImportLog>()
-            .FirstOrDefaultAsync(l => l.MessageId == message.MessageId, ct);
-
-        if (existingLog != null)
-        {
-            _logger.LogWarning("Message {MessageId} already processed", message.MessageId);
-            return new ImportEmailResult(false, existingLog.Status, existingLog.ServiceRequestId, "Already processed", message.MessageId);
-        }
-
-        var groupResult = await _groupResolver.ResolveGroupAsync(mailboxConfig.Name, message.SenderEmail, ct);
-
-        Guid? userId = null;
-        Guid groupId;
-
-        if (groupResult == null)
-        {
-            if (mailboxConfig.DefaultGroupId != null)
-            {
-                groupId = mailboxConfig.DefaultGroupId.Value;
-            }
-            else
-            {
-                await client.MoveToQuarantineFolderAsync(message.MessageId, ct);
-                await LogAsync(message, mailboxConfig.Name, EmailImportStatus.Quarantined, null, null, ct);
-                return new ImportEmailResult(false, EmailImportStatus.Quarantined, null, "Unknown sender moved to quarantine", message.MessageId);
-            }
-        }
-        else
-        {
-            groupId = groupResult.Value.GroupId;
-            userId = groupResult.Value.UserId;
-        }
 
         try
         {
+            if (!forceReimport)
+            {
+                var existingLog = await _db.Set<EmailImportLog>()
+                    .FirstOrDefaultAsync(l => l.MessageId == message.MessageId, ct);
+
+                if (existingLog != null)
+                {
+                    _logger.LogWarning("Message {MessageId} already processed", message.MessageId);
+                    return new ImportEmailResult(false, existingLog.Status, existingLog.ServiceRequestId, "Already processed", message.MessageId);
+                }
+            }
+
+            var groupResult = await _groupResolver.ResolveGroupAsync(mailboxConfig, message.SenderEmail, ct);
+
+            if (!groupResult.IsSuccess)
+            {
+                await mailbox.MoveToFolderAsync(message.MessageId, mailboxConfig.QuarantineFolder, ct);
+                await LogAsync(message, mailboxConfig.Name, EmailImportStatus.Quarantined, null, null, ct);
+                return new ImportEmailResult(false, EmailImportStatus.Quarantined, null, "Unknown sender and no default group configured", message.MessageId);
+            }
+
+            var groupId = groupResult.Value.GroupId;
+            var userId = groupResult.Value.UserId;
+
             var description = _bodySanitizer.Sanitize(message.HtmlBody, message.PlainTextBody);
-            
+
+            // create as draft
             var cmd = new CreateServiceRequestCommand(groupId, "email-import", new RequestDescription
             {
                 Title = message.Subject,
                 Text = description
-            }, null);
+            }, null, userId);
 
             var result = await _mediator.Send(cmd, ct);
 
             var srId = result.Id;
 
+            // attach images
             foreach (var attachment in message.Attachments)
             {
                 var sanitizedFilename = _filenameSanitizer.Sanitize(attachment.Filename);
-                await ImportAttachmentAsync(srId, attachment, sanitizedFilename, ct);
+                await ImportAttachmentAsync(srId, attachment, sanitizedFilename, CancellationToken.None);
             }
 
-            await client.DeleteAsync(message.MessageId, ct);
+            // publish request
+            var upd = new UpdateServiceRequestCommand(srId, IsDraft: false);
+            await _mediator.Send(upd, CancellationToken.None);
+
+            // delete email
+            if (mailboxConfig.DeleteAfterImport)
+            {
+                await mailbox.DeleteEmailAsync(message.MessageId, ct);
+            }
             await LogAsync(message, mailboxConfig.Name, EmailImportStatus.Imported, srId, null, ct, userId);
 
             return new ImportEmailResult(true, EmailImportStatus.Imported, srId, null, message.MessageId);
@@ -258,7 +282,7 @@ public class EmailImportService : IEmailImportService
         }
     }
 
-    private async Task ImportAttachmentAsync(Guid serviceRequestId, ImportEmailAttachment attachment, string filename, CancellationToken ct)
+    private async Task ImportAttachmentAsync(Guid serviceRequestId, MailAttachment attachment, string filename, CancellationToken ct)
     {
         var cmd = new UploadDocumentCommand(
             serviceRequestId,
@@ -267,12 +291,12 @@ public class EmailImportService : IEmailImportService
             attachment.Size,
             attachment.Content,
             attachment.ContentType);
-        
+
         await _mediator.Send(cmd, ct);
     }
 
     private async Task LogAsync(
-        ImportEmailMessage message,
+        MailMessage message,
         string mailboxName,
         EmailImportStatus status,
         Guid? serviceRequestId,
@@ -299,7 +323,7 @@ public class EmailImportService : IEmailImportService
         await _db.SaveChangesAsync(ct);
     }
 
-    private static string? GetPreviewText(ImportEmailMessage message)
+    private static string? GetPreviewText(MailMessage message)
     {
         var text = !string.IsNullOrWhiteSpace(message.PlainTextBody)
             ? message.PlainTextBody

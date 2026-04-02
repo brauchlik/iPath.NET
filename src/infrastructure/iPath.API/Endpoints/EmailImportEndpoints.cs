@@ -1,9 +1,9 @@
-using iPath.Application.Contracts;
+using Hl7.FhirPath.Sprache;
 using iPath.Application.Features.EmailImport;
-using iPath.Domain.Entities;
 using iPath.EF.Core.Database;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace iPath.API;
 
@@ -11,7 +11,7 @@ public static class EmailImportEndpoints
 {
     public static IEndpointRouteBuilder MapEmailImportApi(this IEndpointRouteBuilder route)
     {
-        var emailImport = route.MapGroup("email-import")
+        var emailImport = route.MapGroup("admin/email-import")
             .WithTags("Email Import")
             .RequireAuthorization("Admin");
 
@@ -41,13 +41,25 @@ public static class EmailImportEndpoints
             return service.GetPreviewAsync(mailboxName, messageId, ct);
         }).Produces<ImportEmailPreview>();
 
-        emailImport.MapPost("{mailboxName}/{messageId}/import", (
-            string mailboxName,
-            string messageId,
+        emailImport.MapPost("resolve", async ([FromBody] ResolveEmailImportQuery query,
+            [FromServices] IEmailImportGroupResolver resolver,
+            [FromServices] IOptions <EmailImportConfig> config, 
+            CancellationToken ct) =>
+        {
+            var mailboxConfig = config.Value.Mailboxes.FirstOrDefault(m => m.Name == query.MailboxName);             
+            var res =  await resolver.ResolveGroupAsync(mailboxConfig, query.SenderEmail, ct);
+            return res.ToMinimalApiResult();
+        })
+            .RequireAuthorization("Admin");
+
+        emailImport.MapPost("import", [RequestTimeout(milliseconds: 120000)] async (
+            [FromBody] ImportEmailCommand command,
             [FromServices] IEmailImportService service,
             CancellationToken ct) =>
         {
-            return service.ImportSingleAsync(mailboxName, messageId, ct);
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TimeSpan.FromMinutes(2));
+            return await service.ImportSingleAsync(command.MailboxName, command.MessageId, command.ForceReimport, cts.Token);
         }).Produces<ImportEmailResult>();
 
         emailImport.MapDelete("{mailboxName}/{messageId}", async (
@@ -60,6 +72,7 @@ public static class EmailImportEndpoints
             return TypedResults.NoContent();
         });
 
+        /*
         emailImport.MapPost("import-all", async (
             [FromServices] IEmailImportService service,
             CancellationToken ct) =>
@@ -67,6 +80,7 @@ public static class EmailImportEndpoints
             var results = await service.ImportAllPendingAsync(ct);
             return TypedResults.Ok(results);
         }).Produces<IReadOnlyList<ImportEmailResult>>();
+        */
 
         emailImport.MapGet("logs", async (
             [FromServices] iPathDbContext db,

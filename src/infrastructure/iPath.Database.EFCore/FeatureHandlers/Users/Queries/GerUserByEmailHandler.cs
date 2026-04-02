@@ -1,11 +1,14 @@
 ﻿namespace iPath.EF.Core.FeatureHandlers.Users.Queries;
 
-public class GetUserByIdHandler(iPathDbContext db, IUserSession sess)
-    : IRequestHandler<GetUserByIdQuery, Task<UserDto>>
+public class GetUserByEmailHandler(iPathDbContext db, IUserSession sess)
+    : IRequestHandler<GetUserByEmailQuery, Task<UserDto>>
 {
-    public async Task<UserDto> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+    public async Task<UserDto> Handle(GetUserByEmailQuery request, CancellationToken cancellationToken)
     {
+        var normalizedEmail = request.Email.ToLowerInvariant();
+        
         var user = await db.Users.AsNoTracking()
+            .Where(u => u.NormalizedEmail == normalizedEmail)
             .Select(u => new UserDto
             {
                 Id = u.Id,
@@ -23,10 +26,7 @@ public class GetUserByIdHandler(iPathDbContext db, IUserSession sess)
                 CommunityMembership = u.CommunityMembership.Select(m => new CommunityMemberDto(CommunityId: m.Community.Id, UserId: m.UserId, 
                     Role: m.Role, IsConsultant: m.IsConsultant, Communityname: m.Community.Name)).ToArray()
             })
-            .FirstOrDefaultAsync(u => u.Id == request.Id);
-
-        // make sure to set UserId (duplicate)
-        user.Profile.UserId = user.Id;
+            .FirstOrDefaultAsync(cancellationToken);
 
         return user;
     }

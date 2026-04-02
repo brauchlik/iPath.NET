@@ -5,13 +5,14 @@ public class CreateServiceRequestCommandHandler(iPathDbContext db, IUserSession 
 {
     public async Task<ServiceRequestDto> Handle(CreateServiceRequestCommand request, CancellationToken ct)
     {
+        var ownerId = request.OwnerId ?? sess.User.Id;
         if (!sess.IsAdmin)
-            sess.AssertInGroup(request.GroupId);
+            sess.AssertInGroup(ownerId);
 
         var group = await db.Groups.FindAsync(request.GroupId, ct);
         Guard.Against.NotFound(request.GroupId, group);
 
-        var node = iPath.Application.Features.ServiceRequests.ServiceRequestCommandExtensions.CreateRequest(request, sess.User.Id);
+        var node = iPath.Application.Features.ServiceRequests.ServiceRequestCommandExtensions.CreateRequest(request, ownerId);
         await db.ServiceRequests.AddAsync(node, ct);
         await db.SaveChangesAsync(ct);
 

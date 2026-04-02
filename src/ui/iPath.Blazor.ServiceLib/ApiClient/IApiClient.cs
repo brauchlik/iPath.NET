@@ -312,8 +312,11 @@ public interface IPathApi
     [Get("/api/v1/admin/email-import/{mailboxName}/{messageId}/preview")]
     Task<IApiResponse<ImportEmailPreview?>> GetEmailPreview(string mailboxName, string messageId);
 
-    [Post("/api/v1/admin/email-import/{mailboxName}/{messageId}/import")]
-    Task<IApiResponse<ImportEmailResult>> ImportEmail(string mailboxName, string messageId);
+    [Post("/api/v1/admin/email-import/resolve")]
+    Task<IApiResponse<EmailImportGroupResolverResult>> ResolveEmailImport([Body] ResolveEmailImportQuery query);
+
+    [Post("/api/v1/admin/email-import/import")]
+    Task<IApiResponse<ImportEmailResult>> ImportEmail([Body] ImportEmailCommand command);
 
     [Delete("/api/v1/admin/email-import/{mailboxName}/{messageId}")]
     Task<IApiResponse> DeleteEmail(string mailboxName, string messageId);

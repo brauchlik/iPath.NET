@@ -62,13 +62,31 @@ public class UploadDocumentFileCommandHandler(iPathDbContext db,
         try
         {
             // Save the file to local temp folder
-            var fn = Path.Combine(opts.Value.TempDataPath, document.Id.ToString());
-            logger.LogInformation("file upload, copy to: " + fn);
-
-            using (var fileStream = File.Create(fn))
+            string fn;
+            
+            if (!string.IsNullOrEmpty(request.FilePath) && System.IO.File.Exists(request.FilePath))
             {
-                request.fileStream.Seek(0, SeekOrigin.Begin);
-                await request.fileStream.CopyToAsync(fileStream, ct);
+                // Use provided file path - copy to final location
+                fn = Path.Combine(opts.Value.TempDataPath, document.Id.ToString());
+                logger.LogInformation("file upload, copy from: " + request.FilePath + " to: " + fn);
+                System.IO.File.Copy(request.FilePath, fn, true);
+            }
+            else
+            {
+                // Original stream-based approach
+                fn = Path.Combine(opts.Value.TempDataPath, document.Id.ToString());
+                logger.LogInformation("file upload, copy to: " + fn);
+
+                if (request.fileStream == null)
+                {
+                    throw new InvalidOperationException("Either FilePath or fileStream must be provided");
+                }
+
+                using (var fileStream = File.Create(fn))
+                {
+                    request.fileStream.Seek(0, SeekOrigin.Begin);
+                    await request.fileStream.CopyToAsync(fileStream, ct);
+                }
             }
 
             // generate thumbnail

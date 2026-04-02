@@ -40,6 +40,17 @@ public record ImportEmailResult(
 
 public record ImportMailboxSummary(
     string Name,
-    int PendingCount,
+    int TotalCount,
     DateTime? LastChecked
+);
+
+public record ResolveEmailImportQuery(
+    string MailboxName,
+    string SenderEmail
+);
+
+public record ImportEmailCommand(
+    string MailboxName,
+    string MessageId,
+    bool ForceReimport = false
 );

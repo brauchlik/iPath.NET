@@ -1,9 +1,12 @@
+using iPath.Application.Features.EmailImport;
+
 namespace iPath.Application.Contracts;
 
 public interface IEmailImportGroupResolver
-{
-    Task<(Guid GroupId, Guid? UserId)?> ResolveGroupAsync(
-        string mailboxName,
+{    Task<Result<EmailImportGroupResolverResult>> ResolveGroupAsync(
+        ImapConfig? mailboxConfig,
         string senderEmail,
         CancellationToken ct);
 }
+
+public record EmailImportGroupResolverResult(Guid GroupId, Guid UserId);

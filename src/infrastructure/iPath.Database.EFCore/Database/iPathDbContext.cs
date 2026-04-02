@@ -161,6 +161,12 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
                  .ValueGeneratedOnAdd();
             }
         });
+
+        // email log
+        builder.Entity<EmailImportLog>(b =>
+        {
+            b.ToTable("email_import_logs");
+        });
     }
 
 

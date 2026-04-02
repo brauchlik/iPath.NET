@@ -1,7 +1,7 @@
 ﻿namespace iPath.Application.Features.ServiceRequests;
 
 
-public record CreateServiceRequestCommand(Guid GroupId, string RequestType, RequestDescription? Description = null, Guid? NodeId = null)
+public record CreateServiceRequestCommand(Guid GroupId, string RequestType, RequestDescription? Description = null, Guid? NodeId = null, Guid? OwnerId = null)
     : IRequest<CreateServiceRequestCommand, Task<ServiceRequestDto>>
     , IEventInput
 {

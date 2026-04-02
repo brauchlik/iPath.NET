@@ -40,7 +40,7 @@ public class UserProfile
     // [JsonPropertyName("contact")]
     public ContactDetails ContactDetails { get; set; } = new();
 
-    public EmailImportSettings? EmailImportSettings { get; set; }
+    public EmailImportSettings? EmailImportSettings { get; set; } = new();
 
 
     public static UserProfile AnonymousProfile()

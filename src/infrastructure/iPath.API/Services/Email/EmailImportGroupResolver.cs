@@ -1,35 +1,42 @@
 using iPath.Application.Contracts;
+using iPath.Application.Features.EmailImport;
 using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace iPath.API.Services.Email;
 
-public class EmailImportGroupResolver : IEmailImportGroupResolver
+public class EmailImportGroupResolver(iPathDbContext db) : IEmailImportGroupResolver
 {
-    private readonly iPathDbContext _db;
-
-    public EmailImportGroupResolver(iPathDbContext db)
-    {
-        _db = db;
-    }
-
-    public async Task<(Guid GroupId, Guid? UserId)?> ResolveGroupAsync(
-        string mailboxName,
+    public async Task<Result<EmailImportGroupResolverResult>> ResolveGroupAsync(
+        ImapConfig? mailboxConfig,
         string senderEmail,
         CancellationToken ct)
     {
-        var user = await _db.Users
-            .Include(u => u.Profile)
-            .FirstOrDefaultAsync(u => u.Email == senderEmail, ct);
+        // resolve User
+        var normalizedEmail = senderEmail.ToLowerInvariant();
+        var user = await db.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail || u.Email == normalizedEmail, ct);
 
-        if (user == null)
-            return null;
-
-        if (user.Profile?.EmailImportSettings?.DefaultGroupId != null)
+        if (user is null)
         {
-            return (user.Profile.EmailImportSettings.DefaultGroupId.Value, user.Id);
+            return Result.Fail("User not found");
         }
 
-        return null;
+        // First check mailbox config's DefaultGroupId
+        Guid? groupId = mailboxConfig?.DefaultGroupId;
+
+        // Fallback: check user's profile DefaultGroupId
+        if (!groupId.HasValue)
+        {
+            groupId = user.Profile.EmailImportSettings?.DefaultGroupId;
+        }
+
+        if (!groupId.HasValue)
+        {
+            return Result.Fail($"Group for User {user.Email} could not be resolved");
+        }
+
+        return Result.Ok(new EmailImportGroupResolverResult(groupId.Value, user.Id));
     }
 }

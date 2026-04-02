@@ -24,9 +24,22 @@ public class EmailImportWorker : BackgroundService
         _logger = logger;
     }
 
+    public override async Task StartAsync(CancellationToken cancellationToken)
+    {
+        if (_config.Enabled && _config.IntervalMinutes > 0)
+        {
+            await base.StartAsync(cancellationToken);
+        }
+        else
+        {
+            await StopAsync(cancellationToken);
+        }
+    }
+
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("EmailImportWorker started. Enabled: {Enabled}, Interval: {Interval} minutes", 
+        _logger.LogInformation("EmailImportWorker started. Enabled: {Enabled}, Interval: {Interval} minutes",
             _config.Enabled, _config.IntervalMinutes);
 
         while (!stoppingToken.IsCancellationRequested)

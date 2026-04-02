@@ -1,21 +1,19 @@
 ﻿using DispatchR.Extensions;
 using iPath.API.Services;
 using iPath.API.Services.Email;
+using iPath.API.Services.Email.Clients;
 using iPath.API.Services.Notifications;
 using iPath.API.Services.Notifications.Processors;
 using iPath.API.Services.Notifications.Publisher;
 using iPath.API.Services.Storage;
 using iPath.API.Services.Thumbnail;
 using iPath.Application.Coding;
-using iPath.Application.Contracts;
 using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Questionnaires;
 using iPath.Application.Localization;
 using iPath.Blazor.ServiceLib.Services;
 using iPath.Google;
-using iPath.Google.Email;
-using iPath.Google.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Serialization;
@@ -58,7 +56,7 @@ public static class APIServicesRegistration
             .AddPolicy("Developer", policy => policy.RequireRole("Developer"));
 
 
-        // Email handling
+        // Email Sending (SMTP) handling
         var smtp = new SmtpConfig();
         config.GetSection(nameof(SmtpConfig)).Bind(smtp);
         services.Configure<SmtpConfig>(config.GetSection(nameof(SmtpConfig)));
@@ -148,15 +146,19 @@ public static class APIServicesRegistration
         // OpenAPI
         services.AddOpenApi();
 
-        // Email Import
-        services.Configure<EmailImportConfig>(config.GetSection("EmailImport"));
-        services.AddSingleton<IEmailImportClientFactory, ImapEmailImportClientFactory>();
-        services.AddScoped<IEmailImportService, EmailImportService>();
-        services.AddScoped<IEmailImportGroupResolver, EmailImportGroupResolver>();
-        services.AddScoped<IEmailBodyTextSanitizer, EmailBodyTextSanitizer>();
-        services.AddScoped<IEmailAttachmentNameSanitizer, EmailAttachmentNameSanitizer>();
-        services.AddHostedService<EmailImportWorker>();
-
+        // Email receiving (IMAP) Import
+        var emailImportCfg = new EmailImportConfig();
+        config.GetSection("EmailImport").Bind(emailImportCfg);
+        if (emailImportCfg.Enabled)
+        {
+            services.Configure<EmailImportConfig>(config.GetSection("EmailImport"));
+            services.AddSingleton<IMailBoxFactory, ImapMailBoxFactory>();
+            services.AddScoped<IEmailImportService, EmailImportService>();
+            services.AddScoped<IEmailImportGroupResolver, EmailImportGroupResolver>();
+            services.AddScoped<IEmailBodyTextSanitizer, EmailBodyTextSanitizer>();
+            services.AddScoped<IEmailAttachmentNameSanitizer, EmailAttachmentNameSanitizer>();
+            services.AddHostedService<EmailImportWorker>();
+        }
         return services;
     }
 

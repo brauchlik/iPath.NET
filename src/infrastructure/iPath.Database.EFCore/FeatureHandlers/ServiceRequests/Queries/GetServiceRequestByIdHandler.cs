@@ -15,7 +15,6 @@ public class GetServiceRequestByIdQueryHandler(iPathDbContext db, IUserSession s
             .Include(n => n.Documents).ThenInclude(a => a.Owner)
             .Include(n => n.Annotations).ThenInclude(a => a.Owner)
             .Include(n => n.UploadFolders)
-            .AsSplitQuery()
             .FirstOrDefaultAsync(n => n.Id == request.Id, cancellationToken);
 
         Guard.Against.NotFound(request.Id, node);

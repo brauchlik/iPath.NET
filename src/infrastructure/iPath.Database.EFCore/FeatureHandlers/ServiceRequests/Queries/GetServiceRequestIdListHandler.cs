@@ -3,75 +3,23 @@
 namespace iPath.EF.Core.FeatureHandlers.ServiceRequests;
 
 
-public class GetServiceRequestIdListHandler(iPathDbContext db, IUserSession sess)
+public class GetServiceRequestIdListHandler(iPathDbContext db, IUserSession sess, ILogger<GetServiceRequestIdListHandler> logger)
     : IRequestHandler<GetServiceRequestIdListQuery, Task<IReadOnlyList<Guid>>>
 {
     public async Task<IReadOnlyList<Guid>> Handle(GetServiceRequestIdListQuery request, CancellationToken cancellationToken)
     {
         Guard.Against.Null(sess.User);
 
+        logger.LogInformation("Loading ServiceRequest IDs for user {UserId}", sess.User.Id);
+
         // prepare query (only root nodes)
         var q = db.ServiceRequests.AsNoTracking();
         q = q.ApplyRequest(request, sess);
 
-        /*
-        var spec = Specification<ServiceRequest>.All;
+        var result = await q.Select(sr => sr.Id).ToListAsync(cancellationToken);
 
-        if (request.GroupId.HasValue)
-        {
-            sess.AssertInGroup(request.GroupId.Value);
-            spec = spec.And(new ServiceRequestIsInGroupSpecifications(request.GroupId.Value));
-            // q = q.Where(n => n.GroupId == request.GroupId.Value);
-        }
+        logger.LogInformation("Loaded {Count} ServiceRequest IDs", result.Count);
 
-        if (request.CommunityId.HasValue)
-        {
-            spec = spec.And(new ServiceRequestIsInCommunitySpecifications(request.CommunityId.Value));
-        }
-
-        if (request.RequestFilter == eRequestFilter.Owner)
-        {
-            spec = spec.And(new ServiceRequestOwnerSpecifications(sess.User.Id));
-            // q = q.Where(n => n.OwnerId == request.OwnerId.Value);
-        }
-        else if (request.RequestFilter == eRequestFilter.NewCases)
-        {
-            spec = spec.And(new ServiceRequestIsInGroupListSpecifications(sess.GroupIds()));
-            spec = spec.And(new ServicerequestIsNewForUserSpecifications(sess.User.Id));
-        }
-        else if (request.RequestFilter == eRequestFilter.NewAnnotations)
-        {
-            spec = spec.And(new ServiceRequestIsInGroupListSpecifications(sess.GroupIds()));
-            spec = spec.And(new ServiceRequestHasNewAnnotationForUserSpecifications(sess.User.Id));
-        }
-
-        // freetext search
-        if (!string.IsNullOrEmpty(request.SearchString))
-        {
-            q = q.ApplySearchString(request.SearchString);
-        } 
-
-        if (request.Filter is not null)
-        {
-            foreach (var f in request.Filter)
-            {
-                q = q.ApplyNodeFilter(f);
-            }
-        }
-
-        // Filter out drafts & private cases
-        spec = spec.And(new ServiceRequestIsVisibleSpecifications(sess.IsAuthenticated ? sess.User.Id : null));
-        q = q.Where(spec.ToExpression());
-
-
-        // filter & sort
-        q = q.ApplyQuery(request);
-        */
-
-        // project
-        var projeted = q.Select(n => n.Id);
-
-        // paginate
-        return await projeted.ToListAsync(cancellationToken);
+        return result;
     }
 }

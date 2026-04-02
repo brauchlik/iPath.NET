@@ -11,6 +11,7 @@ global using iPath.Application.Features.ServiceRequests;
 global using iPath.Domain.Entities;
 global using iPath.Application.Features;
 global using iPath.Application.Querying;
+global using Microsoft.Extensions.Logging;
 
 
 namespace iPath.API;

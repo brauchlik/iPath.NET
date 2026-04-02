@@ -1,9 +1,5 @@
-using iPath.Application;
-using iPath.Application.Contracts;
 using iPath.Application.Features.Documents;
 using iPath.Application.Features.EmailImport;
-using iPath.Application.Features.ServiceRequests;
-using iPath.Domain.Entities;
 using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -92,6 +88,7 @@ public class EmailImportService : IEmailImportService
             m.SenderName,
             m.ReceivedDate,
             GetPreviewText(m),
+            _bodySanitizer.Sanitize(m.HtmlBody, m.PlainTextBody),
             m.Attachments.Count,
             m.Attachments.Select(a => a.Filename).ToList()
         )).ToList();
@@ -117,6 +114,7 @@ public class EmailImportService : IEmailImportService
             message.SenderName,
             message.ReceivedDate,
             GetPreviewText(message),
+            _bodySanitizer.Sanitize(message.HtmlBody, message.PlainTextBody),
             message.Attachments.Count,
             message.Attachments.Select(a => a.Filename).ToList()
         );

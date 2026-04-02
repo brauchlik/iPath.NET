@@ -25,6 +25,7 @@ public record ImportEmailPreview(
     string? SenderName,
     DateTime ReceivedDate,
     string? PreviewText,
+    string? BodyText,
     int AttachmentCount,
     IReadOnlyList<string> AttachmentNames
 );

@@ -1,0 +1,47 @@
+[MudDialog]
+@inject IPathApi api
+@inject ISnackbar snackbar
+
+<DialogContent>
+    <MudGrid>
+        <MudItem xs="12">
+            <MudText Typo="Typo.body2"><b>From:</b> @Email.SenderEmail</MudText>
+        </MudItem>
+        <MudItem xs="12">
+            <MudText Typo="Typo.body2"><b>Date:</b> @Email.ReceivedDate</MudText>
+        </MudItem>
+        <MudItem xs="12">
+            <MudText Typo="Typo.body2"><b>Subject:</b> @Email.Subject</MudText>
+        </MudItem>
+        <MudItem xs="12">
+            @if (Email.AttachmentCount > 0)
+            {
+                <MudText Typo="Typo.body2"><b>Attachments:</b> @string.Join(", ", Email.AttachmentNames)</MudText>
+            }
+        </MudItem>
+        <MudItem xs="12" Class="mt-4">
+            <MudText Typo="Typo.body2"><b>Body:</b></MudText>
+            <MudPaper Class="pa-2 mt-2" Elevation="1" Style="max-height: 300px; overflow-y: auto;">
+                <MudText Typo="Typo.body2">@((MarkupString)(Email.BodyText ?? Email.PreviewText ?? "No content"))</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</DialogContent>
+<DialogActions>
+    <MudButton OnClick="Import">Import</MudButton>
+    <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
+</DialogActions>
+
+@code {
+    [Parameter] public ImportEmailPreview Email { get; set; } = null!;
+    [Parameter] public string MailboxName { get; set; } = string.Empty;
+    
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = null!;
+
+    private void Cancel() => MudDialog.Cancel();
+    
+    private void Import()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

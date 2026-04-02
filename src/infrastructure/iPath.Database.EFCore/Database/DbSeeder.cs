@@ -1,7 +1,5 @@
 ﻿using iPath.Domain.Config;
-using iPath.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Linq.Dynamic.Core;
 

@@ -1,0 +1,190 @@
+@page "/admin/email-import"
+
+@inject IPathApi api
+@inject ISnackbar snackbar
+@inject IDialogService dialog
+@inject IOptions<EmailImportConfig> config
+
+<MudText Typo="Typo.h5" Class="mb-4">Email Import</MudText>
+
+@if (config.Value.Enabled)
+{
+    <MudAlert Severity="Severity.Warning" Class="mb-4">
+        Background import worker is active. Manual imports may create duplicates.
+    </MudAlert>
+}
+
+<MudPaper Class="mb-4 pa-4" Elevation="2">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="4">
+            <MudSelect T="string" 
+                       @bind-Value="_selectedMailbox" 
+                       Label="Mailbox"
+                       Variant="Variant.Outlined"
+                       Disabled="@_mailboxes.Count.Equals(1)">
+                @foreach (var mailbox in _mailboxes)
+                {
+                    <MudSelectItem Value="@mailbox.Name">@mailbox.Name (@mailbox.PendingCount pending)</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Primary" 
+                       StartIcon="@Icons.Material.Filled.Refresh"
+                       OnClick="LoadPendingEmails">
+                Refresh
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+<MudDataGrid T="ImportEmailPreview" 
+              ServerData="GetDataAsync" 
+              @ref="_grid"
+              Dense="true"
+              Hover="true"
+              Class="mt-4">
+    <Columns>
+        <PropertyColumn Property="x => x.Subject" Title="Subject" />
+        <PropertyColumn Property="x => x.SenderEmail" Title="Sender" />
+        <PropertyColumn Property="x => x.ReceivedDate" Title="Received" />
+        <PropertyColumn Property="x => x.AttachmentCount" Title="Attachments" />
+        <TemplateColumn>
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.Visibility" 
+                               Size="Size.Small"
+                               OnClick="@(() => PreviewEmail(context.Item))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Inbox" 
+                               Size="Size.Small"
+                               OnClick="@(() => ImportEmail(context.Item))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                               Size="Size.Small"
+                               Color="Color.Error"
+                               OnClick="@(() => DeleteEmail(context.Item))" />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="ImportEmailPreview" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    private MudDataGrid<ImportEmailPreview> _grid = null!;
+    private List<ImportMailboxSummary> _mailboxes = new();
+    private string _selectedMailbox = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMailboxes();
+    }
+
+    private async Task LoadMailboxes()
+    {
+        try
+        {
+            var response = await api.GetEmailImportMailboxes();
+            if (response.IsSuccessful)
+            {
+                _mailboxes = response.Content?.ToList() ?? new();
+                if (_mailboxes.Count == 1)
+                {
+                    _selectedMailbox = _mailboxes[0].Name;
+                }
+                else if (_mailboxes.Count > 0 && string.IsNullOrEmpty(_selectedMailbox))
+                {
+                    _selectedMailbox = _mailboxes[0].Name;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Error loading mailboxes: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task LoadPendingEmails()
+    {
+        await _grid.ReloadServerData();
+    }
+
+    private async Task<GridData<ImportEmailPreview>> GetDataAsync(GridState<ImportEmailPreview> state, CancellationToken ct)
+    {
+        if (string.IsNullOrEmpty(_selectedMailbox))
+            return new GridData<ImportEmailPreview>();
+
+        try
+        {
+            var response = await api.GetPendingEmails(_selectedMailbox);
+            if (response.IsSuccessful && response.Content != null)
+            {
+                var items = response.Content.ToList();
+                return new GridData<ImportEmailPreview>
+                {
+                    Items = items,
+                    TotalItems = items.Count
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Error loading emails: {ex.Message}", Severity.Error);
+        }
+
+        return new GridData<ImportEmailPreview>();
+    }
+
+    private async Task PreviewEmail(ImportEmailPreview email)
+    {
+        var parameters = new DialogParameters<EmailPreviewDialog>
+        {
+            { x => x.Email, email },
+            { x => x.MailboxName, _selectedMailbox }
+        };
+        await dialog.ShowAsync<EmailPreviewDialog>(email.Subject, parameters);
+    }
+
+    private async Task ImportEmail(ImportEmailPreview email)
+    {
+        try
+        {
+            var response = await api.ImportEmail(_selectedMailbox, email.MessageId);
+            if (response.IsSuccessful)
+            {
+                snackbar.Add($"Email imported successfully. ServiceRequest: {response.Content?.ServiceRequestId}", Severity.Success);
+                await _grid.ReloadServerData();
+            }
+            else
+            {
+                snackbar.Add($"Import failed: {response.Content?.ErrorMessage}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Error importing email: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task DeleteEmail(ImportEmailPreview email)
+    {
+        var result = await dialog.ShowMessageBoxAsync("Delete Email", 
+            $"Delete email from {email.SenderEmail}?", 
+            yesText: "Delete", 
+            cancelText: "Cancel");
+        
+        if (result == true)
+        {
+            try
+            {
+                await api.DeleteEmail(_selectedMailbox, email.MessageId);
+                snackbar.Add("Email deleted", Severity.Success);
+                await _grid.ReloadServerData();
+            }
+            catch (Exception ex)
+            {
+                snackbar.Add($"Error deleting email: {ex.Message}", Severity.Error);
+            }
+        }
+    }
+}

@@ -28,6 +28,7 @@ public static class MapEndpoints
             .MapStatisticsApi()
             .MapCmsApi()
             .MapGoogleProxy()
+            .MapEmailImportApi()
             .MapIPathHubs();
 
         // OpenAPI Documentation

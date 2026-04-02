@@ -42,6 +42,7 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<Notification> NotificationQueue { get; set; }
     public DbSet<EmailMessage> EmailStore { get; set; }
     public DbSet<EventEntity> EventStore { get; set; }
+    public DbSet<EmailImportLog> EmailImportLogs { get; set; }
 
 
     public DbSet<UserUploadFolder> UserUploadFolders { get; set; }

@@ -7,11 +7,14 @@ using iPath.API.Services.Notifications.Publisher;
 using iPath.API.Services.Storage;
 using iPath.API.Services.Thumbnail;
 using iPath.Application.Coding;
+using iPath.Application.Contracts;
+using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Questionnaires;
 using iPath.Application.Localization;
 using iPath.Blazor.ServiceLib.Services;
 using iPath.Google;
+using iPath.Google.Email;
 using iPath.Google.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -144,6 +147,15 @@ public static class APIServicesRegistration
 
         // OpenAPI
         services.AddOpenApi();
+
+        // Email Import
+        services.Configure<EmailImportConfig>(config.GetSection("EmailImport"));
+        services.AddSingleton<IEmailImportClientFactory, ImapEmailImportClientFactory>();
+        services.AddScoped<IEmailImportService, EmailImportService>();
+        services.AddScoped<IEmailImportGroupResolver, EmailImportGroupResolver>();
+        services.AddScoped<IEmailBodyTextSanitizer, EmailBodyTextSanitizer>();
+        services.AddScoped<IEmailAttachmentNameSanitizer, EmailAttachmentNameSanitizer>();
+        services.AddHostedService<EmailImportWorker>();
 
         return services;
     }

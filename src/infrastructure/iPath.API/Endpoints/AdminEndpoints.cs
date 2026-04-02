@@ -1,9 +1,6 @@
 ﻿using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Users;
 using iPath.Application.Localization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Scalar.AspNetCore;
 using System.ComponentModel;
 using System.Linq.Dynamic.Core;
 using iPath.API.EndpointFilters;
@@ -101,16 +98,6 @@ public static class AdminEndpoints
             .Produces<TranslationData>()
             .WithTags("Localization");
 
-
-        #region "-- imap --"
-        var mailbox = route.MapGroup("mailbox")
-            .WithTags("External Mailbox");
-
-        mailbox.MapGet("all", ([FromServices] IMailBox srv) => srv.GetAllMails())
-            .RequireAuthorization("Admin");
-        mailbox.MapGet("unread", ([FromServices] IMailBox srv) => srv.GetUnreadMails())
-            .RequireAuthorization("Admin");
-        #endregion
 
         return route;
     }

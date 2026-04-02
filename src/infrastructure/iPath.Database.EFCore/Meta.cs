@@ -10,6 +10,7 @@ global using iPath.Application.Contracts;
 global using iPath.EF.Core.Database;
 global using iPath.Application.Exceptions;
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Logging;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using DispatchR;
 

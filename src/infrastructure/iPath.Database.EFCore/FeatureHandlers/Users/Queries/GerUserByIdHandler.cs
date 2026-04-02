@@ -25,6 +25,9 @@ public class GetUserByIdHandler(iPathDbContext db, IUserSession sess)
             })
             .FirstOrDefaultAsync(u => u.Id == request.Id);
 
+        // make sure to set UserId (duplicate)
+        user.Profile.UserId = user.Id;
+
         return user;
     }
 }

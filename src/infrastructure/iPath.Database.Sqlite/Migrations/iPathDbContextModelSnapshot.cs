@@ -454,6 +454,50 @@ namespace iPath.Database.Sqlite.Migrations
                     b.ToTable("documents", (string)null);
                 });
 
+            modelBuilder.Entity("iPath.Domain.Entities.EmailImportLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MailboxName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MessageId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ProcessedOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SenderEmail")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SenderName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ServiceRequestId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Subject")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("email_import_logs", (string)null);
+                });
+
             modelBuilder.Entity("iPath.Domain.Entities.EmailMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1285,6 +1329,11 @@ namespace iPath.Database.Sqlite.Migrations
 
                                             b3.Property<string>("Street");
                                         });
+                                });
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "EmailImportSettings", "iPath.Domain.Entities.User.Profile#UserProfile.EmailImportSettings#EmailImportSettings", b2 =>
+                                {
+                                    b2.Property<Guid?>("DefaultGroupId");
                                 });
 
                             b1.ComplexProperty(typeof(Dictionary<string, object>), "SpecialisationBodySite", "iPath.Domain.Entities.User.Profile#UserProfile.SpecialisationBodySite#ConceptFilter", b2 =>

@@ -16,7 +16,6 @@ public static class GoogleServicesRegistration
         if (cfg.Active)
         {
             services.Configure<GmailConfig>(config.GetSection(nameof(GmailConfig)));
-            services.AddScoped<IMailBox, GmailIMapReader>();
         }
 
         return services;

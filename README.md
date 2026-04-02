@@ -4,6 +4,5 @@ to be written ...
 
 
 ## Further Reading
- - [Running from an IDE](doc/DEBUG.md)
- - [Installing on a Linux Server](doc/INSTALLATION.md)
-
+ - [Running from an IDE](docs/DEBUG.md)
+ - [Installing on a Linux Server](docs/INSTALLATION.md)

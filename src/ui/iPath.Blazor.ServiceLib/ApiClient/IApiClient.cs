@@ -4,6 +4,7 @@ using iPath.Application.Features;
 using iPath.Application.Features.Admin;
 using iPath.Application.Features.CMS;
 using iPath.Application.Features.Documents;
+using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.Users;
@@ -298,5 +299,32 @@ public interface IPathApi
 
     [Delete("/api/v1/cms/{id}")]
     Task<IApiResponse> DeleteWebContent(Guid id);
-    #endregion  
+    #endregion
+
+
+    #region "-- Email Import --"
+    [Get("/api/v1/admin/email-import/mailboxes")]
+    Task<IApiResponse<IReadOnlyList<ImportMailboxSummary>>> GetEmailImportMailboxes();
+
+    [Get("/api/v1/admin/email-import/{mailboxName}/pending")]
+    Task<IApiResponse<IReadOnlyList<ImportEmailPreview>>> GetPendingEmails(string mailboxName);
+
+    [Get("/api/v1/admin/email-import/{mailboxName}/{messageId}/preview")]
+    Task<IApiResponse<ImportEmailPreview?>> GetEmailPreview(string mailboxName, string messageId);
+
+    [Post("/api/v1/admin/email-import/resolve")]
+    Task<IApiResponse<EmailImportGroupResolverResult>> ResolveEmailImport([Body] ResolveEmailImportQuery query);
+
+    [Post("/api/v1/admin/email-import/import")]
+    Task<IApiResponse<ImportEmailResult>> ImportEmail([Body] ImportEmailCommand command);
+
+    [Delete("/api/v1/admin/email-import/{mailboxName}/{messageId}")]
+    Task<IApiResponse> DeleteEmail(string mailboxName, string messageId);
+
+    [Post("/api/v1/admin/email-import/import-all")]
+    Task<IApiResponse<IReadOnlyList<ImportEmailResult>>> ImportAllEmails();
+
+    [Get("/api/v1/admin/email-import/logs")]
+    Task<IApiResponse<List<EmailImportLog>>> GetEmailImportLogs(int page = 0, int pageSize = 50);
+    #endregion
 }

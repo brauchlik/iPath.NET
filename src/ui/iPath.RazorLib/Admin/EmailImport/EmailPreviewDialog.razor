@@ -1,0 +1,115 @@
+@inject IPathApi api
+@inject ISnackbar snackbar
+@inject IGroupCache groupCache
+@using FluentResults
+
+<MudDialog ContentStyle="width: 600px; max-width: 90vw;">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Email Preview</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Spacing="2">
+            <MudText><b>From:</b> @Email.SenderEmail</MudText>
+            <MudText><b>Date:</b> @Email.ReceivedDate.ToString("g")</MudText>
+            <MudText><b>Subject:</b> @Email.Subject</MudText>
+            @if (Email.AttachmentCount > 0)
+            {
+                <MudText><b>Attachments:</b> @string.Join(", ", Email.AttachmentNames)</MudText>
+            }
+
+            <MudDivider Class="my-2" />
+
+            @if (string.IsNullOrEmpty(error))
+            {
+                <MudText><b>User:</b> @Email.SenderEmail</MudText>
+                <MudText><b>Import to Group:</b> @groupName</MudText>
+            }
+            else
+            {
+                <MudAlert Severity="Severity.Warning" Dense="true">
+                    <b>Unknown sender</b> - email will be quarantined.<br />
+                    @error
+                </MudAlert>
+            }
+
+            <MudText><b>Body:</b></MudText>
+            <MudPaper Class="pa-2" Style="max-height: 300px; overflow-y: auto;">
+                @((MarkupString)(Email.BodyText ?? Email.PreviewText ?? "No content"))
+            </MudPaper>
+
+            <MudDivider Class="my-2" />
+
+            <MudSwitch @bind-Value="_forceReimport"
+                       Color="Color.Warning"
+                       Label="Force Reimport (skip duplicate check)" />
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <ProgressButton Text="Import"
+                        OnClick="ImportAsync"
+                        Color="Color.Primary"
+                        Icon="@Icons.Material.Filled.Save"
+                        Disabled="@disableImport" />
+        <MudButton OnClick="Cancel" Variant="Variant.Outlined">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public ImportEmailPreview Email { get; set; } = null!;
+    [Parameter] public string MailboxName { get; set; } = string.Empty;
+
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = null!;
+
+    private string groupName = "Loading...";
+    private string error;
+    private bool disableImport = true;
+    private bool _forceReimport = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var query = new ResolveEmailImportQuery(MailboxName, Email.SenderEmail);
+            var response = await api.ResolveEmailImport(query);
+            if (response.IsSuccessful && response.Content != null)
+            {
+                var group = await groupCache.GetGroupAsync(response.Content.GroupId);
+                groupName = group?.Name;
+                disableImport = false;
+            }
+            else
+            {
+                groupName = "No group configured";
+                error = response.ErrorMessage;
+            }
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Error resolving email: {ex.Message}", Severity.Warning);
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+    
+    private async Task ImportAsync()
+    {
+        try
+        {
+            var command = new ImportEmailCommand(MailboxName, Email.MessageId, _forceReimport);
+            var response = await api.ImportEmail(command);
+            if (response.IsSuccessful)
+            {
+                snackbar.Add($"Email imported successfully. ServiceRequest: {response.Content?.ServiceRequestId}", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(response.Content));
+            }
+            else
+            {
+                snackbar.Add($"Import failed: {response.Content?.ErrorMessage}", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Error importing email: {ex.Message}", Severity.Error);
+        }
+    }
+}

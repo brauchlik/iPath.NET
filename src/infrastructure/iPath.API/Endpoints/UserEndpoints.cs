@@ -23,6 +23,11 @@ public static class UserEndpoints
             .Produces<UserDto>()
             .RequireAuthorization();
 
+        grp.MapGet("email/{email}", async (string email, [FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new GetUserByEmailQuery(email), ct))
+            .Produces<UserDto>()
+            .RequireAuthorization();
+
         // Commands
         grp.MapPost("create", async (CreateUserCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(cmd, ct))

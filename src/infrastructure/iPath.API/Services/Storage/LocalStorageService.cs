@@ -1,8 +1,6 @@
 ﻿using Ardalis.GuardClauses;
-using iPath.Application.Contracts;
 using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -32,12 +30,17 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
     {
         try
         {
+            logger.LogInformation("Loading Document {DocumentId}", DocumentId);
+
             var node = await db.Documents.AsNoTracking()
                 .Include(d => d.ServiceRequest)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(n => n.Id == DocumentId, ct);
 
             Guard.Against.NotFound(DocumentId, node);
+
+            logger.LogInformation("Loaded Document {DocumentId} with ServiceRequest {ServiceRequestId}", DocumentId, node.ServiceRequest?.Id);
+
             return await GetFileAsync(node, ct);
         }
         catch (Exception ex)

@@ -17,7 +17,7 @@ public class EmailImportService : IEmailImportService
     private readonly IEmailImportGroupResolver _groupResolver;
     private readonly IEmailBodyTextSanitizer _bodySanitizer;
     private readonly IEmailAttachmentNameSanitizer _filenameSanitizer;
-    private readonly IEmailQueue _mailQueue;
+    private readonly IEmailRepository _mailRepo;
     private readonly IGroupCache _groupCache;
     private readonly IServiceRequestHtmlPreview _preview;
     private readonly IMediator _mediator;
@@ -30,7 +30,7 @@ public class EmailImportService : IEmailImportService
         IEmailImportGroupResolver groupResolver,
         IEmailBodyTextSanitizer bodySanitizer,
         IEmailAttachmentNameSanitizer filenameSanitizer,
-        IEmailQueue mailQueue,
+        IEmailRepository mailRepo,
         IGroupCache groupCache,
         IServiceRequestHtmlPreview preview,
         IMediator mediator,
@@ -42,7 +42,7 @@ public class EmailImportService : IEmailImportService
         _groupResolver = groupResolver;
         _bodySanitizer = bodySanitizer;
         _filenameSanitizer = filenameSanitizer;
-        _mailQueue = mailQueue;
+        _mailRepo = mailRepo;
         _groupCache = groupCache;
         _preview = preview;
         _mediator = mediator;
@@ -354,17 +354,13 @@ public class EmailImportService : IEmailImportService
         var groupname = "";
         if (serviceRequestDto.GroupId.HasValue)
         {
-            groupname =  (await _groupCache.GetGroupAsync(serviceRequestDto.GroupId.Value))?.Name;
+            groupname = (await _groupCache.GetGroupAsync(serviceRequestDto.GroupId.Value))?.Name;
         }
         var srLink = _preview.CreateUrl(serviceRequestDto);
 
-        var msg = new EmailMessage
-        {
-            Receiver = email,
-            Subject = $"Email import confirmation",
-            Body = $"Your request has been received and imported to {groupname}\n<ul><li>{srLink}</li></ul>"
-        };
+        var Subject = $"Email import confirmation";
+        var Body = $"Your request has been received and imported to {groupname}\n<ul><li>{srLink}</li></ul>";
 
-        await _mailQueue.EnqueueAsync(msg);
+        await _mailRepo.Create(email, Subject, Body, ct);
     }
 }

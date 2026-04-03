@@ -1,55 +1,63 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-MudBlazorWebApp1-40913a93-839b-4b54-b940-ec3a2480028c</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\..</DockerfileContext>
-	<DockerfileRunArguments>-v "C:\Daten\ipath_podman:/opt/ipath:rw"</DockerfileRunArguments>
-	<!-- Default image name and tag used by Visual Studio container targets -->
-	<DockerDefaultImageName>ipath_server</DockerDefaultImageName>
-	<DockerDefaultImageTag>latest</DockerDefaultImageTag>
-	  <ContainerRepository>ipath-server-image</ContainerRepository>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>aspnet-MudBlazorWebApp1-40913a93-839b-4b54-b940-ec3a2480028c</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..\..</DockerfileContext>
+		<DockerfileRunArguments>-v "C:\Daten\ipath_podman:/opt/ipath:rw"</DockerfileRunArguments>
+		<!-- Default image name and tag used by Visual Studio container targets -->
+		<DockerDefaultImageName>ipath_server</DockerDefaultImageName>
+		<DockerDefaultImageTag>latest</DockerDefaultImageTag>
+		<ContainerRepository>ipath-server-image</ContainerRepository>
+		<!-- OpenAPI build-time generation -->
+		<OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
+		<OpenApiDocumentsDirectory>wwwroot\openapi</OpenApiDocumentsDirectory>
+		<OpenApiGenerateDocumentsOptions>--file-name openapi</OpenApiGenerateDocumentsOptions>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="ipath_data\**" />
-    <Compile Remove="logs\**" />
-    <Content Remove="ipath_data\**" />
-    <Content Remove="logs\**" />
-    <EmbeddedResource Remove="ipath_data\**" />
-    <EmbeddedResource Remove="logs\**" />
-    <None Remove="ipath_data\**" />
-    <None Remove="logs\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="ipath_data\**" />
+		<Compile Remove="logs\**" />
+		<Content Remove="ipath_data\**" />
+		<Content Remove="logs\**" />
+		<EmbeddedResource Remove="ipath_data\**" />
+		<EmbeddedResource Remove="logs\**" />
+		<None Remove="ipath_data\**" />
+		<None Remove="logs\**" />
+	</ItemGroup>
 
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\aspire\iPath.NET.ServiceDefaults\iPath.NET.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\..\core\iPath.Application\iPath.Application.csproj" />
-    <ProjectReference Include="..\..\infrastructure\iPath.API\iPath.API.csproj" />
-    <ProjectReference Include="..\iPath.Blazor.Client\iPath.Blazor.Client.csproj" />
-    <ProjectReference Include="..\iPath.RazorLib\iPath.Blazor.Componenents.csproj" />
-    <PackageReference Include="DispatchR.Mediator" Version="2.1.1" />
-    <PackageReference Include="Grafana.OpenTelemetry" Version="1.5.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.*" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.*" />
-    <PackageReference Include="Extensions.MudBlazor.StaticInput" Version="4.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
-    <PackageReference Include="MudBlazor" Version="9.1.0" />
-    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
-    <PackageReference Include="Serilog.Enrichers.Demystifier" Version="1.0.3" />
-    <PackageReference Include="Serilog.Enrichers.Span" Version="3.1.0" />
-    <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
-    <PackageReference Include="Serilog.Exceptions.EntityFrameworkCore" Version="8.4.0" />
-    <PackageReference Include="Serilog.Exceptions.Refit" Version="8.4.0" />
-    <PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0" />
-    <PackageReference Include="Serilog.Sinks.Grafana.Loki" Version="8.3.2" />
-    <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\aspire\iPath.NET.ServiceDefaults\iPath.NET.ServiceDefaults.csproj" />
+		<ProjectReference Include="..\..\core\iPath.Application\iPath.Application.csproj" />
+		<ProjectReference Include="..\..\infrastructure\iPath.API\iPath.API.csproj" />
+		<ProjectReference Include="..\iPath.Blazor.Client\iPath.Blazor.Client.csproj" />
+		<ProjectReference Include="..\iPath.RazorLib\iPath.Blazor.Componenents.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="DispatchR.Mediator" Version="2.1.1" />
+		<PackageReference Include="Grafana.OpenTelemetry" Version="1.5.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.*" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.*" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.*" />
+		<PackageReference Include="Extensions.MudBlazor.StaticInput" Version="4.0.0" />
+		<PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="10.*" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
+		<PackageReference Include="MudBlazor" Version="9.1.0" />
+		<PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+		<PackageReference Include="Serilog.Enrichers.Demystifier" Version="1.0.3" />
+		<PackageReference Include="Serilog.Enrichers.Span" Version="3.1.0" />
+		<PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
+		<PackageReference Include="Serilog.Exceptions.EntityFrameworkCore" Version="8.4.0" />
+		<PackageReference Include="Serilog.Exceptions.Refit" Version="8.4.0" />
+		<PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0" />
+		<PackageReference Include="Serilog.Sinks.Grafana.Loki" Version="8.3.2" />
+		<PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Content Update="appsettings*.json" CopyToPublishDirectory="Never" />

@@ -14,8 +14,10 @@ using iPath.Application.Features.Questionnaires;
 using iPath.Application.Localization;
 using iPath.Blazor.ServiceLib.Services;
 using iPath.Google;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 namespace iPath.API;
@@ -125,28 +127,25 @@ public static class APIServicesRegistration
         // Google Workspace
         services.AddGoogleServices(config);
 
-        // Configure JSON options for OpenAPI
-
-        var openapi = config.GetValue<bool>("OpenApi");
-        if (openapi)
+        // Configure JSON options for OpenAPI schema generation
+        // Build-time OpenAPI generation needs higher MaxDepth for complex domain models
+        var isBuildTimeGeneration = Assembly.GetEntryAssembly()?.GetName().Name == "GetDocument.Insider";
+        services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
         {
-            // Commenting out the current JSON options for OpenAPI
-            services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+            if (isBuildTimeGeneration)
             {
+                // Build-time: relaxed settings to handle complex/recursive type schemas
                 options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-                options.SerializerOptions.MaxDepth = 12800; // Increase the max depth to match the HTTP JSON options
+                options.SerializerOptions.MaxDepth = 12800;
                 options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-            });
+            }
+            // Runtime: use defaults (MaxDepth=64, no ReferenceHandler)
+        });
 
-            // Adjusted JSON options for OpenAPI
-            //services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
-            //{
-            //    options.SerializerOptions.ReferenceHandler = ReferenceHandler.Preserve; // Use Preserve to handle cycles with $id/$ref
-            //    options.SerializerOptions.MaxDepth = 64; // Reduce max depth to a reasonable level
-            //    options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault; // Ignore default values
-            //});
-
-            // OpenAPI
+        // OpenAPI - always register services (for build-time generation and runtime)
+        // MapOpenApi endpoint is conditional on OpenApi config
+        if (isBuildTimeGeneration)
+        {
             services.AddOpenApi();
         }
 

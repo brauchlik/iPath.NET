@@ -169,7 +169,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-
+// Health Checks, etc (Aspire)
 app.MapDefaultEndpoints();
 
 

@@ -32,24 +32,30 @@ public static class MapEndpoints
             .MapIPathHubs();
 
         // OpenAPI Documentation
-        app.MapOpenApi("/openapi/v1.json");
+        var openapi = config.GetValue<bool>("OpenApi");
+        if (openapi)
+            app.MapOpenApi("/openapi/v1.json");
 
         var cfg = new iPathClientConfig();
         config.GetSection(iPathClientConfig.ConfigName).Bind(cfg);
 
-        var baseAddress = cfg.BaseAddress;
-        app.MapScalarApiReference((opts, httpContext) =>
-        {
-            if (!string.IsNullOrEmpty(baseAddress))
-            {
-                opts.Servers = [];
-                opts.Servers.Add(new ScalarServer(baseAddress, ""));
-                opts.BaseServerUrl = baseAddress;
-            }
 
-            opts.WithTitle($"API for {httpContext.User.Identity?.Name}");
-            opts.PreserveSchemaPropertyOrder();
-        });
+        if (openapi)
+        {
+            var baseAddress = cfg.BaseAddress;
+            app.MapScalarApiReference((opts, httpContext) =>
+            {
+                if (!string.IsNullOrEmpty(baseAddress))
+                {
+                    opts.Servers = [];
+                    opts.Servers.Add(new ScalarServer(baseAddress, ""));
+                    opts.BaseServerUrl = baseAddress;
+                }
+
+                opts.WithTitle($"API for {httpContext.User.Identity?.Name}");
+                opts.PreserveSchemaPropertyOrder();
+            });
+        }
 
         return route;
     }

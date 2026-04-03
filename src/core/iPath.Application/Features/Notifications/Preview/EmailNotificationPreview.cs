@@ -10,6 +10,21 @@ public class EmailNotificationPreview(IOptions<iPathClientConfig> opts, IGroupCa
 {
     public string Name => "email";
 
+    public string CreateUrl(ServiceRequestDto sr)
+    {
+        var link = opts.Value.BaseAddress + "request/" + sr.Id;
+
+        var title = sr.Title;
+        if (!string.IsNullOrEmpty(sr.Description.CaseType))
+        {
+            title += ", " + sr.Description.CaseType;
+        }
+        if (sr.Description.BodySite is not null)
+        {
+            title += ", " + sr.Description.BodySite.ToString();
+        }
+        return $"<a href=\"{link}\">{title}</a>";
+    }
 
     public async Task<string> CreatePreview(NotificationDto n, ServiceRequestDto sr)
     {
@@ -27,18 +42,8 @@ public class EmailNotificationPreview(IOptions<iPathClientConfig> opts, IGroupCa
         msg += " in " + grpLink + "<br /><br />";
         var body = template.Replace("{msg}", msg);
 
-        var link = opts.Value.BaseAddress + "request/" + sr.Id;
-
-        var title = sr.Title;
-        if (!string.IsNullOrEmpty(sr.Description.CaseType))
-        {
-            title += ", " + sr.Description.CaseType;
-        }
-        if (sr.Description.BodySite is not null)
-        {
-            title += ", " + sr.Description.BodySite.ToString();
-        }
-        body = body.Replace("{title}", $"<a href=\"{link}\">{title}</a>");
+        var link = CreateUrl(sr);
+        body = body.Replace("{title}", link);
 
         var desc = "";
         if (!string.IsNullOrEmpty(sr.Description.Questionnaire?.GeneratedText))

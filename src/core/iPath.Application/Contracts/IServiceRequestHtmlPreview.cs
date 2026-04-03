@@ -6,4 +6,5 @@ public interface IServiceRequestHtmlPreview
 {
     string Name { get; }
     Task<string> CreatePreview(NotificationDto n, ServiceRequestDto dto);
+    string CreateUrl(ServiceRequestDto dto);
 }

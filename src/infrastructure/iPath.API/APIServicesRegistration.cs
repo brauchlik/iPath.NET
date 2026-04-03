@@ -36,7 +36,7 @@ public static class APIServicesRegistration
 
         // create root folder if requested
         CreateDataRoot(cfg);
-        
+
 
         // configure Mediator
         services.AddDispatchR(cfg =>
@@ -80,7 +80,7 @@ public static class APIServicesRegistration
         // Notification Handling
         services.AddSingleton<IServiceRequestEventQueue>(ctx => new ServiceRequestEventQueue(100));
         services.AddSingleton<INotificationQueue>(ctx => new NotificationQueue(100));
-        services.AddScoped<INotificationFilterService>(ctx => 
+        services.AddScoped<INotificationFilterService>(ctx =>
             new NotificationFilterService(ctx.GetRequiredKeyedService<CodingService>("icdo")));
         services.AddHostedService<Services.Notifications.ServiceRequestEventProcessor>();
         services.AddScoped<IServiceRequestEventProcessor, Services.Notifications.Processors.ServiceRequestEventProcessor>();
@@ -126,12 +126,29 @@ public static class APIServicesRegistration
         services.AddGoogleServices(config);
 
         // Configure JSON options for OpenAPI
-        services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+
+        var openapi = config.GetValue<bool>("OpenApi");
+        if (openapi)
         {
-            options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-            options.SerializerOptions.MaxDepth = 12800; // Increase the max depth to match the HTTP JSON options
-            options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-        });
+            // Commenting out the current JSON options for OpenAPI
+            services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+            {
+                options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                options.SerializerOptions.MaxDepth = 12800; // Increase the max depth to match the HTTP JSON options
+                options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
+
+            // Adjusted JSON options for OpenAPI
+            //services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
+            //{
+            //    options.SerializerOptions.ReferenceHandler = ReferenceHandler.Preserve; // Use Preserve to handle cycles with $id/$ref
+            //    options.SerializerOptions.MaxDepth = 64; // Reduce max depth to a reasonable level
+            //    options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault; // Ignore default values
+            //});
+
+            // OpenAPI
+            services.AddOpenApi();
+        }
 
         // SignalR
         services.AddSignalR();
@@ -142,9 +159,6 @@ public static class APIServicesRegistration
                 ["application/octet-stream"]);
         });
         */
-
-        // OpenAPI
-        services.AddOpenApi();
 
         // Email receiving (IMAP) Import
         var emailImportCfg = new EmailImportConfig();
@@ -180,7 +194,7 @@ public static class APIServicesRegistration
                 if (root.FullName == temp.Parent.FullName)
                     temp.Create();
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 throw new Exception("Cannot create initial data folder structure", ex);
             }

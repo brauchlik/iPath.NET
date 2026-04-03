@@ -29,6 +29,7 @@
     {
         var query = new GetWebContentsQuery { PageSize = 5 };
         var resp = await api.GetWebContent(query);
-        LatestNews = resp.Content.Items.ToList();
+        if (resp.IsSuccessful)
+            LatestNews = resp.Content.Items.ToList();
     }
 }

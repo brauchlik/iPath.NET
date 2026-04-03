@@ -3,8 +3,10 @@ using iPath.Application.Features.Documents;
 using iPath.Application.Features.EmailImport;
 using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Org.BouncyCastle.Tls;
 
 namespace iPath.API.Services.Email;
 
@@ -15,6 +17,9 @@ public class EmailImportService : IEmailImportService
     private readonly IEmailImportGroupResolver _groupResolver;
     private readonly IEmailBodyTextSanitizer _bodySanitizer;
     private readonly IEmailAttachmentNameSanitizer _filenameSanitizer;
+    private readonly IEmailRepository _mailRepo;
+    private readonly IGroupCache _groupCache;
+    private readonly IServiceRequestHtmlPreview _preview;
     private readonly IMediator _mediator;
     private readonly EmailImportConfig _config;
     private readonly ILogger<EmailImportService> _logger;
@@ -25,6 +30,9 @@ public class EmailImportService : IEmailImportService
         IEmailImportGroupResolver groupResolver,
         IEmailBodyTextSanitizer bodySanitizer,
         IEmailAttachmentNameSanitizer filenameSanitizer,
+        IEmailRepository mailRepo,
+        IGroupCache groupCache,
+        IServiceRequestHtmlPreview preview,
         IMediator mediator,
         IOptions<EmailImportConfig> config,
         ILogger<EmailImportService> logger)
@@ -34,6 +42,9 @@ public class EmailImportService : IEmailImportService
         _groupResolver = groupResolver;
         _bodySanitizer = bodySanitizer;
         _filenameSanitizer = filenameSanitizer;
+        _mailRepo = mailRepo;
+        _groupCache = groupCache;
+        _preview = preview;
         _mediator = mediator;
         _config = config.Value;
         _logger = logger;
@@ -250,19 +261,17 @@ public class EmailImportService : IEmailImportService
                 Text = description
             }, null, userId);
 
-            var result = await _mediator.Send(cmd, ct);
-
-            var srId = result.Id;
+            var sr = await _mediator.Send(cmd, ct);
 
             // attach images
             foreach (var attachment in message.Attachments)
             {
                 var sanitizedFilename = _filenameSanitizer.Sanitize(attachment.Filename);
-                await ImportAttachmentAsync(srId, attachment, sanitizedFilename, CancellationToken.None);
+                await ImportAttachmentAsync(sr.Id, attachment, sanitizedFilename, CancellationToken.None);
             }
 
             // publish request
-            var upd = new UpdateServiceRequestCommand(srId, IsDraft: false);
+            var upd = new UpdateServiceRequestCommand(sr.Id, IsDraft: false);
             await _mediator.Send(upd, CancellationToken.None);
 
             // delete email
@@ -270,9 +279,14 @@ public class EmailImportService : IEmailImportService
             {
                 await mailbox.DeleteEmailAsync(message.MessageId, ct);
             }
-            await LogAsync(message, mailboxConfig.Name, EmailImportStatus.Imported, srId, null, ct, userId);
 
-            return new ImportEmailResult(true, EmailImportStatus.Imported, srId, null, message.MessageId);
+            // confirm receipt
+            await ConfirmReceipt(message.SenderEmail, sr, ct);
+
+            // log
+            await LogAsync(message, mailboxConfig.Name, EmailImportStatus.Imported, sr.Id, null, ct, userId);
+
+            return new ImportEmailResult(true, EmailImportStatus.Imported, sr.Id, null, message.MessageId);
         }
         catch (Exception ex)
         {
@@ -333,5 +347,20 @@ public class EmailImportService : IEmailImportService
             return null;
 
         return text.Length > 500 ? text.Substring(0, 500) + "..." : text;
+    }
+
+    private async Task ConfirmReceipt(string email, ServiceRequestDto serviceRequestDto, CancellationToken ct = default)
+    {
+        var groupname = "";
+        if (serviceRequestDto.GroupId.HasValue)
+        {
+            groupname = (await _groupCache.GetGroupAsync(serviceRequestDto.GroupId.Value))?.Name;
+        }
+        var srLink = _preview.CreateUrl(serviceRequestDto);
+
+        var Subject = $"Email import confirmation";
+        var Body = $"Your request has been received and imported to {groupname}\n<ul><li>{srLink}</li></ul>";
+
+        await _mailRepo.Create(email, Subject, Body, ct);
     }
 }

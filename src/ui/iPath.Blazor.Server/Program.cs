@@ -157,6 +157,8 @@ app.UseHttpLogging();
 var opts = app.Services.GetRequiredService<IOptions<iPathConfig>>();
 
 
+await app.InitStorageAsync();
+
 // DI for Extensions
 app.Services.InitComponenetsExtensions();
 

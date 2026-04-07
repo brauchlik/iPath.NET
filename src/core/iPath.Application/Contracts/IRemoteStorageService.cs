@@ -3,6 +3,10 @@
 public interface IRemoteStorageService
 {
     string ProviderName { get; }
+    string RootStorageName { get; }
+
+    Task<bool> InitStorageAsync();
+
 
     Task<StorageRepsonse> PutFileAsync(Guid Id, CancellationToken ctk = default!);
     // Task<StorageRepsonse> PutFileAsync(DocumentNode document, CancellationToken ctk = default!);

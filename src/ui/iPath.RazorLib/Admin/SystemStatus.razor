@@ -22,8 +22,8 @@
 </p>
 
 <p>
-    <b>Data Path: </b>
-    <span>@opts.Value.LocalDataPath</span>
+    <b>Data Storage (@srvStorage.ProviderName): </b>
+    <span>@srvStorage.RootStorageName</span>
     @if (LocalDataPathExists)
     {
         <MudIcon Icon="@Icons.Material.Filled.Check" />
@@ -41,6 +41,7 @@
 
 @inject IOptions<iPathConfig> opts
 @inject IOptions<iPathClientConfig> clopts
+@inject IRemoteStorageService srvStorage
 @inject IConfiguration cfg;
 
 

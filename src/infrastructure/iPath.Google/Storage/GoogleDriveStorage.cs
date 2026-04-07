@@ -33,6 +33,10 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
     public const string GoogleDriveName = "GoogleDrive";
     public string ProviderName => GoogleDriveName;
 
+    private static string _RootStorageName = string.Empty;
+    private static bool? _RootExists = null;
+    public string RootStorageName => _RootStorageName;
+
     DriveService GDrive
     {
         get
@@ -57,6 +61,31 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         }
     }
 
+    public async Task<bool> InitStorageAsync()
+    {
+        if (!_RootExists.HasValue)
+        {
+            _RootExists = false;
+            try
+            {
+                // Query for a folder with the given name in the parent folder
+                var request = GDrive.Files.Get(gdriveOpts.Value.RootFolderId);
+                request.Fields = "id, name, mimeType, trashed";
+                var folder = await request.ExecuteAsync();
+                if (folder is not null)
+                {
+                    _RootStorageName = $"{folder.Name} ({gdriveOpts.Value.RootFolderId})";
+                    _RootExists = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _RootStorageName = ex.Message;
+                logger.LogError(ex, "Cannot get Google RootFolder");
+            }
+        }
+        return _RootExists.Value;
+    }
 
     private async Task<DocumentNode?> GetDocument(Guid Id, CancellationToken ct = default)
     {

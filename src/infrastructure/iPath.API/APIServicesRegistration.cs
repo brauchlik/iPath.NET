@@ -17,6 +17,8 @@ using iPath.Google;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -199,4 +201,20 @@ public static class APIServicesRegistration
             }
         }
     }
+
+    public static async Task InitStorageAsync(this IHost host)
+    {
+        using var scope = host.Services.CreateScope();
+        // var logger = scope.ServiceProvider.GetService<ILogger>();
+
+        var srvStorage = scope.ServiceProvider.GetService<IRemoteStorageService>();
+        if (srvStorage is not null)
+        {
+            if (!await srvStorage.InitStorageAsync())
+            {
+                // logger.LogWarning("Remote Storage initializiation failed");
+            }
+        }
+    }
 }
+

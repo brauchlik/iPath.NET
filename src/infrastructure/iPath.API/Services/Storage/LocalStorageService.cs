@@ -15,6 +15,7 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
     : IRemoteStorageService
 {
     public string ProviderName => "LocalFiles";
+    public string RootStorageName => opts.Value.LocalDataPath;
 
     public string StoragePath 
     {
@@ -23,6 +24,12 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
             if( string.IsNullOrEmpty(field)) field = opts.Value.LocalDataPath;
             return field;
         }
+    }
+
+
+    public async Task<bool> InitStorageAsync()
+    {
+        return !string.IsNullOrEmpty(opts.Value.LocalDataPath) && System.IO.Directory.Exists(opts.Value.LocalDataPath);
     }
 
 

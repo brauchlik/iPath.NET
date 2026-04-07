@@ -1,12 +1,10 @@
-﻿using DispatchR.Abstractions.Send;
+﻿namespace iPath.Application.Features.Annotations;
 
-namespace iPath.Application.Features.ServiceRequests;
-
-public record CreateAnnotationCommand(Guid requestId, AnnotationData? Data, Guid? docuemntId = null)
+public record CreateAnnotationCommand(Guid requestId, AnnotationData? Data)
     : IRequest<CreateAnnotationCommand, Task<AnnotationDto>>
     , IEventInput
 {
-    public string ObjectName => nameof(ServiceRequest);
+    public string ObjectName => nameof(Annotation);
 }
 
 
@@ -19,11 +17,11 @@ public static partial class ServiceRequestCommandExtensions
             Data = request.Data,
             OwnerId = userId,
             ServiceRequestId = request.requestId,
-            DcoumentNodeId = request.docuemntId,
+            DcoumentNodeId = request.Data.DocumentId,
             CreatedOn = DateTime.UtcNow,
         };
         node.Annotations.Add(a);
-        node.CreateEvent<AnnotationCreatedEvent, CreateAnnotationCommand>(request, userId);
+        node.CreateEvent<AnnotationAddedEvent, CreateAnnotationCommand>(request, userId);
         return a;
     }
 }

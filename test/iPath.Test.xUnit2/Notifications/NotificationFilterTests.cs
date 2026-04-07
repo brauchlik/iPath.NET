@@ -1,6 +1,6 @@
 using iPath.Application.Features.ServiceRequests;
 using iPath.Domain.Entities;
-using iPath.Domain.Notificxations;
+using iPath.Domain.Notifications;
 using Xunit;
 
 namespace iPath.Test.xUnit2.Notifications;
@@ -28,7 +28,7 @@ public class NotificationFilterTests
     {
         var userId = Guid.NewGuid();
         var sr = CreateServiceRequest("C50");
-        var evt = new AnnotationCreatedEvent { ServiceRequest = sr, UserId = userId };
+        var evt = new AnnotationAddedEvent { ServiceRequest = sr, UserId = userId };
         var member = CreateGroupMember(userId: userId);
         var filterService = CreateFilterService(bodySiteMatches: true);
 
@@ -56,7 +56,7 @@ public class NotificationFilterTests
     public void ShouldNotify_NewAnnotationSubscription_ReturnsTrue()
     {
         var sr = CreateServiceRequest("C50");
-        var evt = new AnnotationCreatedEvent { ServiceRequest = sr, UserId = Guid.NewGuid() };
+        var evt = new AnnotationAddedEvent { ServiceRequest = sr, UserId = Guid.NewGuid() };
         var member = CreateGroupMember(notificationSource: eNotificationSource.NewAnnotation);
         var filterService = CreateFilterService(bodySiteMatches: true);
 
@@ -71,7 +71,7 @@ public class NotificationFilterTests
     {
         var ownerId = Guid.NewGuid();
         var sr = CreateServiceRequest("C50", ownerId);
-        var evt = new AnnotationCreatedEvent { ServiceRequest = sr, UserId = Guid.NewGuid() };
+        var evt = new AnnotationAddedEvent { ServiceRequest = sr, UserId = Guid.NewGuid() };
         var member = CreateGroupMember(userId: ownerId, notificationSource: eNotificationSource.NewAnnotationOnMyCase);
         var filterService = CreateFilterService(bodySiteMatches: true);
 
@@ -87,7 +87,7 @@ public class NotificationFilterTests
         var ownerId = Guid.NewGuid();
         var otherUserId = Guid.NewGuid();
         var sr = CreateServiceRequest("C50", ownerId);
-        var evt = new AnnotationCreatedEvent { ServiceRequest = sr, UserId = otherUserId };
+        var evt = new AnnotationAddedEvent { ServiceRequest = sr, UserId = otherUserId };
         var member = CreateGroupMember(userId: Guid.NewGuid(), notificationSource: eNotificationSource.NewAnnotationOnMyCase);
         var filterService = CreateFilterService(bodySiteMatches: true);
 
@@ -100,7 +100,7 @@ public class NotificationFilterTests
     public void ShouldNotify_NoSubscriptionFlags_ReturnsFalse()
     {
         var sr = CreateServiceRequest("C50");
-        var evt = new AnnotationCreatedEvent { ServiceRequest = sr, UserId = Guid.NewGuid() };
+        var evt = new AnnotationAddedEvent { ServiceRequest = sr, UserId = Guid.NewGuid() };
         var member = CreateGroupMember(notificationSource: eNotificationSource.None);
         var filterService = CreateFilterService(bodySiteMatches: true);
 
@@ -136,7 +136,7 @@ public class NotificationFilterTests
     {
         var ownerId = Guid.NewGuid();
         var sr = CreateServiceRequest("C50", ownerId);
-        var evt = new AnnotationCreatedEvent { ServiceRequest = sr, UserId = Guid.NewGuid() };
+        var evt = new AnnotationAddedEvent { ServiceRequest = sr, UserId = Guid.NewGuid() };
         var member = CreateGroupMember(
             userId: ownerId, 
             notificationSource: eNotificationSource.NewAnnotation | eNotificationSource.NewAnnotationOnMyCase);
@@ -295,7 +295,7 @@ public class NotificationFilterTests
 
             return evt switch
             {
-                AnnotationCreatedEvent => EvaluateAnnotationEvent(subscription, serviceRequestOwnerId),
+                AnnotationAddedEvent => EvaluateAnnotationEvent(subscription, serviceRequestOwnerId),
                 ServiceRequestPublishedEvent => EvaluatePublishedEvent(subscription),
                 _ => new Application.Features.Notifications.NotificationFilterResult(false, $"Unknown event type: {evt.EventName}")
             };

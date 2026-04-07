@@ -41,9 +41,13 @@
                 }
                 @if (vm.IsAdmin)
                 {
-                    <MudTooltip Text="View Events & Notifications">
-                        <MudIconButton Icon="@Icons.Material.Outlined.History" 
+                    <MudTooltip Text=@T["View Events & Notifications"]>
+                        <MudIconButton Icon="@Icons.Material.Outlined.History"
                                        Href="@($"/admin/servicerequest/{vm.SelectedRequest?.Id}/events")" />
+                    </MudTooltip>
+                    
+                    <MudTooltip Text=@T["Show deleted data (documents & annotations)"]>
+                        <MudToggleIconButton Icon="@ShowDeletedIcon" Color="Color.Warning" @bind-Toggled="vm.ShowDeleted" @bind-Toggled:after="vm.ReloadNode" />
                     </MudTooltip>
                 }
             </MudToolBar>
@@ -100,4 +104,7 @@
             return ret;
         }
     }
+
+
+    protected string ShowDeletedIcon => vm.ShowDeleted ? Icons.Material.Filled.DeleteSweep : Icons.Material.Outlined.DeleteOutline;
 }

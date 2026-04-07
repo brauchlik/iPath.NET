@@ -1,6 +1,6 @@
 namespace iPath.Domain.Entities;
 
-public class Annotation : AuditableEntity
+public class Annotation : AuditableEntityWithEvents
 {
     public int? ipath2_id { get; set; }
 
@@ -13,6 +13,7 @@ public class Annotation : AuditableEntity
 
 
     public DateTime CreatedOn { get; set; }
+    public DateTime? LastModifiedOn { get; set; } = null;
 
     public Guid OwnerId { get; set; }
     public User Owner { get; set; } = null!;
@@ -41,6 +42,8 @@ public class Annotation : AuditableEntity
 
 public class AnnotationData
 {
+    public Guid? DocumentId { get; set; }
+
     public eAnnotationType Type { get; set; } = eAnnotationType.Comment;
 
     public string? Text { get; set; }
@@ -48,7 +51,6 @@ public class AnnotationData
     public CodedConcept? Morphology { get; set; }
 
     public QuestionnaireResponseData? Questionnaire { get; set; }
-
 }
 
 public enum eAnnotationType

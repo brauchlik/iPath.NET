@@ -1,5 +1,6 @@
 ﻿
-using Microsoft.Extensions.Logging;
+using iPath.Application.Features.Annotations;
+using iPath.Application.Features.Documents;
 
 namespace iPath.EF.Core.FeatureHandlers.ServiceRequests.Queries;
 
@@ -12,8 +13,10 @@ public class GetServiceRequestByIdQueryHandler(iPathDbContext db, IUserSession s
         // Direct projection does not work with Sqlite => better call Entities in one query and project in memory
         var node = await db.ServiceRequests.AsNoTracking()
             .Include(n => n.Owner)
-            .Include(n => n.Documents).ThenInclude(a => a.Owner)
-            .Include(n => n.Annotations).ThenInclude(a => a.Owner)
+            .Include(n => n.Documents.Where(a => request.inclDeletedData || !a.DeletedOn.HasValue))
+                .ThenInclude(a => a.Owner)
+            .Include(n => n.Annotations.Where(d => request.inclDeletedData || !d.DeletedOn.HasValue))
+                .ThenInclude(a => a.Owner)
             .Include(n => n.UploadFolders)
             .FirstOrDefaultAsync(n => n.Id == request.Id, cancellationToken);
 

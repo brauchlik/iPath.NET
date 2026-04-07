@@ -4,7 +4,7 @@
     {
         @if (ShowAnnotations)
         {
-            <AnnotationItemView Item="a" OnDelete="OnDelete" />
+            <AnnotationItemView Item="a" OnDelete="OnDelete" OnReply="OnReply" OnEdit="OnEdit" />
         }
         else
         {
@@ -12,6 +12,8 @@
         }
     }
 }
+
+@inject ServiceRequestViewModel vm
 
 @code {
     [Parameter]
@@ -23,6 +25,25 @@
     [Parameter]
     public SortDirection Sort { get; set; }
 
-    [Parameter]
-    public EventCallback<AnnotationDto> OnDelete { get; set;  }
+    // [Parameter]
+    // public EventCallback<AnnotationDto> OnDelete { get; set;  }
+        
+
+    async Task OnDelete(AnnotationDto item)
+    {
+        await vm.DeleteAnnotation(item);
+        await vm.ReloadNode();
+    }
+
+    async Task OnEdit(AnnotationDto item)
+    {
+        // await vm.DeleteAnnotation(item);
+        // await vm.ReloadNode();
+    }
+
+    async Task OnReply(AnnotationDto item)
+    {
+        // await vm.DeleteAnnotation(item);
+        // await vm.ReloadNode();
+    }
 }

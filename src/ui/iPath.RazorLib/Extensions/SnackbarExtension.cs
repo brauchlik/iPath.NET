@@ -14,6 +14,13 @@ public static class SnackbarExtension
         if (!resp.IsSuccessful) snack.Add(resp.ErrorMessage, Severity.Error);
     }
 
+    /// <summary>
+    /// Checks if response returned success. If no, show warning in Snackbar
+    /// </summary>
+    /// <param name="snackbar"></param>
+    /// <param name="resp"></param>
+    /// <param name="SuccessMessage"></param>
+    /// <returns>true if response was successfull</returns>
     public static bool CheckSuccess(this ISnackbar snackbar, IApiResponse resp, string? SuccessMessage = null)
     {
         if (resp.IsSuccessful)

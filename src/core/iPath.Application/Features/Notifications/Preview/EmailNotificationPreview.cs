@@ -35,8 +35,8 @@ public class EmailNotificationPreview(IOptions<iPathClientConfig> opts, IGroupCa
 
         var msg = n.EventType switch
         {
-            Domain.Notificxations.eNodeNotificationType.NodePublished => "a new case has been published", 
-            Domain.Notificxations.eNodeNotificationType.NewAnnotation => "a new annotation has been published",
+            Domain.Notifications.eNodeNotificationType.NodePublished => "a new case has been published", 
+            Domain.Notifications.eNodeNotificationType.NewAnnotation => "a new annotation has been published",
             _ => ""
         };
         msg += " in " + grpLink + "<br /><br />";

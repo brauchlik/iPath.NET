@@ -1,6 +1,6 @@
 using iPath.Application.Coding;
 using iPath.Domain.Entities;
-using iPath.Domain.Notificxations;
+using iPath.Domain.Notifications;
 
 namespace iPath.Application.Features.Notifications;
 
@@ -37,7 +37,7 @@ public class NotificationFilterService : INotificationFilterService
 
         return evt switch
         {
-            AnnotationCreatedEvent => EvaluateAnnotationEvent(subscription, serviceRequestOwnerId),
+            AnnotationAddedEvent => EvaluateAnnotationEvent(subscription, serviceRequestOwnerId),
             ServiceRequestPublishedEvent => EvaluatePublishedEvent(subscription),
             _ => new NotificationFilterResult(false, $"Unknown event type: {evt.EventName}")
         };

@@ -1,9 +1,9 @@
-﻿namespace iPath.Application.Features.ServiceRequests;
+﻿namespace iPath.Application.Features.Annotations;
 
 public record DeleteAnnotationCommand(Guid AnnotationId)
     : IRequest<DeleteAnnotationCommand, Task<Guid>>
     , IEventInput
 {
-    public string ObjectName => nameof(ServiceRequest);
+    public string ObjectName => nameof(Annotation);
 }
 

@@ -1,5 +1,5 @@
 ﻿using iPath.Application.Attributes;
-using iPath.Domain.Notificxations;
+using iPath.Domain.Notifications;
 
 namespace iPath.Application.Features.Notifications;
 

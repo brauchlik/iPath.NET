@@ -1,4 +1,6 @@
-﻿namespace iPath.EF.Core.FeatureHandlers.ServiceRequests.Commands;
+﻿using iPath.Application.Features.Annotations;
+
+namespace iPath.EF.Core.FeatureHandlers.ServiceRequests.Commands;
 
 
 public class CreateAnnotationCommandHandler(iPathDbContext db, IMediator mediator, IUserSession sess)
@@ -14,10 +16,10 @@ public class CreateAnnotationCommandHandler(iPathDbContext db, IMediator mediato
         var serviceRequest = await db.ServiceRequests.FindAsync(request.requestId);
         Guard.Against.NotFound(request.requestId, serviceRequest);
 
-        if (request.docuemntId.HasValue)
+        if (request.Data.DocumentId.HasValue)
         {
-            var document = await db.Documents.FindAsync(request.docuemntId.Value);
-            Guard.Against.NotFound(request.docuemntId.Value, document);
+            var document = await db.Documents.FindAsync(request.Data.DocumentId.Value);
+            Guard.Against.NotFound(request.Data.DocumentId.Value, document);
 
             if (document.ServiceRequestId != serviceRequest.Id)
                 throw new ArgumentException("Child doe nbot belong to RootNode");
@@ -30,7 +32,7 @@ public class CreateAnnotationCommandHandler(iPathDbContext db, IMediator mediato
         }
 
         var a = serviceRequest.CreateNodeAnnotation(request, sess.User.Id);
-        db.ServiceRequests.Update(serviceRequest);
+        a.CreateEvent<AnnotationCreatedEvent, CreateAnnotationCommand>(request, sess.User.Id);        db.ServiceRequests.Update(serviceRequest);
         await db.SaveChangesAsync(ct);
 
         // update user NodeVisit

@@ -1,4 +1,4 @@
-﻿namespace iPath.Domain.Notificxations;
+﻿namespace iPath.Domain.Notifications;
 
 
 public enum eNodeNotificationType

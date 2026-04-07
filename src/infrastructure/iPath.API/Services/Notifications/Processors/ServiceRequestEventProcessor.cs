@@ -1,5 +1,5 @@
 ﻿using iPath.Application.Features.Notifications;
-using iPath.Domain.Notificxations;
+using iPath.Domain.Notifications;
 using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

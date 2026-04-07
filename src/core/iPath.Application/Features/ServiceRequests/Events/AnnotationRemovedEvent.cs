@@ -1,4 +1,4 @@
 ﻿namespace iPath.Application.Features.ServiceRequests;
 
-public class AnnotationDeletedEvent : ServiceRequestEvent;
+public class AnnotationRemovedEvent : ServiceRequestEvent;
 

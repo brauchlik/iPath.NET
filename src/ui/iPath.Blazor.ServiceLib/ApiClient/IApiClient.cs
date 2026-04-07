@@ -2,6 +2,7 @@
 using iPath.Application.Contracts;
 using iPath.Application.Features;
 using iPath.Application.Features.Admin;
+using iPath.Application.Features.Annotations;
 using iPath.Application.Features.CMS;
 using iPath.Application.Features.Documents;
 using iPath.Application.Features.EmailImport;
@@ -151,7 +152,7 @@ public interface IPathApi
 
     #region "-- ServiceRequest --"
     [Get("/api/v1/requests/{id}")]
-    Task<IApiResponse<ServiceRequestDto>> GetRequestById(Guid id);
+    Task<IApiResponse<ServiceRequestDto>> GetRequestById(Guid id, bool InclDeleted = false);
 
     [Post("/api/v1/requests/list")]
     Task<IApiResponse<PagedResultList<ServiceRequestListDto>>> GetRequestList(GetServiceRequestListQuery query);
@@ -171,8 +172,12 @@ public interface IPathApi
     [Post("/api/v1/requests/visit/{id}")]
     Task<IApiResponse<bool>> UpdateRequestVisit(Guid id);
 
+    // Annotations
     [Post("/api/v1/requests/annotation")]
     Task<IApiResponse<AnnotationDto>> CreateAnnotation(CreateAnnotationCommand request);
+
+    [Put("/api/v1/requests/annotation")]
+    Task<IApiResponse<AnnotationDto>> UpdateAnnotation(UpdateAnnotationCommand request);
 
     [Delete("/api/v1/requests/annotation/{id}")]
     Task<IApiResponse<Guid>> DeleteAnnotation(Guid id);

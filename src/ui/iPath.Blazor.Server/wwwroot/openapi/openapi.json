@@ -1243,6 +1243,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "InclDeleted",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -1464,6 +1472,33 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/CreateAnnotationCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnotationDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Service Requests"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAnnotationCommand"
               }
             }
           },
@@ -2700,6 +2735,13 @@
       "AnnotationData": {
         "type": "object",
         "properties": {
+          "documentId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
           "type": {
             "$ref": "#/components/schemas/eAnnotationType"
           },
@@ -3359,13 +3401,6 @@
                 "$ref": "#/components/schemas/AnnotationData"
               }
             ]
-          },
-          "docuemntId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           },
           "objectName": {
             "type": [
@@ -6521,6 +6556,35 @@
             "additionalProperties": {
               "type": "string"
             }
+          }
+        }
+      },
+      "UpdateAnnotationCommand": {
+        "required": [
+          "annotationId",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "annotationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnnotationData"
+              }
+            ]
+          },
+          "objectName": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },

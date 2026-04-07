@@ -1,6 +1,6 @@
 ﻿using DispatchR.Abstractions.Notification;
 using iPath.API.Hubs;
-using iPath.Domain.Notificxations;
+using iPath.Domain.Notifications;
 using Microsoft.AspNetCore.SignalR;
 using Scalar.AspNetCore;
 

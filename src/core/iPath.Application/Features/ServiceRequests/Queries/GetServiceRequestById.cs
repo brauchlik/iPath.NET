@@ -2,5 +2,5 @@
 
 
 
-public record GetServiceRequestByIdQuery(Guid Id, bool inclDrafts = false)
+public record GetServiceRequestByIdQuery(Guid Id, bool inclDrafts = false, bool inclDeletedData = false)
     : IRequest<GetServiceRequestByIdQuery, Task<ServiceRequestDto>>;

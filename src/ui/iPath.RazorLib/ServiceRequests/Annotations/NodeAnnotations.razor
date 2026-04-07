@@ -42,20 +42,20 @@
             <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" TabPanelsClass="py-1">
                 <MudTabPanel Text=@T["Comments / Assessment"]>
                     <AnnotationList Items="vm.SelectedRequest.Annotations.Comments" Sort="Sort"
-                                    ShowAnnotations="ShowAnnotations" OnDelete="OnDelete" />
+                                    ShowAnnotations="ShowAnnotations" />
                 </MudTabPanel>
                 @if (!vm.SelectedRequest.Annotations.FollowUp.IsEmpty())
                 {
                     <MudTabPanel Text=@T["Follow-Up"]>
                         <AnnotationList Items="vm.SelectedRequest.Annotations.FollowUp" Sort="Sort"
-                                        ShowAnnotations="ShowAnnotations" OnDelete="OnDelete" />
+                                        ShowAnnotations="ShowAnnotations" />
                     </MudTabPanel>
                 }
                 @if (!vm.SelectedRequest.Annotations.Notes.IsEmpty())
                 {
                     <MudTabPanel Text=@T["Notes / Further Requests"]>
                         <AnnotationList Items="vm.SelectedRequest.Annotations.Notes" Sort="Sort"
-                                        ShowAnnotations="ShowAnnotations" OnDelete="OnDelete" />
+                                        ShowAnnotations="ShowAnnotations" />
                     </MudTabPanel>
                 }
             </MudTabs>
@@ -83,11 +83,11 @@
     }
 
 
-    async Task OnDelete(AnnotationDto item)
-    {
-        await vm.DeleteAnnotation(item);
-        await vm.ReloadNode();
-    }
+    // async Task OnDelete(AnnotationDto item)
+    // {
+    //     await vm.DeleteAnnotation(item);
+    //     await vm.ReloadNode();
+    // }
 
 
     private SortDirection Sort = SortDirection.Ascending;

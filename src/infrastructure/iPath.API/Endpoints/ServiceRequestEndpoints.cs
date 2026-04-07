@@ -1,4 +1,5 @@
 ﻿using iPath.Application.Features.Admin;
+using iPath.Application.Features.Annotations;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.ServiceRequests.Commands;
@@ -15,8 +16,8 @@ public static class ServiceRequestEndpoints
 
         // Queries
 
-        grp.MapGet("{id}", async (string id, [FromServices] IMediator mediator, CancellationToken ct)
-            => await mediator.Send(new GetServiceRequestByIdQuery(Guid.Parse(id)), ct))
+        grp.MapGet("{id}", async (string id, bool InclDeleted,[FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new GetServiceRequestByIdQuery(Guid.Parse(id), inclDeletedData: InclDeleted), ct))
             .Produces<ServiceRequestDto>()
             .RequireAuthorization();
 
@@ -74,6 +75,11 @@ public static class ServiceRequestEndpoints
 
         // Annotations
         grp.MapPost("annotation", async (CreateAnnotationCommand request, [FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(request, ct))
+            .Produces<AnnotationDto>(200)
+            .RequireAuthorization();
+
+        grp.MapPut("annotation", async (UpdateAnnotationCommand request, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(request, ct))
             .Produces<AnnotationDto>(200)
             .RequireAuthorization();

@@ -1,4 +1,4 @@
-﻿using iPath.Application.Exceptions;
+﻿using iPath.Application.Features.Annotations;
 
 namespace iPath.EF.Core.FeatureHandlers.ServiceRequests.Commands;
 
@@ -13,9 +13,12 @@ public class DeleteAnnotationCommandHandler(iPathDbContext db, IUserSession sess
 
         var annotation = await db.Annotations.FindAsync(request.AnnotationId);
         Guard.Against.NotFound(request.AnnotationId, annotation);
+
+        annotation.DeletedOn = DateTime.UtcNow;
+        annotation.CreateEvent<AnnotationDeletedEvent, DeleteAnnotationCommand>(request, sess.User.Id);
         db.Annotations.Remove(annotation);
         if (annotation.ServiceRequestId.HasValue) {
-            var evt = await db.CreateEventAsync <AnnotationDeletedEvent, DeleteAnnotationCommand> (request, annotation.ServiceRequestId.Value, sess);
+            var evt = await db.CreateEventAsync <AnnotationRemovedEvent, DeleteAnnotationCommand> (request, annotation.ServiceRequestId.Value, sess);
         }
         await db.SaveChangesAsync(ct);
         await tran.CommitAsync(ct);

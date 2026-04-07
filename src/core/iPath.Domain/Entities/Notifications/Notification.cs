@@ -1,4 +1,4 @@
-﻿using iPath.Domain.Notificxations;
+﻿using iPath.Domain.Notifications;
 using System.Text.Json;
 
 namespace iPath.Domain.Entities;

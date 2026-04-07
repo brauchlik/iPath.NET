@@ -2,7 +2,7 @@ using DispatchR.Abstractions.Send;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Domain.Entities;
-using iPath.Domain.Notificxations;
+using iPath.Domain.Notifications;
 using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

@@ -32,7 +32,7 @@
 
     private async Task LoadPreview()
     {
-        var n = new NotificationDto(Id: Guid.Empty, Date: DateTime.UtcNow, EventType: Domain.Notificxations.eNodeNotificationType.None, Target: eNotificationTarget.None, Receiver: owner, null);
+        var n = new NotificationDto(Id: Guid.Empty, Date: DateTime.UtcNow, EventType: Domain.Notifications.eNodeNotificationType.None, Target: eNotificationTarget.None, Receiver: owner, null);
         html = await PreviewPlugin.CreatePreview(n, Model);
     }
 

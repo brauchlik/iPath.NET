@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore.Diagnostics;
-
 namespace iPath.Domain.Entities;
 
 public class GroupSettings

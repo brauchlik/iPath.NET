@@ -1,6 +1,7 @@
 ﻿using Hl7.Fhir.Model;
 using iPath.Application;
 using iPath.Application.Contracts;
+using iPath.Application.Features.Annotations;
 using iPath.Application.Features.Documents;
 using iPath.Blazor.Componenents.ServiceRequests.Annotations;
 using iPath.Blazor.Componenents.ServiceRequests.Dialogs;
@@ -126,6 +127,23 @@ public class ServiceRequestViewModel(IPathApi api,
         return false;
     }
 
+
+
+    private bool _showDeleted;
+    public bool ShowDeleted
+    {
+        get => _showDeleted;
+        set
+        {
+            if (_showDeleted != value && IsAdmin )
+            {
+                _showDeleted = value;
+                NotifyStateChanged();
+            }
+        }
+    }
+
+
     public async Task LoadNode(Guid id, bool forceReload = true)
     {
         if (!forceReload && SelectedRequest is not null && SelectedRequest.Id == id)
@@ -137,7 +155,7 @@ public class ServiceRequestViewModel(IPathApi api,
         IsEditing = false;
 
         OnLoadingStarted?.Invoke();
-        var respN = await api.GetRequestById(id);
+        var respN = await api.GetRequestById(id, ShowDeleted);
         if (respN.IsSuccessful)
         {
             SelectedRequest = respN.Content;
@@ -166,7 +184,7 @@ public class ServiceRequestViewModel(IPathApi api,
     {
         if (SelectedRequest != null)
         {
-            var respN = await api.GetRequestById(SelectedRequest.Id);
+            var respN = await api.GetRequestById(SelectedRequest.Id, ShowDeleted);
             if (respN.IsSuccessful)
             {
                 SelectedRequest = respN.Content;
@@ -186,7 +204,7 @@ public class ServiceRequestViewModel(IPathApi api,
                 await api.UpdateRequestVisit(SelectedRequest.Id);
                 appState.ServiceRequestVisited(SelectedRequest.Id);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogWarning(ex.Message);
             }
@@ -435,6 +453,7 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public bool IsAdmin => appState.IsAdmin;
     public bool IsModerator => ActiveGroup is not null && appState.IsGroupModerator(ActiveGroup.Id);
+    public bool IsSeesionUser(Guid userid) => appState.IsAuthenticated && appState.User.Id == userid;
     public bool DisableSenderChange => !IsModerator; // could maybe change to admin only
 
 
@@ -776,6 +795,7 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public bool AnnotateDisabled => IsEditing;
 
+
     public List<eAnnotationType> AllowedAnnotationTypes
     {
         get
@@ -846,7 +866,7 @@ public class ServiceRequestViewModel(IPathApi api,
         data ??= NewAnnotation;
         if (data is not null)
         {
-            var cmd = new CreateAnnotationCommand(data.ServiceRequestId, data.Data, data.DocumentId);
+            var cmd = new CreateAnnotationCommand(data.ServiceRequestId, data.Data);
 
             var resp = await api.CreateAnnotation(cmd);
             if (resp.IsSuccessful)
@@ -868,7 +888,29 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public async Task DeleteAnnotation(AnnotationDto item)
     {
-        snackbar.AddWarning("not implemented");
+        if (!IsModerator && !IsSeesionUser(item.OwnerId))
+        {
+            snackbar.AddWarning("not allowed");
+        }
+        else
+        {
+            var r = await srvDialog.ShowMessageBoxAsync(title: T["Delete Annotation"], 
+                message: T["Are you sure that you want to delete this annotation permanently?"],
+                yesText: T["yes"], cancelText: T["cancel"]);
+
+            if (r.HasValue && r.Value)
+            {
+                var resp = await api.DeleteAnnotation(item.Id);
+                if (snackbar.CheckSuccess(resp))
+                {
+                    if (SelectedRequest is not null && SelectedRequest.Annotations.Contains(item))
+                    {
+                        SelectedRequest.Annotations.Remove(item);
+                    }
+                    NotifyStateChanged();
+                }
+            }
+        }
     }
 
 
@@ -1001,7 +1043,7 @@ public class ServiceRequestViewModel(IPathApi api,
             var resp = await api.ImportExternalDocuments(SelectedRequest.UploadFolderId.Value, null);
             if (snackbar.CheckSuccess(resp))
             {
-                snackbar.Add($"{resp.Content.ImportCount} documents have been imported", Severity.Success);                   
+                snackbar.Add($"{resp.Content.ImportCount} documents have been imported", Severity.Success);
             }
         }
     }

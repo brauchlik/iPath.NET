@@ -1,4 +1,4 @@
-﻿using iPath.Domain.Notificxations;
+﻿using iPath.Domain.Notifications;
 
 namespace iPath.API.Services.Notifications.Processors;
 

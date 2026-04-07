@@ -31,19 +31,28 @@
                 <div>@vm.SelectedRequest.CreatedOn.ToString("d")</div>
             </div>
         </div>
-
-
+        
         @if (vm.SelectedRequest?.Description?.Questionnaire is not null)
         {
             <ServiceRequestQuestionnaire Model="@vm.SelectedRequest.Description" />
         }
+                
 
-        @if (!string.IsNullOrEmpty(@vm.SelectedRequest?.Description?.Text))
-        {
-            <div class="ipath_node_description">
-                <MudHighlighter Text="@vm.SelectedRequest.DescriptionHtml" Markup="true" HighlightedText="@vm.SearchString" />
-            </div>
-        }
+        <div class="ipath_node_description">
+            @if (!string.IsNullOrEmpty(@vm.SelectedRequest?.Description.ProvisionalDiagnosis))
+            {
+                <div class="mb-4">
+                    <b>@T["Provisional Diagnosis"]:</b>
+                    <span>@vm.SelectedRequest.Description.ProvisionalDiagnosis</span>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(@vm.SelectedRequest?.Description?.Text))
+            {
+                <div>
+                    <MudHighlighter Text="@vm.SelectedRequest.DescriptionHtml" Markup="true" HighlightedText="@vm.SearchString" />
+                </div>
+            }
+        </div>
     }
     else
     {

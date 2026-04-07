@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
 namespace iPath.Domain.Entities;
 
 public class GroupSettings
@@ -9,6 +11,7 @@ public class GroupSettings
     public bool DescriptionWithBodySite { get; set; } = true;
 
     public bool UseDescriptionWizzard { get; set; }
+    public bool ShowProvisionalDiagnosis { get; set; } = false;
 
     public bool AnnotationsHide { get; set; } = false;
     public bool AnnotationHasMoprhoogy { get; set; } = true;

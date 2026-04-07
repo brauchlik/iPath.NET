@@ -49,6 +49,9 @@ public class ServiceRequestCreateWizzardViewModel(IServiceProvider sp, ServiceRe
     // shortcut to RequestDescription
     public RequestDescription Data => vm.SelectedRequest.Description;
 
+    // ProvisionalDiagnosis
+    public bool ShowProvisionalDiagnosis => vm.ActiveGroup?.Settings is not null && vm.ActiveGroup.Settings.ShowProvisionalDiagnosis;
+
 
     public IEnumerable<CodeDisplay> RootCodes { get; private set; }
 

@@ -136,6 +136,12 @@
                     }
                 }
 
+                @if (wizzardVM.ShowProvisionalDiagnosis)
+                {
+                    <MudTextField @bind-Value="@wizzardVM.Data.ProvisionalDiagnosis" Label=@T["Provisional Diagnosis"]
+                              Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+                }
+
                 <MudTextField @bind-Value="@wizzardVM.Data.Text" Label=@T["Clinical History"]
                               Lines="3" Required="true"
                               HelperText=@T["please make sure it does not contain any sensitive patient details like name or exact date of birth"]

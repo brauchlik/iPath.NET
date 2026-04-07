@@ -4725,6 +4725,9 @@
           "useDescriptionWizzard": {
             "type": "boolean"
           },
+          "showProvisionalDiagnosis": {
+            "type": "boolean"
+          },
           "annotationsHide": {
             "type": "boolean"
           },
@@ -5947,6 +5950,22 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "provisionalDiagnosis": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "provisionalDiagnosisCode": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CodedConcept"
+              }
             ]
           },
           "patientInfo": {

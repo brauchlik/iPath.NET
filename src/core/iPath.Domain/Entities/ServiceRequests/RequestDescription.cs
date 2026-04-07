@@ -13,6 +13,9 @@ public class RequestDescription
     public string? Title { get; set; } = string.Empty!;
     public string? Text { get; set; } = string.Empty!;
 
+    public string? ProvisionalDiagnosis { get; set; } = string.Empty!;
+    public CodedConcept? ProvisionalDiagnosisCode { get; set; }
+
     public PatientInfo PatientInfo { get; set; } = new();
 
     public QuestionnaireResponseData? Questionnaire { get; set; }

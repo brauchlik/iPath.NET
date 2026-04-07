@@ -19,10 +19,17 @@
             }
 
             <MudPaper Elevation="0" Class="mb-2">
+                @if (vm.ActiveGroup.Settings.ShowProvisionalDiagnosis || !string.IsNullOrEmpty(Model.ProvisionalDiagnosis))
+                {
+                    <MudTextField @bind-Value="Model.ProvisionalDiagnosis" Label=@T["Provisional Diagnosis"]
+                                  Variant="Variant" ShrinkLabel="true" Margin="Margin.Dense"/>                
+                }
+
 
                 @if (useQuestionnaire)
                 {
-                    <MudTextField @bind-Value="Model.Text" Label=@T["Clinical information"] Lines="4" Variant="Variant" ShrinkLabel="true" Margin="Margin.Dense" />
+                    <MudTextField @bind-Value="Model.Text" Label=@T["Clinical information"]
+                                  Lines="4" Variant="Variant" ShrinkLabel="true" Margin="Margin.Dense" />
                     <iPath.LHCForms.LhcForm @ref="lhcForm" ReadOnly="false" />
 
                     @if (validForms.Count > 1)
@@ -163,11 +170,11 @@
             {
                 Model.Questionnaire ??= new();
                 Model.Questionnaire.QuestionnaireId = q.QuestinnaireId;
-                // reset? 
+                // reset?
                 Model.Questionnaire.Resource = string.Empty;
                 await LoadQuestionnaire();
             }
-        }    
+        }
     }
 
 

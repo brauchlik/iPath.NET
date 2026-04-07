@@ -12,12 +12,19 @@
         <div class="ipath_annotation_info">
             <div class="ipath_annotation_info1"><OwnerLink Owner="@Item.Owner" /></div>
             <div class="ipath_annotation_info2">@Item.CreatedOn.ToString("g")</div>
-            <div class="ipath_annotation_actions">
-                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Edit"  hidden="@(!CanEditAnnotation)" OnClick="Edit" />
-                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" hidden="@(!CanDeleteAnnotation)" OnClick="Delete" />
-            </div>
+            @if (Item.Deleted)
+            {
+                <div class="ipath_annotation_deletedinfo">@T["deleted"]</div>
+            }
+            else
+            {
+                <div class="ipath_annotation_actions">
+                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Edit"  hidden="@(!CanEditAnnotation)" OnClick="Edit" />
+                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" hidden="@(!CanDeleteAnnotation)" OnClick="Delete" />
+                </div>
+            }
         </div>
-        <div class="ipath_annotation_text">
+        <div class="@TextClass">
             @if (Item.Data?.Questionnaire is not null)
             {
                 <QuestionnaireResponseView Data="Item.Data.Questionnaire" />
@@ -69,6 +76,9 @@ else
     private string Initials;
 
     private InlineAnnotationEdit edit;
+
+
+    private string TextClass => "ipath_annotation_text" + (Item.Deleted ? " ipath_item_deleted" : "");
 
 
     protected override async Task OnParametersSetAsync()

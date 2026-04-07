@@ -8,6 +8,7 @@ public static class DocumentExtensions
         {
             Id = document.Id,
             CreatedOn = document.CreatedOn,
+            Deleted = document.DeletedOn.HasValue, 
             SortNr = document.SortNr,
             DocumentType = document.DocumentType,
             OwnerId = document.OwnerId,
@@ -23,6 +24,4 @@ public static class DocumentExtensions
     {
         return doc is not null && other is not null && doc.Id == other.Id;
     }
-
-
 }

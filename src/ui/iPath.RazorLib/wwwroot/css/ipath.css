@@ -280,6 +280,16 @@
     font-weight: bold;
 }
 
+.ipath_annotation_deletedinfo{
+    font-weight: bold;
+    color: red;
+    font-style: italic;
+}
+
+.ipath_item_deleted {
+    background-color: lightsalmon;
+}
+
 .ipath_annotation_text {
     padding: 4px;
     padding-left: 1em;

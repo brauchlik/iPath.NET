@@ -60,7 +60,7 @@ public static class NodeExtension
             Description = node.Description,
             // File = node.File,
             ipath2_id = node.ipath2_id,
-            Documents = node.Documents is not null ? node.Documents.Select(n => n.ToDto()).ToArray() : [],
+            Documents = node.Documents is not null ? node.Documents.Select(d => d.ToDto()).ToArray() : [],
             Annotations = node.Annotations is not null ? node.Annotations.Select(a => a.ToDto()).ToArray() : [],
             UploadFolderId = node.UploadFolders.IsEmpty() ? null : node.UploadFolders.First().Id
         };

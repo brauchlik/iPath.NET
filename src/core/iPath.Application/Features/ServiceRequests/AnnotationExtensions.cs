@@ -8,6 +8,7 @@ public static class AnnotationExtensions
         {
             Id = item.Id,
             CreatedOn = item.CreatedOn,
+            Deleted = item.DeletedOn.HasValue,
             OwnerId = item.OwnerId,
             Owner = item.Owner.ToOwnerDto(),
             Data = item.Data,

@@ -20,9 +20,10 @@
             <CellTemplate>
                 @if ((context.Item.NotificationsCount ?? 0) > 0)
                 {
-                    <MudBadge Content="@context.Item.NotificationsCount" Color="Color.Primary"
+                    <MudBadge Content="@context.Item.NotificationsCount"
+                              Color="Color.Primary" Origin="Origin.CenterCenter"
                               OnClick="@(() => OnNotificationClick.InvokeAsync(context.Item.EventId))">
-                        <MudIcon Icon="@Icons.Material.Filled.Notifications" />
+                        <!-- <MudIcon Icon="@Icons.Material.Filled.Notifications" /> -->
                     </MudBadge>
                 }
             </CellTemplate>

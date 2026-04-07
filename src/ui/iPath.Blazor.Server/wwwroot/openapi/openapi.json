@@ -2793,6 +2793,9 @@
             "type": "string",
             "format": "date-time"
           },
+          "deleted": {
+            "type": "boolean"
+          },
           "ownerId": {
             "type": "string",
             "format": "uuid"
@@ -3605,6 +3608,9 @@
           "createdOn": {
             "type": "string",
             "format": "date-time"
+          },
+          "deleted": {
+            "type": "boolean"
           },
           "ownerId": {
             "type": "string",

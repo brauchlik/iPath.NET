@@ -35,19 +35,23 @@
                 {
                     <IPathToolbarButton Icon="@Icons.Material.Outlined.DriveFileMove" OnClick="@(() => vm.MoveRequest())" />
                 }
-                @if (vm.IsAdmin && vm.HasPreviewPlugin)
-                {
-                    <IPathToolbarButton Icon="@Icons.Material.Outlined.Preview" OnClick="@(() => vm.ShowPreviewDialog())" />
-                }
+
                 @if (vm.IsAdmin)
                 {
+                    <MudSpacer />
+                    @if (vm.HasPreviewPlugin)
+                    {
+                        <IPathToolbarButton Icon="@Icons.Material.Outlined.Preview" OnClick="@(() => vm.ShowPreviewDialog())" />
+                    }
+
                     <MudTooltip Text=@T["View Events & Notifications"]>
                         <MudIconButton Icon="@Icons.Material.Outlined.History"
                                        Href="@($"/admin/servicerequest/{vm.SelectedRequest?.Id}/events")" />
                     </MudTooltip>
                     
                     <MudTooltip Text=@T["Show deleted data (documents & annotations)"]>
-                        <MudToggleIconButton Icon="@ShowDeletedIcon" Color="Color.Warning" @bind-Toggled="vm.ShowDeleted" @bind-Toggled:after="vm.ReloadNode" />
+                        <MudToggleIconButton Icon="@ShowDeletedIcon" Color="@ShowDeletedColor"
+                                             @bind-Toggled="vm.ShowDeleted" @bind-Toggled:after="vm.ReloadNode" />
                     </MudTooltip>
                 }
             </MudToolBar>
@@ -106,5 +110,6 @@
     }
 
 
+    protected Color ShowDeletedColor => vm.ShowDeleted ? Color.Warning : Color.Default;
     protected string ShowDeletedIcon => vm.ShowDeleted ? Icons.Material.Filled.DeleteSweep : Icons.Material.Outlined.DeleteOutline;
 }

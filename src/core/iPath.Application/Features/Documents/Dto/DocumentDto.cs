@@ -7,6 +7,7 @@ public record DocumentDto
 
     public Guid Id { get; init; }
     public DateTime CreatedOn { get; set; }
+    public bool Deleted { get; set; }
 
     public Guid OwnerId { get; init; }
     public required OwnerDto Owner { get; init; }

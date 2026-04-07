@@ -64,7 +64,7 @@
             </MudItem>
             <MudItem xs="12" md="6">
                 <UserGroupLookup UserId="@Model.UserId" Clearable="true"
-                                 @bind-SelectedGroupId="Model.EmailImportSettings.DefaultGroupId"
+                                 @bind-SelectedGroupId="Model.EmailImportSettings?.DefaultGroupId"
                                  InputAttributes="@(new Dictionary<string, object> { { "autocomplete", "off" } })" />
             </MudItem>            
         </MudGrid>

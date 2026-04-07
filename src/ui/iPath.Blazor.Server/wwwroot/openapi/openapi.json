@@ -2775,11 +2775,17 @@
       },
       "AnnotationDto": {
         "required": [
+          "id",
+          "serviceRequestId",
           "owner"
         ],
         "type": "object",
         "properties": {
           "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceRequestId": {
             "type": "string",
             "format": "uuid"
           },

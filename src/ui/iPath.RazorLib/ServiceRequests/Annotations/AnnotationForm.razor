@@ -1,7 +1,5 @@
 ﻿@namespace iPath.Blazor.Componenents.ServiceRequests
 
-@inject NodeViewModel vm
-
 
 @if (Model is not null)
 {
@@ -54,7 +52,7 @@
     @if (Model.AskMorphology)
     {
         <MorphoLookup Label="Morphology" @bind-Concept="Model.Data.Morphology" ValueSetId="@vm.MorphologyValueSet"
-                      Dense="true" ShrinkLabel="true" Variant="Variant.Outlined" />
+                      Dense="true" ShrinkLabel="true" Variant="Variant.Outlined" Clearable="true" />
     }
 }
 

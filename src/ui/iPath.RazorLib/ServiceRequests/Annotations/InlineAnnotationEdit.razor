@@ -1,0 +1,65 @@
+﻿@namespace iPath.Blazor.Componenents.ServiceRequests
+
+
+@if (Model is not null)
+{
+    @if (useQuestionnaire)
+    {
+        <iPath.LHCForms.LhcForm @ref="lhcForm" ReadOnly="false" />
+
+        <MudTextField Label="Comment" @bind-Value="Model.Data.Text" Immediate="true"
+                      AutoGrow="true" Lines="3" Variant="Variant.Outlined" Style="width: 100%;" />
+    }
+    else
+    {
+        <MudTextField Label="Annotation" @bind-Value="Model.Data.Text" Immediate="true"
+                      AutoGrow="true" Lines="12" Variant="Variant.Outlined" Style="width: 100%;" />
+    }
+
+    @if (Model.AskMorphology)
+    {
+        <MorphoLookup Label="Morphology" @bind-Concept="Model.Data.Morphology" ValueSetId="@vm.MorphologyValueSet"
+                      Dense="true" ShrinkLabel="true" Variant="Variant.Outlined" Clearable="true"/>
+    }
+
+    <MudStack Row Spacing="2" Class="mt-4">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save" OnClick="OnSave">Save</MudButton>
+        <MudButton Variant="Variant.Filled" OnClick="OnCancel">Cancel</MudButton>
+    </MudStack>
+}
+
+@inject ServiceRequestViewModel vm
+
+@code {
+    [Parameter]
+    public AnnotationEditModel? Model { get; set; }
+
+    private bool useQuestionnaire => Model?.Data.Questionnaire is not null;
+    iPath.LHCForms.LhcForm lhcForm;
+
+    [Parameter]
+    public EventCallback EditDone { get; set; }
+
+    public async Task Validate()
+    {
+        if (useQuestionnaire)
+        {
+            if (lhcForm is not null)
+            {
+                Model.Data.Questionnaire.Resource = await lhcForm.GetDataAsync();
+            }
+        }
+    }
+
+
+    async Task OnCancel()
+    {
+        await EditDone.InvokeAsync();
+    }
+
+    async Task OnSave()
+    {
+        await vm.SubmitAnnotation(Model);
+        await EditDone.InvokeAsync();
+    }
+}

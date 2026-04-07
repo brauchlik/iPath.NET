@@ -4,43 +4,53 @@
 
 @inject IDialogService srvDialog
 @inject UserViewModel uvm
+@inject ServiceRequestViewModel vm
 
-<div class="ipath_annotation_block">
-    <div class="ipath_annotation_info">
-        <div class="ipath_annotation_info1"><OwnerLink Owner="@Item.Owner" /></div>
-        <div class="ipath_annotation_info2">@Item.CreatedOn.ToString("g")</div>
-        <div class="ipath_annotation_actions">
-            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Edit"  hidden="@(!CanEditAnnotation)" OnClick="Edit" />
-            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" hidden="@(!CanDeleteAnnotation)" OnClick="Delete" />
-        </div>
-    </div>
-    <div class="ipath_annotation_text">
-        @if (Item.Data?.Questionnaire is not null)
-        {
-            <QuestionnaireResponseView Data="Item.Data.Questionnaire" />
-        }
-
-        @if(Item.Data.Type != eAnnotationType.Comment)
-        {
-            <div class="ipath_annotation_type">@Item.Data.Type</div>
-        }
-
-        <div class="ipath_annotation_textboby">
-            @((MarkupString)Item.Data.Text)
-        </div>
-
-        @if (Item.Data?.Morphology is not null)
-        {
-            <div class="morphology_code"><b>Morphology:</b> @Item.Data.Morphology.ToDisplay()</div>
-        }
-        @if (vm.HasDocument(Item.DocumentId))
-        {
-            <div class="ipath_annotation_footer">
-                <span>@T["Comment on: "]</span><MudLink OnClick=@(() => vm.SelectDocument(Item.DocumentId.Value))>@DocumentCaption</MudLink>
+@if (editModel is null)
+{
+    <div class="ipath_annotation_block">
+        <div class="ipath_annotation_info">
+            <div class="ipath_annotation_info1"><OwnerLink Owner="@Item.Owner" /></div>
+            <div class="ipath_annotation_info2">@Item.CreatedOn.ToString("g")</div>
+            <div class="ipath_annotation_actions">
+                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Edit"  hidden="@(!CanEditAnnotation)" OnClick="Edit" />
+                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" hidden="@(!CanDeleteAnnotation)" OnClick="Delete" />
             </div>
-        }
+        </div>
+        <div class="ipath_annotation_text">
+            @if (Item.Data?.Questionnaire is not null)
+            {
+                <QuestionnaireResponseView Data="Item.Data.Questionnaire" />
+            }
+
+            @if (Item.Data.Type != eAnnotationType.Comment)
+            {
+                <div class="ipath_annotation_type">@Item.Data.Type</div>
+            }
+
+            <div class="ipath_annotation_textboby">
+                @((MarkupString)Item.Data.Text)
+            </div>
+
+            @if (Item.Data?.Morphology is not null)
+            {
+                <div class="morphology_code"><b>Morphology:</b> @Item.Data.Morphology.ToDisplay()</div>
+            }
+            @if (vm.HasDocument(Item.DocumentId))
+            {
+                <div class="ipath_annotation_footer">
+                    <span>@T["Comment on: "]</span><MudLink OnClick=@(() => vm.SelectDocument(Item.DocumentId.Value))>@DocumentCaption</MudLink>
+                </div>
+            }
+        </div>
     </div>
-</div>
+
+}
+else
+{
+    <InlineAnnotationEdit Model="@editModel" EditDone="OnEditDone" />
+}
+
 
 @code {
     [Parameter]
@@ -57,6 +67,9 @@
 
     private bool Hovering;
     private string Initials;
+
+    private InlineAnnotationEdit edit;
+
 
     protected override async Task OnParametersSetAsync()
     {
@@ -90,9 +103,21 @@
         await OnReply.InvokeAsync(Item);
     }
 
+
+
     async Task Edit()
     {
-        await OnEdit.InvokeAsync(Item);
+        editModel = vm.GetAnnotationInput(Item.Id);
+    }
+    async Task CancelEdit()
+    {
+        editModel = null;
+    }
+    AnnotationEditModel? editModel;
+
+    void OnEditDone()
+    {
+        editModel = null;
     }
 
 

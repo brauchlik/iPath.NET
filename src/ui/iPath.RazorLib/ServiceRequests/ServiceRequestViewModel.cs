@@ -845,13 +845,31 @@ public class ServiceRequestViewModel(IPathApi api,
         if (SelectedRequest is not null)
         {
             model.ServiceRequestId = SelectedRequest.Id;
-            model.DocumentId = Document?.Id;
+            model.Data.DocumentId = Document?.Id;
             if (ActiveGroup is not null)
             {
                 model.AskMorphology = ActiveGroup.Settings.AnnotationHasMoprhoogy;
             }
         }
         return model;
+    }
+
+    public AnnotationEditModel GetAnnotationInput(Guid annotationId)
+    {
+        AnnotationDto dto = SelectedRequest is null ? null : SelectedRequest.Annotations.SingleOrDefault(a => a.Id == annotationId);
+
+        if (dto is not null)
+        {
+            var model = new AnnotationEditModel()
+            {
+                Id = dto.Id,
+                ServiceRequestId = SelectedRequest.Id,
+                Data = dto.Data,
+                AskMorphology = ActiveGroup.Settings.AnnotationHasMoprhoogy
+            };
+            return model;
+        }
+        return null;
     }
 
 
@@ -866,17 +884,24 @@ public class ServiceRequestViewModel(IPathApi api,
         data ??= NewAnnotation;
         if (data is not null)
         {
-            var cmd = new CreateAnnotationCommand(data.ServiceRequestId, data.Data);
-
-            var resp = await api.CreateAnnotation(cmd);
-            if (resp.IsSuccessful)
+            if (!data.Id.HasValue)
             {
-                NewAnnotation = null;
-                await ReloadNode();
+                var cmd = new CreateAnnotationCommand(data.ServiceRequestId, data.Data);
+                var resp = await api.CreateAnnotation(cmd);
+                if (snackbar.CheckSuccess(resp))
+                {
+                    NewAnnotation = null;
+                    await ReloadNode();
+                }
             }
             else
             {
-                snackbar.AddError(resp.ErrorMessage);
+                var cmd = new UpdateAnnotationCommand(data.Id.Value, data.Data);
+                var resp = await api.UpdateAnnotation(cmd);
+                if (snackbar.CheckSuccess(resp))
+                {
+                    await ReloadNode();
+                }
             }
         }
 

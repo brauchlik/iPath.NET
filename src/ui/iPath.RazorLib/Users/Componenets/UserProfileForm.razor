@@ -98,6 +98,7 @@
     {
         if (Model != null && OrigModel == null)
         {
+            Model.EmailImportSettings ??= new();
             OrigModel = Model.Clone();
         }
     }

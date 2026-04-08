@@ -40,7 +40,7 @@ public class UserProfile
     // [JsonPropertyName("contact")]
     public ContactDetails ContactDetails { get; set; } = new();
 
-    public EmailImportSettings? EmailImportSettings { get; set; } = new();
+    public EmailImportSettings EmailImportSettings { get; set; } = new();
 
 
     public static UserProfile AnonymousProfile()
@@ -66,6 +66,7 @@ public class UserProfile
     {
         var clone = (UserProfile)this.MemberwiseClone();
         clone.ContactDetails = this.ContactDetails.Clone();
+        clone.EmailImportSettings = this.EmailImportSettings.Clone();
         return clone;
     }
 }

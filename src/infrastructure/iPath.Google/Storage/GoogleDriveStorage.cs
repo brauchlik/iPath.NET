@@ -43,19 +43,27 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         {
             if (field is null)
             {
-                GoogleCredential credential;
-                using (var stream = new FileStream(gdriveOpts.Value.ClientSecretPath, FileMode.Open, FileAccess.Read))
+                if (!string.IsNullOrEmpty(gdriveOpts.Value.ClientSecretPath) && System.IO.File.Exists(gdriveOpts.Value.ClientSecretPath))
                 {
-                    credential = GoogleCredential.FromStream(stream)
-                        .CreateScoped(DriveService.Scope.Drive)
-                        .CreateWithUser(gdriveOpts.Value.Username); // For domain-wide delegation
-                }
+                    GoogleCredential credential;
+                    using (var stream = new FileStream(gdriveOpts.Value.ClientSecretPath, FileMode.Open, FileAccess.Read))
+                    {
+                        credential = GoogleCredential.FromStream(stream)
+                            .CreateScoped(DriveService.Scope.Drive)
+                            .CreateWithUser(gdriveOpts.Value.Username); // For domain-wide delegation
+                    }
 
-                field = new DriveService(new BaseClientService.Initializer
+                    field = new DriveService(new BaseClientService.Initializer
+                    {
+                        HttpClientInitializer = credential,
+                        ApplicationName = gdriveOpts.Value.ApplicationName
+                    });
+                }
+                else
                 {
-                    HttpClientInitializer = credential,
-                    ApplicationName = gdriveOpts.Value.ApplicationName
-                });
+                    _RootStorageName = "google client auth not configured";
+                    _RootExists = false;
+                }
             }
             return field;
         }

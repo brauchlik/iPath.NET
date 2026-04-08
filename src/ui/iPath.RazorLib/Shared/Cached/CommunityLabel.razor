@@ -1,0 +1,19 @@
+﻿<span>@name</span>
+
+@inject CommunityViewModel vm
+
+@code {
+    [Parameter, EditorRequired]
+    public Guid? Id { get; set; }
+
+
+    private string? name = "--";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id.HasValue)
+        {
+            name = await vm.GetName(Id.Value);
+        }
+    }
+}

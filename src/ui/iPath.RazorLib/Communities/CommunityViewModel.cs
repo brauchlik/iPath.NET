@@ -100,4 +100,10 @@ public class CommunityViewModel(IPathApi api,
             nm.NavigateTo($"groups/{groupId}");
         }
     }
+
+    public async Task<string?> GetName(Guid id)
+    {
+        var list = await GetAllAsync();
+        return list.SingleOrDefault(c => c.Id == id)?.Name;
+    }
 }

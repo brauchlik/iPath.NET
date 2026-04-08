@@ -1,8 +1,10 @@
 ﻿@page "/admin/groups"
+@using iPath.Blazor.Componenents.Shared.Cached
 
 @attribute [Authorize(Roles = "Admin")]
 @inject GroupAdminViewModel vm
 @inject IStringLocalizer T
+@inject CommunityViewModel cvm
 
 <MudBreadcrumbs Items="vm.BreadCrumbs" Class="mt-0 pt-0"></MudBreadcrumbs>
 
@@ -24,13 +26,20 @@
         <MudTextField @bind-Value="vm.SearchString" @bind-Value:after="@(() => vm.table.ReloadServerData())"
                       Placeholder="Search" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <CommunityLookup Placeholder="Community" Clearable="true" Class="mt-0 ml-4"
+                         @bind-Value="vm.communityFilter" @bind-Value:after="@(() => vm.table.ReloadServerData())" />
     </ToolBarContent>
     <HeaderContent>
         <MudTh>Group Name</MudTh>
+        <MudTh>Community</MudTh>
+        <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd Class="ipath_table">
             <MudLink Href=@($"admin/groups/{context.Id}")>@context.Name</MudLink>
+        </MudTd>
+        <MudTd>
+            <CommunityLabel Id="@context.CommunityId" />
         </MudTd>
         <MudTd Class="ipath_table d-flex justify-end">
             <MudIconButton Href=@($"admin/groups/{context.Id}/communities") Size="Size.Small"

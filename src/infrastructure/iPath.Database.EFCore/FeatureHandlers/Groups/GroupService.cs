@@ -43,6 +43,11 @@ public class GroupService(iPathDbContext db, IUserSession sess, IGroupCache cach
         {
             // only admins can get the full list
             sess.AssertInRole("Admin");
+
+            if (request.CommunityId.HasValue)
+            {
+                q = q.Where(g => g.CommunityId == request.CommunityId.Value || g.ExtraCommunities.Any(cg => cg.CommunityId == request.CommunityId.Value));
+            }
         }
         else if (request.CommunityId.HasValue)
         {
@@ -65,14 +70,14 @@ public class GroupService(iPathDbContext db, IUserSession sess, IGroupCache cach
         IQueryable<GroupListDto> dtoQuery;
         if (!request.IncludeCounts)
         {
-            dtoQuery = q.Select(x => new GroupListDto(x.Id, x.Name, x.Visibility));
+            dtoQuery = q.Select(x => new GroupListDto(x.Id, x.Name, x.CommunityId, x.Visibility));
         }
         else
         {
             var minDate = DateTime.UtcNow.AddYears(-1);
             var uid = sess.User.Id;
 
-            dtoQuery = q.Select(x => new GroupListDto(x.Id, x.Name, x.Visibility,
+            dtoQuery = q.Select(x => new GroupListDto(x.Id, x.Name, x.CommunityId, x.Visibility,
                 x.ServiceRequests.Count(),
                 // do not count drafts
                 x.ServiceRequests.Count(n => !n.IsDraft && n.CreatedOn > minDate && !n.LastVisits.Any(v => v.UserId == uid)),

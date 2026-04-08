@@ -5,7 +5,7 @@ namespace iPath.Application.Features;
 
 
 #region "-- DTO --"
-public record GroupListDto(Guid Id, string Name, eGroupVisibility Visibility,
+public record GroupListDto(Guid Id, string Name, Guid? CommunityId, eGroupVisibility Visibility,
     int? TotalRequests = null, int? NewRequests = null, int? NewAnnotation = null);
 
 public record GroupDto(Guid Id, string Name, eGroupVisibility Visibility, 
@@ -157,7 +157,7 @@ public static class GroupExtensions
     
     public static GroupListDto ToListDto(this Group group)
     {
-        return new GroupListDto(Id: group.Id, Name: group.Name, Visibility: group.Visibility);
+        return new GroupListDto(Id: group.Id, Name: group.Name, CommunityId: group.CommunityId, Visibility: group.Visibility);
     }
 }
 

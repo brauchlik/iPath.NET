@@ -4661,6 +4661,7 @@
         "required": [
           "id",
           "name",
+          "communityId",
           "visibility"
         ],
         "type": "object",
@@ -4671,6 +4672,13 @@
           },
           "name": {
             "type": "string"
+          },
+          "communityId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           },
           "visibility": {
             "$ref": "#/components/schemas/eGroupVisibility"

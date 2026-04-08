@@ -38,11 +38,12 @@ public class GroupAdminViewModel(IPathApi api,
 
 
     public string SearchString { get; set; } = "";
+    public CommunityListDto? communityFilter { get; set; } = null;
     public MudDataGrid<GroupListDto> grid;
 
     public async Task<GridData<GroupListDto>> GetListAsync(GridState<GroupListDto> state, CancellationToken ct = default)
     {
-        var query = state.BuildQuery(new GetGroupListQuery { AdminList = true, SearchString = this.SearchString });
+        var query = state.BuildQuery(new GetGroupListQuery { AdminList = true, SearchString = this.SearchString, CommunityId = communityFilter?.Id });
         var resp = await api.GetGroupList(query);
 
         if (resp.IsSuccessful) return resp.Content.ToGridData();
@@ -56,7 +57,7 @@ public class GroupAdminViewModel(IPathApi api,
 
     public async Task<TableData<GroupListDto>> GetTableAsync(TableState state, CancellationToken ct = default)
     {
-        var query = state.BuildQuery(new GetGroupListQuery { AdminList = true, SearchString = this.SearchString });
+        var query = state.BuildQuery(new GetGroupListQuery { AdminList = true, SearchString = this.SearchString, CommunityId = communityFilter?.Id });
         var resp = await api.GetGroupList(query);
 
         if (resp.IsSuccessful) return resp.Content.ToTableData();

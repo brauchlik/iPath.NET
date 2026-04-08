@@ -72,6 +72,10 @@ public static class ServiceRequestEndpoints
             .Produces<bool>()
             .RequireAuthorization();
 
+        grp.MapPost("sync", async (SyncServiceRequestToStorageCommand cmd, [FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(cmd, ct))
+            .RequireAuthorization("Admin");
+
 
         // Annotations
         grp.MapPost("annotation", async (CreateAnnotationCommand request, [FromServices] IMediator mediator, CancellationToken ct)

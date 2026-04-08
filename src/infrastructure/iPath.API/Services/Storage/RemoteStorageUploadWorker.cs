@@ -1,8 +1,6 @@
 ﻿using iPath.EF.Core.Database;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace iPath.API.Services.Storage;
 

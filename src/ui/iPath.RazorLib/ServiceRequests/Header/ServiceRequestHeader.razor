@@ -12,9 +12,10 @@
         </div>
         <div class="ipath_header_toolbar">
             <MudToolBar WrapContent="true">
-                <IPathToolbarButton Icon="@EditIcon" OnClick="OnEditClick" Disabled="vm.EditDisabled" />
+                <MudTooltip Text=@T["edits"]>
+                    <IPathToolbarButton Icon="@EditIcon" OnClick="OnEditClick" Disabled="vm.EditDisabled" />
+                </MudTooltip>
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Save" OnClick="@(() => vm.Save())" Hidden="@hideSave" />
-                <IPathToolbarButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => vm.Delete())" Disabled="vm.DeleteDisabled" />
                 <MudTooltip Text=@T["Upload Files"]>
                     <FileUploadButton Disabled="@vm.AttachFileDisabled" Icon="@Icons.Material.Filled.DriveFolderUpload" />
                 </MudTooltip>
@@ -28,13 +29,21 @@
                         <MudMenuItem Icon="@Icons.Material.Filled.DynamicForm">Form</MudMenuItem>
                     </MudMenu>
                 </MudButtonGroup>
-                <IPathToolbarButton Icon="@Icons.Material.Outlined.AddComment" OnClick="@(() => vm.StartAnnotation())" Disabled="vm.AnnotateDisabled" />
+                <MudTooltip Text=@T["add a comment"]>
+                    <IPathToolbarButton Icon="@Icons.Material.Outlined.AddComment" OnClick="@(() => vm.StartAnnotation())" Disabled="vm.AnnotateDisabled" />
+                </MudTooltip>
+
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled=@(!vm.HasSlideShow)
                                     Tooltip=@T["Show images in fullscreen mode"] />
                 @if (vm.CanMoveRequest)
                 {
-                    <IPathToolbarButton Icon="@Icons.Material.Outlined.DriveFileMove" OnClick="@(() => vm.MoveRequest())" />
+                    <MudTooltip Text=@T["move to another group"]>
+                        <IPathToolbarButton Icon="@Icons.Material.Outlined.DriveFileMove" OnClick="@(() => vm.MoveRequest())" />
+                    </MudTooltip>
                 }
+                <MudTooltip Text=@T["delete"]>
+                    <IPathToolbarButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => vm.Delete())" Disabled="vm.DeleteDisabled" />
+                </MudTooltip>
 
                 @if (vm.IsAdmin)
                 {
@@ -53,6 +62,13 @@
                         <MudToggleIconButton Icon="@ShowDeletedIcon" Color="@ShowDeletedColor"
                                              @bind-Toggled="vm.ShowDeleted" @bind-Toggled:after="vm.ReloadNode" />
                     </MudTooltip>
+
+                    @if (vm.ExternalStorageActive)
+                    {
+                        <MudTooltip Text=@T["sync data with external storage"]>
+                            <MudIconButton Icon="@Icons.Material.Outlined.Sync" OnClick="vm.SyncExternalStorage" />
+                        </MudTooltip>
+                    }
                 }
             </MudToolBar>
         </div>

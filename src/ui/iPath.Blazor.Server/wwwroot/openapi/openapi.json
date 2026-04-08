@@ -1462,6 +1462,28 @@
         }
       }
     },
+    "/api/v1/requests/sync": {
+      "post": {
+        "tags": [
+          "Service Requests"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncServiceRequestToStorageCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/requests/annotation": {
       "post": {
         "tags": [
@@ -6539,6 +6561,29 @@
               "string"
             ],
             "format": "date-time"
+          }
+        }
+      },
+      "SyncServiceRequestToStorageCommand": {
+        "type": "object",
+        "properties": {
+          "serviceRequestId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "allDocuments": {
+            "type": "boolean",
+            "default": false
+          },
+          "documentId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },

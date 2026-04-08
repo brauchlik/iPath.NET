@@ -152,10 +152,17 @@ public class ServiceRequestCreateWizzardViewModel(IServiceProvider sp, ServiceRe
 
     async Task SaveQuestionnare()
     {
-        if (SelectedQ != null && QuestionnaireViewer != null)
+        if (UseQuestionnaire)
         {
-            Data.Questionnaire.QuestionnaireId = SelectedQ.QuestinnaireId;
-            Data.Questionnaire.Resource = await QuestionnaireViewer.GetDataAsync();
+            if (SelectedQ != null && QuestionnaireViewer != null)
+            {
+                Data.Questionnaire.QuestionnaireId = SelectedQ.QuestinnaireId;
+                Data.Questionnaire.Resource = await QuestionnaireViewer.GetDataAsync();
+            }
+        }
+        else
+        {
+            Data.Questionnaire = null;
         }
     }
 

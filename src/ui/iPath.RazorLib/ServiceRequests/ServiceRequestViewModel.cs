@@ -3,6 +3,7 @@ using iPath.Application;
 using iPath.Application.Contracts;
 using iPath.Application.Features.Annotations;
 using iPath.Application.Features.Documents;
+using iPath.Application.Features.ServiceRequests.Commands;
 using iPath.Blazor.Componenents.ServiceRequests.Annotations;
 using iPath.Blazor.Componenents.ServiceRequests.Dialogs;
 using iPath.Blazor.Componenents.Shared;
@@ -1023,6 +1024,8 @@ public class ServiceRequestViewModel(IPathApi api,
 
 
     public bool DocumentImportEnabled => !string.IsNullOrEmpty(opts.Value.ExternalStorageName) && appState.IsOwner(SelectedRequest);
+    
+
 
     public async Task ExternalDocumentImport()
     {
@@ -1070,6 +1073,27 @@ public class ServiceRequestViewModel(IPathApi api,
             {
                 snackbar.Add($"{resp.Content.ImportCount} documents have been imported", Severity.Success);
             }
+        }
+    }
+
+
+    public bool ExternalStorageActive => !string.IsNullOrEmpty(opts.Value.ExternalStorageName);
+    public async Task SyncExternalStorage()
+    {
+        SyncServiceRequestToStorageCommand? cmd = null;
+        if (SelectedDocument is not null)
+        {
+            cmd = new SyncServiceRequestToStorageCommand(DocumentId: SelectedDocument.Id);
+        }
+        else if (SelectedRequest is not null)
+        {
+            cmd = new SyncServiceRequestToStorageCommand(ServiceRequestId: SelectedRequest.Id, AllDocuments: true);
+        }
+
+        if (cmd is not null)
+        {
+            var resp = await api.SyncStorage(cmd);
+            snackbar.CheckSuccess(resp);
         }
     }
 }

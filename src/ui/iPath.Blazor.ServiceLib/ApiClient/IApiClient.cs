@@ -8,6 +8,7 @@ using iPath.Application.Features.Documents;
 using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.ServiceRequests;
+using iPath.Application.Features.ServiceRequests.Commands;
 using iPath.Application.Features.Users;
 using iPath.Application.Localization;
 using iPath.Application.Querying;
@@ -171,6 +172,10 @@ public interface IPathApi
 
     [Post("/api/v1/requests/visit/{id}")]
     Task<IApiResponse<bool>> UpdateRequestVisit(Guid id);
+
+    [Post("/api/v1/requests/sync")]
+    Task<IApiResponse> SyncStorage(SyncServiceRequestToStorageCommand cmd);
+
 
     // Annotations
     [Post("/api/v1/requests/annotation")]

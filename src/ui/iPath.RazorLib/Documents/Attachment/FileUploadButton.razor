@@ -16,7 +16,8 @@
         }
         else
         {
-            <MudIconButton Icon="@Icon" Disabled="@Disabled" />
+            <MudIconButton Icon="@Icon" Disabled="@Disabled" OnClick="@context.OpenFilePickerAsync" />
         }
     </CustomContent>
+    <SelectedTemplate />
 </MudFileUpload>

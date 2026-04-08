@@ -16,6 +16,11 @@ public class StorageInfo
         StorageId = id;
         UpdatedOn = DateTime.UtcNow;
     }
+
+    public override string ToString()
+    {
+        return $"{ProviderName}: {StorageId}, {UpdatedOn}";
+    }
 }
 
 

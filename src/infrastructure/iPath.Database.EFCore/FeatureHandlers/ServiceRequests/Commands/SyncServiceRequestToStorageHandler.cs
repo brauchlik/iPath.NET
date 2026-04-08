@@ -34,8 +34,10 @@ public class SyncServiceRequestToStorageHandler(iPathDbContext db,
                     await Enqueue(d, ct);
                 }
             }
+            /* TODO: wait for implementation
             var srCmd = new RemoteStorageCommand(serviceRequest.Id, eRemoteStorageCommand.UploadServiceRequest);
             await queue.EnqueueAsync(srCmd, ct);
+            */
         }
     }
 

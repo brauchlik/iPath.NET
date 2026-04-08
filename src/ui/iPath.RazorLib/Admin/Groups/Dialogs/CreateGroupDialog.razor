@@ -16,8 +16,10 @@
                           Lines="5" AutoGrow="true" />
             <OwnerLookup Label=@T["Group Owner"] Class="mt-4" @bind-Value="Model.Owner" Clearable="true"
                          Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" Dense="true" />
-            <CommunityLookup Label=@T["Community"] @bind-Value="@Model.Community" Disabled="DisableCommunityInput" Clearable="true"
-                             Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" Dense="true" />
+            <CommunityLookup Label=@T["Community"] @bind-Value="@Model.Community"
+                             Disabled="DisableCommunityInput" Variant="Variant.Outlined"
+                             ShrinkLabel="true" Margin="Margin.Dense" Dense="true"
+                             Clearable="true" Required="true" />
         </MudForm>
         @if (!string.IsNullOrEmpty(ErrorMessage))
         {

@@ -9,13 +9,16 @@
     <MudTextField Label=@T["Name"] @bind-Value="EditModel.Name" Variant="@Variant.Outlined" Margin="Margin.Dense" />
     <MudGrid>
         <MudItem xs="12" sm="6">
-            <OwnerLookup Label=@T["Group Owner"] Class="mt-4" @bind-Value="EditModel.Owner" Variant="Variant.Outlined" Margin="Margin.Dense" />
-        </MudItem>        
+            <OwnerLookup Label=@T["Group Owner"] Class="mt-4" @bind-Value="EditModel.Owner"
+                         Variant="Variant.Outlined" Margin="Margin.Dense" />
+        </MudItem>
         <MudItem xs="12" sm="6">
-            <CommunityLookup Label=@T["Community"] Class="mt-4" @bind-Value="EditModel.Community" Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly="true" />
+            <CommunityLookup Label=@T["Community"] Class="mt-4" @bind-Value="EditModel.Community"
+                             Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly="@IsReadonly" />
         </MudItem>
     </MudGrid>
-    <iPath.Blazor.Componenents.Groups.GroupSettingsForm Model="@EditModel.Settings" />
+
+    <GroupSettingsForm Model="@EditModel.Settings" />
 
     <MudStack Row Class="mt-10" Spacing="2">
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save">Save</MudButton>
@@ -27,7 +30,14 @@
     [Parameter, EditorRequired]
     public GroupDto Model { get; set; }
 
+    [Inject]
+    public AppState appState { get; set; }
+
+
     GroupEditModel EditModel = new();
+
+
+    bool IsReadonly => !(Model?.Community is null || appState.IsAdmin);
 
 
     protected override void OnParametersSet()

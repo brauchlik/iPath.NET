@@ -49,6 +49,10 @@ public class ServiceRequestCreateWizzardViewModel(IServiceProvider sp, ServiceRe
     // shortcut to RequestDescription
     public RequestDescription Data => vm.SelectedRequest.Description;
 
+    // Case Title
+    public bool ShowCaseTitle => vm.ActiveGroup?.Settings is not null && vm.ActiveGroup.Settings.UseCaseTitleField;
+    public bool ShowCaseSubTitle => vm.ActiveGroup?.Settings is not null && vm.ActiveGroup.Settings.UseCaseSubTitleField;
+
     // ProvisionalDiagnosis
     public bool ShowProvisionalDiagnosis => vm.ActiveGroup?.Settings is not null && vm.ActiveGroup.Settings.ShowProvisionalDiagnosis;
 
@@ -84,6 +88,7 @@ public class ServiceRequestCreateWizzardViewModel(IServiceProvider sp, ServiceRe
             Data.BodySite = value.ToConcept(_coding.CodeSystemUrl);
         }
     }
+
 
     public bool SaveAsDraft { get; set; } = false;
 

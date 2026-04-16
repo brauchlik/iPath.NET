@@ -12,6 +12,7 @@
             <MudGrid>
                 <MudItem xs="12" sm="6">
                     <IPathHeader Typo="Typo.subtitle1" Title=@T["Body Region / Organ"] />
+
                     <MudTreeView T="CodeDisplay" Hover="true" Dense="true" @bind-SelectedValue="wizzardVM.Organ">
                         @if (wizzardVM.RootCodes is not null)
                         {
@@ -35,6 +36,7 @@
                             </div>
                         }
                     </MudTreeView>
+
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <IPathHeader Typo="Typo.subtitle1" Title=@T["Body Site / Topography"]>
@@ -60,6 +62,12 @@
                             </MudTooltip>
                         </ActionContent>
                     </IPathHeader>
+                                        
+                    <TopoLookup Label=@T["Body Site"] Placeholder="search topography" Class="mb-5"
+                                @bind-Value="@wizzardVM.Topo" @bind-Value:after="OnTopoCodeSelected"
+                                Variant="Variant.Outlined" Margin="Margin.Dense" ShrinkLabel="true"
+                                Clearable="true" MaxItems="100" />
+
                     @if (wizzardVM.Organ is null)
                     {
                         <MudText>@T["please select a body region"]</MudText>
@@ -109,9 +117,20 @@
                     }
                 </MudGrid>
 
-                <!--
-                <MudText Typo="Typo.subtitle1" Class="mt-4">@T["Clinical Information"]</MudText>
-                -->
+                                
+                @if (wizzardVM.ShowCaseTitle)
+                {
+                    <MudTextField @bind-Value="@wizzardVM.Data.Title" Label=@T["Case Title"]
+                                  Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+                }
+                                
+                @if (wizzardVM.ShowCaseSubTitle)
+                {
+                    <MudTextField @bind-Value="@wizzardVM.Data.Subtitle" Label=@T["Subtitle"]
+                                  Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+                }
+
+
                 @if (wizzardVM.Data.Questionnaire is not null)
                 {
                     @if (wizzardVM.validForms.Count > 1)
@@ -139,11 +158,11 @@
                 @if (wizzardVM.ShowProvisionalDiagnosis)
                 {
                     <MudTextField @bind-Value="@wizzardVM.Data.ProvisionalDiagnosis" Label=@T["Provisional Diagnosis"]
-                              Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+                                  Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
                 }
 
                 <MudTextField @bind-Value="@wizzardVM.Data.Text" Label=@T["Clinical History"]
-                              Lines="3" Required="true"
+                              Lines="3" Required="true" Sizing="InputSizing.Auto"
                               HelperText=@T["please make sure it does not contain any sensitive patient details like name or exact date of birth"]
                               Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
             </MudStack>
@@ -152,7 +171,9 @@
         <MudStep Title="Upload Images">
             <GalleryDropZone />
 
-            <MudSwitch @bind-Value="wizzardVM.SaveAsDraft" Color="Color.Warning" Label=@T["Save as Draft (not published in group yet)"] />
+            <MudDivider Class="mt-4" />
+            <MudSwitch @bind-Value="wizzardVM.SaveAsDraft" Label=@T["Save as Draft (not published in group yet)"]
+                       Color="Color.Warning" />
         </MudStep>
     </ChildContent>
     <CompletedContent>
@@ -259,11 +280,21 @@
             wizzardVM.QuestionnaireViewer = field;
         }
     }
+
     private async Task OnTopoSelected()
     {
         if (wizzardVM.TopoAutoSelect && wizzardVM.Topo is not null && wizzardVM.Topo.Children.IsEmpty())
         {
             await stepper.NextStepAsync();
         }
+
+        StateHasChanged();
     }
+
+
+    private async Task OnTopoCodeSelected()
+    {
+        StateHasChanged();
+    }
+
 }

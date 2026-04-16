@@ -1,6 +1,5 @@
 ﻿using DispatchR.Abstractions.Notification;
 using iPath.EF.Core.Database;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace iPath.API.Services.Thumbnail;

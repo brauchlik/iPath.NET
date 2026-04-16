@@ -1,5 +1,5 @@
-﻿<MudTreeView T="CodeDisplay" Items="@TreeItems"
-             @bind-SelectedValue="Value" @bind-SelectedValue:after="OnValueChanged"
+<MudTreeView T="CodeDisplay" Items="@TreeItems" @ref="treeView"
+             @bind-SelectedValue="_treeSelectedValue" @bind-SelectedValue:after="OnValueChanged"
              ExpandOnClick="@ExpandOnClick"
              Hover="true" Dense="true" Color="Color.Tertiary">
     <ItemTemplate>
@@ -18,9 +18,76 @@
     [Parameter]
     public EventCallback<CodeDisplay?> ValueChanged { get; set; }
 
-    async Task OnValueChanged()
+    MudTreeView<CodeDisplay> treeView;
+
+    private CodeDisplay? _treeSelectedValue;
+    private CodeDisplay? _originalBoundValue;
+    private CodeDisplay? _lastKnownValue;
+
+    protected override void OnInitialized()
     {
-        await ValueChanged.InvokeAsync(Value);
+        _originalBoundValue = Value;
+        _lastKnownValue = Value;
+        _treeSelectedValue = FindInTree(Value);
+    }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        await base.SetParametersAsync(parameters);
+        // Check if Value parameter changed from an external source (e.g., TopoLookup)
+        if (!EqualityComparer<CodeDisplay?>.Default.Equals(_lastKnownValue, Value))
+        {
+            _lastKnownValue = Value;
+            _originalBoundValue = Value;
+            _treeSelectedValue = FindInTree(Value);
+
+            // If unknown value assigned, collapse all tree items
+            if (_treeSelectedValue == null && Value != null)
+            {
+                await treeView.CollapseAllAsync();
+            }
+        }
+    }
+
+    private CodeDisplay? FindInTree(CodeDisplay? item)
+    {
+        if (item == null) return null;
+        return FindInTreeItems(TreeItems, item.Code);
+    }
+
+    private CodeDisplay? FindInTreeItems(IEnumerable<TreeItemData<CodeDisplay>> items, string code)
+    {
+        foreach (var item in items)
+        {
+            if (item.Value?.Code == code)
+                return item.Value;
+            if (item.Children?.Count > 0)
+            {
+                // Children is IReadOnlyCollection<ITreeItemData<T>>, cast to TreeItemData<T>
+                var children = item.Children.Cast<TreeItemData<CodeDisplay>>().ToList();
+                var found = FindInTreeItems(children, code);
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    private async Task OnValueChanged()
+    {
+        if (_treeSelectedValue != null)
+        {
+            // User selected an item from the tree - update binding
+            _originalBoundValue = _treeSelectedValue;
+            _lastKnownValue = _treeSelectedValue;
+            await ValueChanged.InvokeAsync(_treeSelectedValue);
+        }
+        else
+        {
+            // Tree cleared selection (value not in tree) - preserve original binding
+            // Don't update binding, keep the external value intact
+            // Re-sync tree display to show original value if it exists
+            _treeSelectedValue = FindInTree(_originalBoundValue);
+        }
     }
 
     [Parameter]

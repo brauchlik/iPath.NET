@@ -22,7 +22,7 @@ The existing **email notification pipeline** is kept unchanged.
 
 ### 2.1 Current State (Baseline)
 
-- Domain events (`ServiceRequestEvent`) are raised during command handlers and dispatched via MediatR.
+- Domain events (`ServiceRequestEvent`) are raised during command handlers and dispatched via **DispatchR**.
 - `NotificationEventHandler` enqueues `ServiceRequestEvent`s into `IServiceRequestEventQueue` (in-memory Channel).
 - `ServiceRequestEventProcessor` dequeues events, reads group subscriptions, filters via `INotificationFilterService`, and creates `Notification` DB records per target (`InApp`, `Email`).
 - `NotificationPublisher` (BackgroundService) dequeues pending `Notification` records and routes to `INotificationPublisher` implementations. Currently only `EmailNotificationPublisher` is registered.
@@ -36,8 +36,8 @@ The existing **email notification pipeline** is kept unchanged.
 ├─────────────────────────────────────────────────────────────────────┤
 │  Domain Events                                                      │
 │  ┌──────────────┐   ┌──────────────────┐   ┌─────────────────────┐ │
-│  │ MediatR      │──▶│ NotificationEvent│──▶│ ServiceRequestEvent │ │
-│  │ Pipeline     │   │ Handler          │   │ Queue (Channel)     │ │
+  │  │ DispatchR    │──▶│ NotificationEvent│──▶│ ServiceRequestEvent │ │
+  │  │ Pipeline     │   │ Handler          │   │ Queue (Channel)     │ │
 │  └──────────────┘   └──────────────────┘   └─────────────────────┘ │
 │         │                                                    │      │
 │         │                    ┌───────────────────────────────┘      │
@@ -70,14 +70,14 @@ The existing **email notification pipeline** is kept unchanged.
 │         │      ┌────────────────────────────────────────────┘       │
 │         │      ▼                                                    │
 │         │ ┌─────────────────────────────────────────────────────┐   │
-│         └▶│ MembershipEventBroadcaster (MediatR handler)        │   │
+  │         └▶│ MembershipEventBroadcaster (DispatchR handler)      │   │
 │           │ - Listens to ALL ServiceRequestEvents                 │   │
 │           │ - Filters by user's group membership                  │   │
 │           │ - Pushes to SseConnectionManager                      │   │
 │           └─────────────────────────────────────────────────────┘   │
 │                                                                     │
 │         ┌─────────────────────────────────────────────────────┐     │
-│         │ SystemEventBroadcaster (MediatR handler)            │     │
+  │         │ SystemEventBroadcaster (DispatchR handler)          │     │
 │         │ - Listens to non-ServiceRequest Events                │     │
 │         │ - Broadcasts to all connected clients                 │     │
 │         │ - Pushes to SseConnectionManager                      │     │
@@ -218,7 +218,11 @@ services.AddScoped<INotificationPublisher, InAppNotificationPublisher>();
 
 ### 4.4 `MembershipEventBroadcaster`
 
-New MediatR `INotificationHandler<EventEntity>`.
+New DispatchR `INotificationHandler<EventEntity>`.
+
+**What it does:** Listens to all domain events dispatched through DispatchR. When it sees a `ServiceRequestEvent` (e.g., `AnnotationAddedEvent`, `ServiceRequestPublishedEvent`), it extracts the `GroupId` from the event's associated `ServiceRequest`, builds a lightweight `DomainEventSummary`, and pushes it via `SseConnectionManager` to **all currently connected SSE clients who are members of that group**.
+
+**It does NOT create `Notification` DB records.** It bypasses the notification queue entirely. Its sole purpose is to send a "something happened in group X" live hint to connected browsers so the UI can refresh lists or show live indicators. This is separate from the `InAppNotificationPublisher`, which sends full per-user subscription-filtered notifications.
 
 ```csharp
 public class MembershipEventBroadcaster(
@@ -257,7 +261,7 @@ public record DomainEventSummary(
 
 ### 4.5 `SystemEventBroadcaster`
 
-New MediatR `INotificationHandler<EventEntity>`.
+New DispatchR `INotificationHandler<EventEntity>`.
 
 ```csharp
 public class SystemEventBroadcaster(ISseConnectionManager sse, ILogger<SystemEventBroadcaster> logger)
@@ -333,7 +337,7 @@ Already has `ServiceRequestId` and `EventId` FKs. No schema changes required for
 
 ### 6.2 Keep `AddSignalR()`?
 
-If no other hubs exist, remove `services.AddSignalR()` from `APIServicesRegistration.cs`. If other parts of the system still need SignalR, keep the registration but remove the hub mapping endpoint.
+**No.** `AddSignalR()` was only needed for the experimental `NodeNotificationsHub`. SSE works over standard HTTP and functions correctly in both **Blazor Server** (development) and **Blazor WebAssembly** (production) without any SignalR infrastructure. Remove `services.AddSignalR()` from `APIServicesRegistration.cs` entirely.
 
 ---
 

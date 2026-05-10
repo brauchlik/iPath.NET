@@ -1,0 +1,35 @@
+@inject AppState AppState
+@inject IPathApi Api
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@inject IStringLocalizer T
+
+<MudDrawer @bind-Open="AppState.NotificationDrawerOpen"
+           Anchor="Anchor.Right"
+           Elevation="2"
+           Width="400px"
+           ClipMode="DrawerClipMode.Always">
+    <MudDrawerHeader>
+        <MudText Typo="Typo.h6">@T["Notifications"]</MudText>
+        <MudSpacer />
+        <MudButton Size="Size.Small" OnClick="MarkAllAsRead">@T["Mark all as read"]</MudButton>
+    </MudDrawerHeader>
+    <MudList T="NotificationDto" Dense="true">
+        @foreach (var n in RecentUnread)
+        {
+            <MudListItem OnClick="() => OpenNotification(n)">
+                <MudText>@GetNotificationText(n)</MudText>
+                <MudText Typo="Typo.caption">@n.Date.ToString("g")</MudText>
+            </MudListItem>
+        }
+        @if (!RecentUnread.Any())
+        {
+            <MudListItem>
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">@T["No new notifications"]</MudText>
+            </MudListItem>
+        }
+    </MudList>
+    <MudButton Href="/notifications" FullWidth="true" Class="mt-2">
+        @T["View all"]
+    </MudButton>
+</MudDrawer>

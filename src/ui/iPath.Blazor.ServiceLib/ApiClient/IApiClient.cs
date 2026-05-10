@@ -256,6 +256,15 @@ public interface IPathApi
     [Get("/api/v1/notifications/list")]
     Task<IApiResponse<PagedResultList<NotificationDto>>> GetNotifications(int page, int pageSize, eNotificationTarget target, [Query] string[]? sort = null);
 
+    [Post("/api/v1/notifications/{id}/read")]
+    Task<IApiResponse> MarkNotificationAsRead(Guid id);
+
+    [Post("/api/v1/notifications/read-all")]
+    Task<IApiResponse> MarkAllNotificationsAsRead();
+
+    [Get("/api/v1/notifications/unread-count")]
+    Task<IApiResponse<int>> GetUnreadNotificationCount();
+
     [Delete("/api/v1/notifications/all")]
     Task<IApiResponse> DeleteAllNotifications();
     #endregion

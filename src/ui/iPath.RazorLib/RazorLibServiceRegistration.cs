@@ -7,6 +7,7 @@ using iPath.Blazor.Componenents.Admin.Groups;
 using iPath.Blazor.Componenents.Admin.Questionnaires;
 using iPath.Blazor.Componenents.Admin.Users;
 using iPath.Blazor.Componenents.Communities;
+using iPath.Blazor.Componenents.Notifications;
 using iPath.Blazor.Componenents.Shared;
 using iPath.Blazor.Componenents.Users;
 using iPath.Blazor.Server;
@@ -85,6 +86,7 @@ public static class RazorLibServiceRegistration
         services.AddTransient<IServiceRequestHtmlPreview, EmailNotificationPreview>();
 
         services.AddScoped<AppState>();
+        services.AddScoped<SseClientService>();
 
         return services;
     }

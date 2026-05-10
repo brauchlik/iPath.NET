@@ -71,6 +71,32 @@ public static class NotificationEndpoints
         .WithTags("Notifications")
         .RequireAuthorization();
 
+        route.MapPost("notifications/read-all", async (
+            [FromServices] IUserSession sess,
+            [FromServices] INotificationRepository repo,
+            CancellationToken ct) =>
+        {
+            if (sess.User is null)
+                return Results.Unauthorized();
+            await repo.MarkAllAsRead(sess.User.Id, ct);
+            return Results.NoContent();
+        })
+        .WithTags("Notifications")
+        .RequireAuthorization();
+
+        route.MapGet("notifications/unread-count", async (
+            [FromServices] IUserSession sess,
+            [FromServices] INotificationRepository repo,
+            CancellationToken ct) =>
+        {
+            if (sess.User is null)
+                return Results.Unauthorized();
+            var count = await repo.GetUnreadCount(sess.User.Id, ct);
+            return Results.Ok(count);
+        })
+        .WithTags("Notifications")
+        .RequireAuthorization();
+
         return route;
     }
 }

@@ -1,0 +1,11 @@
+@inject AppState AppState
+
+<MudBadge Content="AppState.UnreadNotificationCount"
+          Color="Color.Error"
+          Overlap="true"
+          Visible="AppState.UnreadNotificationCount > 0"
+          Class="mx-2">
+    <MudIconButton Icon="@Icons.Material.Filled.Notifications"
+                   Color="Color.Inherit"
+                   OnClick="AppState.ToggleNotificationDrawer" />
+</MudBadge>

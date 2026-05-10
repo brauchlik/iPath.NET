@@ -65,4 +65,37 @@ public class AppState(IPathApi api, ILogger<AppState> logger) : IUserSession
             OnChange?.Invoke();
         }
     }
+
+    public int UnreadNotificationCount { get; private set; }
+    public bool NotificationDrawerOpen { get; set; }
+
+    public void SetUnreadCount(int count)
+    {
+        UnreadNotificationCount = count;
+        OnChange?.Invoke();
+    }
+
+    public void IncrementUnreadCount()
+    {
+        UnreadNotificationCount++;
+        OnChange?.Invoke();
+    }
+
+    public void DecrementUnreadCount()
+    {
+        if (UnreadNotificationCount > 0) UnreadNotificationCount--;
+        OnChange?.Invoke();
+    }
+
+    public void ToggleNotificationDrawer()
+    {
+        NotificationDrawerOpen = !NotificationDrawerOpen;
+        OnChange?.Invoke();
+    }
+
+    public void CloseNotificationDrawer()
+    {
+        NotificationDrawerOpen = false;
+        OnChange?.Invoke();
+    }
 }

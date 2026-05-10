@@ -13,6 +13,9 @@ public class NotificationRepository(iPathDbContext db) : INotificationRepository
             .AsNoTracking()
             .Where(n => n.Target.HasFlag(query.Target));
 
+        if (query.UserId.HasValue)
+            q = q.Where(n => n.UserId == query.UserId.Value);
+
         q = q.ApplyQuery(query, "CreatedOn DESC");
 
         var projected = q.Select(n => new NotificationDto(n.Id, n.CreatedOn, n.EventType, n.Target,
@@ -38,5 +41,19 @@ public class NotificationRepository(iPathDbContext db) : INotificationRepository
             notification.MarkAsUnread();
 
         await db.SaveChangesAsync(ct);
+    }
+
+    public async Task MarkAllAsRead(Guid userId, CancellationToken ct)
+    {
+        await db.NotificationQueue
+            .Where(n => n.UserId == userId && n.ReadOn == null)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(n => n.ReadOn, DateTime.UtcNow), ct);
+    }
+
+    public async Task<int> GetUnreadCount(Guid userId, CancellationToken ct)
+    {
+        return await db.NotificationQueue
+            .Where(n => n.UserId == userId && n.ReadOn == null)
+            .CountAsync(ct);
     }
 }

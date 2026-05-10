@@ -803,6 +803,226 @@ git commit -m "feat(sse): register SSE services, remove SignalR experimental cod
    - `SseMessage` constructor matches `new SseMessage(eventType, data, id)` pattern
    - DTOs (`DomainEventSummary`, `SystemEventHint`) match broadcaster creation sites
 
+### Task 11: Add Notification Read Status
+
+**Files:**
+- Modify: `src/core/iPath.Domain/Entities/Notifications/Notification.cs`
+- Modify: `src/core/iPath.Application/Features/Notifications/NotificationDto.cs`
+- Modify: `src/infrastructure/iPath.Database.EFCore/Database/Configurations/NotificationConfiguration.cs` (if explicit config exists)
+
+- [ ] **Step 1: Add ReadOn to Notification entity**
+
+In `Notification.cs`, add after `ProcessedOn`:
+
+```csharp
+public DateTime? ReadOn { get; private set; }
+
+public Notification MarkAsRead()
+{
+    ReadOn = DateTime.UtcNow;
+    return this;
+}
+```
+
+- [ ] **Step 2: Add ReadOn to NotificationDto**
+
+In `NotificationDto.cs`, add `DateTime? ReadOn` parameter:
+
+```csharp
+public record NotificationDto(
+    Guid Id,
+    [property: SortBy("Date", "CreatedOn")] DateTime Date,
+    eNodeNotificationType EventType,
+    eNotificationTarget Target,
+    [property: SortBy("Receiver.Username", "User.Username")] OwnerDto Receiver,
+    Guid? ServiceRequestId = null,
+    Guid? EventId = null,
+    string? Payload = null,
+    DateTime? ReadOn = null);
+```
+
+- [ ] **Step 3: Update ToDto extension**
+
+In `NotificationExtensions.cs` (or wherever `ToDto()` is defined), map `ReadOn`:
+
+```csharp
+public static NotificationDto ToDto(this Notification n)
+{
+    return new NotificationDto(
+        n.Id,
+        n.CreatedOn,
+        n.EventType,
+        n.Target,
+        new OwnerDto(n.UserId, n.User?.UserName, n.User?.Profile?.Initials),
+        n.ServiceRequestId,
+        n.EventId,
+        n.Data,
+        n.ReadOn);
+}
+```
+
+- [ ] **Step 4: Create EF migration**
+
+Run: `dotnet ef migrations add Notification_ReadOn --project src/infrastructure/iPath.Database.EFCore/iPath.Database.EFCore.csproj --startup-project src/ui/iPath.Blazor.Server/iPath.Blazor.Server.csproj`
+
+- [ ] **Step 5: Build and test**
+
+Run: `dotnet build && dotnet test`
+Expected: Build succeeds; all tests pass.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add -A
+git commit -m "feat(notifications): add ReadOn to Notification entity and DTO"
+```
+
 ---
 
-*Plan complete. Proceed to Sprint 2 (UI) implementation plan next.*
+### Task 12: Add Mark-As-Read API Endpoints
+
+**Files:**
+- Modify: `src/infrastructure/iPath.API/Endpoints/NotificationEndpoints.cs`
+- Modify: `src/core/iPath.Application/Features/Notifications/INotificationRepository.cs`
+- Modify: `src/infrastructure/iPath.Database.EFCore/FeatureHandlers/Notifications/NotificationRepository.cs`
+- Modify: `src/ui/iPath.Blazor.ServiceLib/ApiClient/IApiClient.cs`
+
+- [ ] **Step 1: Add repository methods**
+
+In `INotificationRepository.cs`:
+
+```csharp
+Task MarkAsReadAsync(Guid notificationId, Guid userId, CancellationToken ct);
+Task MarkAllAsReadAsync(Guid userId, CancellationToken ct);
+Task<int> GetUnreadCountAsync(Guid userId, CancellationToken ct);
+```
+
+In `NotificationRepository.cs`:
+
+```csharp
+public async Task MarkAsReadAsync(Guid notificationId, Guid userId, CancellationToken ct)
+{
+    var n = await db.NotificationQueue
+        .Where(x => x.Id == notificationId && x.UserId == userId)
+        .FirstOrDefaultAsync(ct);
+    if (n is not null && !n.ReadOn.HasValue)
+    {
+        n.MarkAsRead();
+        await db.SaveChangesAsync(ct);
+    }
+}
+
+public async Task MarkAllAsReadAsync(Guid userId, CancellationToken ct)
+{
+    var unread = await db.NotificationQueue
+        .Where(x => x.UserId == userId && x.ReadOn == null && x.Status == NotificationStatus.Sent)
+        .ToListAsync(ct);
+    foreach (var n in unread)
+        n.MarkAsRead();
+    await db.SaveChangesAsync(ct);
+}
+
+public async Task<int> GetUnreadCountAsync(Guid userId, CancellationToken ct)
+{
+    return await db.NotificationQueue
+        .Where(x => x.UserId == userId && x.ReadOn == null && x.Status == NotificationStatus.Sent)
+        .CountAsync(ct);
+}
+```
+
+- [ ] **Step 2: Add endpoints**
+
+In `NotificationEndpoints.cs` (same file as SSE endpoint):
+
+```csharp
+route.MapPut("api/v1/notifications/{id}/read", async (
+    string id,
+    [FromServices] INotificationRepository repo,
+    [FromServices] IUserSession sess,
+    CancellationToken ct) =>
+{
+    if (sess.User is null) return Results.Unauthorized();
+    await repo.MarkAsReadAsync(Guid.Parse(id), sess.User.Id, ct);
+    return Results.Ok();
+})
+.WithTags("Notifications")
+.RequireAuthorization();
+
+route.MapPut("api/v1/notifications/read-all", async (
+    [FromServices] INotificationRepository repo,
+    [FromServices] IUserSession sess,
+    CancellationToken ct) =>
+{
+    if (sess.User is null) return Results.Unauthorized();
+    await repo.MarkAllAsReadAsync(sess.User.Id, ct);
+    return Results.Ok();
+})
+.WithTags("Notifications")
+.RequireAuthorization();
+
+route.MapGet("api/v1/notifications/unread-count", async (
+    [FromServices] INotificationRepository repo,
+    [FromServices] IUserSession sess,
+    CancellationToken ct) =>
+{
+    if (sess.User is null) return Results.Unauthorized();
+    var count = await repo.GetUnreadCountAsync(sess.User.Id, ct);
+    return Results.Ok(count);
+})
+.WithTags("Notifications")
+.RequireAuthorization();
+```
+
+- [ ] **Step 3: Add Refit methods to IApiClient**
+
+In `IPathApi`:
+
+```csharp
+[Put("/api/v1/notifications/{id}/read")]
+Task<IApiResponse> MarkNotificationAsRead(Guid id);
+
+[Put("/api/v1/notifications/read-all")]
+Task<IApiResponse> MarkAllNotificationsAsRead();
+
+[Get("/api/v1/notifications/unread-count")]
+Task<IApiResponse<int>> GetUnreadNotificationCount();
+```
+
+- [ ] **Step 4: Build and test**
+
+Run: `dotnet build && dotnet test`
+Expected: Build succeeds; all tests pass.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add -A
+git commit -m "feat(notifications): add mark-as-read endpoints and unread count"
+```
+
+---
+
+## Self-Review Checklist (Updated)
+
+1. **Spec coverage:**
+   - ✅ `SseConnectionManager` — Task 2
+   - ✅ `InAppNotificationPublisher` — Task 4
+   - ✅ `MembershipEventBroadcaster` — Task 6
+   - ✅ `SystemEventBroadcaster` — Task 7
+   - ✅ SSE endpoint — Task 9
+   - ✅ SignalR cleanup — Task 10
+   - ✅ Tests — Tasks 3, 5, 8
+   - ✅ Notification ReadOn — Task 11
+   - ✅ Mark-as-read endpoints — Task 12
+
+2. **Placeholder scan:** No TBD/TODO/fill-in-later found.
+
+3. **Type consistency:**
+   - `ISseConnectionManager` methods match usage in publishers and broadcasters
+   - `SseMessage` constructor matches `new SseMessage(eventType, data, id)` pattern
+   - DTOs (`DomainEventSummary`, `SystemEventHint`) match broadcaster creation sites
+   - `NotificationDto` includes `ReadOn` matching entity
+
+---
+
+*Sprint 1 plan complete. Proceed to Sprint 2 (UI) implementation plan next.*

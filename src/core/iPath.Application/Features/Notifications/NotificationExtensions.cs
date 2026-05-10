@@ -6,7 +6,7 @@ public static class NotificationExtensions
     {
         public NotificationDto ToDto()
         {
-            return new NotificationDto(Id: n.Id, Date: n.CreatedOn, EventType: n.EventType, Target: n.Target, Receiver: n.User.ToOwnerDto(), Payload: n.Data);
+            return new NotificationDto(Id: n.Id, Date: n.CreatedOn, EventType: n.EventType, Target: n.Target, Receiver: n.User.ToOwnerDto(), Payload: n.Data, ReadOn: n.ReadOn);
         }
     }
 }

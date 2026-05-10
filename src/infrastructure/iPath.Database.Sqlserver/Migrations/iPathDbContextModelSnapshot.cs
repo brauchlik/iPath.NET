@@ -699,6 +699,9 @@ namespace iPath.Database.SqlServer.Migrations
                     b.Property<DateTime?>("ProcessedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("ReadOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 

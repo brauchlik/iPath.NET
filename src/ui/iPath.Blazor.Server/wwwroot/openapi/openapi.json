@@ -358,21 +358,46 @@
         }
       }
     },
-    "/api/v1/food": {
+    "/api/v1/api/v1/events/stream": {
       "get": {
         "tags": [
           "Notifications"
         ],
+        "parameters": [
+          {
+            "name": "lastEventId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "text/event-stream": {
-                "schema": {
-                  "$ref": "#/components/schemas/SseItemOfmyevent"
-                }
-              }
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/{id}/read": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -5125,27 +5150,6 @@
           }
         }
       },
-      "myevent": {
-        "required": [
-          "id",
-          "date",
-          "data"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "date": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "data": {
-            "type": "string"
-          }
-        }
-      },
       "NodeFile": {
         "type": "object",
         "properties": {
@@ -5218,6 +5222,13 @@
             "format": "date-time"
           },
           "processedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "readOn": {
             "type": [
               "null",
               "string"
@@ -5334,6 +5345,13 @@
               "null",
               "string"
             ]
+          },
+          "readOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         }
       },
@@ -6524,33 +6542,6 @@
           },
           "isAuthenticated": {
             "type": "boolean"
-          }
-        }
-      },
-      "SseItemOfmyevent": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/myevent"
-          },
-          "eventType": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "eventId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "reconnectionInterval": {
-            "pattern": "^-?(\\d+\\.)?\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,7})?$",
-            "type": [
-              "null",
-              "string"
-            ]
           }
         }
       },

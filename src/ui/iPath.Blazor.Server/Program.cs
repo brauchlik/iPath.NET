@@ -116,9 +116,6 @@ builder.Configuration.GetSection(iPathClientConfig.ConfigName).Bind(clcfg);
 var baseAddress = clcfg.BaseAddress ?? "http://localhost:5000/";
 await builder.Services.AddRazorLibServices(baseAddress, false);
 
-// testing SSE
-builder.Services.AddSingleton<NotificationService>();
-
 builder.Services.AddAntiforgery();
 
 

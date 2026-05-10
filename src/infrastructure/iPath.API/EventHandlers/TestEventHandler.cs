@@ -1,18 +1,16 @@
 ﻿using DispatchR.Abstractions.Notification;
-using iPath.API.Hubs;
-using iPath.Domain.Notifications;
-using Microsoft.AspNetCore.SignalR;
-using Scalar.AspNetCore;
+using iPath.API.Services.Notifications;
 
 namespace iPath.API.EventHandlers;
 
-public class TestEventHandler(IHubContext<NodeNotificationsHub> hub, IUserSession sess) 
+public class TestEventHandler(ISseConnectionManager sse, IUserSession sess)
     : INotificationHandler<TestEvent>
 {
     public async ValueTask Handle(TestEvent request, CancellationToken cancellationToken)
     {
-        //var n = new NodeNofitication(NodeId: Guid.Empty, UserId: sess.User.Id, EventDate: DateTime.UtcNow, 
-        //    OwnerId: sess.User.Id, GroupId: null, type: eNodeEventType.Test, message: request.Message);
-        //await hub.Clients.All.SendAsync("NodeEvent", n);
+        if (sess.User is not null)
+        {
+            await sse.BroadcastAsync("system-event", new { message = request.Message, user = sess.User.Username });
+        }
     }
 }

@@ -15,8 +15,8 @@ public class NotificationRepository(iPathDbContext db) : INotificationRepository
 
         q = q.ApplyQuery(query, "CreatedOn DESC");
 
-        var projected = q.Select(n => new NotificationDto(n.Id, n.CreatedOn, n.EventType, n.Target, 
-            new OwnerDto(n.UserId, n.User.UserName, n.User.Email), n.ServiceRequestId, n.EventId, n.Data));
+        var projected = q.Select(n => new NotificationDto(n.Id, n.CreatedOn, n.EventType, n.Target,
+            new OwnerDto(n.UserId, n.User.UserName, n.User.Email), n.ServiceRequestId, n.EventId, n.Data, n.ReadOn));
         var data = await projected.ToPagedResultAsync(query, ct);
         return data;
     }
@@ -26,8 +26,17 @@ public class NotificationRepository(iPathDbContext db) : INotificationRepository
         await db.NotificationQueue.ExecuteDeleteAsync(ct);
     }
 
-    public Task SetReadState(Guid Id, bool IsRead, CancellationToken ct)
+    public async Task SetReadState(Guid Id, bool IsRead, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var notification = await db.NotificationQueue.FindAsync(new object[] { Id }, ct);
+        if (notification is null)
+            return;
+
+        if (IsRead)
+            notification.MarkAsRead();
+        else
+            notification.MarkAsUnread();
+
+        await db.SaveChangesAsync(ct);
     }
 }

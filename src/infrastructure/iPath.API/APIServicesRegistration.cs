@@ -89,7 +89,13 @@ public static class APIServicesRegistration
         services.AddHostedService<Services.Notifications.ServiceRequestEventProcessor>();
         services.AddScoped<IServiceRequestEventProcessor, Services.Notifications.Processors.ServiceRequestEventProcessor>();
 
+        // Publishers: Email + InApp (SSE)
         services.AddScoped<INotificationPublisher, EmailNotificationPublisher>();
+        services.AddScoped<INotificationPublisher, InAppNotificationPublisher>();
+
+        // SSE Connection Manager (singleton)
+        services.AddSingleton<ISseConnectionManager, SseConnectionManager>();
+
         services.AddHostedService<NotificationPublisher>();
         services.AddTransient<IServiceRequestHtmlPreview, EmailNotificationPreview>();
 
@@ -151,8 +157,6 @@ public static class APIServicesRegistration
             services.AddOpenApi();
         }
 
-        // SignalR
-        services.AddSignalR();
         /*
         services.AddResponseCompression(opts =>
         {

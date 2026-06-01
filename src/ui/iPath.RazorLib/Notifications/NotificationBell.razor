@@ -1,11 +1,50 @@
 @inject AppState AppState
+@inject IPathApi Api
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@inject IStringLocalizer T
+@inject SseClientService Sse
 
-<MudBadge Content="AppState.UnreadNotificationCount"
-          Color="Color.Error"
-          Overlap="true"
-          Visible="AppState.UnreadNotificationCount > 0"
-          Class="mx-2">
-    <MudIconButton Icon="@Icons.Material.Filled.Notifications"
-                   Color="Color.Inherit"
-                   OnClick="AppState.ToggleNotificationDrawer" />
-</MudBadge>
+<MudMenu ActivationEvent="MouseEvent.LeftClick"
+         AnchorOrigin="Origin.BottomRight"
+         TransformOrigin="Origin.TopRight"
+         Dense="true">
+    <ActivatorContent>
+        <MudBadge Content="AppState.UnreadNotificationCount"
+                  Color="Color.Error"
+                  Overlap="true"
+                  Visible="AppState.UnreadNotificationCount > 0"
+                  Class="mx-2 cursor-pointer">
+            <MudIcon Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" />
+        </MudBadge>
+    </ActivatorContent>
+    <ChildContent>
+        <div style="width: 360px; max-height: 500px; overflow-y: auto;">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="pa-2">
+                <MudText Typo="Typo.h6">@T["Notifications"]</MudText>
+                <MudSpacer />
+                <MudButton Size="Size.Small" OnClick="MarkAllAsRead">@T["Mark all as read"]</MudButton>
+            </MudStack>
+            <MudDivider />
+            <MudList T="NotificationDto" Dense="true">
+                @foreach (var n in RecentUnread)
+                {
+                    <MudListItem OnClick="() => OpenNotification(n)">
+                        <MudText>@GetNotificationText(n)</MudText>
+                        <MudText Typo="Typo.caption">@n.Date.ToString("g")</MudText>
+                    </MudListItem>
+                }
+                @if (!RecentUnread.Any())
+                {
+                    <MudListItem>
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">@T["No new notifications"]</MudText>
+                    </MudListItem>
+                }
+            </MudList>
+            <MudDivider />
+            <MudButton Href="/notifications" FullWidth="true" Class="mt-1 mb-1">
+                @T["View all"]
+            </MudButton>
+        </div>
+    </ChildContent>
+</MudMenu>

@@ -265,6 +265,9 @@ public interface IPathApi
     [Get("/api/v1/notifications/unread-count")]
     Task<IApiResponse<int>> GetUnreadNotificationCount();
 
+    [Delete("/api/v1/notifications/{id}")]
+    Task<IApiResponse> DeleteNotification(Guid id);
+
     [Delete("/api/v1/notifications/all")]
     Task<IApiResponse> DeleteAllNotifications();
     #endregion

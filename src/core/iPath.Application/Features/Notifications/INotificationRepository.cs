@@ -15,4 +15,5 @@ public interface INotificationRepository
     Task SetReadState(Guid Id, bool IsRead, CancellationToken ct);
     Task MarkAllAsRead(Guid userId, CancellationToken ct);
     Task<int> GetUnreadCount(Guid userId, CancellationToken ct);
+    Task Delete(Guid id, Guid userId, CancellationToken ct);
 }

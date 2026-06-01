@@ -56,4 +56,11 @@ public class NotificationRepository(iPathDbContext db) : INotificationRepository
             .Where(n => n.UserId == userId && n.ReadOn == null)
             .CountAsync(ct);
     }
+
+    public async Task Delete(Guid id, Guid userId, CancellationToken ct)
+    {
+        await db.NotificationQueue
+            .Where(n => n.Id == id && n.UserId == userId)
+            .ExecuteDeleteAsync(ct);
+    }
 }

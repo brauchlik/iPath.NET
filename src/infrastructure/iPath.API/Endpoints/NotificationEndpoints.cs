@@ -84,6 +84,15 @@ public static class NotificationEndpoints
         .WithTags("Notifications")
         .RequireAuthorization();
 
+        route.MapDelete("notifications/{id:guid}", async (Guid id, HttpContext ctx, [FromServices] INotificationRepository repo, [FromServices] IUserSession sess, CancellationToken ct) =>
+        {
+            if (sess.User is null) return Results.Unauthorized();
+            await repo.Delete(id, sess.User.Id, ct);
+            return Results.Ok();
+        })
+        .WithTags("Notifications")
+        .RequireAuthorization();
+
         route.MapGet("notifications/unread-count", async (
             [FromServices] IUserSession sess,
             [FromServices] INotificationRepository repo,

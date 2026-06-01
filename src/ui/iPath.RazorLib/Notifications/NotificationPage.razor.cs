@@ -52,9 +52,11 @@ public partial class NotificationPage
         }
     }
 
-    async Task Delete(NotificationDto dto)
+    public async Task Delete(NotificationDto n)
     {
-        // TODO: add DELETE endpoint if needed; for now just reload
+        await Api.DeleteNotification(n.Id);
+        if (n.ReadOn is null)
+            AppState.DecrementUnreadCount();
         await grid.ReloadServerData();
     }
 

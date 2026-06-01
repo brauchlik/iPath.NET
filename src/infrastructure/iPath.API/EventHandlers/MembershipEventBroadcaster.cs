@@ -12,15 +12,21 @@ public class MembershipEventBroadcaster(ISseConnectionManager sse, ILogger<Membe
     {
         if (evt is not ServiceRequestEvent srEvt) return;
 
+        if (srEvt.ServiceRequest is null)
+        {
+            logger.LogWarning("ServiceRequestEvent {EventId} has null ServiceRequest navigation property; skipping broadcast", srEvt.EventId);
+            return;
+        }
+
         var groupId = srEvt.ServiceRequest.GroupId;
         var summary = new DomainEventSummary(
-            evt.EventName,
-            evt.EventId,
+            srEvt.EventName,
+            srEvt.EventId,
             srEvt.ServiceRequest.Id,
             groupId,
-            evt.EventDate);
+            srEvt.EventDate);
 
-        await sse.SendToGroupMembersAsync(groupId, "domain-event", summary, evt.EventDate.ToString("o"));
-        logger.LogDebug("Broadcast domain-event {EventName} for group {GroupId}", evt.EventName, groupId);
+        await sse.SendToGroupMembersAsync(groupId, "domain-event", summary, srEvt.EventDate.ToString("o"));
+        logger.LogDebug("Broadcast domain-event {EventName} for group {GroupId}", srEvt.EventName, groupId);
     }
 }

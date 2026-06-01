@@ -4,9 +4,30 @@ using MudBlazor;
 
 namespace iPath.Blazor.Componenents.Notifications;
 
-public partial class NotificationPage
+public partial class NotificationPage : IDisposable
 {
     MudDataGrid<NotificationDto> grid = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Sse is not null)
+            Sse.NotificationReceived += OnNotificationReceived;
+    }
+
+    private async void OnNotificationReceived(object? sender, NotificationDto dto)
+    {
+        await InvokeAsync(async () =>
+        {
+            if (grid is not null)
+                await grid.ReloadServerData();
+        });
+    }
+
+    public void Dispose()
+    {
+        if (Sse is not null)
+            Sse.NotificationReceived -= OnNotificationReceived;
+    }
 
     public async Task<GridData<NotificationDto>> GetData(GridState<NotificationDto> state, CancellationToken ct = default)
     {

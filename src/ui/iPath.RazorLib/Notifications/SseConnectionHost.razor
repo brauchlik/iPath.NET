@@ -63,17 +63,7 @@
 
     private void HandleDomainEvent(object? sender, DomainEventSummary evt)
     {
-        _ = InvokeAsync(() =>
-        {
-            var message = evt.EventType switch
-            {
-                "AnnotationAddedEvent" => T["New annotation on case"],
-                "ServiceRequestPublishedEvent" => T["New case published"],
-                _ => T["Case updated"]
-            };
-            Snackbar.Add(message, Severity.Info);
-            AppState.OnChange?.Invoke();
-        });
+        AppState.OnChange?.Invoke();
     }
 
     private void HandleSystemEvent(object? sender, SystemEventHint hint)

@@ -7,7 +7,7 @@ public class CreateServiceRequestCommandHandler(iPathDbContext db, IUserSession 
     {
         var ownerId = request.OwnerId ?? sess.User.Id;
         if (!sess.IsAdmin)
-            sess.AssertInGroup(ownerId);
+            sess.AssertInGroup(request.GroupId);
 
         var group = await db.Groups.FindAsync(request.GroupId, ct);
         Guard.Against.NotFound(request.GroupId, group);

@@ -11,7 +11,7 @@ public static class NotificationEndpoints
 {
     public static IEndpointRouteBuilder MapNotificationApi(this IEndpointRouteBuilder route)
     {
-        route.MapGet("api/v1/events/stream", async (
+        route.MapGet("events/stream", async (
             [FromServices] ISseConnectionManager mgr,
             [FromServices] IUserSession sess,
             [FromServices] iPathDbContext db,

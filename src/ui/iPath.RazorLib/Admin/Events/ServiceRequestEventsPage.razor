@@ -11,6 +11,8 @@
 @inject NavigationManager nm
 
 <MudStack Row="true" Spacing="2" Class="mb-4">
+    <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                   OnClick="@(() => nm.NavigateTo($"/request/{id}"))" />
     <MudText Typo="Typo.h5">Events & Notifications</MudText>
 </MudStack>
 

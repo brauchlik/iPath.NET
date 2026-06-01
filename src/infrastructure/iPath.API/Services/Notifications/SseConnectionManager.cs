@@ -22,6 +22,8 @@ public class SseConnectionManager(IServiceProvider services, ILogger<SseConnecti
     : ISseConnectionManager
 {
     private readonly ConcurrentDictionary<Guid, List<SseConnection>> _connections = new();
+    private PeriodicTimer? _keepAliveTimer;
+    private CancellationTokenSource? _keepAliveCts;
 
     public async Task AddConnectionAsync(Guid userId, HttpResponse response, CancellationToken ct)
     {
@@ -32,6 +34,9 @@ public class SseConnectionManager(IServiceProvider services, ILogger<SseConnecti
         _connections.AddOrUpdate(userId,
             _ => [connection],
             (_, list) => { list.Add(connection); return list; });
+
+        if (_connections.Count == 1)
+            StartKeepAlive();
 
         try
         {
@@ -118,10 +123,47 @@ public class SseConnectionManager(IServiceProvider services, ILogger<SseConnecti
 
         if (_connections.TryGetValue(userId, out var remaining) && remaining.Count == 0)
             _connections.TryRemove(userId, out _);
+
+        if (_connections.Count == 0)
+            StopKeepAlive();
+    }
+
+    private void StartKeepAlive()
+    {
+        _keepAliveCts = new CancellationTokenSource();
+        _keepAliveTimer = new PeriodicTimer(TimeSpan.FromSeconds(30));
+        _ = KeepAliveLoopAsync(_keepAliveCts.Token);
+    }
+
+    private async Task KeepAliveLoopAsync(CancellationToken ct)
+    {
+        try
+        {
+            while (await _keepAliveTimer!.WaitForNextTickAsync(ct))
+            {
+                await BroadcastAsync(": keepalive", null!, null);
+            }
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    private void StopKeepAlive()
+    {
+        _keepAliveCts?.Cancel();
+        _keepAliveTimer?.Dispose();
+        _keepAliveCts?.Dispose();
     }
 
     private static async Task WriteMessageAsync(HttpResponse response, SseMessage message, CancellationToken ct)
     {
+        if (message.EventType == ": keepalive")
+        {
+            var keepAliveBytes = Encoding.UTF8.GetBytes(": keepalive\n\n");
+            await response.Body.WriteAsync(keepAliveBytes, ct);
+            await response.Body.FlushAsync(ct);
+            return;
+        }
+
         var sb = new StringBuilder();
         if (!string.IsNullOrEmpty(message.Id))
             sb.AppendLine($"id: {message.Id}");

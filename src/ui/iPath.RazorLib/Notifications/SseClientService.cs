@@ -30,7 +30,7 @@ public class SseClientService : IAsyncDisposable
         {
             _module = await _js.InvokeAsync<IJSObjectReference>("import", "./_content/iPath.Blazor.Componenents/js/ipath-sse.js");
             _dotNetHelper = DotNetObjectReference.Create(this);
-            _eventSource = await _module.InvokeAsync<IJSObjectReference>("connect", _dotNetHelper, url, _lastEventId);
+            _eventSource = await _module.InvokeAsync<IJSObjectReference>("connect", _dotNetHelper, url);
             _logger.LogInformation("SSE connected to {Url}", url);
         }
         catch (Exception ex)
@@ -107,6 +107,15 @@ public class SseClientService : IAsyncDisposable
         }
         _dotNetHelper?.Dispose();
         if (_module is not null)
-            await _module.DisposeAsync();
+        {
+            try
+            {
+                await _module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // expected during circuit disconnect or page navigation
+            }
+        }
     }
 }

@@ -1,16 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace iPath.Database.Sqlite.Migrations
 {
     /// <inheritdoc />
-    public partial class AddNotificationReadOn : Migration
+    public partial class AddReadOnColumn : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<DateTime>(
+            migrationBuilder.AddColumn<DateTime?>(
                 name: "ReadOn",
                 table: "notifications",
                 type: "TEXT",
@@ -26,3 +26,4 @@ namespace iPath.Database.Sqlite.Migrations
         }
     }
 }
+

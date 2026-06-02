@@ -32,7 +32,7 @@ public static class UserSessionExtensions
             }
         }
 
-        public HashSet<Guid> GroupIds() => !session.User.IsAuthenticated ? [] : session.User.groups.Select(m => m.GroupId).ToHashSet();
+        public HashSet<Guid> GroupIds() => !session.IsAuthenticated ? [] : session.User!.groups.Select(m => m.GroupId).ToHashSet();
 
         public void AssertInRole(string Role)
         {

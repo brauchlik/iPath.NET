@@ -279,6 +279,15 @@ public interface IPathApi
 
     [Post("/api/v1/admin/events")]
     Task<IApiResponse<PagedResultList<EventDto>>> GetEvents(GetEventsQuery query);
+
+    [Get("/api/v1/admin/database")]
+    Task<IApiResponse<DatabaseStatusDto>> GetDatabaseStatus();
+
+    [Get("/api/v1/admin/database/tables")]
+    Task<IApiResponse<List<TableRowCountDto>>> GetDatabaseTableCounts();
+
+    [Post("/api/v1/admin/database/migrate")]
+    Task<IApiResponse<DatabaseStatusDto>> ApplyDatabaseMigrations();
     #endregion
 
 

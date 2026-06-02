@@ -358,19 +358,70 @@
         }
       }
     },
-    "/api/v1/api/v1/events/stream": {
+    "/api/v1/admin/database": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/database/tables": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableRowCountDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/database/migrate": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/events/stream": {
       "get": {
         "tags": [
           "Notifications"
-        ],
-        "parameters": [
-          {
-            "name": "lastEventId",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
         ],
         "responses": {
           "200": {
@@ -406,6 +457,29 @@
       "post": {
         "tags": [
           "Notifications"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/{id}": {
+      "delete": {
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -3654,6 +3728,56 @@
           }
         }
       },
+      "DatabaseStatusDto": {
+        "type": "object",
+        "properties": {
+          "lastMigration": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "initialAdminPassword": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "providerName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "connectionString": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "dbFileSize": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "autoMigrate": {
+            "type": "boolean"
+          },
+          "appliedMigrations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MigrationItemDto"
+            }
+          },
+          "pendingMigrations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MigrationItemDto"
+            }
+          }
+        }
+      },
       "DocumentDto": {
         "required": [
           "owner"
@@ -5174,6 +5298,17 @@
           }
         }
       },
+      "MigrationItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "created": {
+            "type": "string"
+          }
+        }
+      },
       "NodeFile": {
         "type": "object",
         "properties": {
@@ -6607,6 +6742,22 @@
               "string"
             ],
             "format": "uuid"
+          }
+        }
+      },
+      "TableRowCountDto": {
+        "type": "object",
+        "properties": {
+          "tableName": {
+            "type": "string"
+          },
+          "rowCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
           }
         }
       },

@@ -66,7 +66,7 @@ public class ServiceRequestEventProcessor(
     {
         if (m.NotificationTarget.HasFlag(eNotificationTarget.InApp))
         {
-            // => SignalR
+            // In App => SignalR / SSE
             await Enqueue(t, evt, eNotificationTarget.InApp, false, m.UserId, ct);
         }
         if (m.NotificationTarget.HasFlag(eNotificationTarget.Email))

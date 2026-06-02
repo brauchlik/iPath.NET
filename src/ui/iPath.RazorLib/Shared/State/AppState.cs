@@ -1,10 +1,13 @@
 ﻿using iPath.Application.Contracts;
+using iPath.Application.Features.Users;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Interfaces;
+using System.Security.Claims;
 
 namespace iPath.Blazor.Componenents.Shared;
 
-public class AppState(IPathApi api, ILogger<AppState> logger) : IUserSession
+public class AppState(IPathApi api, AuthenticationStateProvider authStateProvider, ILogger<AppState> logger) : IUserSession
 {
     public Action OnChange;
 
@@ -20,17 +23,37 @@ public class AppState(IPathApi api, ILogger<AppState> logger) : IUserSession
         _user = SessionUserDto.Anonymous;
         try
         {
-            var resp = await api.GetSession();
-            if (resp.IsSuccessful)
+            var authState = await authStateProvider.GetAuthenticationStateAsync();
+            var principal = authState.User;
+
+            if (principal.Identity?.IsAuthenticated == true)
             {
-                _user = resp.Content;
+                var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (Guid.TryParse(userIdClaim, out var userId) && userId != Guid.Empty)
+                {
+                    var resp = await api.GetUser(userId);
+                    if (resp.IsSuccessful && resp.Content is not null)
+                    {
+                        _user = ToSessionUser(resp.Content);
+                    }
+                }
             }
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "error calling /api/v1/session");
+            logger.LogError(ex, "Error reloading session");
         }
     }
+
+    private static SessionUserDto ToSessionUser(UserDto user) => new(
+        Id: user.Id,
+        Username: user.Username,
+        Email: user.Email,
+        Initials: user.Profile?.Initials ?? "",
+        roles: user.Roles?.Select(r => r.Name).ToArray() ?? [],
+        communities: user.CommunityMembership?.ToDictionary(c => c.CommunityId, c => c.Role) ?? null,
+        groups: user.GroupMembership?.ToList() ?? null
+    );
 
     public void ReloadUser(Guid userId)
     {
@@ -67,7 +90,6 @@ public class AppState(IPathApi api, ILogger<AppState> logger) : IUserSession
     }
 
     public int UnreadNotificationCount { get; private set; }
-    public bool NotificationDrawerOpen { get; set; }
 
     public void SetUnreadCount(int count)
     {
@@ -84,18 +106,6 @@ public class AppState(IPathApi api, ILogger<AppState> logger) : IUserSession
     public void DecrementUnreadCount()
     {
         if (UnreadNotificationCount > 0) UnreadNotificationCount--;
-        OnChange?.Invoke();
-    }
-
-    public void ToggleNotificationDrawer()
-    {
-        NotificationDrawerOpen = !NotificationDrawerOpen;
-        OnChange?.Invoke();
-    }
-
-    public void CloseNotificationDrawer()
-    {
-        NotificationDrawerOpen = false;
         OnChange?.Invoke();
     }
 }

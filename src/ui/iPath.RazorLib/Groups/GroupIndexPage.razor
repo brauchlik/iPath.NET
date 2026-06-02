@@ -3,7 +3,6 @@
 @attribute [Authorize]
 
 @inject GroupViewModel vm
-
 @if (Model is null)
 {
     <LoadingMessage />
@@ -40,5 +39,4 @@ else
             Model = vm.Model;
             StateHasChanged();
         }
-    }
-}
+    }}

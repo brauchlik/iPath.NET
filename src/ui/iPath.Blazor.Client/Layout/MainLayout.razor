@@ -18,7 +18,12 @@
         <MudHidden Breakpoint="Breakpoint.Xs">
             <AuthorizeView>
                 <Authorized>
-                    <NotificationBell />
+                    <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" Class="mx-2" OnClick="@NotifDrawerToggle">
+                        @if (AppState.UnreadNotificationCount > 0)
+                        {
+                            <MudBadge Content="AppState.UnreadNotificationCount" Color="Color.Error" Overlap="true" Visible="true" />
+                        }
+                    </MudIconButton>
                     <IPathAvatar />
                 </Authorized>
             </AuthorizeView>
@@ -26,7 +31,6 @@
     </MudAppBar>
     <AuthorizeView>
         <Authorized>
-            <NotificationDropdown />
             <SseConnectionHost />
         </Authorized>
     </AuthorizeView>
@@ -35,6 +39,7 @@
         <MudSpacer />
         <AboutMenu />
     </MudDrawer>
+    <NotificationDrawer @bind-Open="_notifOpen" />
     <MudMainContent>
         <MudContainer Class="ipath_main_container">
             <ErrorBoundary @ref="errorBoundary">
@@ -63,6 +68,7 @@
 
 @inject iPath.Blazor.ServiceLib.Services.StringLocalizerService srvLoc
 @inject IOptions<iPathClientConfig> opts
+@inject AppState AppState
 
 
 @code {
@@ -72,6 +78,12 @@
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    bool _notifOpen = false;
+    void NotifDrawerToggle()
+    {
+        _notifOpen = !_notifOpen;
     }
     string locale => System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 

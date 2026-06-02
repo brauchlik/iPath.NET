@@ -15,7 +15,6 @@ public static class NotificationEndpoints
             [FromServices] ISseConnectionManager mgr,
             [FromServices] IUserSession sess,
             [FromServices] iPathDbContext db,
-            [FromQuery] string? lastEventId,
             HttpContext ctx,
             CancellationToken ct) =>
         {
@@ -25,6 +24,9 @@ public static class NotificationEndpoints
             ctx.Response.Headers.ContentType = "text/event-stream";
             ctx.Response.Headers.CacheControl = "no-cache";
             ctx.Response.Headers.Connection = "keep-alive";
+
+            var lastEventId = ctx.Request.Query["lastEventId"].FirstOrDefault()
+                           ?? ctx.Request.Headers["Last-Event-ID"].FirstOrDefault();
 
             // Optional catch-up: emit missed events since lastEventId
             if (!string.IsNullOrEmpty(lastEventId)

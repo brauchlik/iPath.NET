@@ -119,8 +119,6 @@ await builder.Services.AddRazorLibServices(baseAddress, false);
 builder.Services.AddAntiforgery();
 
 
-builder.Services.AddTransient<baseAuthDelegationHandler, ForwardCookiesHandler>();
-
 // reverse Proxy
 if (!string.IsNullOrEmpty(cfg.ReverseProxyAddresse) && IPAddress.TryParse(cfg.ReverseProxyAddresse, out var proxyIP))
 {

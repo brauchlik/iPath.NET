@@ -1,0 +1,198 @@
+@page "/admin/database"
+
+@using DispatchR
+@using iPath.Application.Features.Admin
+
+@rendermode InteractiveServer
+
+<IPathHeader Title="Database Status" />
+
+<MudTabs @bind-ActivePanelIndex="ActiveTab" Elevation="0" Class="mt-2">
+    <TabPanels>
+        <MudTabPanel Text="Migration History">
+            @if (migrationData is null)
+            {
+                <MudText Class="mt-4">Loading...</MudText>
+            }
+            else
+            {
+                <MudText Typo="Typo.subtitle2" Class="mt-2">Database</MudText>
+                <MudText>Provider: @migrationData.ProviderName</MudText>
+                <MudText>Connection: @migrationData.ConnectionString</MudText>
+                <MudText>DB File Size: @migrationData.DbFileSize</MudText>
+                <MudText>Auto-migrate: @(migrationData.AutoMigrate ? "On" : "Off")</MudText>
+
+                @if (migrationData.PendingMigrations.Count > 0)
+                {
+                    <MudAlert Severity="Severity.Warning" Class="mt-3">
+                        <div class="d-flex align-center mb-2">
+                            <MudText Typo="Typo.subtitle2" Class="flex-grow-1">
+                                Pending Migrations (@migrationData.PendingMigrations.Count)
+                            </MudText>
+                            <ProgressButton Text="Apply"
+                                            ProcessingText="Applying..."
+                                            OnClick="ApplyPendingMigrationsAsync"
+                                            Color="Color.Primary"
+                                            Icon="@Icons.Material.Filled.PlayArrow" />
+                        </div>
+                        <MudTable Items="@migrationData.PendingMigrations" Dense="true" Class="mt-1">
+                            <ColGroup>
+                                <col style="width: 280px" />
+                                <col />
+                            </ColGroup>
+                            <HeaderContent>
+                                <MudTh>Created</MudTh>
+                                <MudTh>Migration</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Created">@context.Created</MudTd>
+                                <MudTd DataLabel="Migration">@context.Name</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudAlert>
+                }
+
+                @if (migrationData.AutoMigrate && migrationData.PendingMigrations.Count > 0)
+                {
+                    <MudAlert Severity="Severity.Info" Class="mt-3">
+                        <MudText>Auto-migrate is on — restart the application to apply pending migrations automatically.</MudText>
+                    </MudAlert>
+                }
+
+                <MudDivider Class="my-4" />
+
+                <MudText Typo="Typo.subtitle2">Migration History (@migrationData.AppliedMigrations.Count Migrations applied)</MudText>
+                <MudTable Items="@migrationData.AppliedMigrations" Dense="true" Striped="true" Hover="true" Class="mt-1">
+                    <ColGroup>
+                        <col style="width: 280px" />
+                        <col />
+                    </ColGroup>
+                    <HeaderContent>
+                        <MudTh>Created</MudTh>
+                        <MudTh>Migration</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Created">@context.Created</MudTd>
+                        <MudTd DataLabel="Migration">@context.Name</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudTabPanel>
+
+        <MudTabPanel Text="Tables">
+            @if (isLoadingTableData)
+            {
+                <MudText Class="mt-4">Loading table statistics...</MudText>
+            }
+            else if (tableData is not null)
+            {
+                <MudText Typo="Typo.subtitle2" Class="mt-2">Table Row Counts</MudText>
+                <MudTable Items="@tableData" Dense="true" Striped="true" Hover="true" Class="mt-1">
+                    <ColGroup>
+                        <col />
+                        <col style="width: 120px" />
+                    </ColGroup>
+                    <HeaderContent>
+                        <MudTh>Table</MudTh>
+                        <MudTh>Rows</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Table">@context.TableName</MudTd>
+                        <MudTd DataLabel="Rows" Style="text-align: right;">@context.RowCount.ToString("N0")</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudTabPanel>
+    </TabPanels>
+</MudTabs>
+
+
+@inject IMediator mediator
+@inject ISnackbar snackbar
+@inject IDialogService dialog
+@inject NavigationManager navigation
+
+
+@code {
+    private DatabaseStatusDto? migrationData;
+    private List<TableRowCountDto>? tableData;
+    private bool isLoadingTableData;
+
+    private int _activeTab = 0;
+
+    private int ActiveTab
+    {
+        get => _activeTab;
+        set
+        {
+            if (_activeTab != value)
+            {
+                _activeTab = value;
+                if (value == 1)
+                {
+                    isLoadingTableData = true;
+                    StateHasChanged();
+                    _ = LoadTableDataAsync();
+                }
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMigrationData();
+    }
+
+    private async Task LoadMigrationData()
+    {
+        try
+        {
+            migrationData = await mediator.Send(new GetDatabaseStatusQuery(), CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            snackbar.AddError($"Error loading database status: {ex.Message}");
+        }
+    }
+
+    private async Task ApplyPendingMigrationsAsync()
+    {
+        var pending = migrationData?.PendingMigrations.Count ?? 0;
+        var confirmed = await dialog.ShowMessageBoxAsync(
+            "Apply Migrations",
+            $"Apply {pending} pending migration(s)?",
+            yesText: "Apply",
+            cancelText: "Cancel");
+
+        if (confirmed != true)
+            return;
+
+        try
+        {
+            await mediator.Send(new ApplyDatabaseMigrationsCommand(), CancellationToken.None);
+            snackbar.Add($"Applied {pending} migration(s) successfully.", Severity.Success);
+            navigation.Refresh();
+        }
+        catch (Exception ex)
+        {
+            snackbar.AddError($"Error applying migrations: {ex.Message}");
+        }
+    }
+
+    private async Task LoadTableDataAsync()
+    {
+        try
+        {
+            tableData = await mediator.Send(new GetDatabaseTableCountsQuery(), CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            snackbar.AddError($"Error loading table counts: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingTableData = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

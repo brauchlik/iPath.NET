@@ -1,4 +1,6 @@
-﻿<AuthorizeView Roles="Admin">
+﻿@using iPath.Application.Features.Admin
+
+<AuthorizeView Roles="Admin">
     <Authorized>
         <MudNavGroup Title="Admin" Expanded="true" HeaderClass="mud-theme-info">
             <MudNavLink Href="admin/users" Icon="@Icons.Material.Filled.Person">Users</MudNavLink>
@@ -7,6 +9,13 @@
             <MudNavLink Href="admin/questionnaires" Icon="@Icons.Material.TwoTone.DynamicForm">Questionnaires</MudNavLink>
             <MudNavLink Href="admin/cms" Icon="@Icons.Material.Filled.Pages">News and Pages</MudNavLink>
             <MudNavLink Href="admin/system" Icon="@Icons.Material.Filled.Settings">System</MudNavLink>
+            <MudNavLink Href="admin/database" Icon="@Icons.Material.Filled.Storage">
+                Database
+                @if (pendingCount > 0)
+                {
+                    <MudChip T="string" Size="Size.Small" Color="Color.Warning" Class="ml-1">@pendingCount.ToString()</MudChip>
+                }
+            </MudNavLink>
         </MudNavGroup>
     </Authorized>
 </AuthorizeView>
@@ -22,3 +31,25 @@
         </MudNavGroup>
     </Authorized>
 </AuthorizeView>
+
+@inject IPathApi api
+
+@code {
+    private int pendingCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var resp = await api.GetDatabaseStatus();
+            if (resp.IsSuccessful && resp.Content is not null)
+            {
+                pendingCount = resp.Content.PendingMigrations.Count;
+            }
+        }
+        catch
+        {
+            // silently ignore
+        }
+    }
+}

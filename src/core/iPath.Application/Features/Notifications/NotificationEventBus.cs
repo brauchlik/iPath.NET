@@ -1,28 +1,78 @@
+using System.Collections.Concurrent;
+
 namespace iPath.Application.Features.Notifications;
 
 public interface INotificationEventBus
 {
-    event EventHandler<NotificationDto>? NotificationReceived;
-    event EventHandler<DomainEventSummary>? DomainEventReceived;
-    event EventHandler<SystemEventHint>? SystemEventReceived;
+    void PublishNotification(Guid userId, NotificationDto dto);
+    IDisposable SubscribeNotifications(Guid userId, Action<NotificationDto> handler);
 
-    void PublishNotification(NotificationDto dto);
     void PublishDomainEvent(DomainEventSummary evt);
+    IDisposable SubscribeDomainEvents(Action<DomainEventSummary> handler);
+
     void PublishSystemEvent(SystemEventHint hint);
+    IDisposable SubscribeSystemEvents(Action<SystemEventHint> handler);
 }
 
 public class NotificationEventBus : INotificationEventBus
 {
-    public event EventHandler<NotificationDto>? NotificationReceived;
-    public event EventHandler<DomainEventSummary>? DomainEventReceived;
-    public event EventHandler<SystemEventHint>? SystemEventReceived;
+    private readonly ConcurrentDictionary<Guid, List<Action<NotificationDto>>> _notificationSubs = new();
+    private readonly ConcurrentDictionary<Guid, Action<DomainEventSummary>> _domainSubs = new();
+    private readonly ConcurrentDictionary<Guid, Action<SystemEventHint>> _systemSubs = new();
 
-    public void PublishNotification(NotificationDto dto)
-        => NotificationReceived?.Invoke(this, dto);
+    public void PublishNotification(Guid userId, NotificationDto dto)
+    {
+        if (_notificationSubs.TryGetValue(userId, out var handlers))
+        {
+            foreach (var h in handlers.ToArray())
+                h(dto);
+        }
+    }
+
+    public IDisposable SubscribeNotifications(Guid userId, Action<NotificationDto> handler)
+    {
+        _notificationSubs.AddOrUpdate(userId,
+            _ => [handler],
+            (_, list) => { list.Add(handler); return list; });
+        return new Unsubscriber(() =>
+        {
+            if (_notificationSubs.TryGetValue(userId, out var list))
+            {
+                list.Remove(handler);
+                if (list.Count == 0)
+                    _notificationSubs.TryRemove(userId, out _);
+            }
+        });
+    }
 
     public void PublishDomainEvent(DomainEventSummary evt)
-        => DomainEventReceived?.Invoke(this, evt);
+    {
+        foreach (var h in _domainSubs.Values.ToArray())
+            h(evt);
+    }
+
+    public IDisposable SubscribeDomainEvents(Action<DomainEventSummary> handler)
+    {
+        var key = Guid.NewGuid();
+        _domainSubs[key] = handler;
+        return new Unsubscriber(() => _domainSubs.TryRemove(key, out _));
+    }
 
     public void PublishSystemEvent(SystemEventHint hint)
-        => SystemEventReceived?.Invoke(this, hint);
+    {
+        foreach (var h in _systemSubs.Values.ToArray())
+            h(hint);
+    }
+
+    public IDisposable SubscribeSystemEvents(Action<SystemEventHint> handler)
+    {
+        var key = Guid.NewGuid();
+        _systemSubs[key] = handler;
+        return new Unsubscriber(() => _systemSubs.TryRemove(key, out _));
+    }
+}
+
+file class Unsubscriber(Action dispose) : IDisposable
+{
+    public void Dispose() => dispose();
 }

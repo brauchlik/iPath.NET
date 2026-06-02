@@ -102,7 +102,7 @@ public static class NotificationEndpoints
         {
             if (sess.User is null)
                 return Results.Unauthorized();
-            var count = await repo.GetUnreadCount(sess.User.Id, ct);
+            var count = await repo.GetUnreadCount(sess.User.Id, eNotificationTarget.InApp, ct);
             return Results.Ok(count);
         })
         .WithTags("Notifications")

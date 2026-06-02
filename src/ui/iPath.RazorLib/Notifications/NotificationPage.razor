@@ -36,7 +36,11 @@
                          Color="@(context.Item.ReadOn.HasValue ? Color.Default : Color.Primary)" />
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="e => e.EventType" Title=@T["Type"] />
+        <TemplateColumn Title="@T["Message"]">
+            <CellTemplate>
+                <MudText>@GetNotificationMessage(context.Item)</MudText>
+            </CellTemplate>
+        </TemplateColumn>
         <PropertyColumn Property="e => e.Date" Format="g" Title=@T["Date"] />
         <TemplateColumn>
             <CellTemplate>

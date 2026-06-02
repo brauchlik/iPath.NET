@@ -1,3 +1,4 @@
+using System.Text.Json;
 using iPath.Application.Features.Notifications;
 using iPath.Domain.Notifications;
 using MudBlazor;
@@ -31,7 +32,7 @@ public partial class NotificationPage : IDisposable
 
     public async Task<GridData<NotificationDto>> GetData(GridState<NotificationDto> state, CancellationToken ct = default)
     {
-        var resp = await Api.GetNotifications(state.Page, state.PageSize, eNotificationTarget.InApp);
+        var resp = await Api.GetNotifications(state.Page, state.PageSize, eNotificationTarget.InApp, ct: ct);
         if (resp.IsSuccessful && resp.Content is not null)
             return resp.Content.ToGridData();
         return new GridData<NotificationDto>();
@@ -91,6 +92,40 @@ public partial class NotificationPage : IDisposable
             await Api.DeleteAllNotifications();
             AppState.SetUnreadCount(0);
             await grid.ReloadServerData();
+        }
+    }
+
+    string GetNotificationMessage(NotificationDto n)
+    {
+        var data = DeserializePayload(n.Payload);
+        if (data is not null)
+        {
+            var message = n.EventType switch
+            {
+                eNodeNotificationType.NodePublished => T["published a new case"],
+                eNodeNotificationType.NewAnnotation => T["added a new annotation"],
+                _ => T["updated a case"]
+            };
+            return $"{data.Sender} {message} on {data.Title}";
+        }
+        return n.EventType switch
+        {
+            eNodeNotificationType.NodePublished => T["A new case has been published"],
+            eNodeNotificationType.NewAnnotation => T["A new annotation has been added"],
+            _ => T["New notification"]
+        };
+    }
+
+    static NotificationPayload? DeserializePayload(string? payload)
+    {
+        if (payload is null) return null;
+        try
+        {
+            return JsonSerializer.Deserialize(payload, NotificationPayloadSerializerContext.Default.NotificationPayload);
+        }
+        catch
+        {
+            return null;
         }
     }
 }

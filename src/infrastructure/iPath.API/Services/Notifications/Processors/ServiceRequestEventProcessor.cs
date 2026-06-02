@@ -1,4 +1,6 @@
-﻿using iPath.Application.Features.Notifications;
+﻿using System.Text.Json;
+using iPath.Application.Features.Notifications;
+using iPath.Domain.Entities;
 using iPath.Domain.Notifications;
 using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
@@ -81,6 +83,26 @@ public class ServiceRequestEventProcessor(
         try
         {
             var entity = Notification.Create(t, target, false, ReceiverId, evt.ServiceRequest.Id, evt.EventId);
+
+            if (target == eNotificationTarget.InApp)
+            {
+                // Load sender name from the triggering user
+                var senderUser = await db.Set<User>().FindAsync(new object[] { evt.UserId }, ct);
+                var senderName = senderUser?.UserName ?? "Someone";
+
+                var sr = evt.ServiceRequest;
+
+                var payload = new NotificationPayload(
+                    Sender: senderName,
+                    Title: sr.Description.FullTitle(),
+                    AccessionNo: sr.Description?.AccessionNo,
+                    BodySite: sr.Description?.BodySite?.Code,                                                
+                    GroupId: sr.GroupId
+                );
+
+                entity.SetData(JsonSerializer.Serialize(payload, NotificationPayloadSerializerContext.Default.NotificationPayload));
+            }
+
             await db.NotificationQueue.AddAsync(entity, ct);
             await db.SaveChangesAsync(ct);
             // enque for publishing
@@ -89,6 +111,6 @@ public class ServiceRequestEventProcessor(
         catch (Exception ex)
         {
             logger.LogError(ex, ex.Message);
-        }
+        } 
     }
 }

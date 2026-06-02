@@ -14,6 +14,6 @@ public interface INotificationRepository
     Task DeleteAll(CancellationToken ct);
     Task SetReadState(Guid Id, bool IsRead, CancellationToken ct);
     Task MarkAllAsRead(Guid userId, CancellationToken ct);
-    Task<int> GetUnreadCount(Guid userId, CancellationToken ct);
+    Task<int> GetUnreadCount(Guid userId, eNotificationTarget target, CancellationToken ct);
     Task Delete(Guid id, Guid userId, CancellationToken ct);
 }

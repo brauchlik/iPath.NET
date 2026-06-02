@@ -1,7 +1,7 @@
+@using System.Security.Claims
 @using iPath.Application.Features.Notifications
 @using iPath.Blazor.Componenents.Admin.Users
 @inject SseClientService Sse
-@inject ISnackbar Snackbar
 @inject AppState AppState
 @inject UserViewModel UserVm
 @inject CommunityViewModel CommunityVm
@@ -12,6 +12,7 @@
 @inject ILogger<SseConnectionHost> Logger
 @inject NavigationManager Nav
 @inject IPathApi Api
+@inject AuthenticationStateProvider AuthState
 @implements IAsyncDisposable
 
 @code {
@@ -27,8 +28,16 @@
             // Load initial unread count
             await LoadUnreadCount();
 
+            var authState = await AuthState.GetAuthenticationStateAsync();
+            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId is null)
+            {
+                Logger.LogWarning("User not authenticated; SSE subscription skipped");
+                return;
+            }
+
             var baseUrl = Nav.BaseUri.TrimEnd('/');
-            await Sse.ConnectAsync($"{baseUrl}/api/v1/events/stream");
+            await Sse.ConnectAsync($"{baseUrl}/api/v1/events/stream", Guid.Parse(userId));
         }
     }
 
@@ -51,13 +60,6 @@
         _ = InvokeAsync(() =>
         {
             AppState.IncrementUnreadCount();
-            var message = dto.EventType switch
-            {
-                eNodeNotificationType.NodePublished => T["A new case has been published"],
-                eNodeNotificationType.NewAnnotation => T["A new annotation has been added"],
-                _ => T["New notification"]
-            };
-            Snackbar.Add(message, Severity.Info);
         });
     }
 

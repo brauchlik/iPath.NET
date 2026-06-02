@@ -96,6 +96,12 @@ public class Notification : BaseEntity
         ReadOn = null;
         return this;
     }
+
+    public Notification SetData(string? data)
+    {
+        Data = data;
+        return this;
+    }
 }
 
 [JsonSourceGenerationOptions(

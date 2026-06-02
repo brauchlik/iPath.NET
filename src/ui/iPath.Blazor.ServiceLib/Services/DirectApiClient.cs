@@ -415,55 +415,56 @@ public class DirectApiClient(
 
     // -- Notifications --
 
-    public async Task<IApiResponse<PagedResultList<NotificationDto>>> GetNotifications(int page, int pageSize, eNotificationTarget target, string[]? sort = null)
+    public async Task<IApiResponse<PagedResultList<NotificationDto>>> GetNotifications(int page, int pageSize, eNotificationTarget target, string[]? sort = null, CancellationToken ct = default)
     {
         var query = new GetNotificationsQuery
         {
             Page = page,
             PageSize = pageSize,
             Target = target,
-            Sorting = sort
+            Sorting = sort,
+            UserId = userSession.User?.Id
         };
-        return Respond(await notificationRepo.GetPage(query, CancellationToken.None));
+        return Respond(await notificationRepo.GetPage(query, ct));
     }
 
-    public async Task<IApiResponse> MarkNotificationAsRead(Guid id)
+    public async Task<IApiResponse> MarkNotificationAsRead(Guid id, CancellationToken ct = default)
     {
-        await mediator.Send(new MarkNotificationAsReadCommand(id), default);
+        await mediator.Send(new MarkNotificationAsReadCommand(id), ct);
         return RespondOk();
     }
 
-    public async Task<IApiResponse> MarkAllNotificationsAsRead()
+    public async Task<IApiResponse> MarkAllNotificationsAsRead(CancellationToken ct = default)
     {
         if (userSession.User is not null)
         {
-            await notificationRepo.MarkAllAsRead(userSession.User.Id, CancellationToken.None);
+            await notificationRepo.MarkAllAsRead(userSession.User.Id, ct);
         }
         return RespondOk();
     }
 
-    public async Task<IApiResponse<int>> GetUnreadNotificationCount()
+    public async Task<IApiResponse<int>> GetUnreadNotificationCount(CancellationToken ct = default)
     {
         if (userSession.User is not null)
         {
-            var count = await notificationRepo.GetUnreadCount(userSession.User.Id, CancellationToken.None);
+            var count = await notificationRepo.GetUnreadCount(userSession.User.Id, eNotificationTarget.InApp, ct);
             return Respond(count);
         }
         return Respond(0);
     }
 
-    public async Task<IApiResponse> DeleteNotification(Guid id)
+    public async Task<IApiResponse> DeleteNotification(Guid id, CancellationToken ct = default)
     {
         if (userSession.User is not null)
         {
-            await notificationRepo.Delete(id, userSession.User.Id, CancellationToken.None);
+            await notificationRepo.Delete(id, userSession.User.Id, ct);
         }
         return RespondOk();
     }
 
-    public async Task<IApiResponse> DeleteAllNotifications()
+    public async Task<IApiResponse> DeleteAllNotifications(CancellationToken ct = default)
     {
-        await notificationRepo.DeleteAll(CancellationToken.None);
+        await notificationRepo.DeleteAll(ct);
         return RespondOk();
     }
 

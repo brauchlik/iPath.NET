@@ -10,6 +10,7 @@ public class SseClientService : IAsyncDisposable
     private readonly ILogger<SseClientService> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly bool _isServerMode;
+    private readonly List<IDisposable> _subscriptions = new();
 
     // Server mode: in-process event bus subscription
     private INotificationEventBus? _eventBus;
@@ -34,11 +35,11 @@ public class SseClientService : IAsyncDisposable
         _isServerMode = !OperatingSystem.IsBrowser();
     }
 
-    public async Task ConnectAsync(string url)
+    public async Task ConnectAsync(string url, Guid userId)
     {
         if (_isServerMode)
         {
-            ConnectServerMode();
+            ConnectServerMode(userId);
             return;
         }
 
@@ -56,15 +57,15 @@ public class SseClientService : IAsyncDisposable
         }
     }
 
-    private void ConnectServerMode()
+    private void ConnectServerMode(Guid userId)
     {
         try
         {
             _eventBus = _serviceProvider.GetRequiredService<INotificationEventBus>();
-            _eventBus.NotificationReceived += OnEventBusNotification;
-            _eventBus.DomainEventReceived += OnEventBusDomainEvent;
-            _eventBus.SystemEventReceived += OnEventBusSystemEvent;
-            _logger.LogInformation("SSE connected in Server mode via NotificationEventBus");
+            _subscriptions.Add(_eventBus.SubscribeNotifications(userId, OnEventBusNotification));
+            _subscriptions.Add(_eventBus.SubscribeDomainEvents(OnEventBusDomainEvent));
+            _subscriptions.Add(_eventBus.SubscribeSystemEvents(OnEventBusSystemEvent));
+            _logger.LogInformation("SSE connected in Server mode for user {UserId}", userId);
         }
         catch (Exception ex)
         {
@@ -72,17 +73,17 @@ public class SseClientService : IAsyncDisposable
         }
     }
 
-    private void OnEventBusNotification(object? sender, NotificationDto dto)
+    private void OnEventBusNotification(NotificationDto dto)
     {
         NotificationReceived?.Invoke(this, dto);
     }
 
-    private void OnEventBusDomainEvent(object? sender, DomainEventSummary evt)
+    private void OnEventBusDomainEvent(DomainEventSummary evt)
     {
         DomainEventReceived?.Invoke(this, evt);
     }
 
-    private void OnEventBusSystemEvent(object? sender, SystemEventHint hint)
+    private void OnEventBusSystemEvent(SystemEventHint hint)
     {
         SystemEventReceived?.Invoke(this, hint);
     }
@@ -146,12 +147,9 @@ public class SseClientService : IAsyncDisposable
     {
         if (_isServerMode)
         {
-            if (_eventBus is not null)
-            {
-                _eventBus.NotificationReceived -= OnEventBusNotification;
-                _eventBus.DomainEventReceived -= OnEventBusDomainEvent;
-                _eventBus.SystemEventReceived -= OnEventBusSystemEvent;
-            }
+            foreach (var sub in _subscriptions)
+                sub.Dispose();
+            _subscriptions.Clear();
             return;
         }
 

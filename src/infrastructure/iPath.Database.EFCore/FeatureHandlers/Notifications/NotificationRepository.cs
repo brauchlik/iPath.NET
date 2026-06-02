@@ -50,10 +50,10 @@ public class NotificationRepository(iPathDbContext db) : INotificationRepository
             .ExecuteUpdateAsync(setters => setters.SetProperty(n => n.ReadOn, DateTime.UtcNow), ct);
     }
 
-    public async Task<int> GetUnreadCount(Guid userId, CancellationToken ct)
+    public async Task<int> GetUnreadCount(Guid userId, eNotificationTarget target, CancellationToken ct)
     {
         return await db.NotificationQueue
-            .Where(n => n.UserId == userId && n.ReadOn == null)
+            .Where(n => n.UserId == userId && n.Target == target && n.ReadOn == null)
             .CountAsync(ct);
     }
 

@@ -16,7 +16,7 @@ public class InAppNotificationPublisher(
         {
             var dto = n.ToDto();
             await sse.SendToUserAsync(n.UserId, "notification", dto, n.CreatedOn.ToString("o"));
-            eventBus.PublishNotification(dto);
+            eventBus.PublishNotification(n.UserId, dto);
             n.MarkAsSent();
         }
         catch (Exception ex)

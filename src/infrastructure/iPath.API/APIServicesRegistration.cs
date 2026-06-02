@@ -96,6 +96,9 @@ public static class APIServicesRegistration
         // SSE Connection Manager (singleton)
         services.AddSingleton<ISseConnectionManager, SseConnectionManager>();
 
+        // In-process event bus for Server-mode direct subscription (avoids browser round trip)
+        services.AddSingleton<INotificationEventBus, NotificationEventBus>();
+
         services.AddHostedService<NotificationPublisher>();
         services.AddTransient<IServiceRequestHtmlPreview, EmailNotificationPreview>();
 

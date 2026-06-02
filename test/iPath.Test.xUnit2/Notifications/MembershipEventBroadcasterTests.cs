@@ -13,8 +13,9 @@ public class MembershipEventBroadcasterTests
     public async Task Handle_ServiceRequestEvent_SendsGroupScopedDomainEvent()
     {
         var sse = Substitute.For<ISseConnectionManager>();
+        var eventBus = Substitute.For<INotificationEventBus>();
         var logger = new LoggerFactory().CreateLogger<MembershipEventBroadcaster>();
-        var handler = new MembershipEventBroadcaster(sse, logger);
+        var handler = new MembershipEventBroadcaster(sse, eventBus, logger);
 
         var groupId = Guid.NewGuid();
         var sr = new ServiceRequest { Id = Guid.NewGuid(), GroupId = groupId };
@@ -33,8 +34,9 @@ public class MembershipEventBroadcasterTests
     public async Task Handle_NonServiceRequestEvent_DoesNothing()
     {
         var sse = Substitute.For<ISseConnectionManager>();
+        var eventBus = Substitute.For<INotificationEventBus>();
         var logger = new LoggerFactory().CreateLogger<MembershipEventBroadcaster>();
-        var handler = new MembershipEventBroadcaster(sse, logger);
+        var handler = new MembershipEventBroadcaster(sse, eventBus, logger);
 
         var evt = new CommunityCreatedEvent { EventId = Guid.NewGuid(), EventDate = DateTime.UtcNow, EventName = "CommunityCreatedEvent" };
 

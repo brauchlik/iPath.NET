@@ -1,4 +1,5 @@
 using iPath.Application.Features.Notifications;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using System.Text.Json;
 
@@ -6,8 +7,15 @@ namespace iPath.Blazor.Componenents.Notifications;
 
 public class SseClientService : IAsyncDisposable
 {
-    private readonly IJSRuntime _js;
     private readonly ILogger<SseClientService> _logger;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly bool _isServerMode;
+
+    // Server mode: in-process event bus subscription
+    private INotificationEventBus? _eventBus;
+
+    // WASM mode: JS interop fields
+    private IJSRuntime? _js;
     private IJSObjectReference? _module;
     private IJSObjectReference? _eventSource;
     private DotNetObjectReference<SseClientService>? _dotNetHelper;
@@ -18,17 +26,26 @@ public class SseClientService : IAsyncDisposable
     public event EventHandler<SystemEventHint>? SystemEventReceived;
     public event EventHandler? ConnectionError;
 
-    public SseClientService(IJSRuntime js, ILogger<SseClientService> logger)
+    public SseClientService(IJSRuntime js, IServiceProvider serviceProvider, ILogger<SseClientService> logger)
     {
         _js = js;
+        _serviceProvider = serviceProvider;
         _logger = logger;
+        _isServerMode = !OperatingSystem.IsBrowser();
     }
 
     public async Task ConnectAsync(string url)
     {
+        if (_isServerMode)
+        {
+            ConnectServerMode();
+            return;
+        }
+
+        // WASM mode: use browser EventSource
         try
         {
-            _module = await _js.InvokeAsync<IJSObjectReference>("import", "./_content/iPath.Blazor.Componenents/js/ipath-sse.js");
+            _module = await _js!.InvokeAsync<IJSObjectReference>("import", "./_content/iPath.Blazor.Componenents/js/ipath-sse.js");
             _dotNetHelper = DotNetObjectReference.Create(this);
             _eventSource = await _module.InvokeAsync<IJSObjectReference>("connect", _dotNetHelper, url);
             _logger.LogInformation("SSE connected to {Url}", url);
@@ -37,6 +54,37 @@ public class SseClientService : IAsyncDisposable
         {
             _logger.LogError(ex, "Failed to connect SSE");
         }
+    }
+
+    private void ConnectServerMode()
+    {
+        try
+        {
+            _eventBus = _serviceProvider.GetRequiredService<INotificationEventBus>();
+            _eventBus.NotificationReceived += OnEventBusNotification;
+            _eventBus.DomainEventReceived += OnEventBusDomainEvent;
+            _eventBus.SystemEventReceived += OnEventBusSystemEvent;
+            _logger.LogInformation("SSE connected in Server mode via NotificationEventBus");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to subscribe to NotificationEventBus");
+        }
+    }
+
+    private void OnEventBusNotification(object? sender, NotificationDto dto)
+    {
+        NotificationReceived?.Invoke(this, dto);
+    }
+
+    private void OnEventBusDomainEvent(object? sender, DomainEventSummary evt)
+    {
+        DomainEventReceived?.Invoke(this, evt);
+    }
+
+    private void OnEventBusSystemEvent(object? sender, SystemEventHint hint)
+    {
+        SystemEventReceived?.Invoke(this, hint);
     }
 
     [JSInvokable]
@@ -96,6 +144,18 @@ public class SseClientService : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        if (_isServerMode)
+        {
+            if (_eventBus is not null)
+            {
+                _eventBus.NotificationReceived -= OnEventBusNotification;
+                _eventBus.DomainEventReceived -= OnEventBusDomainEvent;
+                _eventBus.SystemEventReceived -= OnEventBusSystemEvent;
+            }
+            return;
+        }
+
+        // WASM mode: dispose JS interop resources
         try
         {
             if (_eventSource is not null)

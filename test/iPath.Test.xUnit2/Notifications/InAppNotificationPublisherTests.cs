@@ -14,8 +14,9 @@ public class InAppNotificationPublisherTests
     public async Task PublishAsync_ShouldMarkAsSent_WhenDeliverySucceeds()
     {
         var sse = Substitute.For<ISseConnectionManager>();
+        var eventBus = Substitute.For<INotificationEventBus>();
         var logger = new LoggerFactory().CreateLogger<InAppNotificationPublisher>();
-        var pub = new InAppNotificationPublisher(sse, logger);
+        var pub = new InAppNotificationPublisher(sse, eventBus, logger);
 
         var user = new User { Id = Guid.NewGuid(), UserName = "test", Email = "t@test.com", EmailConfirmed = true };
         var n = Notification.Create(eNodeNotificationType.NewAnnotation, eNotificationTarget.InApp, false, user.Id, Guid.NewGuid(), Guid.NewGuid());

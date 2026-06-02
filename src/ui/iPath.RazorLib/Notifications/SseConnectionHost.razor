@@ -63,7 +63,7 @@
 
     private void HandleDomainEvent(object? sender, DomainEventSummary evt)
     {
-        AppState.OnChange?.Invoke();
+        _ = InvokeAsync(() => AppState.OnChange?.Invoke());
     }
 
     private void HandleSystemEvent(object? sender, SystemEventHint hint)

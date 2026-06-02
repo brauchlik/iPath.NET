@@ -12,6 +12,7 @@ public partial class NotificationBell : IDisposable
         await LoadUnread();
         if (Sse is not null)
             Sse.NotificationReceived += OnNotificationReceived;
+        AppState.OnChange += OnAppStateChanged;
     }
 
     private async void OnNotificationReceived(object? sender, NotificationDto dto)
@@ -23,10 +24,16 @@ public partial class NotificationBell : IDisposable
         });
     }
 
+    private void OnAppStateChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
     public void Dispose()
     {
         if (Sse is not null)
             Sse.NotificationReceived -= OnNotificationReceived;
+        AppState.OnChange -= OnAppStateChanged;
     }
 
     async Task LoadUnread()

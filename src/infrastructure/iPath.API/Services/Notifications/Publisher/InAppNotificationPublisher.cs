@@ -2,7 +2,10 @@ using iPath.Application.Features.Notifications;
 
 namespace iPath.API.Services.Notifications.Publisher;
 
-public class InAppNotificationPublisher(ISseConnectionManager sse, ILogger<InAppNotificationPublisher> logger)
+public class InAppNotificationPublisher(
+    ISseConnectionManager sse,
+    INotificationEventBus eventBus,
+    ILogger<InAppNotificationPublisher> logger)
     : INotificationPublisher
 {
     public eNotificationTarget Target => eNotificationTarget.InApp;
@@ -13,6 +16,7 @@ public class InAppNotificationPublisher(ISseConnectionManager sse, ILogger<InApp
         {
             var dto = n.ToDto();
             await sse.SendToUserAsync(n.UserId, "notification", dto, n.CreatedOn.ToString("o"));
+            eventBus.PublishNotification(dto);
             n.MarkAsSent();
         }
         catch (Exception ex)

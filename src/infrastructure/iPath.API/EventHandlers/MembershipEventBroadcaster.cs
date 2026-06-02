@@ -5,7 +5,10 @@ using iPath.Domain.Entities;
 
 namespace iPath.API.EventHandlers;
 
-public class MembershipEventBroadcaster(ISseConnectionManager sse, ILogger<MembershipEventBroadcaster> logger)
+public class MembershipEventBroadcaster(
+    ISseConnectionManager sse,
+    INotificationEventBus eventBus,
+    ILogger<MembershipEventBroadcaster> logger)
     : INotificationHandler<EventEntity>
 {
     public async ValueTask Handle(EventEntity evt, CancellationToken ct)
@@ -27,6 +30,7 @@ public class MembershipEventBroadcaster(ISseConnectionManager sse, ILogger<Membe
             srEvt.EventDate);
 
         await sse.SendToGroupMembersAsync(groupId, "domain-event", summary, srEvt.EventDate.ToString("o"));
+        eventBus.PublishDomainEvent(summary);
         logger.LogDebug("Broadcast domain-event {EventName} for group {GroupId}", srEvt.EventName, groupId);
     }
 }

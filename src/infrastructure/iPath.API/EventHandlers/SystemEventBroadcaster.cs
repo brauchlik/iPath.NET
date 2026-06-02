@@ -5,7 +5,10 @@ using iPath.Domain.Entities;
 
 namespace iPath.API.EventHandlers;
 
-public class SystemEventBroadcaster(ISseConnectionManager sse, ILogger<SystemEventBroadcaster> logger)
+public class SystemEventBroadcaster(
+    ISseConnectionManager sse,
+    INotificationEventBus eventBus,
+    ILogger<SystemEventBroadcaster> logger)
     : INotificationHandler<EventEntity>
 {
     public async ValueTask Handle(EventEntity evt, CancellationToken ct)
@@ -14,6 +17,7 @@ public class SystemEventBroadcaster(ISseConnectionManager sse, ILogger<SystemEve
 
         var hint = new SystemEventHint(evt.EventName, evt.ObjectId, DeriveHint(evt));
         await sse.BroadcastAsync("system-event", hint, evt.EventDate.ToString("o"));
+        eventBus.PublishSystemEvent(hint);
         logger.LogDebug("Broadcast system-event {EventName}", evt.EventName);
     }
 

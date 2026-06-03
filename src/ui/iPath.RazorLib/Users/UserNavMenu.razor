@@ -43,11 +43,15 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            state.OnChange += (() => StateHasChanged());
+        }
         if (!state.StatsLoaded && RendererInfo.IsInteractive)
         {
             stats = await state.GetNewRequestStats(false);
-            StateHasChanged();
-            state.OnChange += (() => StateHasChanged());
+            if (state.StatsLoaded)
+                StateHasChanged();
         }
     }
 }

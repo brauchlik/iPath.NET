@@ -67,12 +67,17 @@ public class AppState(IPathApi api, AuthenticationStateProvider authStateProvide
     private ServiceRequestUpdatesDto _stats;
     public async Task<ServiceRequestUpdatesDto> GetNewRequestStats(bool reload)
     {
+        if (!IsAuthenticated) return _stats;
         if (reload || _stats is null)
         {
             var resp = await api.GetServiceRequestUpdates();
             if (resp.IsSuccessful)
             {
                 _stats = resp.Content;
+            }
+            else
+            {
+                _stats = new ServiceRequestUpdatesDto();
             }
         }
         return _stats;

@@ -25,9 +25,6 @@
             Sse.SystemEventReceived += HandleSystemEvent;
             Sse.ConnectionError += HandleConnectionError;
 
-            // Load initial unread count
-            await LoadUnreadCount();
-
             var authState = await AuthState.GetAuthenticationStateAsync();
             var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId is null)
@@ -35,6 +32,9 @@
                 Logger.LogWarning("User not authenticated; SSE subscription skipped");
                 return;
             }
+
+            // Load initial unread count
+            await LoadUnreadCount();
 
             var baseUrl = Nav.BaseUri.TrimEnd('/');
             await Sse.ConnectAsync($"{baseUrl}/api/v1/events/stream", Guid.Parse(userId));

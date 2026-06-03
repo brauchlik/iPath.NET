@@ -155,7 +155,7 @@
 
     private async Task OpenGroupNotificationDialog()
     {
-        if (GroupId is null || appState.User is null) return;
+        if (GroupId is null || !appState.IsAuthenticated) return;
         var p = new DialogParameters<GroupNotificationDialog>
         {
             { x => x.GroupId, GroupId.Value },

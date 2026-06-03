@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
 @using iPath.Blazor.Componenents.Notifications
+@inject IJSRuntime JS
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
 <MudSnackbarProvider />
@@ -62,6 +64,7 @@
 
 @inject iPath.Blazor.ServiceLib.Services.StringLocalizerService srvLoc
 @inject IOptions<iPathClientConfig> opts
+@inject AppState appState
 
 
 @code {
@@ -94,11 +97,29 @@
     protected override async Task OnInitializedAsync()
     {
         await srvLoc.LoadTranslationData(locale);
+        appState.OnChange += OnAppStateChanged;
+        await appState.LoadSessionAsync();
+    }
+
+    private void OnAppStateChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await JS.InvokeVoidAsync("eval", "document.getElementById('loading-screen')?.remove()");
     }
 
     async Task Reload()
     {
         await srvLoc.LoadTranslationData(locale, true);
+    }
+
+    public void Dispose()
+    {
+        appState.OnChange -= OnAppStateChanged;
     }
 
 

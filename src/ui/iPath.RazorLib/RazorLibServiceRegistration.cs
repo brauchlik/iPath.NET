@@ -11,7 +11,6 @@ using iPath.Blazor.Componenents.Communities;
 using iPath.Blazor.Componenents.Notifications;
 using iPath.Blazor.Componenents.Shared;
 using iPath.Blazor.Componenents.Users;
-using iPath.Blazor.Server;
 using iPath.Blazor.ServiceLib.Fhir;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -42,8 +41,7 @@ public static class RazorLibServiceRegistration
             };
 
             services.AddRefitClient<IPathApi>(refitSetting)
-                .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseAddress))
-                .AddHttpMessageHandler<baseAuthDelegationHandler>();
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseAddress));
         }
         else
         {

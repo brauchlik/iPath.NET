@@ -1,4 +1,3 @@
-@using System.Security.Claims
 @using iPath.Application.Features.Notifications
 @using iPath.Blazor.Componenents.Admin.Users
 @inject SseClientService Sse
@@ -12,7 +11,6 @@
 @inject ILogger<SseConnectionHost> Logger
 @inject NavigationManager Nav
 @inject IPathApi Api
-@inject AuthenticationStateProvider AuthState
 @implements IAsyncDisposable
 
 @code {
@@ -25,19 +23,11 @@
             Sse.SystemEventReceived += HandleSystemEvent;
             Sse.ConnectionError += HandleConnectionError;
 
-            var authState = await AuthState.GetAuthenticationStateAsync();
-            var userId = authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId is null)
-            {
-                Logger.LogWarning("User not authenticated; SSE subscription skipped");
-                return;
-            }
-
-            // Load initial unread count
             await LoadUnreadCount();
 
+            var userId = AppState.User?.Id ?? Guid.Empty;
             var baseUrl = Nav.BaseUri.TrimEnd('/');
-            await Sse.ConnectAsync($"{baseUrl}/api/v1/events/stream", Guid.Parse(userId));
+            await Sse.ConnectAsync($"{baseUrl}/api/v1/events/stream", userId);
         }
     }
 
@@ -65,7 +55,7 @@
 
     private void HandleDomainEvent(object? sender, DomainEventSummary evt)
     {
-        _ = InvokeAsync(() => AppState.OnChange?.Invoke());
+        _ = InvokeAsync(() => AppState.NotifyStateChanged());
     }
 
     private void HandleSystemEvent(object? sender, SystemEventHint hint)
@@ -89,7 +79,7 @@
                     break;
             }
 
-            await AppState.ReloadSession();
+            await AppState.RefreshAsync();
         });
     }
 

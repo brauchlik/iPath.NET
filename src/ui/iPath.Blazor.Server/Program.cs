@@ -160,6 +160,9 @@ app.Services.InitComponenetsExtensions();
 
 app.UseCors("CorsPolicy");
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 // Header forwarding for Reverse Proxy Integration
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {

@@ -40,9 +40,6 @@ public partial class Home(AppState appState, UserViewModel uvm, AuthenticationSt
 
     private async Task<UserProfile?> GetMyProfile()
     {
-        if (!appState.IsAuthenticated)
-            await appState.ReloadSession();
-
         if (appState.IsAuthenticated)
             return await uvm.GetProfileAsync(appState.User.Id);
         return null;

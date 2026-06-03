@@ -24,7 +24,6 @@
         var a = await asp.GetAuthenticationStateAsync();
         if (a.User.Identity.IsAuthenticated)
         {
-            await appSate.ReloadSession();
             if (appSate.User != null)
             {
                 UserId = appSate.User.Id;

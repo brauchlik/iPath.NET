@@ -21,6 +21,13 @@
 </head>
 
 <body>
+    @if (HttpContext.AcceptsInteractiveRouting() && HttpContext.User.Identity?.IsAuthenticated == true)
+    {
+        <div class="ipath-loading-screen ipath-loading-active" id="loading-screen">
+            <div class="ipath-spinner"></div>
+            <span>Loading session...</span>
+        </div>
+    }
     <Routes @rendermode="PageRenderMode" />
     <script src="_framework/blazor.web.js"></script>
     <script src=@Assets["_content/MudBlazor/MudBlazor.min.js"]></script>
@@ -61,11 +68,13 @@
     private HttpContext HttpContext { get; set; } = default!;
 
 
+    private bool ShouldPrerender => opts.Value.Prerender && !(HttpContext.User.Identity?.IsAuthenticated == true);
+
     private IComponentRenderMode interactiveRenderMode => opts.Value.RenderMode.ToLower() switch
     {
-        "auto" => new InteractiveAutoRenderMode(prerender: opts.Value.Prerender),
-        "server" => new InteractiveServerRenderMode(prerender: opts.Value.Prerender),
-        _ => new InteractiveWebAssemblyRenderMode(prerender: opts.Value.Prerender)
+        "auto" => new InteractiveAutoRenderMode(prerender: ShouldPrerender),
+        "server" => new InteractiveServerRenderMode(prerender: ShouldPrerender),
+        _ => new InteractiveWebAssemblyRenderMode(prerender: ShouldPrerender)
     };
 
     private IComponentRenderMode? PageRenderMode => HttpContext.AcceptsInteractiveRouting() ? interactiveRenderMode :  null;

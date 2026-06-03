@@ -1,4 +1,6 @@
-﻿<AuthorizeView>
+﻿@implements IDisposable
+
+<AuthorizeView>
     <NotAuthorized>
         <MudNavLink Href="Account/Login" Icon="@Icons.Material.TwoTone.Login">Login</MudNavLink>
         <MudNavLink Href="Account/Register" Icon="@Icons.Material.TwoTone.AppRegistration">Register</MudNavLink>
@@ -32,7 +34,6 @@
     </Authorized>
 </AuthorizeView>
 
-
 @inject AppState state
 
 @code {
@@ -45,7 +46,7 @@
         await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {
-            state.OnChange += (() => StateHasChanged());
+            state.OnChange += OnAppStateChanged;
         }
         if (!state.StatsLoaded && RendererInfo.IsInteractive)
         {
@@ -53,5 +54,15 @@
             if (state.StatsLoaded)
                 StateHasChanged();
         }
+    }
+
+    private void OnAppStateChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        state.OnChange -= OnAppStateChanged;
     }
 }

@@ -1,4 +1,5 @@
-﻿using iPath.Application.Features.Notifications;
+﻿using iPath.Application.Contracts;
+using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Users;
 using iPath.Application.Localization;
 using System.ComponentModel;
@@ -58,10 +59,11 @@ public static class AdminEndpoints
 
         notify.MapGet("list",
             ([DefaultValue(0)] int page, [DefaultValue(10)] int pagesize, eNotificationTarget target, 
-             [FromQuery] string[]? sort, [FromServices] INotificationRepository repo, CancellationToken ct)
-            => repo.GetPage(new GetNotificationsQuery { Page = page, PageSize = pagesize, Target = target, Sorting = sort }, ct))
+             [FromQuery] string[]? sort, [FromServices] INotificationRepository repo,
+             [FromServices] IUserSession sess, CancellationToken ct)
+            => repo.GetPage(new GetNotificationsQuery { Page = page, PageSize = pagesize, Target = target, Sorting = sort, UserId = sess.User?.Id }, ct))
             .Produces<PagedResult<NotificationDto>>()
-            .RequireAuthorization("Admin");
+            .RequireAuthorization();
 
         notify.MapDelete("all", ([FromServices] INotificationRepository repo, CancellationToken ct)
             => repo.DeleteAll(ct))

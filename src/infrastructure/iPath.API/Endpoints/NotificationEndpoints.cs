@@ -18,7 +18,7 @@ public static class NotificationEndpoints
             HttpContext ctx,
             CancellationToken ct) =>
         {
-            if (sess.User is null)
+            if (sess.User is null || !sess.User.IsAuthenticated)
                 return Results.Unauthorized();
 
             ctx.Response.Headers.ContentType = "text/event-stream";
@@ -28,7 +28,6 @@ public static class NotificationEndpoints
             var lastEventId = ctx.Request.Query["lastEventId"].FirstOrDefault()
                            ?? ctx.Request.Headers["Last-Event-ID"].FirstOrDefault();
 
-            // Optional catch-up: emit missed events since lastEventId
             if (!string.IsNullOrEmpty(lastEventId)
                 && DateTime.TryParse(lastEventId, null, DateTimeStyles.RoundtripKind, out var since))
             {
@@ -59,8 +58,7 @@ public static class NotificationEndpoints
             await mgr.AddConnectionAsync(sess.User.Id, ctx.Response, ct);
             return Results.Empty;
         })
-        .WithTags("Notifications")
-        .RequireAuthorization();
+        .WithTags("Notifications");
 
         route.MapPost("notifications/{id:guid}/read", async (
             Guid id,

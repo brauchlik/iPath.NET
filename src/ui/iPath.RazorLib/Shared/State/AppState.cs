@@ -1,68 +1,85 @@
 ﻿using iPath.Application.Contracts;
-using iPath.Application.Features.Users;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.Extensions.Logging;
-using MudBlazor.Interfaces;
-using System.Security.Claims;
 
 namespace iPath.Blazor.Componenents.Shared;
 
-public class AppState(IPathApi api, AuthenticationStateProvider authStateProvider, ILogger<AppState> logger) : IUserSession
+public class AppState : IUserSession, IDisposable
 {
-    public Action OnChange;
+    private readonly IPathApi _api;
+    private readonly AuthenticationStateProvider _authProvider;
+    private readonly ILogger<AppState> _logger;
+    private SessionUserDto _user = SessionUserDto.Anonymous;
 
+    public AppState(IPathApi api, AuthenticationStateProvider authProvider, ILogger<AppState> logger)
+    {
+        _api = api;
+        _authProvider = authProvider;
+        _logger = logger;
+        authProvider.AuthenticationStateChanged += OnAuthStateChanged;
+    }
 
-    private SessionUserDto _user;
+    public event Action? OnChange;
 
     public SessionUserDto? User => _user;
     public bool IsAuthenticated => _user is not null && _user.Id != Guid.Empty;
 
+    public void NotifyStateChanged() => OnChange?.Invoke();
 
-    public async Task ReloadSession()
+    /// <summary>
+    /// Called once from MainLayout.OnInitializedAsync after attaching OnChange subscriber.
+    /// </summary>
+    public async Task LoadSessionAsync() => await LoadCoreAsync();
+
+    /// <summary>
+    /// Explicit refresh for SSE system events etc.
+    /// </summary>
+    public async Task RefreshAsync() => await LoadCoreAsync();
+
+    private async Task LoadCoreAsync()
     {
+        var previous = _user;
         _user = SessionUserDto.Anonymous;
+
         try
         {
-            var authState = await authStateProvider.GetAuthenticationStateAsync();
-            var principal = authState.User;
-
-            if (principal.Identity?.IsAuthenticated == true)
-            {
-                var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (Guid.TryParse(userIdClaim, out var userId) && userId != Guid.Empty)
-                {
-                    var resp = await api.GetUser(userId);
-                    if (resp.IsSuccessful && resp.Content is not null)
-                    {
-                        _user = ToSessionUser(resp.Content);
-                    }
-                }
-            }
+            var resp = await _api.GetSession();
+            if (resp.IsSuccessful && resp.Content is not null && resp.Content.Id != Guid.Empty)
+                _user = resp.Content;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error reloading session");
+            _logger.LogError(ex, "Error loading session");
+        }
+
+        if (previous.Id != _user.Id)
+            OnChange?.Invoke();
+    }
+
+    private async void OnAuthStateChanged(Task<AuthenticationState> stateTask)
+    {
+        try
+        {
+            await stateTask;
+            await LoadCoreAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error handling auth state change");
         }
     }
 
-    private static SessionUserDto ToSessionUser(UserDto user) => new(
-        Id: user.Id,
-        Username: user.Username,
-        Email: user.Email,
-        Initials: user.Profile?.Initials ?? "",
-        roles: user.Roles?.Select(r => r.Name).ToArray() ?? [],
-        communities: user.CommunityMembership?.ToDictionary(c => c.CommunityId, c => c.Role) ?? null,
-        groups: user.GroupMembership?.ToList() ?? null
-    );
+    public void Dispose()
+    {
+        _authProvider.AuthenticationStateChanged -= OnAuthStateChanged;
+    }
 
     public void ReloadUser(Guid userId)
     {
         _user = SessionUserDto.Anonymous;
+        OnChange?.Invoke();
     }
 
     public Color PresenceColor => Color.Success;
-
-
 
     private ServiceRequestUpdatesDto _stats;
     public async Task<ServiceRequestUpdatesDto> GetNewRequestStats(bool reload)
@@ -70,7 +87,7 @@ public class AppState(IPathApi api, AuthenticationStateProvider authStateProvide
         if (!IsAuthenticated) return _stats;
         if (reload || _stats is null)
         {
-            var resp = await api.GetServiceRequestUpdates();
+            var resp = await _api.GetServiceRequestUpdates();
             if (resp.IsSuccessful)
             {
                 _stats = resp.Content;
@@ -90,7 +107,7 @@ public class AppState(IPathApi api, AuthenticationStateProvider authStateProvide
         {
             _stats.NewRequests.RemoveAll(x => x.Id == id);
             _stats.NewAnnotations.RemoveAll(x => x.Id == id);
-            OnChange?.Invoke();
+            NotifyStateChanged();
         }
     }
 
@@ -99,18 +116,18 @@ public class AppState(IPathApi api, AuthenticationStateProvider authStateProvide
     public void SetUnreadCount(int count)
     {
         UnreadNotificationCount = count;
-        OnChange?.Invoke();
+        NotifyStateChanged();
     }
 
     public void IncrementUnreadCount()
     {
         UnreadNotificationCount++;
-        OnChange?.Invoke();
+        NotifyStateChanged();
     }
 
     public void DecrementUnreadCount()
     {
         if (UnreadNotificationCount > 0) UnreadNotificationCount--;
-        OnChange?.Invoke();
+        NotifyStateChanged();
     }
 }

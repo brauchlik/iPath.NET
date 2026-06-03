@@ -765,6 +765,9 @@ namespace iPath.Database.Sqlite.Migrations
                     b.Property<DateTime?>("ProcessedOn")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("ReadOn")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid?>("ServiceRequestId")
                         .HasColumnType("TEXT");
 

@@ -7,6 +7,7 @@ public class Notification : BaseEntity
 {
     public DateTime CreatedOn { get; private set; }
     public DateTime? ProcessedOn { get; private set; }
+    public DateTime? ReadOn { get; private set; }
     public NotificationStatus Status { get; private set; } = NotificationStatus.Pending;
 
     public Guid UserId {  get; private set; }
@@ -81,6 +82,24 @@ public class Notification : BaseEntity
     public Notification UpdateStatus(NotificationStatus status)
     {
         Status = status;
+        return this;
+    }
+
+    public Notification MarkAsRead()
+    {
+        ReadOn = DateTime.UtcNow;
+        return this;
+    }
+
+    public Notification MarkAsUnread()
+    {
+        ReadOn = null;
+        return this;
+    }
+
+    public Notification SetData(string? data)
+    {
+        Data = data;
         return this;
     }
 }

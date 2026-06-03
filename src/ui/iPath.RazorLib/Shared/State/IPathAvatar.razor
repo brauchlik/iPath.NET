@@ -1,6 +1,7 @@
 ﻿@namespace iPath.Blazor.Componenents.Shared
+@implements IDisposable
 
-@if (appState.IsAuthenticated)
+@if (IsUserSession)
 {
     <MudMenu ActivationEvent="MouseEvent.LeftClick">
         <ActivatorContent>
@@ -13,17 +14,6 @@
             <MudMenuItem Label=@T["Notification Settings"] Icon="@Icons.Material.Filled.Settings" OnClick="vm.ShowUserNotifications" />
             <MudMenuItem Label=@T["My Cases"] Icon="@Icons.Material.Filled.Folder" Href="/user/cases" />
             <MudMenuItem Label=@T["My Groups"] Icon="@Icons.Material.Filled.Group" Href="/user/groups" />
-            <!--
-            <MudMenu Label=@T["Community"] StartIcon="@Icons.Material.Filled.Groups">
-                @if (user is not null)
-                {
-                    foreach (var c in user.CommunityMembership)
-                    {
-                        <MudMenuItem Label=@c.Communityname Icon="@Icons.Material.Filled.Group" Href=@($"community/{c.CommunityId}") />
-                    }
-                }
-            </MudMenu>
-            -->
         </ChildContent>
     </MudMenu>
 }
@@ -35,22 +25,27 @@ else
 @inject AppState appState
 @inject UserViewModel vm
 @inject IStringLocalizer T
+@inject ILogger<IPathAvatar> logger;
 
 @code {
-    UserDto user;
+    private bool IsUserSession = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await LoadUser();
+        IsUserSession = appState.IsAuthenticated;
+        appState.OnChange += OnAppStateChanged;
     }
 
-    async Task LoadUser()
+    private void OnAppStateChanged()
     {
-        if (appState is not null)
-        {
-            await appState.ReloadSession();
-            user = await vm.GetUserAsync(appState.User.Id);
-            StateHasChanged();
-        }
+        IsUserSession = appState.IsAuthenticated;
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        appState.OnChange -= OnAppStateChanged;
     }
 }
+
+

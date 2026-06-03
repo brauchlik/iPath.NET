@@ -42,6 +42,8 @@ public class QuestionnaireAssignedToGroupEvent : EventEntity { }
 public class GroupCreatedEvent : EventEntity;
 public class GroupDeletedEvent : EventEntity;
 public class GroupUpdatedEvent : EventEntity;
+
+public record GroupCacheClearedEvent(Guid GroupId) : INotification;
 #endregion
 
 

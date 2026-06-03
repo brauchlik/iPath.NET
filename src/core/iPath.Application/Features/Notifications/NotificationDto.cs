@@ -11,5 +11,6 @@ public record NotificationDto(
     [property: SortBy("Receiver.Username", "User.Username")] OwnerDto Receiver, 
     Guid? ServiceRequestId = null,
     Guid? EventId = null,
-    string? Payload = null);
+    string? Payload = null,
+    DateTime? ReadOn = null);
 

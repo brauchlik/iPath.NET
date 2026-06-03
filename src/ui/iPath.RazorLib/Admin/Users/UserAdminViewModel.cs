@@ -129,6 +129,11 @@ public class UserAdminViewModel(IPathApi api,
 
     const string roleListCacheKey = "admin.rolelist";
     private readonly SemaphoreSlim _cacheLock = new SemaphoreSlim(1);
+
+    public void InvalidateCache()
+    {
+        cache.Remove(roleListCacheKey);
+    }
     public async Task<IEnumerable<RoleDto>> GetRoles()
     {
         try

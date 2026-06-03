@@ -1,0 +1,118 @@
+@using iPath.Application.Features.Notifications
+@using iPath.Domain.Notifications
+@implements IDisposable
+
+<MudDrawer @bind-Open="Open"
+           Anchor="Anchor.End"
+           Variant="DrawerVariant.Temporary"
+           ClipMode="DrawerClipMode.Never"
+           Width="300px"
+           Elevation="3">
+    <MudStack Class="pa-4" Spacing="2" Style="height: 100%;">
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h6">@T["Notifications"]</MudText>
+            <MudSpacer />
+            <MudButton Size="Size.Small" OnClick="MarkAllAsRead" Disabled="@(!RecentUnread.Any())">
+                @T["Mark all as read"]
+            </MudButton>
+        </MudStack>
+
+        <MudDivider />
+
+        <MudList T="NotificationDto" Dense="true" Style="flex-grow: 1; overflow-y: auto;">
+            @foreach (var n in RecentUnread)
+            {
+                <MudListItem OnClick="() => OpenNotification(n)">
+                    <MudText>@GetNotificationText(n)</MudText>
+                    <MudText Typo="Typo.caption">@n.Date.ToString("g")</MudText>
+                </MudListItem>
+            }
+            @if (!RecentUnread.Any())
+            {
+                <MudListItem>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">@T["No new notifications"]</MudText>
+                </MudListItem>
+            }
+        </MudList>
+
+        <MudDivider />
+
+        <MudButton Href="/notifications" FullWidth="true">
+            @T["View all"]
+        </MudButton>
+    </MudStack>
+</MudDrawer>
+
+@inject IPathApi Api
+@inject ISnackbar Snackbar
+@inject IStringLocalizer T
+@inject SseClientService Sse
+@inject AppState AppState
+@inject NavigationManager Nav
+
+@code {
+    [Parameter] public bool Open { get; set; }
+    [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+
+    List<NotificationDto> RecentUnread = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUnread();
+        if (Sse is not null)
+            Sse.NotificationReceived += OnNotificationReceived;
+    }
+
+    private async void OnNotificationReceived(object? sender, NotificationDto dto)
+    {
+        await InvokeAsync(async () =>
+        {
+            await LoadUnread();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        if (Sse is not null)
+            Sse.NotificationReceived -= OnNotificationReceived;
+    }
+
+    async Task LoadUnread()
+    {
+        try
+        {
+            var resp = await Api.GetNotifications(0, 10, eNotificationTarget.InApp);
+            if (resp.IsSuccessful && resp.Content is not null)
+            {
+                RecentUnread = resp.Content.Items.Where(n => n.ReadOn is null).ToList();
+            }
+        }
+        catch { }
+    }
+
+    async Task OpenNotification(NotificationDto n)
+    {
+        if (n.ReadOn is null)
+        {
+            await Api.MarkNotificationAsRead(n.Id);
+            AppState.DecrementUnreadCount();
+        }
+        if (n.ServiceRequestId.HasValue)
+            Nav.NavigateTo($"request/{n.ServiceRequestId.Value}");
+    }
+
+    async Task MarkAllAsRead()
+    {
+        await Api.MarkAllNotificationsAsRead();
+        AppState.SetUnreadCount(0);
+        RecentUnread.Clear();
+    }
+
+    string GetNotificationText(NotificationDto n) => n.EventType switch
+    {
+        eNodeNotificationType.NodePublished => T["A new case has been published"],
+        eNodeNotificationType.NewAnnotation => T["A new annotation has been added"],
+        _ => T["New notification"]
+    };
+}

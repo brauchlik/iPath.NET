@@ -1,4 +1,7 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
+@using iPath.Blazor.Componenents.Notifications
+@inject IJSRuntime JS
 
 <MudThemeProvider Theme="@_theme" IsDarkMode="_isDarkMode" />
 <MudSnackbarProvider />
@@ -17,11 +20,17 @@
         <MudHidden Breakpoint="Breakpoint.Xs">
             <AuthorizeView>
                 <Authorized>
+                    <NotificationBell />
                     <IPathAvatar />
                 </Authorized>
             </AuthorizeView>
         </MudHidden>
     </MudAppBar>
+    <AuthorizeView>
+        <Authorized>
+            <SseConnectionHost />
+        </Authorized>
+    </AuthorizeView>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
         <NavMenu />
         <MudSpacer />
@@ -40,7 +49,7 @@
                         <MudButton Variant="Variant.Filled" OnCLick="_ => errorBoundary?.Recover()">
                             try again
                         </MudButton>
-                </MudAlert>   
+                </MudAlert>
                 </ErrorContent>
             </ErrorBoundary>
         </MudContainer>
@@ -55,6 +64,7 @@
 
 @inject iPath.Blazor.ServiceLib.Services.StringLocalizerService srvLoc
 @inject IOptions<iPathClientConfig> opts
+@inject AppState appState
 
 
 @code {
@@ -65,6 +75,7 @@
     {
         _drawerOpen = !_drawerOpen;
     }
+
     string locale => System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
 
     private bool _isDarkMode = false;
@@ -86,11 +97,29 @@
     protected override async Task OnInitializedAsync()
     {
         await srvLoc.LoadTranslationData(locale);
+        appState.OnChange += OnAppStateChanged;
+        await appState.LoadSessionAsync();
+    }
+
+    private void OnAppStateChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await JS.InvokeVoidAsync("eval", "document.getElementById('loading-screen')?.remove()");
     }
 
     async Task Reload()
     {
         await srvLoc.LoadTranslationData(locale, true);
+    }
+
+    public void Dispose()
+    {
+        appState.OnChange -= OnAppStateChanged;
     }
 
 

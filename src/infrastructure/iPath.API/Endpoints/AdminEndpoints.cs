@@ -1,11 +1,16 @@
-﻿using iPath.Application.Features.Notifications;
+﻿using iPath.Application.Contracts;
+using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Users;
 using iPath.Application.Localization;
 using System.ComponentModel;
+using System.Data;
 using System.Linq.Dynamic.Core;
 using iPath.API.EndpointFilters;
+using iPath.Domain.Config;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using iPath.Application.Features.Admin;
+using iPath.EF.Core.Database;
 
 namespace iPath.API;
 
@@ -54,10 +59,11 @@ public static class AdminEndpoints
 
         notify.MapGet("list",
             ([DefaultValue(0)] int page, [DefaultValue(10)] int pagesize, eNotificationTarget target, 
-             [FromQuery] string[]? sort, [FromServices] INotificationRepository repo, CancellationToken ct)
-            => repo.GetPage(new GetNotificationsQuery { Page = page, PageSize = pagesize, Target = target, Sorting = sort }, ct))
+             [FromQuery] string[]? sort, [FromServices] INotificationRepository repo,
+             [FromServices] IUserSession sess, CancellationToken ct)
+            => repo.GetPage(new GetNotificationsQuery { Page = page, PageSize = pagesize, Target = target, Sorting = sort, UserId = sess.User?.Id }, ct))
             .Produces<PagedResult<NotificationDto>>()
-            .RequireAuthorization("Admin");
+            .RequireAuthorization();
 
         notify.MapDelete("all", ([FromServices] INotificationRepository repo, CancellationToken ct)
             => repo.DeleteAll(ct))
@@ -99,10 +105,46 @@ public static class AdminEndpoints
             .WithTags("Localization");
 
 
+        #region "-- Database Diagnostics --"
+        route.MapGet("admin/database", async (IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetDatabaseStatusQuery(), ct);
+            return Results.Ok(result);
+        })
+            .Produces<DatabaseStatusDto>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapGet("admin/database/tables", async (IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetDatabaseTableCountsQuery(), ct);
+            return Results.Ok(result);
+        })
+            .Produces<List<TableRowCountDto>>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapPost("admin/database/migrate", async (IMediator mediator, CancellationToken ct) =>
+        {
+            try
+            {
+                var result = await mediator.Send(new ApplyDatabaseMigrationsCommand(), ct);
+                return Results.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem($"Failed to apply migrations: {ex.Message}", statusCode: 500);
+            }
+        })
+            .Produces<DatabaseStatusDto>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+        #endregion
+
+
         return route;
     }
 }
-
 
 public class AppSettings
 {

@@ -1,0 +1,38 @@
+@namespace iPath.Blazor.Componenents.Groups.Components
+
+@inject IPathApi api
+@inject ISnackbar snackbar
+@inject IDialogService dialog
+@inject IStringLocalizer T
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@T["Notification Settings for {0}", Groupname]</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText Typo="Typo.subtitle2" Class="mt-2">@T["Notify as"]</MudText>
+        <MudStack Row Spacing="2">
+            <MudCheckBox @bind-Value="InApp" Label="@T["In App"]" />
+            <MudCheckBox @bind-Value="Email" Label="@T["Email"]" />
+        </MudStack>
+
+        <MudText Typo="Typo.subtitle2" Class="mt-4">@T["Notify on"]</MudText>
+        <MudCheckBox @bind-Value="NewCase" Label="@T["New case"]" />
+        <MudCheckBox @bind-Value="NewAnnotation" Label="@T["Annotation on any case"]" />
+        <MudCheckBox @bind-Value="NewAnnotationOnMyCase" Label="@T["Annotation on my case"]" />
+
+        <MudButton OnClick="ShowBodySiteFilter" Class="mt-4"
+                   Variant="Variant.Text" Color="Color.Primary"
+                   StartIcon="@SettingsIcon">
+            @T["Body Site Filter"]
+        </MudButton>
+        <MudText Typo="Typo.body2">@BodySiteFilterString</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Save" Variant="Variant.Filled" Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Save">
+            @T["Save"]
+        </MudButton>
+        <MudButton OnClick="Cancel" Variant="Variant.Text">@T["Cancel"]</MudButton>
+    </DialogActions>
+</MudDialog>

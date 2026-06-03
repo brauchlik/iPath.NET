@@ -2,14 +2,15 @@
 using iPath.Application.Features.Notifications;
 using iPath.Application.Fhir;
 using iPath.Application.Localization;
+using iPath.Blazor.ServiceLib.Services;
 using iPath.Blazor.Componenents.Admin.Communities;
 using iPath.Blazor.Componenents.Admin.Groups;
 using iPath.Blazor.Componenents.Admin.Questionnaires;
 using iPath.Blazor.Componenents.Admin.Users;
 using iPath.Blazor.Componenents.Communities;
+using iPath.Blazor.Componenents.Notifications;
 using iPath.Blazor.Componenents.Shared;
 using iPath.Blazor.Componenents.Users;
-using iPath.Blazor.Server;
 using iPath.Blazor.ServiceLib.Fhir;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,23 +26,31 @@ public static class RazorLibServiceRegistration
     {
         services.AddMudTranslations();
 
+        // API Client injection
+        if (WasmClient)
+        {
+            // WasmClient => use Refit client (http) with json serialization options => enums as int
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString,
+            };
+            var refitSetting = new RefitSettings
+            {
+                ContentSerializer = new SystemTextJsonContentSerializer(jsonOptions)
+            };
 
-        // Refit client with json serialization options => enums as int
-        var jsonOptions = new JsonSerializerOptions
+            services.AddRefitClient<IPathApi>(refitSetting)
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseAddress));
+        }
+        else
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString,
-        };
-        var refitSetting = new RefitSettings
-        {
-            ContentSerializer = new SystemTextJsonContentSerializer(jsonOptions)
-        };
-        services.AddRefitClient<IPathApi>(refitSetting)
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseAddress))
-            .AddHttpMessageHandler<baseAuthDelegationHandler>();
+            // Server Render Mode => direct access to data/services
+            services.AddScoped<IPathApi, DirectApiClient>();
+        }
 
         services.AddMemoryCache();
-        services.AddSingleton<IGroupCache, GroupCacheClient>();
+        services.AddScoped<IGroupCache, GroupCacheClient>();
         services.AddViewModels();
 
         // Localization
@@ -62,7 +71,7 @@ public static class RazorLibServiceRegistration
 
 
         // FHIR: questionnaires & coding
-        services.AddSingleton<QuestionnaireCacheClient>();
+        services.AddScoped<QuestionnaireCacheClient>();
 
         if (WasmClient)
         {
@@ -85,6 +94,7 @@ public static class RazorLibServiceRegistration
         services.AddTransient<IServiceRequestHtmlPreview, EmailNotificationPreview>();
 
         services.AddScoped<AppState>();
+        services.AddScoped<SseClientService>();
 
         return services;
     }

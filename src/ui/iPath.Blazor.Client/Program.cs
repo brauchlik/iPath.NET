@@ -1,4 +1,3 @@
-using iPath.Blazor.Server;
 using iPath.Domain.Config;
 using iPath.RazorLib;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -35,8 +34,6 @@ builder.Services.AddMudServices();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthenticationStateDeserialization();
-
-builder.Services.AddTransient<baseAuthDelegationHandler>();
 
 var baseAddress = cfg.BaseAddress ?? builder.HostEnvironment.BaseAddress;
 Console.WriteLine("Blazor WASM starting with Base: " + baseAddress);

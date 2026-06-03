@@ -52,7 +52,6 @@ public class NotificationPublisher(INotificationQueue queue,
     {
         await base.StopAsync(cancellationToken);
         scope.Dispose();
-        scope = null;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

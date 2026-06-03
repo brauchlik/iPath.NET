@@ -1,0 +1,99 @@
+@using iPath.Application.Features.Notifications
+@using iPath.Blazor.Componenents.Admin.Users
+@inject SseClientService Sse
+@inject AppState AppState
+@inject UserViewModel UserVm
+@inject CommunityViewModel CommunityVm
+@inject GroupAdminViewModel GroupAdminVm
+@inject UserAdminViewModel UserAdminVm
+@inject IGroupCache GroupCache
+@inject IStringLocalizer T
+@inject ILogger<SseConnectionHost> Logger
+@inject NavigationManager Nav
+@inject IPathApi Api
+@implements IAsyncDisposable
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Sse.NotificationReceived += HandleNotification;
+            Sse.DomainEventReceived += HandleDomainEvent;
+            Sse.SystemEventReceived += HandleSystemEvent;
+            Sse.ConnectionError += HandleConnectionError;
+
+            await LoadUnreadCount();
+
+            var userId = AppState.User?.Id ?? Guid.Empty;
+            var baseUrl = Nav.BaseUri.TrimEnd('/');
+            await Sse.ConnectAsync($"{baseUrl}/api/v1/events/stream", userId);
+        }
+    }
+
+    async Task LoadUnreadCount()
+    {
+        try
+        {
+            var resp = await Api.GetUnreadNotificationCount();
+            if (resp.IsSuccessful)
+                AppState.SetUnreadCount(resp.Content);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load unread count");
+        }
+    }
+
+    private void HandleNotification(object? sender, NotificationDto dto)
+    {
+        _ = InvokeAsync(() =>
+        {
+            AppState.IncrementUnreadCount();
+        });
+    }
+
+    private void HandleDomainEvent(object? sender, DomainEventSummary evt)
+    {
+        _ = InvokeAsync(() => AppState.NotifyStateChanged());
+    }
+
+    private void HandleSystemEvent(object? sender, SystemEventHint hint)
+    {
+        _ = InvokeAsync(async () =>
+        {
+            Logger.LogInformation("System event: {Hint} {ObjectId}", hint.Hint, hint.ObjectId);
+
+            switch (hint.Hint)
+            {
+                case "group":
+                    GroupCache.ClearGroup(hint.ObjectId);
+                    GroupAdminVm?.InvalidateCache();
+                    break;
+                case "community":
+                    CommunityVm?.InvalidateCache();
+                    break;
+                case "user":
+                    UserVm.ClearProfileCache(hint.ObjectId);
+                    UserAdminVm?.InvalidateCache();
+                    break;
+            }
+
+            await AppState.RefreshAsync();
+        });
+    }
+
+    private void HandleConnectionError(object? sender, EventArgs e)
+    {
+        Logger.LogWarning("SSE connection lost");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Sse.NotificationReceived -= HandleNotification;
+        Sse.DomainEventReceived -= HandleDomainEvent;
+        Sse.SystemEventReceived -= HandleSystemEvent;
+        Sse.ConnectionError -= HandleConnectionError;
+        await Sse.DisposeAsync();
+    }
+}

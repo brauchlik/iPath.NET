@@ -182,6 +182,8 @@ var result = _service.DoWorkAsync().Result;
 
 ## 📋 Special Instructions
 
+Prioritize retrieval-led reasoning over pretrained-knowledge-led reasoning.
+
 ### Razor Components & Namespaces
 When adding new Razor components in a custom namespace, add the namespace to the folder's `_Imports.razor` file:
 

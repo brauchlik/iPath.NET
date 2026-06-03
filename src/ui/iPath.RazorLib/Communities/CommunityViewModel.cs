@@ -52,6 +52,11 @@ public class CommunityViewModel(IPathApi api,
         cache.Remove(communityListCacheKey);
     }
 
+    public void InvalidateCache()
+    {
+        cache.Remove(communityListCacheKey);
+    }
+
 
 
     public CommunityDto? SelectedCommunity { get; private set; }

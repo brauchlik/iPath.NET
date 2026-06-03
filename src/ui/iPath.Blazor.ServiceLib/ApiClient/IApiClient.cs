@@ -254,10 +254,22 @@ public interface IPathApi
 
     #region "-- Notifications --"
     [Get("/api/v1/notifications/list")]
-    Task<IApiResponse<PagedResultList<NotificationDto>>> GetNotifications(int page, int pageSize, eNotificationTarget target, [Query] string[]? sort = null);
+    Task<IApiResponse<PagedResultList<NotificationDto>>> GetNotifications(int page, int pageSize, eNotificationTarget target, [Query] string[]? sort = null, CancellationToken ct = default);
+
+    [Post("/api/v1/notifications/{id}/read")]
+    Task<IApiResponse> MarkNotificationAsRead(Guid id, CancellationToken ct = default);
+
+    [Post("/api/v1/notifications/read-all")]
+    Task<IApiResponse> MarkAllNotificationsAsRead(CancellationToken ct = default);
+
+    [Get("/api/v1/notifications/unread-count")]
+    Task<IApiResponse<int>> GetUnreadNotificationCount(CancellationToken ct = default);
+
+    [Delete("/api/v1/notifications/{id}")]
+    Task<IApiResponse> DeleteNotification(Guid id, CancellationToken ct = default);
 
     [Delete("/api/v1/notifications/all")]
-    Task<IApiResponse> DeleteAllNotifications();
+    Task<IApiResponse> DeleteAllNotifications(CancellationToken ct = default);
     #endregion
 
 
@@ -267,6 +279,15 @@ public interface IPathApi
 
     [Post("/api/v1/admin/events")]
     Task<IApiResponse<PagedResultList<EventDto>>> GetEvents(GetEventsQuery query);
+
+    [Get("/api/v1/admin/database")]
+    Task<IApiResponse<DatabaseStatusDto>> GetDatabaseStatus();
+
+    [Get("/api/v1/admin/database/tables")]
+    Task<IApiResponse<List<TableRowCountDto>>> GetDatabaseTableCounts();
+
+    [Post("/api/v1/admin/database/migrate")]
+    Task<IApiResponse<DatabaseStatusDto>> ApplyDatabaseMigrations();
     #endregion
 
 

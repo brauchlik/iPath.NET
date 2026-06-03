@@ -1,0 +1,63 @@
+@page "/notifications"
+@inject IPathApi Api
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@inject AppState AppState
+@inject IStringLocalizer T
+@inject IDialogService Dialog
+@inject SseClientService Sse
+
+<IPathHeader Title=@T["Notifications"]>
+    <ActionContent>
+        <MudFab StartIcon="@Icons.Material.TwoTone.Refresh"
+                Color="Color.Primary"
+                Size="Size.Small"
+                OnClick="@(() => grid.ReloadServerData())" />
+        <MudFab StartIcon="@Icons.Material.TwoTone.DoneAll"
+                Color="Color.Secondary"
+                Size="Size.Small"
+                OnClick="MarkAllAsRead" />
+        <MudFab StartIcon="@Icons.Material.TwoTone.DeleteForever"
+                Color="Color.Error"
+                Size="Size.Small"
+                OnClick="DeleteAll" />
+    </ActionContent>
+</IPathHeader>
+
+<MudDataGrid T="NotificationDto" ServerData="GetData" @ref="grid"
+             Hover="true" Dense="true"
+             RowClick="OnRowClick"
+             HierarchyVisibilityToggled="OnDetailsOpened">
+    <Columns>
+        <HierarchyColumn T="NotificationDto" />
+        <TemplateColumn Title="@T["Status"]">
+            <CellTemplate>
+                <MudIcon Icon="@(context.Item.ReadOn.HasValue ? Icons.Material.Filled.Done : Icons.Material.Filled.Circle)"
+                         Color="@(context.Item.ReadOn.HasValue ? Color.Default : Color.Primary)" />
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="@T["Message"]">
+            <CellTemplate>
+                <MudText>@GetNotificationMessage(context.Item)</MudText>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="e => e.Date" Format="g" Title=@T["Date"] />
+        <TemplateColumn>
+            <CellTemplate>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               OnClick="@(() => Delete(context.Item))" />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <ChildRowContent>
+        <MudCard Elevation="0">
+            <MudCardContent>
+                <MudText>@T["Service Request:"] @(context.Item.ServiceRequestId?.ToString() ?? "-")</MudText>
+            </MudCardContent>
+        </MudCard>
+    </ChildRowContent>
+    <PagerContent>
+        <MudDataGridPager T="NotificationDto" />
+    </PagerContent>
+</MudDataGrid>

@@ -358,21 +358,144 @@
         }
       }
     },
-    "/api/v1/food": {
+    "/api/v1/admin/database": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/database/tables": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableRowCountDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/database/migrate": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/events/stream": {
       "get": {
         "tags": [
           "Notifications"
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "text/event-stream": {
-                "schema": {
-                  "$ref": "#/components/schemas/SseItemOfmyevent"
-                }
-              }
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/{id}/read": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/read-all": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/{id}": {
+      "delete": {
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/unread-count": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -3605,6 +3728,56 @@
           }
         }
       },
+      "DatabaseStatusDto": {
+        "type": "object",
+        "properties": {
+          "lastMigration": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "initialAdminPassword": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "providerName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "connectionString": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "dbFileSize": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "autoMigrate": {
+            "type": "boolean"
+          },
+          "appliedMigrations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MigrationItemDto"
+            }
+          },
+          "pendingMigrations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MigrationItemDto"
+            }
+          }
+        }
+      },
       "DocumentDto": {
         "required": [
           "owner"
@@ -5125,23 +5298,13 @@
           }
         }
       },
-      "myevent": {
-        "required": [
-          "id",
-          "date",
-          "data"
-        ],
+      "MigrationItemDto": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
+          "name": {
+            "type": "string"
           },
-          "date": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "data": {
+          "created": {
             "type": "string"
           }
         }
@@ -5218,6 +5381,13 @@
             "format": "date-time"
           },
           "processedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "readOn": {
             "type": [
               "null",
               "string"
@@ -5334,6 +5504,13 @@
               "null",
               "string"
             ]
+          },
+          "readOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         }
       },
@@ -6527,33 +6704,6 @@
           }
         }
       },
-      "SseItemOfmyevent": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "$ref": "#/components/schemas/myevent"
-          },
-          "eventType": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "eventId": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "reconnectionInterval": {
-            "pattern": "^-?(\\d+\\.)?\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,7})?$",
-            "type": [
-              "null",
-              "string"
-            ]
-          }
-        }
-      },
       "StorageInfo": {
         "type": "object",
         "properties": {
@@ -6592,6 +6742,22 @@
               "string"
             ],
             "format": "uuid"
+          }
+        }
+      },
+      "TableRowCountDto": {
+        "type": "object",
+        "properties": {
+          "tableName": {
+            "type": "string"
+          },
+          "rowCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
           }
         }
       },

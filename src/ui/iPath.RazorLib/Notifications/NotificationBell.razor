@@ -1,0 +1,66 @@
+@using iPath.Application.Features.Notifications
+@using iPath.Domain.Notifications
+@implements IDisposable
+
+
+
+
+@if (AppState.UnreadNotificationCount > 0)
+{
+    <MudBadge Content="AppState.UnreadNotificationCount" Overlap="true" Class="mx-6">
+        <MudIcon Icon="@Icons.Material.Filled.NotificationsActive" Color="Color.Default"
+                  @onclick="ToggleDrawer" />
+    </MudBadge>
+}
+else
+{
+    <MudIcon Icon="@Icons.Material.TwoTone.Notifications" Color="Color.Default"
+             Class="mx-6" @onclick="ToggleDrawer" />
+}
+
+<MudDrawer @bind-Open="_open"
+           Anchor="Anchor.End"
+           Variant="DrawerVariant.Temporary"
+           ClipMode="DrawerClipMode.Never"
+           Width="360px"
+           Elevation="3">
+    <MudStack Class="pa-4" Spacing="2" Style="height: 100%;">
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h6">@T["Notifications"]</MudText>
+            <MudSpacer />
+            <MudButton Size="Size.Small" OnClick="MarkAllAsRead" Disabled="@(!RecentUnread.Any())">
+                @T["Mark all as read"]
+            </MudButton>
+        </MudStack>
+
+        <MudDivider />
+
+        <MudList T="NotificationDto" Dense="true" Style="flex-grow: 1; overflow-y: auto;">
+            @foreach (var n in RecentUnread)
+            {
+                <MudListItem OnClick="() => OpenNotification(n)">
+                    <MudText>@GetNotificationHtml(n)</MudText>
+                </MudListItem>
+            }
+            @if (!RecentUnread.Any())
+            {
+                <MudListItem>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">@T["No new notifications"]</MudText>
+                </MudListItem>
+            }
+        </MudList>
+
+        <MudDivider />
+
+        <MudButton Href="/notifications" FullWidth="true">
+            @T["View all"]
+        </MudButton>
+    </MudStack>
+</MudDrawer>
+
+@inject AppState AppState
+@inject IPathApi Api
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@inject IStringLocalizer T
+@inject SseClientService Sse

@@ -116,13 +116,8 @@ builder.Configuration.GetSection(iPathClientConfig.ConfigName).Bind(clcfg);
 var baseAddress = clcfg.BaseAddress ?? "http://localhost:5000/";
 await builder.Services.AddRazorLibServices(baseAddress, false);
 
-// testing SSE
-builder.Services.AddSingleton<NotificationService>();
-
 builder.Services.AddAntiforgery();
 
-
-builder.Services.AddTransient<baseAuthDelegationHandler, ForwardCookiesHandler>();
 
 // reverse Proxy
 if (!string.IsNullOrEmpty(cfg.ReverseProxyAddresse) && IPAddress.TryParse(cfg.ReverseProxyAddresse, out var proxyIP))
@@ -164,6 +159,9 @@ app.Services.InitComponenetsExtensions();
 
 
 app.UseCors("CorsPolicy");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Header forwarding for Reverse Proxy Integration
 app.UseForwardedHeaders(new ForwardedHeadersOptions

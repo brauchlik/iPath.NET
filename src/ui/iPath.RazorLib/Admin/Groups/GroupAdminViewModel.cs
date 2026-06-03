@@ -107,6 +107,11 @@ public class GroupAdminViewModel(IPathApi api,
         memCache.Remove(groupListCacheKey);
     }
 
+    public void InvalidateCache()
+    {
+        memCache.Remove(groupListCacheKey);
+    }
+
     public async Task<IEnumerable<GroupListDto>> Search(string? term, Guid? communityId, CancellationToken ct)
     {
         var list = await GetAllAsync();

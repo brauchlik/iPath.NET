@@ -4,7 +4,6 @@ using iPath.Domain.Config;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
 namespace iPath.EF.Core.FeatureHandlers.Documents.Commands;
 
 
@@ -52,7 +51,7 @@ public class UploadDocumentFileCommandHandler(iPathDbContext db,
         document.File = new()
         {
             Filename = request.filename,
-            MimeType = request.contenttype ?? MimeTypes.GetMimeType(request.filename),
+            MimeType = request.contenttype ?? srvMime.GetMimeType(request.filename),
         };
 
         // node type

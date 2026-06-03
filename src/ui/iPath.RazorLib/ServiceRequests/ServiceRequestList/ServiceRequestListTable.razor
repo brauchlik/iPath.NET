@@ -19,6 +19,14 @@
             <MudTooltip Text=@T["Delete all drafts in this group"]>
                 <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever" OnClick="DeleteDrafts" hidden=@(!gvm.IsAdmin) />
             </MudTooltip>
+            @if (GroupId.HasValue)
+            {
+                <MudTooltip Text=@T["Notification Settings"]>
+                <MudIconButton Icon="@NotificationSettingsIcon"
+                               Size="Size.Small"
+                                   OnClick="OpenGroupNotificationDialog" />
+                </MudTooltip>
+            }
         </MudToolBar>
         <MudSpacer />
         <MudTextField @bind-Value="vm.SearchString"
@@ -109,6 +117,8 @@
 
 @inject ServiceRequestListViewModel vm
 @inject GroupViewModel gvm
+@inject IDialogService dialog
+@inject AppState appState
 
 @code {
     [Parameter]
@@ -137,5 +147,22 @@
     {
         await gvm.DeleteDrafts();
         await table.ReloadServerData();
+    }
+
+    string NotificationSettingsIcon => appState.UnreadNotificationCount > 0
+        ? Icons.Material.Filled.NotificationsActive
+        : Icons.Material.Filled.Notifications;
+
+    private async Task OpenGroupNotificationDialog()
+    {
+        if (GroupId is null || !appState.IsAuthenticated) return;
+        var p = new DialogParameters<GroupNotificationDialog>
+        {
+            { x => x.GroupId, GroupId.Value },
+            { x => x.Groupname, gvm.Model?.Name ?? "" },
+            { x => x.UserId, appState.User.Id }
+        };
+        var o = new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true };
+        await dialog.ShowAsync<GroupNotificationDialog>("Notifications", options: o, parameters: p);
     }
 }

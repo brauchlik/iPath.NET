@@ -7,6 +7,7 @@ using iPath.Application.Features.CMS;
 using iPath.Application.Features.Documents;
 using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
+using iPath.Application.Features.TaskAssignments;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.ServiceRequests.Commands;
 using iPath.Application.Features.Users;
@@ -357,5 +358,41 @@ public interface IPathApi
 
     [Get("/api/v1/admin/email-import/logs")]
     Task<IApiResponse<List<EmailImportLog>>> GetEmailImportLogs(int page = 0, int pageSize = 50);
+    #endregion
+
+
+    #region "-- Task Assignments --"
+    [Get("/api/v1/taskassignments/my")]
+    Task<IApiResponse<IReadOnlyList<TaskAssignmentDto>>> GetMyTaskAssignments(eTaskStatus? statusFilter = null);
+
+    [Get("/api/v1/taskassignments/group/{groupId}")]
+    Task<IApiResponse<IReadOnlyList<TaskAssignmentDto>>> GetGroupTaskAssignments(Guid groupId, eTaskStatus? statusFilter = null);
+
+    [Get("/api/v1/taskassignments/case/{serviceRequestId}")]
+    Task<IApiResponse<IReadOnlyList<TaskAssignmentDto>>> GetCaseTaskAssignments(Guid serviceRequestId);
+
+    [Get("/api/v1/taskassignments/{id}")]
+    Task<IApiResponse<TaskAssignmentDto>> GetTaskAssignmentById(Guid id);
+
+    [Post("/api/v1/taskassignments/propose")]
+    Task<IApiResponse<TaskAssignmentDto>> ProposeTaskAssignment([Body] ProposeTaskAssignmentCommand command);
+
+    [Post("/api/v1/taskassignments/{id}/accept")]
+    Task<IApiResponse<TaskAssignmentDto>> AcceptTaskAssignment(Guid id);
+
+    [Post("/api/v1/taskassignments/{id}/decline")]
+    Task<IApiResponse<TaskAssignmentDto>> DeclineTaskAssignment(Guid id);
+
+    [Post("/api/v1/taskassignments/{id}/complete")]
+    Task<IApiResponse<TaskAssignmentDto>> CompleteTaskAssignment(Guid id);
+
+    [Post("/api/v1/taskassignments/{id}/return")]
+    Task<IApiResponse<TaskAssignmentDto>> ReturnTaskAssignment(Guid id);
+
+    [Post("/api/v1/taskassignments/{id}/cancel")]
+    Task<IApiResponse<TaskAssignmentDto>> CancelTaskAssignment(Guid id);
+
+    [Post("/api/v1/taskassignments/followup")]
+    Task<IApiResponse<TaskAssignmentDto>> CreateFollowUpTask([Body] CreateFollowUpTaskCommand command);
     #endregion
 }

@@ -12,6 +12,7 @@ using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.ServiceRequests.Commands;
+using iPath.Application.Features.TaskAssignments;
 using iPath.Application.Features.Users;
 using iPath.Application.Features.Users.Commands;
 using iPath.Application.Localization;
@@ -577,4 +578,163 @@ public class DirectApiClient(
     public Task<IApiResponse> DeleteEmail(string mailboxName, string messageId) => NotSupportedVoid();
     public Task<IApiResponse<IReadOnlyList<ImportEmailResult>>> ImportAllEmails() => NotSupported<IReadOnlyList<ImportEmailResult>>();
     public Task<IApiResponse<List<EmailImportLog>>> GetEmailImportLogs(int page = 0, int pageSize = 50) => NotSupported<List<EmailImportLog>>();
+
+
+    #region "-- Task Assignments --"
+
+    public async Task<IApiResponse<IReadOnlyList<TaskAssignmentDto>>> GetMyTaskAssignments(eTaskStatus? statusFilter = null)
+    {
+        try
+        {
+            var result = await mediator.Send(new GetUserTaskAssignmentsQuery(StatusFilter: statusFilter), default);
+            return Respond<IReadOnlyList<TaskAssignmentDto>>(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "GetMyTaskAssignments failed");
+            return RespondError<IReadOnlyList<TaskAssignmentDto>>();
+        }
+    }
+
+    public async Task<IApiResponse<IReadOnlyList<TaskAssignmentDto>>> GetGroupTaskAssignments(Guid groupId, eTaskStatus? statusFilter = null)
+    {
+        try
+        {
+            var result = await mediator.Send(new GetGroupTaskAssignmentsQuery(groupId, statusFilter), default);
+            return Respond<IReadOnlyList<TaskAssignmentDto>>(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "GetGroupTaskAssignments failed");
+            return RespondError<IReadOnlyList<TaskAssignmentDto>>();
+        }
+    }
+
+    public async Task<IApiResponse<IReadOnlyList<TaskAssignmentDto>>> GetCaseTaskAssignments(Guid serviceRequestId)
+    {
+        try
+        {
+            var result = await mediator.Send(new GetCaseTaskAssignmentsQuery(serviceRequestId), default);
+            return Respond<IReadOnlyList<TaskAssignmentDto>>(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "GetCaseTaskAssignments failed");
+            return RespondError<IReadOnlyList<TaskAssignmentDto>>();
+        }
+    }
+
+    public async Task<IApiResponse<TaskAssignmentDto>> GetTaskAssignmentById(Guid id)
+    {
+        try
+        {
+            var result = await mediator.Send(new GetTaskAssignmentByIdQuery(id), default);
+            return Respond<TaskAssignmentDto>(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "GetTaskAssignmentById failed");
+            return RespondError<TaskAssignmentDto>();
+        }
+    }
+
+    public async Task<IApiResponse<TaskAssignmentDto>> ProposeTaskAssignment(ProposeTaskAssignmentCommand command)
+    {
+        try
+        {
+            var result = await mediator.Send(command, default);
+            return Respond<TaskAssignmentDto>(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "ProposeTaskAssignment failed");
+            return RespondError<TaskAssignmentDto>();
+        }
+    }
+
+    public async Task<IApiResponse<TaskAssignmentDto>> AcceptTaskAssignment(Guid id)
+    {
+        try
+        {
+            var result = await mediator.Send(new AcceptTaskAssignmentCommand(id), default);
+            return Respond<TaskAssignmentDto>(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "AcceptTaskAssignment failed");
+            return RespondError<TaskAssignmentDto>();
+        }
+    }
+
+    public async Task<IApiResponse<TaskAssignmentDto>> DeclineTaskAssignment(Guid id)
+    {
+        try
+        {
+            var result = await mediator.Send(new DeclineTaskAssignmentCommand(id), default);
+            return Respond<TaskAssignmentDto>(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "DeclineTaskAssignment failed");
+            return RespondError<TaskAssignmentDto>();
+        }
+    }
+
+    public async Task<IApiResponse<TaskAssignmentDto>> CompleteTaskAssignment(Guid id)
+    {
+        try
+        {
+            var result = await mediator.Send(new CompleteTaskAssignmentCommand(id), default);
+            return Respond<TaskAssignmentDto>(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "CompleteTaskAssignment failed");
+            return RespondError<TaskAssignmentDto>();
+        }
+    }
+
+    public async Task<IApiResponse<TaskAssignmentDto>> ReturnTaskAssignment(Guid id)
+    {
+        try
+        {
+            var result = await mediator.Send(new ReturnTaskAssignmentCommand(id), default);
+            return Respond<TaskAssignmentDto>(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "ReturnTaskAssignment failed");
+            return RespondError<TaskAssignmentDto>();
+        }
+    }
+
+    public async Task<IApiResponse<TaskAssignmentDto>> CancelTaskAssignment(Guid id)
+    {
+        try
+        {
+            var result = await mediator.Send(new CancelTaskAssignmentCommand(id), default);
+            return Respond<TaskAssignmentDto>(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "CancelTaskAssignment failed");
+            return RespondError<TaskAssignmentDto>();
+        }
+    }
+
+    public async Task<IApiResponse<TaskAssignmentDto>> CreateFollowUpTask(CreateFollowUpTaskCommand command)
+    {
+        try
+        {
+            var result = await mediator.Send(command, default);
+            return Respond<TaskAssignmentDto>(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "CreateFollowUpTask failed");
+            return RespondError<TaskAssignmentDto>();
+        }
+    }
+
+    #endregion
 }

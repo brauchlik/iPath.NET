@@ -11,6 +11,8 @@ using iPath.Application.Coding;
 using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Questionnaires;
+using iPath.Application.Features.TaskAssignments;
+using iPath.EF.Core.FeatureHandlers.TaskAssignments.Services;
 using iPath.Application.Localization;
 using iPath.Blazor.ServiceLib.Services;
 using iPath.Google;
@@ -130,6 +132,7 @@ public static class APIServicesRegistration
         // Caching
         services.AddMemoryCache();
         services.AddScoped<IUserSession, UserSession>();
+        services.AddScoped<IAssignmentCandidateService, AssignmentCandidateService>();
 
         // Localization
         services.Configure<LocalizationSettings>(config.GetSection(LocalizationSettings.ConfigName));

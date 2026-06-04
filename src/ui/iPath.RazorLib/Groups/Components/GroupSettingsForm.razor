@@ -52,6 +52,21 @@
                       Lines="6" Variant="@Variant" Margin="Margin.Dense" ShrinkLabel="true" />
     }
 
+    <MudText Typo="Typo.h6" Class="mt-4">@T["Task Assignments"]</MudText>
+
+    <MudSelect Label=@T["Assignment strategy"] @bind-Value="Model.TaskAssignmentStrategy" Variant="@Variant">
+        @foreach (var s in Enum.GetValues<eTaskAssignmentStrategy>())
+        {
+            <MudSelectItem Value="s">@s.ToString()</MudSelectItem>
+        }
+    </MudSelect>
+
+    @if (Model.TaskAssignmentStrategy == eTaskAssignmentStrategy.AutoAssign || Model.TaskAssignmentStrategy == eTaskAssignmentStrategy.SelfOrModerated)
+    {
+        <MudTextField Label=@T["Auto-assign timeout (hours)"] @bind-Value="Model.AutoAssignTimeoutHours"
+                      Variant="@Variant" Type="@InputType.Number" Margin="Margin.Dense" ShrinkLabel="true" />
+    }
+
 </MudForm>
 
 @code {

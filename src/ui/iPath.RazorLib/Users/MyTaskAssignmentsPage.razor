@@ -1,0 +1,113 @@
+@page "/user/tasks"
+
+@attribute [Authorize]
+@inject IPathApi Api
+@inject IStringLocalizer T
+
+<IPathHeader Title=@T["My Tasks"] Typo="Typo.h6" />
+
+<MudSelect T="eTaskStatus?" Label=@T["Filter by status"] @bind-Value="statusFilter"
+           @bind-Value:after="LoadTasks" Clearable="true">
+    @foreach (var s in Enum.GetValues<eTaskStatus>())
+    {
+        <MudSelectItem Value="s">@s.ToString()</MudSelectItem>
+    }
+</MudSelect>
+
+@if (loading)
+{
+    <MudProgressCircular Indeterminate="true" Class="mt-4" />
+}
+else if (tasks?.Count > 0)
+{
+    <MudTable Items="tasks" Dense="true" Class="mt-4" Hover="true">
+        <HeaderContent>
+            <MudTh>@T["Status"]</MudTh>
+            <MudTh>@T["Title"]</MudTh>
+            <MudTh>@T["Type"]</MudTh>
+            <MudTh>@T["Group"]</MudTh>
+            <MudTh>@T["Created"]</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd><MudChip T="string" Size="Size.Small" Color="StatusColor(context.Status)">@context.Status</MudChip></MudTd>
+            <MudTd>@context.Title</MudTd>
+            <MudTd>@context.Type</MudTd>
+            <MudTd>@context.GroupName</MudTd>
+            <MudTd>@context.CreatedOn.ToShortDateString()</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small"
+                               OnClick="@(() => ShowDetail(context))" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+else
+{
+    <MudText Class="mt-4">@T["No tasks found"]</MudText>
+}
+
+@if (selectedTask != null)
+{
+    <MudDialog @bind-Visible="detailVisible" Options="new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true }">
+        <TitleContent>
+            <MudText Typo="Typo.h6">@T["Task Details"]</MudText>
+        </TitleContent>
+        <DialogContent>
+            <TaskAssignmentCard Task="selectedTask" OnAction="HandleTaskAction" />
+        </DialogContent>
+    </MudDialog>
+}
+
+@code {
+    private List<TaskAssignmentDto>? tasks;
+    private eTaskStatus? statusFilter;
+    private bool loading;
+    private bool detailVisible;
+    private TaskAssignmentDto? selectedTask;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTasks();
+    }
+
+    private async Task LoadTasks()
+    {
+        loading = true;
+        StateHasChanged();
+
+        var resp = await Api.GetMyTaskAssignments(statusFilter);
+        if (resp.IsSuccessful)
+            tasks = resp.Content?.ToList();
+        else
+            tasks = null;
+
+        loading = false;
+        StateHasChanged();
+    }
+
+    private void ShowDetail(TaskAssignmentDto task)
+    {
+        selectedTask = task;
+        detailVisible = true;
+    }
+
+    private async Task HandleTaskAction()
+    {
+        detailVisible = false;
+        selectedTask = null;
+        await LoadTasks();
+    }
+
+    private Color StatusColor(string status) => status switch
+    {
+        nameof(eTaskStatus.Proposed) => Color.Warning,
+        nameof(eTaskStatus.Assigned) => Color.Info,
+        nameof(eTaskStatus.InProgress) => Color.Primary,
+        nameof(eTaskStatus.Completed) => Color.Success,
+        nameof(eTaskStatus.Declined) => Color.Error,
+        nameof(eTaskStatus.Cancelled) => Color.Error,
+        nameof(eTaskStatus.ReturnedForReassignment) => Color.Warning,
+        _ => Color.Default
+    };
+}

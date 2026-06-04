@@ -2676,6 +2676,262 @@
         }
       }
     },
+    "/api/v1/taskassignments/my": {
+      "get": {
+        "tags": [
+          "Task Assignments"
+        ],
+        "parameters": [
+          {
+            "name": "statusFilter",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/eTaskStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/taskassignments/group/{groupId}": {
+      "get": {
+        "tags": [
+          "Task Assignments"
+        ],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "statusFilter",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/eTaskStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/taskassignments/case/{serviceRequestId}": {
+      "get": {
+        "tags": [
+          "Task Assignments"
+        ],
+        "parameters": [
+          {
+            "name": "serviceRequestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/taskassignments/{id}": {
+      "get": {
+        "tags": [
+          "Task Assignments"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/taskassignments/propose": {
+      "post": {
+        "tags": [
+          "Task Assignments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposeTaskAssignmentCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/taskassignments/{id}/accept": {
+      "post": {
+        "tags": [
+          "Task Assignments"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/taskassignments/{id}/decline": {
+      "post": {
+        "tags": [
+          "Task Assignments"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/taskassignments/{id}/complete": {
+      "post": {
+        "tags": [
+          "Task Assignments"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/taskassignments/{id}/return": {
+      "post": {
+        "tags": [
+          "Task Assignments"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/taskassignments/{id}/cancel": {
+      "post": {
+        "tags": [
+          "Task Assignments"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/taskassignments/followup": {
+      "post": {
+        "tags": [
+          "Task Assignments"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFollowUpTaskCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/Account/PerformExternalLogin": {
       "post": {
         "tags": [
@@ -3608,6 +3864,24 @@
           }
         }
       },
+      "CreateFollowUpTaskCommand": {
+        "required": [
+          "serviceRequestId"
+        ],
+        "type": "object",
+        "properties": {
+          "serviceRequestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "CreateGroupCommand": {
         "type": "object",
         "properties": {
@@ -4006,6 +4280,15 @@
         "type": "integer"
       },
       "eRequestFilter": {
+        "type": "integer"
+      },
+      "eTaskAssignmentMode": {
+        "type": "integer"
+      },
+      "eTaskAssignmentStrategy": {
+        "type": "integer"
+      },
+      "eTaskStatus": {
         "type": "integer"
       },
       "EventDto": {
@@ -5014,6 +5297,18 @@
                 "$ref": "#/components/schemas/StorageInfo"
               }
             ]
+          },
+          "taskAssignmentStrategy": {
+            "$ref": "#/components/schemas/eTaskAssignmentStrategy"
+          },
+          "autoAssignTimeoutHours": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
           }
         }
       },
@@ -5877,6 +6172,33 @@
             "format": "int32"
           },
           "gender": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ProposeTaskAssignmentCommand": {
+        "required": [
+          "serviceRequestId",
+          "assignedToUserId",
+          "mode"
+        ],
+        "type": "object",
+        "properties": {
+          "serviceRequestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "assignedToUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/eTaskAssignmentMode"
+          },
+          "notes": {
             "type": [
               "null",
               "string"
@@ -7810,6 +8132,9 @@
     },
     {
       "name": "Email Import"
+    },
+    {
+      "name": "Task Assignments"
     },
     {
       "name": "iPath.Blazor.Server"

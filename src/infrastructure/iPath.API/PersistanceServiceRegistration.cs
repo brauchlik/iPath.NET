@@ -55,6 +55,8 @@ public static class PersistanceServiceRegistration
             {
                 throw new Exception("no db provider configuration found");
             }
+
+            cfg.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
         });
 
         // services.AddDbFactory(config);
@@ -111,6 +113,8 @@ public static class PersistanceServiceRegistration
             {
                 throw new Exception("no db provider configuration found");
             }
+
+            cfg.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
         });
 
         return services;

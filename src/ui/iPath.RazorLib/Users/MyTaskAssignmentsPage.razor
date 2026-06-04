@@ -1,113 +1,111 @@
 @page "/user/tasks"
 
 @attribute [Authorize]
-@inject IPathApi Api
+@inject TaskAssignmentsViewModel vm
 @inject IStringLocalizer T
+@inject NavigationManager Nav
 
-<IPathHeader Title=@T["My Tasks"] Typo="Typo.h6" />
-
-<MudSelect T="eTaskStatus?" Label=@T["Filter by status"] @bind-Value="statusFilter"
-           @bind-Value:after="LoadTasks" Clearable="true">
-    @foreach (var s in Enum.GetValues<eTaskStatus>())
-    {
-        <MudSelectItem Value="s">@s.ToString()</MudSelectItem>
-    }
-</MudSelect>
-
-@if (loading)
-{
-    <MudProgressCircular Indeterminate="true" Class="mt-4" />
-}
-else if (tasks?.Count > 0)
-{
-    <MudTable Items="tasks" Dense="true" Class="mt-4" Hover="true">
-        <HeaderContent>
-            <MudTh>@T["Status"]</MudTh>
-            <MudTh>@T["Title"]</MudTh>
-            <MudTh>@T["Type"]</MudTh>
-            <MudTh>@T["Group"]</MudTh>
-            <MudTh>@T["Created"]</MudTh>
-            <MudTh></MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd><MudChip T="string" Size="Size.Small" Color="StatusColor(context.Status)">@context.Status</MudChip></MudTd>
-            <MudTd>@context.Title</MudTd>
-            <MudTd>@context.Type</MudTd>
-            <MudTd>@context.GroupName</MudTd>
-            <MudTd>@context.CreatedOn.ToShortDateString()</MudTd>
-            <MudTd>
-                <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small"
-                               OnClick="@(() => ShowDetail(context))" />
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
-}
-else
-{
-    <MudText Class="mt-4">@T["No tasks found"]</MudText>
-}
-
-@if (selectedTask != null)
-{
-    <MudDialog @bind-Visible="detailVisible" Options="new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true }">
-        <TitleContent>
-            <MudText Typo="Typo.h6">@T["Task Details"]</MudText>
-        </TitleContent>
-        <DialogContent>
-            <TaskAssignmentCard Task="selectedTask" OnAction="HandleTaskAction" />
-        </DialogContent>
-    </MudDialog>
-}
+<MudTable T="TaskAssignmentDto" ServerData="vm.GetPageAsync" @ref="table"
+          HeaderClass="ipath_table_header"
+          RowsPerPage="25" Bordered="false" Dense="true" Hover="true">
+    <ToolBarContent>
+        <MudToolBar>
+            <MudText Typo="Typo.h6">@T["My Tasks"]</MudText>
+            <MudSpacer />
+            <MudSelect T="eTaskStatus?" Label=@T["Filter by status"] @bind-Value="vm.StatusFilter"
+                       @bind-Value:after="() => table.ReloadServerData()" Clearable="true"
+                       Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense">
+                @foreach (var s in Enum.GetValues<eTaskStatus>())
+                {
+                    <MudSelectItem Value="s">@s.ToString()</MudSelectItem>
+                }
+            </MudSelect>
+        </MudToolBar>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh Style="width: 200px;">@T["Status"]</MudTh>
+        <MudTh Style="width: 40%;">
+            <MudTableSortLabel SortLabel="Title" T="TaskAssignmentDto">@T["Case"]</MudTableSortLabel>
+        </MudTh>
+        <MudTh Style="width: 8rem;">@T["Type"]</MudTh>
+        <MudTh Style="width: 16rem;">@T["Sender"]</MudTh>
+        <MudTh Style="width: 10rem;">
+            <MudTableSortLabel SortLabel="CreatedOn" T="TaskAssignmentDto" InitialDirection="SortDirection.Descending">@T["Date"]</MudTableSortLabel>
+        </MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>
+            <MudStack Row>
+                <MudChip T="string" Size="Size.Small" Color="TaskAssignmentsViewModel.StatusColor(context.Status)">@context.Status</MudChip>
+                @if (context.Status == nameof(eTaskStatus.Proposed))
+                {
+                    <div class="mx-2">
+                        <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Small"
+                                       OnClick="@(() => AcceptTask(context.Id))" Title="@T["Accept"]" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Cancel" Color="Color.Error" Size="Size.Small"
+                                       OnClick="@(() => DeclineTask(context.Id))" Title="@T["Decline"]" />
+                    </div>
+                }
+            </MudStack>
+        </MudTd>
+        <MudTd Class="ipath_node_title2">
+            <MudLink Href="@($"/request/{context.ServiceRequestId}")" Style="font-weight: bold;">
+                @(context.ServiceRequest?.Title ?? context.Title)
+            </MudLink>
+            @if (context.ServiceRequest?.Description?.BodySite is not null)
+            {
+                <span>, @context.ServiceRequest.Description.BodySite.ToString()</span>
+            }
+            @if (context.ServiceRequest?.SubTitle is not null)
+            {
+                <div>@context.ServiceRequest.SubTitle</div>
+            }
+        </MudTd>
+        <MudTd Class="ipath_node_type2">
+            @context.Type<br />
+            @if (context.ServiceRequest?.Description?.BodySite?.Code is not null)
+            {
+                <i>@context.ServiceRequest.Description.BodySite.Code</i>
+            }
+        </MudTd>
+        <MudTd Class="ipath_node_sender2">
+            @if (context.ServiceRequest?.Owner is not null)
+            {
+                <OwnerLink Owner="@context.ServiceRequest.Owner" />
+            }
+            else
+            {
+                <span>@context.GroupName</span>
+            }
+        </MudTd>
+        <MudTd Class="ipath_node_date2">
+            @context.CreatedOn.ToString("d")<br />
+            @if (context.ServiceRequest?.AccessionNo is not null)
+            {
+                <span style="font-weight: bold;">@context.ServiceRequest.AccessionNo</span>
+            }
+        </MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>@T["No matching records found"]</MudText>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
 
 @code {
-    private List<TaskAssignmentDto>? tasks;
-    private eTaskStatus? statusFilter;
-    private bool loading;
-    private bool detailVisible;
-    private TaskAssignmentDto? selectedTask;
+    private MudTable<TaskAssignmentDto> table = default!;
 
-    protected override async Task OnInitializedAsync()
+    private async Task AcceptTask(Guid id)
     {
-        await LoadTasks();
+        await vm.AcceptTask(id);
+        await table.ReloadServerData();
     }
 
-    private async Task LoadTasks()
+    private async Task DeclineTask(Guid id)
     {
-        loading = true;
-        StateHasChanged();
-
-        var resp = await Api.GetMyTaskAssignments(statusFilter);
-        if (resp.IsSuccessful)
-            tasks = resp.Content?.ToList();
-        else
-            tasks = null;
-
-        loading = false;
-        StateHasChanged();
+        await vm.DeclineTask(id);
+        await table.ReloadServerData();
     }
-
-    private void ShowDetail(TaskAssignmentDto task)
-    {
-        selectedTask = task;
-        detailVisible = true;
-    }
-
-    private async Task HandleTaskAction()
-    {
-        detailVisible = false;
-        selectedTask = null;
-        await LoadTasks();
-    }
-
-    private Color StatusColor(string status) => status switch
-    {
-        nameof(eTaskStatus.Proposed) => Color.Warning,
-        nameof(eTaskStatus.Assigned) => Color.Info,
-        nameof(eTaskStatus.InProgress) => Color.Primary,
-        nameof(eTaskStatus.Completed) => Color.Success,
-        nameof(eTaskStatus.Declined) => Color.Error,
-        nameof(eTaskStatus.Cancelled) => Color.Error,
-        nameof(eTaskStatus.ReturnedForReassignment) => Color.Warning,
-        _ => Color.Default
-    };
 }

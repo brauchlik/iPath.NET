@@ -12,11 +12,12 @@ public static class TaskAssignmentEndpoints
             .WithTags("Task Assignments")
             .RequireAuthorization();
 
-        api.MapGet("/my", async (IMediator mediator, eTaskStatus? statusFilter, CancellationToken ct) =>
+        api.MapPost("/my", async (GetUserTaskAssignmentsQuery query, [FromServices] IMediator mediator, CancellationToken ct) =>
         {
-            var result = await mediator.Send(new GetUserTaskAssignmentsQuery(StatusFilter: statusFilter), ct);
+            var result = await mediator.Send(query, ct);
             return Results.Ok(result);
-        });
+        })
+        .Produces<PagedResultList<TaskAssignmentDto>>();
 
         api.MapGet("/group/{groupId}", async (IMediator mediator, Guid groupId, eTaskStatus? statusFilter, CancellationToken ct) =>
         {

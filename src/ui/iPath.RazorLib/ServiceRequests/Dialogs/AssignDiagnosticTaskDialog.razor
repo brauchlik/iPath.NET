@@ -1,0 +1,165 @@
+@using iPath.Domain.Entities
+@inject TaskAssignmentsViewModel vm
+@inject IStringLocalizer T
+
+<MudDialog ContentStyle="width: 600px;">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@T["Assign Diagnostic Task"]</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText Typo="Typo.body1" Class="mb-4 mud-text-bold">
+            @CaseFullTitle
+        </MudText>
+
+        <ConsultantLookup GroupId="@GroupId" BodySiteCode="@BodySiteFilterCode"
+                          @bind-Value="_selectedConsultant" @bind-Value:after="HandleConsultantChanged"
+                          Label="@T["Search consultant"]" Clearable="true"
+                          Variant="Variant.Outlined" ShrinkLabel="true" Dense="true" Margin="Margin.Dense" />
+
+        @if (HasBodySite)
+        {
+            <MudSwitch T="bool" @bind-Value="_matchBodySite"
+                       @bind-Value:after="ResetConsultantSelection"
+                       Label="@T["Match BodySite Filter"]"
+                       Color="Color.Info" Class="mt-2" />
+        }
+
+        @if (_selectedConsultant is not null)
+        {
+            <MudPaper Class="mt-4 pa-4" Elevation="1">
+                <MudText Typo="Typo.subtitle2">@_selectedConsultant.Username</MudText>
+                @if (!string.IsNullOrEmpty(_selectedConsultant.Specialisation))
+                {
+                    <MudText Typo="Typo.body2">@T["Specialisation"]: @_selectedConsultant.Specialisation</MudText>
+                }
+                @if (_selectedConsultant.BodySiteFilter?.ConceptCodes.Count > 0)
+                {
+                    <MudText Typo="Typo.body2">@T["Body Site Filter"]: @_selectedConsultant.BodySiteFilter.ConceptCodesString</MudText>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">@T["No body site filter set"]</MudText>
+                }
+            </MudPaper>
+
+            @if (_existingTask is not null)
+            {
+                <MudAlert Severity="Severity.Warning" Class="mt-4">
+                    <MudText>@T["A diagnostic task already exists for this case"]</MudText>
+                    <MudText Typo="Typo.body2">@T["Status"]: @_existingTask.Status</MudText>
+                    <MudText Typo="Typo.body2">@T["Assigned to"]: @_existingTask.AssignedToUsername</MudText>
+                </MudAlert>
+            }
+
+            @if (!string.IsNullOrEmpty(_errorMessage))
+            {
+                <MudAlert Severity="Severity.Error" Class="mt-2">@_errorMessage</MudAlert>
+            }
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AssignTask"
+                   Disabled="@(_selectedConsultant is null)">
+            @T["Assign"]
+        </MudButton>
+        <MudButton OnClick="@MudDialog.Cancel" Variant="Variant.Filled">@T["Cancel"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public Guid ServiceRequestId { get; set; }
+
+    [Parameter]
+    public Guid GroupId { get; set; }
+
+    [Parameter]
+    public string CaseFullTitle { get; set; } = "";
+
+    [Parameter]
+    public bool HasBodySite { get; set; }
+
+    [Parameter]
+    public string? CaseBodySiteCode { get; set; }
+
+    private bool _checkingTasks;
+    private ConsultantDto? _selectedConsultant;
+    private TaskAssignmentDto? _existingTask;
+    private bool _matchBodySite = true;
+    private string? _errorMessage;
+
+    private string? BodySiteFilterCode => _matchBodySite ? CaseBodySiteCode : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _existingTask = null;
+        _matchBodySite = true;
+    }
+
+    private async Task HandleConsultantChanged()
+    {
+        await OnConsultantChanged(_selectedConsultant);
+    }
+
+    private async Task ResetConsultantSelection()
+    {
+        _selectedConsultant = null;
+        _existingTask = null;
+        _errorMessage = null;
+    }
+
+    private async Task OnConsultantChanged(ConsultantDto? consultant)
+    {
+        _selectedConsultant = consultant;
+        _existingTask = null;
+        _errorMessage = null;
+
+        if (consultant is not null)
+        {
+            _checkingTasks = true;
+            StateHasChanged();
+
+            try
+            {
+                var items = await vm.GetCaseTaskAssignments(ServiceRequestId);
+                if (items is not null)
+                {
+                    _existingTask = items.FirstOrDefault(t =>
+                        t.Type == eTaskType.DiagnosticReview.ToString() &&
+                        t.AssignedToUserId == consultant.Id &&
+                        t.Status != eTaskStatus.Cancelled.ToString() &&
+                        t.Status != eTaskStatus.Completed.ToString() &&
+                        t.Status != eTaskStatus.Declined.ToString());
+                }
+            }
+            finally
+            {
+                _checkingTasks = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task AssignTask()
+    {
+        if (_selectedConsultant is null) return;
+
+        _errorMessage = null;
+        var success = await vm.ProposeTaskAssignment(
+            ServiceRequestId,
+            _selectedConsultant.Id,
+            eTaskAssignmentMode.ModeratorSuggested);
+
+        if (success)
+        {
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        else
+        {
+            _errorMessage = T["Failed to assign task"].ToString();
+        }
+    }
+}

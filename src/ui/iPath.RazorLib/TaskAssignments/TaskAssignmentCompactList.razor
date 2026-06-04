@@ -1,0 +1,43 @@
+@namespace iPath.Blazor.Componenents.TaskAssignments
+@using iPath.Application.Features.TaskAssignments
+@inject IStringLocalizer T
+
+<MudList T="TaskAssignmentDto">
+    @foreach (var item in Items)
+    {
+        <MudListItem Class="px-2 py-0 ma-0">
+            <MudStack Row Spacing="1" Style="border-bottom: 1px outset;" AlignItems="AlignItems.Center">
+                <div>
+                    <MudChip T="string" Size="Size.Small" Color="@StatusColor(item.Status)">@item.Status</MudChip>
+                    <span class="ml-2 mud-text-subtitle1">@item.AssignedToUsername</span>
+                </div>
+                <MudSpacer />
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">@item.CreatedOn.ToString("g")</MudText>
+            </MudStack>
+            <MudStack Row Spacing="1" Class="ml-1">
+                <MudText Typo="Typo.body2">@item.Type</MudText>
+                @if (!string.IsNullOrEmpty(item.Notes))
+                {
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">@item.Notes</MudText>
+                }
+            </MudStack>
+        </MudListItem>
+    }
+</MudList>
+
+@code {
+    [Parameter]
+    public List<TaskAssignmentDto> Items { get; set; } = [];
+
+    private Color StatusColor(string status) => status switch
+    {
+        "Proposed" => Color.Info,
+        "Assigned" => Color.Primary,
+        "InProgress" => Color.Warning,
+        "Completed" => Color.Success,
+        "Cancelled" => Color.Default,
+        "Declined" => Color.Error,
+        "ReturnedForReassignment" => Color.Warning,
+        _ => Color.Default
+    };
+}

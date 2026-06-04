@@ -11,6 +11,7 @@ using iPath.Blazor.Componenents.Communities;
 using iPath.Blazor.Componenents.Notifications;
 using iPath.Blazor.Componenents.Shared;
 using iPath.Blazor.Componenents.Users;
+using iPath.Blazor.Componenents.TaskAssignments;
 using iPath.Blazor.ServiceLib.Fhir;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -125,6 +126,7 @@ public static class RazorLibServiceRegistration
         services.AddScoped<DocumentViewModel>();
         services.AddScoped<UserViewModel>();
         services.AddScoped<QuestionnairesViewModel>();
+        services.AddScoped<TaskAssignmentsViewModel>();
 
         return services;
     }

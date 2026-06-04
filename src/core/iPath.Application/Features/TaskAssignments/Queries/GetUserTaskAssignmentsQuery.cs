@@ -1,7 +1,12 @@
-using DispatchR.Abstractions.Send;
+using iPath.Application.Querying;
 using iPath.Domain.Entities;
 
 namespace iPath.Application.Features.TaskAssignments;
 
-public record GetUserTaskAssignmentsQuery(Guid? UserId = null, eTaskStatus? StatusFilter = null)
-    : IRequest<GetUserTaskAssignmentsQuery, Task<IReadOnlyList<TaskAssignmentDto>>>;
+public class GetUserTaskAssignmentsQuery : PagedQuery<TaskAssignmentDto>
+    , IRequest<GetUserTaskAssignmentsQuery, Task<PagedResultList<TaskAssignmentDto>>>
+{
+    public Guid? UserId { get; set; }
+    public eTaskStatus? StatusFilter { get; set; }
+    public bool IncludeServiceRequest { get; set; }
+}

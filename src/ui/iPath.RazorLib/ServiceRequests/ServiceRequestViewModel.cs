@@ -4,9 +4,11 @@ using iPath.Application.Contracts;
 using iPath.Application.Features.Annotations;
 using iPath.Application.Features.Documents;
 using iPath.Application.Features.ServiceRequests.Commands;
+using iPath.Application.Features.TaskAssignments;
 using iPath.Blazor.Componenents.ServiceRequests.Annotations;
 using iPath.Blazor.Componenents.ServiceRequests.Dialogs;
 using iPath.Blazor.Componenents.Shared;
+using iPath.Blazor.Componenents.TaskAssignments;
 using iPath.Domain.Config;
 using Refit;
 using System.Data;
@@ -14,6 +16,7 @@ using System.Data;
 namespace iPath.Blazor.Componenents.ServiceRequests;
 
 public class ServiceRequestViewModel(IPathApi api,
+    TaskAssignmentsViewModel taskVm,
     AppState appState,
     ISnackbar snackbar,
     IDialogService srvDialog,
@@ -791,6 +794,50 @@ public class ServiceRequestViewModel(IPathApi api,
         }
     }
 
+
+    public async Task ShowAssignDiagnosticDialog()
+    {
+        if (SelectedRequest is null || !SelectedRequest.GroupId.HasValue) return;
+
+        var fullTitle = SelectedRequest.Title ?? "";
+        if (SelectedRequest.Description?.BodySite is not null)
+            fullTitle += SelectedRequest.Description.BodySite.ToAppend();
+
+        var hasBodySite = SelectedRequest.Description?.BodySite is not null;
+
+        var parameters = new DialogParameters<AssignDiagnosticTaskDialog>
+        {
+            { x => x.ServiceRequestId, SelectedRequest.Id },
+            { x => x.GroupId, SelectedRequest.GroupId.Value },
+            { x => x.CaseFullTitle, fullTitle },
+            { x => x.HasBodySite, hasBodySite },
+            { x => x.CaseBodySiteCode, SelectedRequest.Description?.BodySite?.Code }
+        };
+        await srvDialog.ShowAsync<AssignDiagnosticTaskDialog>(T["Assign Diagnostic Task"], parameters);
+    }
+
+    public async Task AssignFollowUpTask()
+    {
+        if (SelectedRequest is null) return;
+
+        var existing = (await taskVm.GetCaseTaskAssignments(SelectedRequest.Id))?
+            .FirstOrDefault(t =>
+                t.Type == eTaskType.FollowUp.ToString() &&
+                t.Status != eTaskStatus.Cancelled.ToString() &&
+                t.Status != eTaskStatus.Completed.ToString() &&
+                t.Status != eTaskStatus.Declined.ToString());
+        if (existing is not null)
+        {
+            bool? confirm = await srvDialog.ShowMessageBoxAsync(
+                T["Task Already Exists"],
+                string.Format(T["A follow-up task (Status: {0}) already exists for this case. Create another one?"], existing.Status),
+                yesText: T["Yes"], cancelText: T["Cancel"]);
+            if (confirm is null || !confirm.Value)
+                return;
+        }
+
+        await taskVm.CreateFollowUpTask(SelectedRequest.Id);
+    }
 
     public bool AnnotationsHide => ActiveGroup is not null && ActiveGroup.Settings.AnnotationsHide;
 

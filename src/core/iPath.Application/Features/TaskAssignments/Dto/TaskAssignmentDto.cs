@@ -1,3 +1,4 @@
+using iPath.Application.Features.ServiceRequests;
 using iPath.Domain.Entities;
 
 namespace iPath.Application.Features.TaskAssignments;
@@ -25,11 +26,13 @@ public class TaskAssignmentDto
     public DateTime? AcceptedOn { get; init; }
     public DateTime? CompletedOn { get; init; }
     public DateTime? Deadline { get; init; }
+
+    public ServiceRequestListDto? ServiceRequest { get; init; }
 }
 
 public static class TaskAssignmentDtoExtensions
 {
-    public static TaskAssignmentDto ToDto(this TaskAssignment ta)
+    public static TaskAssignmentDto ToDto(this TaskAssignment ta, bool includeServiceRequest = false)
     {
         return new TaskAssignmentDto
         {
@@ -49,7 +52,8 @@ public static class TaskAssignmentDtoExtensions
             CreatedOn = ta.CreatedOn,
             AcceptedOn = ta.AcceptedOn,
             CompletedOn = ta.CompletedOn,
-            Deadline = ta.Deadline
+            Deadline = ta.Deadline,
+            ServiceRequest = includeServiceRequest ? ta.ServiceRequest?.ToListDto() : null
         };
     }
 }

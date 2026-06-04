@@ -41,6 +41,9 @@ public interface IPathApi
     [Post("/api/v1/users/list")]
     Task<IApiResponse<PagedResultList<UserListDto>>> GetUserList(GetUserListQuery query);
 
+    [Post("/api/v1/users/consultants")]
+    Task<IApiResponse<PagedResultList<ConsultantDto>>> GetConsultants(GetConsultantsQuery query);
+
     [Get("/api/v1/users/{id}")]
     Task<IApiResponse<UserDto>> GetUser(Guid id);
 
@@ -362,8 +365,8 @@ public interface IPathApi
 
 
     #region "-- Task Assignments --"
-    [Get("/api/v1/taskassignments/my")]
-    Task<IApiResponse<IReadOnlyList<TaskAssignmentDto>>> GetMyTaskAssignments(eTaskStatus? statusFilter = null);
+    [Post("/api/v1/taskassignments/my")]
+    Task<IApiResponse<PagedResultList<TaskAssignmentDto>>> GetMyTaskAssignments(GetUserTaskAssignmentsQuery query);
 
     [Get("/api/v1/taskassignments/group/{groupId}")]
     Task<IApiResponse<IReadOnlyList<TaskAssignmentDto>>> GetGroupTaskAssignments(Guid groupId, eTaskStatus? statusFilter = null);

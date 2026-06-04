@@ -1835,3 +1835,73 @@ git commit -m "feat: add TaskAssignmentCard component and group settings UI"
 **3. Type consistency:** All entity, dto, command, and handler types use consistent naming. `TaskAssignment` entity uses `Accept()`/`Decline()`/`Complete()` methods matching the command names. DTO properties match entity properties.
 
 **4. No missing parts:** The spec mentions CandidateService for auto-assign (Task 7 covers this). Spec mentions permissions enforcement (covered in each handler).
+
+---
+
+## Session Decisions (2026-06-04)
+
+### Implemented
+
+| Area | Decision |
+|------|----------|
+| **ConsultantLookup** | `Shared/Lookups/ConsultantLookup.cs` — `MudAutocomplete<ConsultantDto>`, searches via new `GET /api/v1/users/consultants` endpoint with `GroupId`/`CommunityId`/`SearchString` filters. Reusable (not just for task assignment). |
+| **AssignDiagnosticTaskDialog** | Dialog in `ServiceRequests/Dialogs/` triggered from case toolbar. Select consultant → show their specialisation + body site filter → check existing tasks → Assign or Cancel. |
+| **Assign Follow-Up Task** | Button on toolbar, directly assigns to case owner. Checks for existing follow-up tasks first with confirmation prompt. |
+| **Toolbar button** | "Assign Task" MudMenu on `ServiceRequestHeader` (moderator-only, gated by `vm.IsModerator`). |
+| **Error handling** | `DirectApiResponse` accepts `Exception?`, creates `ApiException` via `ApiException.Create(null, ..., innerException)` with Content=null. `ErrorMessage` extension: `Content → InnerException?.Message → Message → ReasonPhrase`. |
+| **TaskAssignmentGrid** | `TaskAssignments/TaskAssignmentGrid.razor` — responsive: desktop `MudDataGrid` + xs `TaskAssignmentCompactList` (MudList with status chips). Self-loads via `ServiceRequestId`/`GroupId`/`UserId`. |
+| **Events tab** | Third "Tasks" tab in `ServiceRequestEventsPage` using `<TaskAssignmentGrid ServiceRequestId="..." />`. |
+
+### Deferred / Not Changed
+
+| Page | Reason |
+|------|--------|
+| `MyTaskAssignmentsPage` | Has Accept/Decline/Complete actions — kept own `MudTable` + `TaskAssignmentCard` dialog |
+| `GroupTaskAssignmentsPage` | Has Cancel/Reassign actions — kept own `MudTable` + `TaskAssignmentCard` dialog |
+
+### EF Core Migration
+
+| Issue | Resolution |
+|-------|-----------|
+| `dotnet ef migrations add` fails with `MissingMethodException` for `AbstractionsStrings.ArgumentIsEmpty(Object)` | Bug in EF Core 10.0.6–10.0.8. Downgraded all EF Core packages + `dotnet-ef` tool to **10.0.5**. Migration `20260604104118_TaskAssignements` created successfully. |
+| AGENTS.md workflow added | Documented: AI checks if migration needed → shows command → developer runs CLI. |
+
+### Architecture Notes
+
+- `TaskAssignmentGrid` is intentionally **read-only** — for views that need actions (accept/decline/complete), pages own their own interactive UI
+- Consultant body site filter matching against case body site is **client-side** — moderator can toggle it off
+- `ConsultantDto.BodySiteFilter` comes from the user's profile (`SpecialisationBodySite`), not per-group notification settings (that's a future refactor)
+
+---
+
+## Phase 2 — Real-time UI via Domain Events & SSE
+
+**Goal:** Broadcast domain events over SSE so the UI updates without polling.
+
+### Problems to solve
+
+1. **TaskAssignment events → live badge update** — When a task is proposed/accepted/declined, the badge on "My Tasks" in `UserNavMenu` needs to refresh. Currently fetched once on first render.
+2. **New case / new annotation events → live badge update** — The `UserNavMenu` new-cases / new-annotations badges need to refresh when a colleague publishes a new case or adds an annotation. Currently only fetched once via `AppState`.
+3. **Live annotation feed on ServiceRequest page** — If you're viewing a case and someone else adds an annotation, it should appear in the annotation list in real-time. Currently requires manual refresh.
+4. **General domain event → SSE pipeline** — Build a reusable pattern so that any domain event (`IEventWithNotifications`) can be broadcast to connected clients, not just TaskAssignment events.
+
+### Approach
+
+The existing infrastructure already has SSE wiring via `SseConnectionHost.razor` + `SseClientService` + `NotificationEventBus`. But TaskAssignment domain events (defined in Phase 1) are not yet connected to this pipeline.
+
+**Key changes needed:**
+
+1. **SSE event types** — Define new SSE event types in the backend for TaskAssignment events (Proposed, Accepted, Declined, Completed, Cancelled) so clients can selectively subscribe
+2. **Domain event handler** — Create a handler that listens for TaskAssignment domain events and pushes them into `INotificationEventBus` / SSE channel
+3. **Client-side Subscriber** — `SseConnectionHost` should handle these new event types and:
+   - On `TaskAssignmentProposed`: refresh the pending task count via `AppState` (or direct API call)
+   - On `TaskAssignmentAccepted/Declined/Completed`: invalidate cached task assignments
+4. **NavMenu badge refresh** — Move pending task count into `AppState` so SSE events can trigger a re-fetch, or add a callback pattern directly in `UserNavMenu`
+5. **ServiceRequest page live annotations** — When an SSE event for a new annotation arrives while the user is viewing that case's page, insert the annotation into the list. Requires page-level SSE subscription filtered by `ServiceRequestId`
+6. **Generalize to other events** — Extend the same pattern for case publication events and annotation-created events so the badges (and potentially case lists) update in real-time
+
+### Open questions
+
+- Should the NavMenu badges use `AppState` (centralized, SSE-triggered) or subscribe to SSE events directly in the component?
+- For the ServiceRequest page, should we add a dedicated SSE channel per page (e.g. `/events/stream/{serviceRequestId}`) or filter events client-side?
+- How to handle reconnection — on SSE reconnect, should we re-fetch all state or rely on event replay?

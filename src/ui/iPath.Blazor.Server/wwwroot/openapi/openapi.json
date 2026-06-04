@@ -529,6 +529,35 @@
         }
       }
     },
+    "/api/v1/users/consultants": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetConsultantsQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultListOfConsultantDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users/{id}": {
       "get": {
         "tags": [
@@ -2677,22 +2706,30 @@
       }
     },
     "/api/v1/taskassignments/my": {
-      "get": {
+      "post": {
         "tags": [
           "Task Assignments"
         ],
-        "parameters": [
-          {
-            "name": "statusFilter",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/eTaskStatus"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetUserTaskAssignmentsQuery"
+              }
             }
-          }
-        ],
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultListOfTaskAssignmentDto"
+                }
+              }
+            }
           }
         }
       }
@@ -3765,6 +3802,55 @@
           }
         }
       },
+      "ConsultantDto": {
+        "required": [
+          "id",
+          "username",
+          "email",
+          "initials",
+          "specialisation",
+          "bodySiteFilter",
+          "roles"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "initials": {
+            "type": "string"
+          },
+          "specialisation": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "bodySiteFilter": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ConceptFilter"
+              }
+            ]
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "ContactDetails": {
         "type": "object",
         "properties": {
@@ -4443,6 +4529,74 @@
           }
         }
       },
+      "GetConsultantsQuery": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "communityId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "searchString": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "bodySiteCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sorting": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "filter": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 0
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 10
+          }
+        }
+      },
       "GetEventsQuery": {
         "type": "object",
         "properties": {
@@ -4814,6 +4968,68 @@
               "string"
             ],
             "format": "uuid"
+          },
+          "sorting": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "filter": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 0
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 10
+          }
+        }
+      },
+      "GetUserTaskAssignmentsQuery": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "statusFilter": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/eTaskStatus"
+              }
+            ]
+          },
+          "includeServiceRequest": {
+            "type": "boolean"
           },
           "sorting": {
             "type": [
@@ -5912,6 +6128,29 @@
           }
         }
       },
+      "PagedResultListOfConsultantDto": {
+        "required": [
+          "totalItems",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConsultantDto"
+            }
+          }
+        }
+      },
       "PagedResultListOfEventDto": {
         "required": [
           "totalItems",
@@ -6023,6 +6262,29 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ServiceRequestListDto"
+            }
+          }
+        }
+      },
+      "PagedResultListOfTaskAssignmentDto": {
+        "required": [
+          "totalItems",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskAssignmentDto"
             }
           }
         }
@@ -7080,6 +7342,108 @@
               "string"
             ],
             "format": "int64"
+          }
+        }
+      },
+      "TaskAssignmentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceRequestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "groupId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "groupName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "assignedToUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "assignedToUsername": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "assignedByUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "assignedByUsername": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "type": {
+            "type": "string"
+          },
+          "mode": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "notes": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "acceptedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "completedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "deadline": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "serviceRequest": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ServiceRequestListDto"
+              }
+            ]
           }
         }
       },

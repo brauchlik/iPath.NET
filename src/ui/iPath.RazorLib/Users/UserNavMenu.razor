@@ -1,4 +1,5 @@
 ﻿@implements IDisposable
+@using iPath.Blazor.ServiceLib.ApiClient
 
 <AuthorizeView>
     <NotAuthorized>
@@ -7,7 +8,11 @@
     </NotAuthorized>
     <Authorized>
         <MudNavLink Href="user/groups" Icon="@Icons.Material.TwoTone.Group">My Groups</MudNavLink>
-        <MudNavLink Href="user/tasks" Icon="@Icons.Material.TwoTone.Assignment">My Tasks</MudNavLink>
+        <MudNavLink Href="user/tasks" Icon="@Icons.Material.TwoTone.Assignment">
+            <MudBadge Content="@PendingTaskCount" Origin="Origin.CenterRight" BadgeClass="mx-2" Color="Color.Warning" Visible="@(PendingTaskCount > 0)">
+                My Tasks
+            </MudBadge>
+        </MudNavLink>
         <MudNavLink Href="user/cases" Icon="@Icons.Material.TwoTone.FolderShared">My Cases</MudNavLink>
 
         @if (NewRequestCount > 0)
@@ -36,11 +41,13 @@
 </AuthorizeView>
 
 @inject AppState state
+@inject IPathApi api
 
 @code {
     private ServiceRequestUpdatesDto stats;
     int NewRequestCount => stats is null ? 0 : stats.NewRequests.Count();
     int NewAnnotationCount => stats is null ? 0 : stats.NewAnnotations.Count();
+    private int PendingTaskCount;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -54,6 +61,26 @@
             stats = await state.GetNewRequestStats(false);
             if (state.StatsLoaded)
                 StateHasChanged();
+        }
+        if (firstRender && RendererInfo.IsInteractive)
+        {
+            try
+            {
+                var resp = await api.GetMyTaskAssignments(new GetUserTaskAssignmentsQuery
+                {
+                    StatusFilter = eTaskStatus.Proposed,
+                    PageSize = 1
+                });
+                if (resp.IsSuccessful && resp.Content is not null)
+                {
+                    PendingTaskCount = resp.Content.TotalItems;
+                    StateHasChanged();
+                }
+            }
+            catch
+            {
+                // silently ignore
+            }
         }
     }
 

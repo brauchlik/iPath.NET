@@ -38,10 +38,10 @@ public class DirectApiClient(
     : IPathApi
 {
     private static IApiResponse<T> Respond<T>(T? content) => new DirectApiResponse<T>(content);
-    private static IApiResponse<T> RespondError<T>() => new DirectApiResponse<T>(default, false, HttpStatusCode.InternalServerError);
+    private static IApiResponse<T> RespondError<T>(Exception? ex = null) => new DirectApiResponse<T>(default, false, HttpStatusCode.InternalServerError, ex);
 
     private static IApiResponse RespondOk() => new DirectApiResponse();
-    private static IApiResponse RespondError() => new DirectApiResponse(false, HttpStatusCode.InternalServerError);
+    private static IApiResponse RespondError(Exception? ex = null) => new DirectApiResponse(false, HttpStatusCode.InternalServerError, ex);
 
     private static Task<IApiResponse<T>> NotSupported<T>() => Task.FromResult(RespondError<T>());
     private static Task<IApiResponse> NotSupportedVoid() => Task.FromResult(RespondError());
@@ -83,6 +83,11 @@ public class DirectApiClient(
     // -- Users --
 
     public async Task<IApiResponse<PagedResultList<UserListDto>>> GetUserList(GetUserListQuery query)
+    {
+        return Respond(await mediator.Send(query, default));
+    }
+
+    public async Task<IApiResponse<PagedResultList<ConsultantDto>>> GetConsultants(GetConsultantsQuery query)
     {
         return Respond(await mediator.Send(query, default));
     }
@@ -582,17 +587,17 @@ public class DirectApiClient(
 
     #region "-- Task Assignments --"
 
-    public async Task<IApiResponse<IReadOnlyList<TaskAssignmentDto>>> GetMyTaskAssignments(eTaskStatus? statusFilter = null)
+    public async Task<IApiResponse<PagedResultList<TaskAssignmentDto>>> GetMyTaskAssignments(GetUserTaskAssignmentsQuery query)
     {
         try
         {
-            var result = await mediator.Send(new GetUserTaskAssignmentsQuery(StatusFilter: statusFilter), default);
-            return Respond<IReadOnlyList<TaskAssignmentDto>>(result);
+            var result = await mediator.Send(query, default);
+            return Respond(result);
         }
         catch (Exception ex)
         {
             logger.LogWarning(ex, "GetMyTaskAssignments failed");
-            return RespondError<IReadOnlyList<TaskAssignmentDto>>();
+            return RespondError<PagedResultList<TaskAssignmentDto>>(ex);
         }
     }
 
@@ -606,7 +611,7 @@ public class DirectApiClient(
         catch (Exception ex)
         {
             logger.LogWarning(ex, "GetGroupTaskAssignments failed");
-            return RespondError<IReadOnlyList<TaskAssignmentDto>>();
+            return RespondError<IReadOnlyList<TaskAssignmentDto>>(ex);
         }
     }
 
@@ -620,7 +625,7 @@ public class DirectApiClient(
         catch (Exception ex)
         {
             logger.LogWarning(ex, "GetCaseTaskAssignments failed");
-            return RespondError<IReadOnlyList<TaskAssignmentDto>>();
+            return RespondError<IReadOnlyList<TaskAssignmentDto>>(ex);
         }
     }
 
@@ -634,7 +639,7 @@ public class DirectApiClient(
         catch (Exception ex)
         {
             logger.LogWarning(ex, "GetTaskAssignmentById failed");
-            return RespondError<TaskAssignmentDto>();
+            return RespondError<TaskAssignmentDto>(ex);
         }
     }
 
@@ -648,7 +653,7 @@ public class DirectApiClient(
         catch (Exception ex)
         {
             logger.LogWarning(ex, "ProposeTaskAssignment failed");
-            return RespondError<TaskAssignmentDto>();
+            return RespondError<TaskAssignmentDto>(ex);
         }
     }
 
@@ -662,7 +667,7 @@ public class DirectApiClient(
         catch (Exception ex)
         {
             logger.LogWarning(ex, "AcceptTaskAssignment failed");
-            return RespondError<TaskAssignmentDto>();
+            return RespondError<TaskAssignmentDto>(ex);
         }
     }
 
@@ -676,7 +681,7 @@ public class DirectApiClient(
         catch (Exception ex)
         {
             logger.LogWarning(ex, "DeclineTaskAssignment failed");
-            return RespondError<TaskAssignmentDto>();
+            return RespondError<TaskAssignmentDto>(ex);
         }
     }
 
@@ -690,7 +695,7 @@ public class DirectApiClient(
         catch (Exception ex)
         {
             logger.LogWarning(ex, "CompleteTaskAssignment failed");
-            return RespondError<TaskAssignmentDto>();
+            return RespondError<TaskAssignmentDto>(ex);
         }
     }
 
@@ -704,7 +709,7 @@ public class DirectApiClient(
         catch (Exception ex)
         {
             logger.LogWarning(ex, "ReturnTaskAssignment failed");
-            return RespondError<TaskAssignmentDto>();
+            return RespondError<TaskAssignmentDto>(ex);
         }
     }
 
@@ -718,7 +723,7 @@ public class DirectApiClient(
         catch (Exception ex)
         {
             logger.LogWarning(ex, "CancelTaskAssignment failed");
-            return RespondError<TaskAssignmentDto>();
+            return RespondError<TaskAssignmentDto>(ex);
         }
     }
 
@@ -732,7 +737,7 @@ public class DirectApiClient(
         catch (Exception ex)
         {
             logger.LogWarning(ex, "CreateFollowUpTask failed");
-            return RespondError<TaskAssignmentDto>();
+            return RespondError<TaskAssignmentDto>(ex);
         }
     }
 

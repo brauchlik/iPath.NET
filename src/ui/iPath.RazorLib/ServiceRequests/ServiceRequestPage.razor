@@ -4,6 +4,11 @@
 
 @attribute [Authorize()]
 
+@if (vm.SelectedRequest is not null)
+{
+    <TaskPrompt ServiceRequestId="@vm.SelectedRequest.Id" Class="mb-5" />
+}
+
 <ServiceRequestHeader />
 
 @if (vm.SelectedRequest is null)

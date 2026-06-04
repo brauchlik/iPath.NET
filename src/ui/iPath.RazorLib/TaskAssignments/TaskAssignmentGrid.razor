@@ -1,0 +1,92 @@
+@namespace iPath.Blazor.Componenents.TaskAssignments
+@using iPath.Domain.Entities
+
+@if (_loading)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else
+{
+    @* Mobile view (xs only) *@
+    <MudHidden Breakpoint="Breakpoint.SmAndUp">
+        <TaskAssignmentCompactList Items="@_items" />
+    </MudHidden>
+
+    @* Desktop view (sm and up) *@
+    <MudHidden Breakpoint="Breakpoint.Xs">
+        <MudDataGrid T="TaskAssignmentDto" Items="@_items" Dense="true" Hover="true" Striped="true">
+            <Columns>
+                <PropertyColumn Property="x => x.Type" Title="Type" />
+                <PropertyColumn Property="x => x.Status" Title="Status" />
+                <PropertyColumn Property="x => x.AssignedToUsername" Title="Assigned To" />
+                <PropertyColumn Property="x => x.AssignedByUsername" Title="Assigned By" />
+                <PropertyColumn Property="x => x.CreatedOn" Title="Created">
+                    <CellTemplate>
+                        @context.Item.CreatedOn.ToString("g")
+                    </CellTemplate>
+                </PropertyColumn>
+                <PropertyColumn Property="x => x.Notes" Title="Notes" />
+                @if (EnableActions)
+                {
+                    <TemplateColumn Title="@T["Actions"]">
+                        <CellTemplate>
+                            @if (context.Item.Status != nameof(eTaskStatus.Completed) && context.Item.Status != nameof(eTaskStatus.Cancelled))
+                            {
+                                <MudIconButton Icon="@Icons.Material.Filled.Cancel" Color="Color.Error"
+                                               Size="Size.Small" Title="@T["Cancel"]"
+                                               OnClick="@(() => CancelTaskAsync(context.Item.Id))" />
+                            }
+                        </CellTemplate>
+                    </TemplateColumn>
+                }
+            </Columns>
+        </MudDataGrid>
+    </MudHidden>
+}
+
+@code {
+    [Inject] private TaskAssignmentsViewModel vm { get; set; } = default!;
+
+    [Parameter]
+    public Guid? ServiceRequestId { get; set; }
+
+    [Parameter]
+    public Guid? GroupId { get; set; }
+
+    [Parameter]
+    public bool EnableActions { get; set; }
+
+    private bool _loading = true;
+    private List<TaskAssignmentDto> _items = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+        _loading = false;
+    }
+
+    private async Task LoadDataAsync()
+    {
+        if (ServiceRequestId.HasValue)
+        {
+            var items = await vm.GetCaseTaskAssignments(ServiceRequestId.Value);
+            if (items is not null)
+                _items = items.ToList();
+        }
+        else if (GroupId.HasValue)
+        {
+            var items = await vm.GetGroupTaskAssignments(GroupId.Value);
+            if (items is not null)
+                _items = items.ToList();
+        }
+    }
+
+    private async Task CancelTaskAsync(Guid taskId)
+    {
+        if (await vm.CancelTask(taskId))
+        {
+            await LoadDataAsync();
+            StateHasChanged();
+        }
+    }
+}

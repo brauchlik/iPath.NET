@@ -44,6 +44,7 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<EventEntity> EventStore { get; set; }
     public DbSet<EmailImportLog> EmailImportLogs { get; set; }
 
+    public DbSet<TaskAssignment> TaskAssignments { get; set; }
 
     public DbSet<UserUploadFolder> UserUploadFolders { get; set; }
     public DbSet<ServiceRequestUploadFolder> ServiceRequestUploadFolders { get; set; }

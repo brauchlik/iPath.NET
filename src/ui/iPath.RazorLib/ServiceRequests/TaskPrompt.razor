@@ -1,0 +1,93 @@
+@using iPath.Domain.Entities
+@inject TaskAssignmentsViewModel vm
+@inject AppState appState
+
+@if (_task is not null)
+{
+    <MudAlert Severity="Severity.Info" Class="@Class" Variant="Variant.Outlined">
+        <MudText Typo="Typo.subtitle1">@T["You have a pending task"]</MudText>
+        <MudStack Row>
+            <div>
+                <MudText Typo="Typo.body2">@T["Type"]: @_task.Type  |  @T["Status"]: @_task.Status</MudText>
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">@T["Created"]: @_task.CreatedOn.ToString("g")</MudText>
+                @if (!string.IsNullOrEmpty(_task.Notes))
+                {
+                    <MudText Typo="Typo.body2" Class="mt-1">@_task.Notes</MudText>
+                }
+            </div>
+            <MudSpacer />
+            <MudStack Row>
+                @if (_task.Status == nameof(eTaskStatus.Proposed))
+                {
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="AcceptTask">
+                        @T["Accept"]
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="DeclineTask">
+                        @T["Decline"]
+                    </MudButton>
+                }
+                @if (_task.Status == nameof(eTaskStatus.Assigned))
+                {
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="CompleteTask">
+                        @T["Task Completed"]
+                    </MudButton>
+                }
+            </MudStack>
+        </MudStack>
+    </MudAlert>
+}
+
+@code {
+    [Parameter]
+    public Guid ServiceRequestId { get; set; }
+
+    [Parameter]
+    public string Class { get; set; } = "";
+
+    private TaskAssignmentDto? _task;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPendingTask();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadPendingTask();
+    }
+
+    private async Task LoadPendingTask()
+    {
+        var userId = appState.User?.Id;
+        if (userId is null || userId == Guid.Empty) return;
+
+        var items = await vm.GetCaseTaskAssignments(ServiceRequestId);
+        if (items is null) return;
+
+        _task = items.FirstOrDefault(t =>
+            t.AssignedToUserId == userId &&
+            (t.Status == nameof(eTaskStatus.Proposed) || t.Status == nameof(eTaskStatus.Assigned)));
+    }
+
+    private async Task AcceptTask()
+    {
+        if (_task is null) return;
+        await vm.AcceptTask(_task.Id);
+        await LoadPendingTask();
+    }
+
+    private async Task DeclineTask()
+    {
+        if (_task is null) return;
+        await vm.DeclineTask(_task.Id);
+        await LoadPendingTask();
+    }
+
+    private async Task CompleteTask()
+    {
+        if (_task is null) return;
+        await vm.CompleteTask(_task.Id);
+        await LoadPendingTask();
+    }
+
+}

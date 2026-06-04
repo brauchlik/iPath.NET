@@ -58,6 +58,7 @@ public class UpdateGroupMembershipHandler(iPathDbContext db, IMediator mediator,
                 await memberSet.AddAsync(entity, ct);
             }
             entity.Role = dto.Role;
+            entity.IsConsultant = dto.IsConsultant;
         }
 
         // User is derived from Identity User and thus does not have domain events => save events directly

@@ -37,8 +37,10 @@ public static class NodeListExtension
             GroupId = node.GroupId,
             Description = node.Description,
             AnnotationCount = node.Annotations?.Count,
-            LastAnnotationDate = node.Annotations?.Max(x => x.CreatedOn),
-            LastVisit = node.LastVisits?.Max(x => x.Date)
+            LastAnnotationDate = node.Annotations is not null && node.Annotations.Count > 0
+                ? node.Annotations.Max(x => x.CreatedOn) : null,
+            LastVisit = node.LastVisits is not null && node.LastVisits.Count > 0
+                ? node.LastVisits.Max(x => x.Date) : null
         };
     }
 }

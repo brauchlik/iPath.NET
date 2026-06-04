@@ -1,0 +1,122 @@
+@namespace iPath.Blazor.Componenents.Admin.Groups
+@inject IStringLocalizer T
+@inject IPathApi Api
+
+<MudCard Elevation="1" Class="pa-4">
+    <MudCardContent>
+        <MudGrid Spacing="2">
+            <MudItem xs="6">
+                <MudText Typo="Typo.body2"><strong>@T["Status"]:</strong></MudText>
+                <MudChip T="string" Size="Size.Small" Color="StatusColor(Task.Status)">@Task.Status</MudChip>
+            </MudItem>
+            <MudItem xs="6">
+                <MudText Typo="Typo.body2"><strong>@T["Type"]:</strong> @Task.Type</MudText>
+                <MudText Typo="Typo.body2"><strong>@T["Mode"]:</strong> @Task.Mode</MudText>
+            </MudItem>
+            <MudItem xs="12">
+                <MudText Typo="Typo.body2"><strong>@T["Title"]:</strong> @Task.Title</MudText>
+            </MudItem>
+            <MudItem xs="6">
+                <MudText Typo="Typo.body2"><strong>@T["Assigned To"]:</strong> @Task.AssignedToUsername</MudText>
+            </MudItem>
+            <MudItem xs="6">
+                <MudText Typo="Typo.body2"><strong>@T["Assigned By"]:</strong> @Task.AssignedByUsername</MudText>
+            </MudItem>
+            <MudItem xs="6">
+                <MudText Typo="Typo.body2"><strong>@T["Created"]:</strong> @Task.CreatedOn.ToShortDateString()</MudText>
+            </MudItem>
+            <MudItem xs="6">
+                @if (Task.Deadline.HasValue)
+                {
+                    <MudText Typo="Typo.body2"><strong>@T["Deadline"]:</strong> @Task.Deadline.Value.ToShortDateString()</MudText>
+                }
+            </MudItem>
+            @if (!string.IsNullOrEmpty(Task.Notes))
+            {
+                <MudItem xs="12">
+                    <MudText Typo="Typo.body2"><strong>@T["Notes"]:</strong> @Task.Notes</MudText>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudCardContent>
+    <MudCardActions>
+        @if (!IsAdmin && Task.Status == nameof(eTaskStatus.Proposed))
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(async () => await Accept(Task.Id))">
+                @T["Accept"]
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(async () => await Decline(Task.Id))">
+                @T["Decline"]
+            </MudButton>
+        }
+        @if (!IsAdmin && Task.Status == nameof(eTaskStatus.Assigned))
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="@(async () => await Complete(Task.Id))">
+                @T["Complete"]
+            </MudButton>
+        }
+        @if (IsAdmin && (Task.Status == nameof(eTaskStatus.Assigned) || Task.Status == nameof(eTaskStatus.InProgress)))
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="@(async () => await ReturnTask(Task.Id))">
+                @T["Return"]
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(async () => await Cancel(Task.Id))">
+                @T["Cancel"]
+            </MudButton>
+        }
+        @if (IsAdmin && Task.Status == nameof(eTaskStatus.Proposed))
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(async () => await Cancel(Task.Id))">
+                @T["Cancel"]
+            </MudButton>
+        }
+    </MudCardActions>
+</MudCard>
+
+@code {
+    [Parameter] public TaskAssignmentDto Task { get; set; } = default!;
+    [Parameter] public bool IsAdmin { get; set; }
+    [Parameter] public EventCallback OnAction { get; set; }
+
+    private async Task Accept(Guid id)
+    {
+        await Api.AcceptTaskAssignment(id);
+        await OnAction.InvokeAsync();
+    }
+
+    private async Task Decline(Guid id)
+    {
+        await Api.DeclineTaskAssignment(id);
+        await OnAction.InvokeAsync();
+    }
+
+    private async Task Complete(Guid id)
+    {
+        await Api.CompleteTaskAssignment(id);
+        await OnAction.InvokeAsync();
+    }
+
+    private async Task ReturnTask(Guid id)
+    {
+        await Api.ReturnTaskAssignment(id);
+        await OnAction.InvokeAsync();
+    }
+
+    private async Task Cancel(Guid id)
+    {
+        await Api.CancelTaskAssignment(id);
+        await OnAction.InvokeAsync();
+    }
+
+    private Color StatusColor(string status) => status switch
+    {
+        nameof(eTaskStatus.Proposed) => Color.Warning,
+        nameof(eTaskStatus.Assigned) => Color.Info,
+        nameof(eTaskStatus.InProgress) => Color.Primary,
+        nameof(eTaskStatus.Completed) => Color.Success,
+        nameof(eTaskStatus.Declined) => Color.Error,
+        nameof(eTaskStatus.Cancelled) => Color.Error,
+        nameof(eTaskStatus.ReturnedForReassignment) => Color.Warning,
+        _ => Color.Default
+    };
+}

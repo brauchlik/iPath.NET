@@ -171,7 +171,9 @@
         {
             await mediator.Send(new ApplyDatabaseMigrationsCommand(), CancellationToken.None);
             snackbar.Add($"Applied {pending} migration(s) successfully.", Severity.Success);
-            navigation.Refresh();
+
+            await LoadMigrationData();
+            StateHasChanged();
         }
         catch (Exception ex)
         {

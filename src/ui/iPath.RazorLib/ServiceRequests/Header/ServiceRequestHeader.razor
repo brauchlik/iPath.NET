@@ -35,6 +35,18 @@
 
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled=@(!vm.HasSlideShow)
                                     Tooltip=@T["Show images in fullscreen mode"] />
+
+                @if (vm.IsModerator)
+                {
+                    <MudTooltip Text=@T["assign tasks"]>
+                        <MudButtonGroup>
+                            <MudMenu Icon="@Icons.Material.TwoTone.AssignmentInd" Style="align-self: auto;">
+                                <MudMenuItem Icon="@Icons.Material.Filled.RateReview" OnClick="@(() => vm.ShowAssignDiagnosticDialog())">@T["Assign Diagnostic Task"]</MudMenuItem>
+                                <MudMenuItem Icon="@Icons.Material.Filled.Reply" OnClick="@(() => vm.AssignFollowUpTask())">@T["Assign Follow-Up Task"]</MudMenuItem>
+                            </MudMenu>
+                        </MudButtonGroup>
+                    </MudTooltip>
+                }
                 @if (vm.CanMoveRequest)
                 {
                     <MudTooltip Text=@T["move to another group"]>

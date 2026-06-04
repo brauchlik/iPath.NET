@@ -4,7 +4,13 @@ namespace iPath.Blazor.Componenents.Extensions;
 
 public static class ApiResponseExtensions
 {
-    extension (IApiResponse resp) {
-        public string ErrorMessage => resp.Error?.Content ?? resp.Error?.Message ?? string.Empty;
+    extension(IApiResponse resp)
+    {   
+        public string ErrorMessage =>
+         !string.IsNullOrEmpty(resp.Error?.Content) ? resp.Error.Content :
+         resp.Error?.InnerException?.Message ??
+         resp.Error?.Message ??
+         resp.ReasonPhrase ??
+         string.Empty;
     }
 }

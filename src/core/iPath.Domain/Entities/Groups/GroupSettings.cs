@@ -29,5 +29,8 @@ public class GroupSettings
 
     public StorageInfo? Storage { get; set; }
 
+    public eTaskAssignmentStrategy TaskAssignmentStrategy { get; set; } = eTaskAssignmentStrategy.None;
+    public int? AutoAssignTimeoutHours { get; set; } = 24;
+
     public GroupSettings Clone() => (GroupSettings)MemberwiseClone();
 }

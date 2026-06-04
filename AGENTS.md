@@ -207,3 +207,27 @@ When adding new Razor components in a custom namespace, add the namespace to the
 - EF Core with multiple database providers
 - Blazor Server with MudBlazor
 - xUnit testing with FluentAssertions
+
+### EF Core Migrations Workflow
+
+**Rule: Developer runs `dotnet ef` CLI commands, not the AI.**
+
+When code adds/changes entities (new DbSet, new config, property changes):
+
+1. AI checks if a migration is needed (new/modified entity, DbSet, or `IEntityTypeConfiguration`)
+2. If yes:
+   - Check `dotnet ef --version` is recent — if outdated, remind user to update:
+     ```
+     dotnet tool update --global dotnet-ef
+     ```
+   - Show the exact command to run, noting which provider project to run from:
+     ```
+     cd src\infrastructure\iPath.Database.Sqlite
+     dotnet ef migrations add <DescriptiveName> --startup-project ..\..\ui\iPath.Blazor.Server
+     ```
+   - Remind user: repeat for other providers (Postgres, SqlServer) if needed
+3. Developer runs the command, commits the generated migration files
+
+If `dotnet ef migrations add` fails (tool bug):
+- AI investigates and suggests workaround (version downgrade, manual migration, etc.)
+- Developer applies the fix

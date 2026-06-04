@@ -152,6 +152,8 @@ namespace iPath.Database.Sqlite.Migrations
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Data", "iPath.Domain.Entities.Annotation.Data#AnnotationData", b1 =>
                         {
+                            b1.Property<Guid?>("DocumentId");
+
                             b1.Property<string>("Text");
 
                             b1.Property<int>("Type");
@@ -623,6 +625,8 @@ namespace iPath.Database.Sqlite.Migrations
 
                             b1.Property<bool>("AnnotationsHide");
 
+                            b1.Property<int?>("AutoAssignTimeoutHours");
+
                             b1.PrimitiveCollection<string>("CaseTypes")
                                 .IsRequired();
 
@@ -635,6 +639,10 @@ namespace iPath.Database.Sqlite.Migrations
 
                             b1.Property<string>("Purpose")
                                 .IsRequired();
+
+                            b1.Property<bool>("ShowProvisionalDiagnosis");
+
+                            b1.Property<int>("TaskAssignmentStrategy");
 
                             b1.Property<bool>("UseCaseSubTitleField");
 
@@ -1073,6 +1081,8 @@ namespace iPath.Database.Sqlite.Migrations
 
                             b1.Property<string>("CaseType");
 
+                            b1.Property<string>("ProvisionalDiagnosis");
+
                             b1.Property<string>("Status");
 
                             b1.Property<string>("Subtitle");
@@ -1101,6 +1111,18 @@ namespace iPath.Database.Sqlite.Migrations
                                     b2.Property<int?>("Age");
 
                                     b2.Property<string>("Gender");
+                                });
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "ProvisionalDiagnosisCode", "iPath.Domain.Entities.ServiceRequest.Description#RequestDescription.ProvisionalDiagnosisCode#CodedConcept", b2 =>
+                                {
+                                    b2.Property<string>("Code")
+                                        .IsRequired();
+
+                                    b2.Property<string>("Display")
+                                        .IsRequired();
+
+                                    b2.Property<string>("System")
+                                        .IsRequired();
                                 });
 
                             b1.ComplexProperty(typeof(Dictionary<string, object>), "Questionnaire", "iPath.Domain.Entities.ServiceRequest.Description#RequestDescription.Questionnaire#QuestionnaireResponseData", b2 =>
@@ -1211,6 +1233,69 @@ namespace iPath.Database.Sqlite.Migrations
                     b.HasIndex("UploadFolderId");
 
                     b.ToTable("servicerequestuploadfolder", (string)null);
+                });
+
+            modelBuilder.Entity("iPath.Domain.Entities.TaskAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("AcceptedOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("AssignedByUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("AssignedToUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("AttemptNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("CompletedOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("Deadline")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Mode")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ServiceRequestId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedByUserId");
+
+                    b.HasIndex("AssignedToUserId");
+
+                    b.HasIndex("ServiceRequestId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("TaskAssignments", (string)null);
                 });
 
             modelBuilder.Entity("iPath.Domain.Entities.User", b =>
@@ -1784,6 +1869,32 @@ namespace iPath.Database.Sqlite.Migrations
                     b.Navigation("ServiceRequest");
 
                     b.Navigation("UploadFolder");
+                });
+
+            modelBuilder.Entity("iPath.Domain.Entities.TaskAssignment", b =>
+                {
+                    b.HasOne("iPath.Domain.Entities.User", "AssignedByUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedByUserId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("iPath.Domain.Entities.User", "AssignedToUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedToUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("iPath.Domain.Entities.ServiceRequest", "ServiceRequest")
+                        .WithMany()
+                        .HasForeignKey("ServiceRequestId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("AssignedByUser");
+
+                    b.Navigation("AssignedToUser");
+
+                    b.Navigation("ServiceRequest");
                 });
 
             modelBuilder.Entity("iPath.Domain.Entities.UserUploadFolder", b =>

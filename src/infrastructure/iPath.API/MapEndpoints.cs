@@ -32,7 +32,8 @@ public static class MapEndpoints
             .MapCmsApi()
             .MapGoogleProxy()
             .MapEmailImportApi()
-            .MapTaskAssignmentEndpoints();
+            .MapTaskAssignmentEndpoints()
+            .MapSyncImportApi();
 
         // OpenAPI Documentation
         var openapi = config.GetValue<bool>("OpenApi");

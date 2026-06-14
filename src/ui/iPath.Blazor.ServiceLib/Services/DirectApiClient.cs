@@ -12,6 +12,7 @@ using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.ServiceRequests.Commands;
+using iPath.Application.Features.SyncImport;
 using iPath.Application.Features.TaskAssignments;
 using iPath.Application.Features.Users;
 using iPath.Application.Features.Users.Commands;
@@ -741,5 +742,10 @@ public class DirectApiClient(
         }
     }
 
+    #endregion
+
+    #region "-- Sync Import --"
+    public Task<IApiResponse<List<OldGroupSummary>>> GetOldGroups() => NotSupported<List<OldGroupSummary>>();
+    public Task<IApiResponse<SyncStartResponse>> SyncGroup(SyncStartRequest request) => NotSupported<SyncStartResponse>();
     #endregion
 }

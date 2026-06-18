@@ -354,14 +354,21 @@ public class SyncImportRunner(
         logger.LogInformation("Syncing group {GroupId}: {Count} new root objects", groupId, rootsToImport.Count);
 
         // Import root objects
+        var serviceRequests = new List<ServiceRequest>(rootsToImport.Count);
+        var requestImports = new List<ServiceRequestImport>(rootsToImport.Count);
         foreach (var o in rootsToImport)
         {
             if (ct.IsCancellationRequested) break;
-            await ImportServiceRequestAsync(o, ct);
+            var (sr, sri) = BuildServiceRequest(o);
+            serviceRequests.Add(sr);
+            requestImports.Add(sri);
             completed++;
             progress?.Report((completed, totalWork, "Importing root objects..."));
         }
-        await SaveWithDiagnosticsAsync(ct);
+        if (serviceRequests.Any())
+            await newDb.BulkInsertAsync(serviceRequests, cancellationToken: ct);
+        if (requestImports.Any())
+            await newDb.BulkInsertAsync(requestImports, cancellationToken: ct);
 
         // Import annotations for root objects
         if (rootsToImport.Any())
@@ -377,9 +384,18 @@ public class SyncImportRunner(
             var children = await oldDb.GetChildObjectsAsync(parentIds, ct);
             var newChildren = children.Where(c => !_docIds.ContainsKey(c.Id)).ToList();
             progress?.Report((completed, totalWork, "Importing child documents..."));
+            var docs = new List<DocumentNode>(newChildren.Count);
+            var docImports = new List<DocumentImport>(newChildren.Count);
             foreach (var o in newChildren)
-                await ImportDocumentAsync(o, ct);
-            await SaveWithDiagnosticsAsync(ct);
+            {
+                var (doc, di) = BuildDocument(o);
+                docs.Add(doc);
+                docImports.Add(di);
+            }
+            if (docs.Any())
+                await newDb.BulkInsertAsync(docs, cancellationToken: ct);
+            if (docImports.Any())
+                await newDb.BulkInsertAsync(docImports, cancellationToken: ct);
 
             if (newChildren.Any())
             {
@@ -728,7 +744,7 @@ public class SyncImportRunner(
         };
     }
 
-    private async Task ImportServiceRequestAsync(OldObjectDto o, CancellationToken ct)
+    private (ServiceRequest, ServiceRequestImport) BuildServiceRequest(OldObjectDto o)
     {
         var n = new ServiceRequest
         {
@@ -746,9 +762,8 @@ public class SyncImportRunner(
         n.Description.CaseType = xml.SelectSingleNode("/data/type")?.InnerText;
         n.Description.AccessionNo = xml.SelectSingleNode("/data/speciment_code")?.InnerText;
         n.Description.Text = xml.SelectSingleNode("/data/description")?.InnerText;
-        newDb.ServiceRequests.Add(n);
 
-        newDb.Set<ServiceRequestImport>().Add(new ServiceRequestImport
+        return (n, new ServiceRequestImport
         {
             Id = Guid.CreateVersion7(),
             ServiceRequestId = n.Id,
@@ -757,7 +772,7 @@ public class SyncImportRunner(
         });
     }
 
-    private async Task ImportDocumentAsync(OldObjectDto o, CancellationToken ct)
+    private (DocumentNode, DocumentImport) BuildDocument(OldObjectDto o)
     {
         var n = new DocumentNode
         {
@@ -774,13 +789,10 @@ public class SyncImportRunner(
         {
             if (_nodeIds.ContainsKey(o.Parent_id.Value))
             {
-                // Parent is a root (ServiceRequest)
                 n.ServiceRequestId = _nodeIds[o.Parent_id.Value];
-                // ParentNodeId stays null — level-1 doc has no document parent
             }
             else if (_docRootIds.TryGetValue(o.Parent_id.Value, out var rootId))
             {
-                // Parent is another document — use its root
                 n.ServiceRequestId = rootId;
                 n.ParentNodeId = _docIds[o.Parent_id.Value];
             }
@@ -802,9 +814,8 @@ public class SyncImportRunner(
             n.File.Filename = xml.SelectSingleNode("/data/filename")!.InnerText;
             n.File.MimeType = xml.SelectSingleNode("/data/mimetype")?.InnerText;
         }
-        newDb.Documents.Add(n);
 
-        newDb.Set<DocumentImport>().Add(new DocumentImport
+        return (n, new DocumentImport
         {
             Id = Guid.CreateVersion7(),
             DocumentId = n.Id,

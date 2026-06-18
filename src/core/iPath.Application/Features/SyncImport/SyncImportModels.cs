@@ -69,8 +69,44 @@ public record SyncStartRequest(int GroupId);
 
 public record SyncStartResponse(string JobId);
 
+public class GroupImportStatus
+{
+    public string GroupName { get; set; } = "";
+    public int OldRootCount { get; set; }
+    public int SyncedRootCount { get; set; }
+    public int RemainingRootCount => OldRootCount - SyncedRootCount;
+    public int AnnotationCount { get; set; }
+    public int UserCount { get; set; }
+}
+
+public class OldAnnotationDto
+{
+    public int Id { get; set; }
+    public int Sender_id { get; set; }
+    public int Object_id { get; set; }
+    public byte[]? Data { get; set; }
+    public DateTime Entered { get; set; }
+}
+
+public class OldLastVisitDto
+{
+    public int Id { get; set; }
+    public int User_id { get; set; }
+    public int Object_id { get; set; }
+    public DateTime Visitdate { get; set; }
+}
+
+public record GroupImportResult(int RootsImported, string Message, bool WasReimport = false);
+
 public interface ISyncImportRunner
 {
     Task<List<OldGroupSummary>> GetOldGroupSummariesAsync(CancellationToken ct = default);
+    Task<int> SyncCommunitiesAndGroupsAsync(CancellationToken ct = default);
     Task<SyncStartResponse> SyncGroupAsync(SyncStartRequest request, CancellationToken ct = default);
+    Task<SyncStartResponse> SyncGroupWithProgressAsync(int groupId, IProgress<(int Current, int Total, string Status)> progress, CancellationToken ct = default);
+    Task<GroupImportResult> ReimportGroupAsync(int groupId, IProgress<(int Current, int Total, string Status)>? progress = null, CancellationToken ct = default);
+    Task<int> ImportUsersAsync(CancellationToken ct = default);
+    Task<SyncStartResponse> SyncGroupsAsync(int[] groupIds, CancellationToken ct = default);
+    Task<int> ImportLastVisitsAsync(int[] groupIds, CancellationToken ct = default);
+    Task<GroupImportStatus> GetGroupImportStatusAsync(int groupId, CancellationToken ct = default);
 }

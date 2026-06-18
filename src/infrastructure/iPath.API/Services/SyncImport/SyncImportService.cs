@@ -8,12 +8,12 @@ using System.Xml;
 
 namespace iPath.API.Services.SyncImport;
 
-public class SyncImportService(
+public class SyncImportRunner(
     OldDataService oldDb,
     iPathDbContext newDb,
     UserManager<User> um,
     RoleManager<Role> rm,
-    ILogger<SyncImportService> logger)
+    ILogger<SyncImportRunner> logger) : ISyncImportRunner
 {
     private readonly Dictionary<int, Guid> _userIds = [];
     private readonly Dictionary<int, Guid> _groupIds = [];
@@ -34,8 +34,10 @@ public class SyncImportService(
         }
 
         await LoadIdMapsAsync();
-        _adminUserId = (await newDb.Users.FirstAsync(u => u.NormalizedUserName == "ADMIN")).Id;
-        _defaultCommunityId = (await newDb.Communities.FirstAsync()).Id;
+        _adminUserId = (await newDb.Users.FirstOrDefaultAsync(u => u.NormalizedUserName == "ADMIN"))?.Id
+                       ?? (await newDb.Users.FirstOrDefaultAsync())?.Id
+                       ?? throw new InvalidOperationException("No users exist in the new database. Create at least one admin user first.");
+        _defaultCommunityId = (await newDb.Communities.FirstOrDefaultAsync())?.Id ?? Guid.Empty;
     }
 
     private async Task LoadIdMapsAsync()
@@ -125,6 +127,13 @@ public class SyncImportService(
 
         await LoadIdMapsAsync();
         return rootsToImport.Count;
+    }
+
+    async Task<SyncStartResponse> ISyncImportRunner.SyncGroupAsync(SyncStartRequest request, CancellationToken ct)
+    {
+        await InitAsync();
+        var count = await SyncGroupAsync(request.GroupId, ct);
+        return new SyncStartResponse($"Synced {count} root nodes from group {request.GroupId}");
     }
 
     private async Task ImportServiceRequestAsync(OldObjectDto o, CancellationToken ct)

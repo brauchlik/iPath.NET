@@ -7,7 +7,6 @@ using iPath.Application.Features.CMS;
 using iPath.Application.Features.Documents;
 using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
-using iPath.Application.Features.SyncImport;
 using iPath.Application.Features.TaskAssignments;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.ServiceRequests.Commands;
@@ -398,13 +397,5 @@ public interface IPathApi
 
     [Post("/api/v1/taskassignments/followup")]
     Task<IApiResponse<TaskAssignmentDto>> CreateFollowUpTask([Body] CreateFollowUpTaskCommand command);
-    #endregion
-
-    #region "-- Sync Import --"
-    [Get("/api/v1/admin/sync-import/groups")]
-    Task<IApiResponse<List<OldGroupSummary>>> GetOldGroups();
-
-    [Post("/api/v1/admin/sync-import/sync")]
-    Task<IApiResponse<SyncStartResponse>> SyncGroup([Body] SyncStartRequest request);
     #endregion
 }

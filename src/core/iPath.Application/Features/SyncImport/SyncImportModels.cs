@@ -68,3 +68,9 @@ public class OldGroupSummary
 public record SyncStartRequest(int GroupId);
 
 public record SyncStartResponse(string JobId);
+
+public interface ISyncImportRunner
+{
+    Task<List<OldGroupSummary>> GetOldGroupSummariesAsync(CancellationToken ct = default);
+    Task<SyncStartResponse> SyncGroupAsync(SyncStartRequest request, CancellationToken ct = default);
+}

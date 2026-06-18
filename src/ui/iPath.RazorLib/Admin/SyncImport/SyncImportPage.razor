@@ -2,7 +2,7 @@
 @attribute [Authorize(Roles = "Admin")]
 
 @using iPath.Application.Features.SyncImport
-@inject IPathApi api
+@inject ISyncImportRunner syncImport
 @inject NavigationManager nm
 @inject ISnackbar snackbar
 @inject IDialogService dialog
@@ -69,11 +69,7 @@ else
     {
         try
         {
-            var resp = await api.GetOldGroups();
-            if (resp.IsSuccessful && resp.Content != null)
-                _groups = resp.Content;
-            else
-                _error = "Failed to load groups";
+            _groups = await syncImport.GetOldGroupSummariesAsync();
         }
         catch (Exception ex)
         {
@@ -95,15 +91,9 @@ else
         _syncingId = group.Id;
         try
         {
-            var resp = await api.SyncGroup(new SyncStartRequest(group.Id));
-            if (resp.IsSuccessful)
-                snackbar.Add($"Sync complete: {resp.Content?.JobId}", Severity.Success);
-            else
-                snackbar.Add("Sync failed", Severity.Error);
-
-            var reload = await api.GetOldGroups();
-            if (reload.IsSuccessful && reload.Content != null)
-                _groups = reload.Content;
+            var result = await syncImport.SyncGroupAsync(new SyncStartRequest(group.Id));
+            snackbar.Add(result.JobId, Severity.Success);
+            _groups = await syncImport.GetOldGroupSummariesAsync();
         }
         catch (Exception ex)
         {

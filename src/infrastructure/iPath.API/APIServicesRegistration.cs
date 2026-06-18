@@ -8,6 +8,7 @@ using iPath.API.Services.Notifications.Publisher;
 using iPath.API.Services.Storage;
 using iPath.API.Services.Thumbnail;
 using iPath.API.Services.SyncImport;
+using iPath.Application.Features.SyncImport;
 using iPath.Application.Coding;
 using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
@@ -147,7 +148,7 @@ public static class APIServicesRegistration
         if (!string.IsNullOrEmpty(syncCs))
         {
             services.AddSingleton(new OldDataService(syncCs));
-            services.AddScoped<SyncImportService>();
+            services.AddScoped<ISyncImportRunner, SyncImportRunner>();
         }
 
         // Configure JSON options for OpenAPI schema generation

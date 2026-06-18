@@ -1,3 +1,4 @@
+using EFCore.BulkExtensions;
 using iPath.Application.Features.SyncImport;
 using iPath.Domain.Entities;
 using iPath.EF.Core.Database;
@@ -456,7 +457,10 @@ public class SyncImportRunner(
 
         var count = 0;
         var lastReported = 0;
-        const int batchSize = 500;
+        const int progressInterval = 50;
+        const int bulkBatchSize = 1000;
+
+        var annotations = new List<Annotation>(bulkBatchSize);
 
         foreach (var a in oldAnnotations)
         {
@@ -489,20 +493,28 @@ public class SyncImportRunner(
             var xml = LoadXml(a.Data);
             n.Data.Text = xml.SelectSingleNode("/data/text")?.InnerText;
 
-            newDb.Set<Annotation>().Add(n);
+            annotations.Add(n);
             _annotationIds[a.Id] = n.Id;
             count++;
 
-            if (count % batchSize == 0)
+            if (count - lastReported >= progressInterval)
             {
-                await SaveWithDiagnosticsAsync(ct);
                 completed += count - lastReported;
                 lastReported = count;
                 progress?.Report((completed, totalWork, "Importing annotations..."));
             }
+
+            if (count % bulkBatchSize == 0)
+            {
+                await newDb.BulkInsertAsync(annotations, cancellationToken: ct);
+                annotations.Clear();
+            }
         }
 
-        await SaveWithDiagnosticsAsync(ct);
+        if (annotations.Any())
+        {
+            await newDb.BulkInsertAsync(annotations, cancellationToken: ct);
+        }
         completed += count - lastReported;
         progress?.Report((completed, totalWork, "Importing annotations..."));
         logger.LogInformation("Imported {Count} annotations", count);

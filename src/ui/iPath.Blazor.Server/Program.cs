@@ -154,6 +154,26 @@ var opts = app.Services.GetRequiredService<IOptions<iPathConfig>>();
 
 await app.InitStorageAsync();
 
+// Check Old DB (sync import) connection on startup
+var syncCs = app.Services.GetRequiredService<IConfiguration>().GetConnectionString("ipath_old");
+if (!string.IsNullOrEmpty(syncCs))
+{
+    var log = app.Services.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        using var conn = new MySqlConnector.MySqlConnection(syncCs);
+        await conn.OpenAsync();
+        log.LogInformation("Old DB (ipath_old) connection OK — sync import available");
+        await conn.CloseAsync();
+    }
+    catch (Exception ex)
+    {
+        log.LogWarning(ex, "Old DB (ipath_old) is configured but not reachable: {Message}", ex.Message);
+        Console.Error.WriteLine("WARNING: Old MySQL DB (ipath_old) is configured but not reachable.");
+        Console.Error.WriteLine($"  {ex.Message}");
+    }
+}
+
 // DI for Extensions
 app.Services.InitComponenetsExtensions();
 

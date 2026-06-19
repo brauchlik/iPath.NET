@@ -41,4 +41,5 @@ public class iPathClientConfig
     public string? ExternalStorageName { get; set; }
     public HashSet<string> WsiExtensions { get; set; } = [];
 
+    public bool SyncImportEnabled { get; set; }
 }

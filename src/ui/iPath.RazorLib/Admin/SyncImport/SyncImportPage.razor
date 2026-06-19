@@ -2,7 +2,8 @@
 @attribute [Authorize(Roles = "Developer")]
 
 @using iPath.Application.Features.SyncImport
-@inject ISyncImportRunner syncImport
+@using iPath.Blazor.ServiceLib.ApiClient
+@inject IPathApi api
 @inject NavigationManager nm
 @inject ISnackbar snackbar
 @inject IDialogService dialog
@@ -74,14 +75,22 @@ else
     private bool _isLoading = true;
     private bool _isSyncing;
     private double _syncProgress;
+    private string _syncStatus = "";
     private string? _error;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            _groups = await syncImport.GetOldGroupSummariesAsync();
-            _groups = [.. _groups.OrderBy(g => g.Name)];
+            var resp = await api.GetOldGroupSummaries();
+            if (resp.IsSuccessful && resp.Content is not null)
+            {
+                _groups = [.. resp.Content.OrderBy(g => g.Name)];
+            }
+            else
+            {
+                _error = resp.Error?.Message ?? "Failed to load groups";
+            }
         }
         catch (Exception ex)
         {
@@ -139,15 +148,35 @@ else
             {
                 var name = _groups.FirstOrDefault(g => g.Id == gid)?.Name ?? $"Group #{gid}";
                 snackbar.Add($"Syncing {name}...", Severity.Info);
-                _syncProgress = Math.Round((double)completed / total * 100, 1);
-                StateHasChanged();
-                await syncImport.SyncGroupAsync(new SyncStartRequest(gid));
+
+                var start = await api.StartSync(gid);
+                if (!start.IsSuccessful)
+                {
+                    snackbar.Add($"Failed to start sync for {name}: {start.Error?.Message}", Severity.Error);
+                    continue;
+                }
+
+                while (true)
+                {
+                    await Task.Delay(2000);
+                    var job = await api.GetSyncJobStatus();
+                    if (!job.IsSuccessful || job.Content is null) break;
+                    if (job.Content.IsDone) break;
+                    if (job.Content.Error is not null)
+                        throw new InvalidOperationException($"Sync failed: {job.Content.Error}");
+                    _syncProgress = job.Content.Total > 0
+                        ? Math.Round((completed + (double)job.Content.Current / job.Content.Total) / total * 100, 1)
+                        : Math.Round((double)completed / total * 100, 1);
+                    _syncStatus = job.Content.Status;
+                    StateHasChanged();
+                }
                 completed++;
             }
             snackbar.Add($"Sync completed for {completed} group(s)", Severity.Success);
             _selectedIds.Clear();
-            _groups = await syncImport.GetOldGroupSummariesAsync();
-            _groups = [.. _groups.OrderBy(g => g.Name)];
+            var resp = await api.GetOldGroupSummaries();
+            if (resp.IsSuccessful && resp.Content is not null)
+                _groups = [.. resp.Content.OrderBy(g => g.Name)];
         }
         catch (Exception ex)
         {

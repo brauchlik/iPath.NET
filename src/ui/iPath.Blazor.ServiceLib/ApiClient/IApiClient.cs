@@ -11,6 +11,7 @@ using iPath.Application.Features.TaskAssignments;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.ServiceRequests.Commands;
 using iPath.Application.Features.Users;
+using iPath.Application.Features.SyncImport;
 using iPath.Application.Localization;
 using iPath.Application.Querying;
 using iPath.Domain.Config;
@@ -397,5 +398,25 @@ public interface IPathApi
 
     [Post("/api/v1/taskassignments/followup")]
     Task<IApiResponse<TaskAssignmentDto>> CreateFollowUpTask([Body] CreateFollowUpTaskCommand command);
+    #endregion
+
+
+    #region "-- Sync Import --"
+
+    [Get("/api/v1/admin/sync/groups")]
+    Task<IApiResponse<List<OldGroupSummary>>> GetOldGroupSummaries();
+
+    [Get("/api/v1/admin/sync/groups/{groupId}/status")]
+    Task<IApiResponse<GroupImportStatus>> GetGroupImportStatus(int groupId);
+
+    [Post("/api/v1/admin/sync/groups/{groupId}")]
+    Task<IApiResponse<SyncStartResponse>> StartSync(int groupId);
+
+    [Post("/api/v1/admin/sync/groups/{groupId}/reimport")]
+    Task<IApiResponse<SyncStartResponse>> StartReimport(int groupId);
+
+    [Get("/api/v1/admin/sync/job")]
+    Task<IApiResponse<SyncJobState>> GetSyncJobStatus();
+
     #endregion
 }

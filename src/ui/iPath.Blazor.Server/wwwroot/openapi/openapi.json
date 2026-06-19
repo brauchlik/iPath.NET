@@ -2969,6 +2969,149 @@
         }
       }
     },
+    "/api/v1/admin/sync/groups": {
+      "get": {
+        "tags": [
+          "Sync Import"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OldGroupSummary"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/sync/groups/{groupId}/status": {
+      "get": {
+        "tags": [
+          "Sync Import"
+        ],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroupImportStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/sync/groups/{groupId}": {
+      "post": {
+        "tags": [
+          "Sync Import"
+        ],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncStartResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/sync/groups/{groupId}/reimport": {
+      "post": {
+        "tags": [
+          "Sync Import"
+        ],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncStartResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/sync/job": {
+      "get": {
+        "tags": [
+          "Sync Import"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncJobState"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/Account/PerformExternalLogin": {
       "post": {
         "tags": [
@@ -5329,6 +5472,54 @@
           }
         }
       },
+      "GroupImportStatus": {
+        "type": "object",
+        "properties": {
+          "groupName": {
+            "type": "string"
+          },
+          "oldRootCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "syncedRootCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "remainingRootCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "annotationCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "userCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
       "GroupListDto": {
         "required": [
           "id",
@@ -5772,6 +5963,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "syncImportEnabled": {
+            "type": "boolean"
           }
         }
       },
@@ -6055,6 +6249,34 @@
       },
       "NotificationStatus": {
         "type": "integer"
+      },
+      "OldGroupSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entered": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "rootNodeCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
       },
       "OwnerDto": {
         "required": [
@@ -7306,6 +7528,58 @@
           }
         }
       },
+      "SyncJobState": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "groupId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "current": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "total": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "status": {
+            "type": "string"
+          },
+          "isRunning": {
+            "type": "boolean"
+          },
+          "isDone": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "SyncServiceRequestToStorageCommand": {
         "type": "object",
         "properties": {
@@ -7326,6 +7600,17 @@
               "string"
             ],
             "format": "uuid"
+          }
+        }
+      },
+      "SyncStartResponse": {
+        "required": [
+          "jobId"
+        ],
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string"
           }
         }
       },
@@ -8499,6 +8784,9 @@
     },
     {
       "name": "Task Assignments"
+    },
+    {
+      "name": "Sync Import"
     },
     {
       "name": "iPath.Blazor.Server"

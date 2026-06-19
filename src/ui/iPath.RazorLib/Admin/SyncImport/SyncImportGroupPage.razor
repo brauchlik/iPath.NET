@@ -2,7 +2,8 @@
 @attribute [Authorize(Roles = "Developer")]
 
 @using iPath.Application.Features.SyncImport
-@inject ISyncImportRunner syncImport
+@using iPath.Blazor.ServiceLib.ApiClient
+@inject IPathApi api
 @inject NavigationManager nm
 @inject ISnackbar snackbar
 @inject IDialogService dialog
@@ -91,7 +92,11 @@ else if (_status is not null)
         _isLoading = true;
         try
         {
-            _status = await syncImport.GetGroupImportStatusAsync(GroupId);
+            var resp = await api.GetGroupImportStatus(GroupId);
+            if (resp.IsSuccessful && resp.Content is not null)
+                _status = resp.Content;
+            else
+                _error = resp.Error?.Message ?? "Failed to load group status";
         }
         catch (Exception ex)
         {
@@ -121,17 +126,29 @@ else if (_status is not null)
         _syncStatus = "Starting...";
         StateHasChanged();
 
-        var progress = new Progress<(int Current, int Total, string Status)>(p =>
-        {
-            _syncCurrent = p.Current;
-            _syncTotal = p.Total;
-            if (p.Status is not null) _syncStatus = p.Status;
-            StateHasChanged();
-        });
         try
         {
-            var result = await syncImport.SyncGroupWithProgressAsync(GroupId, progress);
-            snackbar.Add(result.JobId, Severity.Success);
+            var start = await api.StartSync(GroupId);
+            if (!start.IsSuccessful)
+            {
+                snackbar.Add($"Failed to start sync: {start.Error?.Message}", Severity.Error);
+                return;
+            }
+
+            while (true)
+            {
+                await Task.Delay(2000);
+                var job = await api.GetSyncJobStatus();
+                if (!job.IsSuccessful || job.Content is null) break;
+                if (job.Content.IsDone) break;
+                if (job.Content.Error is not null)
+                    throw new InvalidOperationException($"Sync failed: {job.Content.Error}");
+                _syncCurrent = job.Content.Current;
+                _syncTotal = job.Content.Total;
+                _syncStatus = job.Content.Status;
+                StateHasChanged();
+            }
+            snackbar.Add($"Sync complete for \"{_status?.GroupName}\"", Severity.Success);
             await LoadStatusAsync();
         }
         catch (Exception ex)
@@ -158,22 +175,34 @@ else if (_status is not null)
         _syncStatus = "Starting...";
         StateHasChanged();
 
-        var progress = new Progress<(int Current, int Total, string Status)>(p =>
-        {
-            _syncCurrent = p.Current;
-            _syncTotal = p.Total;
-            if (p.Status is not null) _syncStatus = p.Status;
-            StateHasChanged();
-        });
         try
         {
-            var result = await syncImport.ReimportGroupAsync(GroupId, progress);
-            snackbar.Add(result.Message, Severity.Success);
+            var start = await api.StartReimport(GroupId);
+            if (!start.IsSuccessful)
+            {
+                snackbar.Add($"Failed to start reimport: {start.Error?.Message}", Severity.Error);
+                return;
+            }
+
+            while (true)
+            {
+                await Task.Delay(2000);
+                var job = await api.GetSyncJobStatus();
+                if (!job.IsSuccessful || job.Content is null) break;
+                if (job.Content.IsDone) break;
+                if (job.Content.Error is not null)
+                    throw new InvalidOperationException($"Reimport failed: {job.Content.Error}");
+                _syncCurrent = job.Content.Current;
+                _syncTotal = job.Content.Total;
+                _syncStatus = job.Content.Status;
+                StateHasChanged();
+            }
+            snackbar.Add($"Reimport complete for \"{_status?.GroupName}\"", Severity.Success);
             await LoadStatusAsync();
         }
         catch (Exception ex)
         {
-            snackbar.Add($"Re-import failed: {ex.Message}", Severity.Error);
+            snackbar.Add($"Reimport failed: {ex.Message}", Severity.Error);
         }
         finally
         {

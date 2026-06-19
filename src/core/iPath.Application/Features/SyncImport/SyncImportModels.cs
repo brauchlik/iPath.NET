@@ -98,6 +98,26 @@ public class OldLastVisitDto
 
 public record GroupImportResult(int RootsImported, string Message, bool WasReimport = false);
 
+public class SyncJobState
+{
+    public Guid JobId { get; init; } = Guid.CreateVersion7();
+    public int GroupId { get; init; }
+    public int Current { get; set; }
+    public int Total { get; set; }
+    public string Status { get; set; } = "Starting...";
+    public bool IsRunning => !IsDone && Error is null;
+    public bool IsDone { get; set; }
+    public string? Error { get; set; }
+    public DateTime StartedAt { get; init; } = DateTime.UtcNow;
+}
+
+public interface ISyncJobManager
+{
+    SyncJobState? Current { get; }
+    Guid StartSync(int groupId);
+    Guid StartReimport(int groupId);
+}
+
 public interface ISyncImportRunner
 {
     Task<List<OldGroupSummary>> GetOldGroupSummariesAsync(CancellationToken ct = default);

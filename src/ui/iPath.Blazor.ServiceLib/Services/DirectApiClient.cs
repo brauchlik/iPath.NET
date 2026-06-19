@@ -12,6 +12,7 @@ using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.ServiceRequests.Commands;
+using iPath.Application.Features.SyncImport;
 using iPath.Application.Features.TaskAssignments;
 using iPath.Application.Features.Users;
 using iPath.Application.Features.Users.Commands;
@@ -34,7 +35,9 @@ public class DirectApiClient(
     IUserSession userSession,
     ILocalizationDataProvider localization,
     IOptions<iPathClientConfig> config,
-    ILogger<DirectApiClient> logger)
+    ILogger<DirectApiClient> logger,
+    ISyncImportRunner? syncRunner = null,
+    ISyncJobManager? jobManager = null)
     : IPathApi
 {
     private static IApiResponse<T> Respond<T>(T? content) => new DirectApiResponse<T>(content);
@@ -742,4 +745,36 @@ public class DirectApiClient(
     }
 
     #endregion
+
+
+    // -- Sync Import --
+
+    public async Task<IApiResponse<List<OldGroupSummary>>> GetOldGroupSummaries()
+    {
+        if (syncRunner is not null) return Respond(await syncRunner.GetOldGroupSummariesAsync());
+        return await NotSupported<List<OldGroupSummary>>();
+    }
+
+    public async Task<IApiResponse<GroupImportStatus>> GetGroupImportStatus(int groupId)
+    {
+        if (syncRunner is not null) return Respond(await syncRunner.GetGroupImportStatusAsync(groupId));
+        return await NotSupported<GroupImportStatus>();
+    }
+
+    public async Task<IApiResponse<SyncStartResponse>> StartSync(int groupId)
+    {
+        if (jobManager is null) return RespondError<SyncStartResponse>();
+        var jobId = jobManager.StartSync(groupId);
+        return Respond(new SyncStartResponse(jobId.ToString()));
+    }
+
+    public async Task<IApiResponse<SyncStartResponse>> StartReimport(int groupId)
+    {
+        if (jobManager is null) return RespondError<SyncStartResponse>();
+        var jobId = jobManager.StartReimport(groupId);
+        return Respond(new SyncStartResponse(jobId.ToString()));
+    }
+
+    public async Task<IApiResponse<SyncJobState>> GetSyncJobStatus()
+        => Respond(jobManager?.Current);
 }

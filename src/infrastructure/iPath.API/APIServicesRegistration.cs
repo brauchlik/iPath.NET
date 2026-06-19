@@ -149,7 +149,10 @@ public static class APIServicesRegistration
         {
             services.AddSingleton(new OldDataService(syncCs));
             services.AddScoped<ISyncImportRunner, SyncImportRunner>();
+            services.AddSingleton<ISyncJobManager, SyncJobManager>();
         }
+
+        services.PostConfigure<iPathClientConfig>(c => c.SyncImportEnabled = !string.IsNullOrEmpty(syncCs));
 
         // Configure JSON options for OpenAPI schema generation
         // Build-time OpenAPI generation needs higher MaxDepth for complex domain models

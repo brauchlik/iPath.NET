@@ -78,6 +78,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="iPath.SyncTool\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="importsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

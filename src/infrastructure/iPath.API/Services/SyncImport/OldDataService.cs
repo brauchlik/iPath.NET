@@ -82,4 +82,72 @@ public class OldDataService(string connectionString)
                   "AND group_id = @groupId AND sender_id > 0";
         return await conn.ExecuteScalarAsync<int>(sql, new { groupId });
     }
+
+    public async Task<List<OldPersonDto>> GetPersonsAsync(CancellationToken ct = default)
+    {
+        using var conn = CreateConnection();
+        var sql = "SELECT id, email, username, password, status, creator, entered, data, info FROM person";
+        return (await conn.QueryAsync<OldPersonDto>(sql)).ToList();
+    }
+
+    public async Task<int> CountChildObjectsForGroupAsync(int groupId, CancellationToken ct = default)
+    {
+        using var conn = CreateConnection();
+        var sql = "SELECT COUNT(*) FROM objects o " +
+                  "JOIN objects r ON o.parent_id = r.id " +
+                  "WHERE r.parent_id IS NULL AND r.group_id = @groupId";
+        return await conn.ExecuteScalarAsync<int>(sql, new { groupId });
+    }
+
+    public async Task<int> CountAnnotationsForGroupAsync(int groupId, CancellationToken ct = default)
+    {
+        using var conn = CreateConnection();
+        var sql = "SELECT COUNT(*) FROM annotation a " +
+                  "JOIN objects o ON a.object_id = o.id " +
+                  "WHERE o.group_id = @groupId";
+        return await conn.ExecuteScalarAsync<int>(sql, new { groupId });
+    }
+
+    public async Task<OldGroupDto?> GetGroupAsync(int groupId, CancellationToken ct = default)
+    {
+        using var conn = CreateConnection();
+        var sql = "SELECT id, name, info, entered FROM groups WHERE id = @id";
+        return await conn.QueryFirstOrDefaultAsync<OldGroupDto>(sql, new { id = groupId });
+    }
+
+    public async Task<List<OldGroupMemberDto>> GetGroupMembersForGroupAsync(int groupId, CancellationToken ct = default)
+    {
+        using var conn = CreateConnection();
+        var sql = "SELECT group_id, user_id, status FROM group_member WHERE group_id = @groupId";
+        return (await conn.QueryAsync<OldGroupMemberDto>(sql, new { groupId })).ToList();
+    }
+
+    public async Task<OldPersonDto?> GetPersonAsync(int personId, CancellationToken ct = default)
+    {
+        using var conn = CreateConnection();
+        var sql = "SELECT id, email, username, password, status, creator, entered, data, info FROM person WHERE id = @id";
+        return await conn.QueryFirstOrDefaultAsync<OldPersonDto>(sql, new { id = personId });
+    }
+
+    public async Task<List<OldAnnotationDto>> GetAnnotationsForObjectsAsync(HashSet<int> objectIds, int minId, CancellationToken ct = default)
+    {
+        if (!objectIds.Any()) return [];
+
+        using var conn = CreateConnection();
+        var sql = "SELECT id, sender_id, object_id, data, entered FROM annotation " +
+                  "WHERE object_id IN @objectIds AND id > @minId";
+        return (await conn.QueryAsync<OldAnnotationDto>(sql, new { objectIds, minId })).ToList();
+    }
+
+    public async Task<List<OldLastVisitDto>> GetLastVisitsForGroupsAsync(int[] groupIds, CancellationToken ct = default)
+    {
+        if (groupIds.Length == 0) return [];
+
+        using var conn = CreateConnection();
+        var sql = "SELECT lv.Id, lv.user_id, lv.object_id, lv.visitdate " +
+                  "FROM lastvisit lv " +
+                  "JOIN objects o ON lv.object_id = o.id " +
+                  "WHERE o.group_id IN @groupIds";
+        return (await conn.QueryAsync<OldLastVisitDto>(sql, new { groupIds })).ToList();
+    }
 }

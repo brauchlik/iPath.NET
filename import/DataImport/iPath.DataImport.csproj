@@ -65,11 +65,11 @@
     <PackageReference Include="DispatchR.Mediator" Version="2.3.0" />
     <PackageReference Include="EFCore.BulkExtensions.Sqlite" Version="10.0.1" />
     <PackageReference Include="Humanizer.Core" Version="3.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.9" />
     <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.7" />
   </ItemGroup>
 

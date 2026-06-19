@@ -6,6 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- NU1903: SQLitePCLRaw.lib.e_sqlite3 2.1.11 is deprecated (no fixed version)
+         brought transitively by Microsoft.EntityFrameworkCore.Sqlite 10.0.9.
+         Replaced upstream by SourceGear.sqlite3. -->
+    <NoWarn>$(NoWarn);NU1903</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="EFCore.BulkExtensions" Version="10.0.1" />
     <PackageReference Include="MailKit" Version="4.17.0" />

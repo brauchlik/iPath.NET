@@ -698,7 +698,7 @@ public class SyncImportRunner(
         await InitAsync();
         await newDb.Set<ServiceRequestLastVisit>().ExecuteDeleteAsync(ct);
 
-        var lastVisits = await oldDb.GetLastVisitsForGroupsAsync([.. groupIds], ct);
+        var lastVisits = await oldDb.GetLastVisitsForGroupsAsync(new HashSet<int>(groupIds), ct);
         var batch = new List<ServiceRequestLastVisit>(lastVisits.Count);
 
         foreach (var lv in lastVisits)

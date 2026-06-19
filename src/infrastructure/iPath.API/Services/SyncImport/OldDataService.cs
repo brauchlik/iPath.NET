@@ -86,7 +86,9 @@ public class OldDataService(string connectionString)
     public async Task<List<OldPersonDto>> GetPersonsAsync(CancellationToken ct = default)
     {
         using var conn = CreateConnection();
-        var sql = "SELECT id, email, username, password, status, creator, entered, data, info FROM person";
+        var sql = $"SELECT id, email, username, password, status, creator, entered, " +
+                  $"{PersonDataDecode} AS data, {InfoDecode} AS info " +
+                  "FROM person";
         return (await conn.QueryAsync<OldPersonDto>(sql)).ToList();
     }
 
@@ -94,8 +96,8 @@ public class OldDataService(string connectionString)
     {
         using var conn = CreateConnection();
         var sql = "SELECT COUNT(*) FROM objects o " +
-                  "JOIN objects r ON o.parent_id = r.id " +
-                  "WHERE r.parent_id IS NULL AND r.group_id = @groupId";
+                  "INNER JOIN objects r ON o.parent_id = r.id " +
+                  "WHERE r.group_id = @groupId AND r.parent_id IS NULL";
         return await conn.ExecuteScalarAsync<int>(sql, new { groupId });
     }
 
@@ -103,7 +105,7 @@ public class OldDataService(string connectionString)
     {
         using var conn = CreateConnection();
         var sql = "SELECT COUNT(*) FROM annotation a " +
-                  "JOIN objects o ON a.object_id = o.id " +
+                  "INNER JOIN objects o ON o.id = a.object_id " +
                   "WHERE o.group_id = @groupId";
         return await conn.ExecuteScalarAsync<int>(sql, new { groupId });
     }
@@ -111,7 +113,7 @@ public class OldDataService(string connectionString)
     public async Task<OldGroupDto?> GetGroupAsync(int groupId, CancellationToken ct = default)
     {
         using var conn = CreateConnection();
-        var sql = "SELECT id, name, info, entered FROM groups WHERE id = @id";
+        var sql = $"SELECT id, name, {InfoDecode} AS info, entered FROM groups WHERE id = @id";
         return await conn.QueryFirstOrDefaultAsync<OldGroupDto>(sql, new { id = groupId });
     }
 
@@ -125,29 +127,33 @@ public class OldDataService(string connectionString)
     public async Task<OldPersonDto?> GetPersonAsync(int personId, CancellationToken ct = default)
     {
         using var conn = CreateConnection();
-        var sql = "SELECT id, email, username, password, status, creator, entered, data, info FROM person WHERE id = @id";
+        var sql = $"SELECT id, email, username, password, status, creator, entered, " +
+                  $"{PersonDataDecode} AS data, {InfoDecode} AS info " +
+                  "FROM person WHERE id = @id";
         return await conn.QueryFirstOrDefaultAsync<OldPersonDto>(sql, new { id = personId });
     }
 
-    public async Task<List<OldAnnotationDto>> GetAnnotationsForObjectsAsync(HashSet<int> objectIds, int minId, CancellationToken ct = default)
+    private const string PersonDataDecode = "CAST(CONVERT(data USING latin1) AS BINARY)";
+
+    public async Task<List<OldAnnotationDto>> GetAnnotationsForObjectsAsync(HashSet<int> objectIds, int minId = 0, CancellationToken ct = default)
     {
         if (!objectIds.Any()) return [];
 
         using var conn = CreateConnection();
-        var sql = "SELECT id, sender_id, object_id, data, entered FROM annotation " +
-                  "WHERE object_id IN @objectIds AND id > @minId";
+        var sql = $"SELECT id, sender_id, object_id, {BinaryDecode} AS data, entered " +
+                  "FROM annotation WHERE object_id IN @objectIds AND id > @minId";
         return (await conn.QueryAsync<OldAnnotationDto>(sql, new { objectIds, minId })).ToList();
     }
 
-    public async Task<List<OldLastVisitDto>> GetLastVisitsForGroupsAsync(int[] groupIds, CancellationToken ct = default)
+    public async Task<List<OldLastVisitDto>> GetLastVisitsForGroupsAsync(HashSet<int> groupIds, CancellationToken ct = default)
     {
-        if (groupIds.Length == 0) return [];
+        if (!groupIds.Any()) return [];
 
         using var conn = CreateConnection();
-        var sql = "SELECT lv.Id, lv.user_id, lv.object_id, lv.visitdate " +
+        var sql = "SELECT lv.id, lv.user_id, lv.object_id, lv.visitdate " +
                   "FROM lastvisit lv " +
-                  "JOIN objects o ON lv.object_id = o.id " +
-                  "WHERE o.group_id IN @groupIds";
+                  "INNER JOIN objects o ON o.id = lv.object_id " +
+                  "WHERE o.group_id IN @groupIds AND lv.user_id > 0 AND lv.object_id > 0";
         return (await conn.QueryAsync<OldLastVisitDto>(sql, new { groupIds })).ToList();
     }
 }

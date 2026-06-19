@@ -10,16 +10,21 @@ public static class SyncEndpoints
             .WithTags("Sync Import")
             .RequireAuthorization("Developer");
 
-        sync.MapGet("groups", async ([FromServices] ISyncImportRunner runner, CancellationToken ct)
-            => await runner.GetOldGroupSummariesAsync(ct))
+        sync.MapGet("groups", async ([FromServices] ISyncImportRunner? runner, CancellationToken ct)
+            => runner is null ? Results.Ok(new List<OldGroupSummary>()) : Results.Ok(await runner.GetOldGroupSummariesAsync(ct)))
             .Produces<List<OldGroupSummary>>();
 
-        sync.MapGet("groups/{groupId:int}/status", async (int groupId, [FromServices] ISyncImportRunner runner, CancellationToken ct)
-            => await runner.GetGroupImportStatusAsync(groupId, ct))
-            .Produces<GroupImportStatus>();
+        sync.MapGet("groups/{groupId:int}/status", async (int groupId, [FromServices] ISyncImportRunner? runner, CancellationToken ct)
+            => runner is null
+                ? Results.NotFound(new { error = "Sync import not available (ipath_old not configured)" })
+                : Results.Ok(await runner.GetGroupImportStatusAsync(groupId, ct)))
+            .Produces<GroupImportStatus>()
+            .Produces(StatusCodes.Status404NotFound);
 
-        sync.MapPost("groups/{groupId:int}", (int groupId, [FromServices] ISyncJobManager jobs) =>
+        sync.MapPost("groups/{groupId:int}", (int groupId, [FromServices] ISyncJobManager? jobs) =>
         {
+            if (jobs is null)
+                return Results.BadRequest(new { error = "Sync import not available (ipath_old not configured)" });
             try
             {
                 var jobId = jobs.StartSync(groupId);
@@ -31,10 +36,13 @@ public static class SyncEndpoints
             }
         })
             .Produces<SyncStartResponse>()
+            .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status409Conflict);
 
-        sync.MapPost("groups/{groupId:int}/reimport", (int groupId, [FromServices] ISyncJobManager jobs) =>
+        sync.MapPost("groups/{groupId:int}/reimport", (int groupId, [FromServices] ISyncJobManager? jobs) =>
         {
+            if (jobs is null)
+                return Results.BadRequest(new { error = "Sync import not available (ipath_old not configured)" });
             try
             {
                 var jobId = jobs.StartReimport(groupId);
@@ -46,11 +54,12 @@ public static class SyncEndpoints
             }
         })
             .Produces<SyncStartResponse>()
+            .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status409Conflict);
 
-        sync.MapGet("job", ([FromServices] ISyncJobManager jobs) =>
+        sync.MapGet("job", ([FromServices] ISyncJobManager? jobs) =>
         {
-            var job = jobs.Current;
+            var job = jobs?.Current;
             return job is null ? Results.NoContent() : Results.Ok(job);
         })
             .Produces<SyncJobState>()

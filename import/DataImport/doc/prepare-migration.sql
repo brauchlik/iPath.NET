@@ -96,11 +96,11 @@ UPDATE objects SET _top_id = NULL;
 -- parent_id should be NULL or > 0 and it should point to a valid parent.
 -- group_id should be set only for parent_id where IS NULL and it should be NULL or > 0 and point to a valid group
 -- we need this for EF Core to understand the relations
------------------------------------------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------------------------------------------
 UPDATE objects SET parent_id = NULL WHERE parent_id = 0;
 UPDATE objects SET parent_id = NULL WHERE parent_id = -1;
 -- check 
-select * from objects where NOT class='imic' and NOT parent_id IS NULL AND NOT parent_id IN (SELECT id from objects);
+SELECT COUNT(*) AS orphan_count FROM objects WHERE NOT class='imic' AND NOT parent_id IS NULL AND NOT parent_id IN (SELECT id from objects);
 
 -- udpate groups
 UPDATE objects SET group_id = NULL WHERE group_id = 0;
@@ -138,3 +138,4 @@ UPDATE objects child
  WHERE NOT parent._top_id IS NULL
    AND child._top_id IS NULL;
 
+-- Repeat the above UPDATE until 0 rows affected (run manually or from 03-run-prepare-migration.ps1)

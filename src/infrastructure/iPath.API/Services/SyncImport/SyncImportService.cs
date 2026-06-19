@@ -70,7 +70,15 @@ public class SyncImportRunner(
     private Guid MapNodeId(int id) => _nodeIds.TryGetValue(id, out var g) ? g : (_nodeIds[id] = Guid.CreateVersion7());
     private Guid MapDocId(int id) => _docIds.TryGetValue(id, out var g) ? g : (_docIds[id] = Guid.CreateVersion7());
 
-    private static string? Decode(byte[]? raw) => raw is { Length: > 0 } ? Encoding.UTF8.GetString(raw) : null;
+    private static string? Decode(byte[]? raw)
+    {
+        if (raw is null or { Length: 0 }) return null;
+        var s = Encoding.UTF8.GetString(raw);
+        var latin1 = Encoding.Latin1;
+        var asLatin1 = latin1.GetBytes(s);
+        var fixed_s = Encoding.UTF8.GetString(asLatin1);
+        return fixed_s.Contains('\uFFFD') ? s : fixed_s;
+    }
 
     private async Task<int> SaveWithDiagnosticsAsync(CancellationToken ct, [System.Runtime.CompilerServices.CallerMemberName] string caller = "")
     {
@@ -359,6 +367,14 @@ public class SyncImportRunner(
         foreach (var o in rootsToImport)
         {
             if (ct.IsCancellationRequested) break;
+            var xml = LoadXml(o.Data);
+            if (string.IsNullOrWhiteSpace(xml.SelectSingleNode("/data/title")?.InnerText))
+            {
+                logger.LogWarning("Skipping object {Id}: no title in data XML", o.Id);
+                completed++;
+                progress?.Report((completed, totalWork, "Skipping unusable root objects..."));
+                continue;
+            }
             var (sr, sri) = BuildServiceRequest(o);
             serviceRequests.Add(sr);
             requestImports.Add(sri);

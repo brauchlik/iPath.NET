@@ -164,7 +164,11 @@ if (!string.IsNullOrEmpty(syncCs))
         using var conn = new MySqlConnector.MySqlConnection(syncCs);
         await conn.OpenAsync();
         log.LogInformation("Old DB (ipath_old) connection OK — sync import available");
-        await conn.CloseAsync();
+
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = "SELECT default_character_set_name FROM information_schema.SCHEMATA WHERE schema_name = DATABASE()";
+        var charset = await cmd.ExecuteScalarAsync();
+        log.LogInformation("Old DB charset: {Charset}", charset);
     }
     catch (Exception ex)
     {

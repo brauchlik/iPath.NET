@@ -9,8 +9,8 @@ public class OldPersonDto
     public int Status { get; set; }
     public int? Creator { get; set; }
     public DateTime? Entered { get; set; }
-    public byte[]? Data { get; set; }
-    public byte[]? Info { get; set; }
+    public string? Data { get; set; }
+    public string? Info { get; set; }
 }
 
 public class OldCommunityDto
@@ -32,7 +32,7 @@ public class OldGroupDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
-    public byte[]? Info { get; set; }
+    public string? Info { get; set; }
     public DateTime Entered { get; set; }
 }
 
@@ -47,8 +47,8 @@ public class OldObjectDto
 {
     public int Id { get; set; }
     public string? ObjClass { get; set; }
-    public byte[]? Data { get; set; }
-    public byte[]? Info { get; set; }
+    public string? Data { get; set; }
+    public string? Info { get; set; }
     public DateTime Entered { get; set; }
     public DateTime? Modified { get; set; }
     public int? Group_id { get; set; }
@@ -84,7 +84,7 @@ public class OldAnnotationDto
     public int Id { get; set; }
     public int Sender_id { get; set; }
     public int Object_id { get; set; }
-    public byte[]? Data { get; set; }
+    public string? Data { get; set; }
     public DateTime Entered { get; set; }
 }
 
@@ -109,13 +109,15 @@ public class SyncJobState
     public bool IsDone { get; set; }
     public string? Error { get; set; }
     public DateTime StartedAt { get; init; } = DateTime.UtcNow;
+    public Guid? InvokingUserId { get; set; }
 }
 
 public interface ISyncJobManager
 {
     SyncJobState? Current { get; }
-    Guid StartSync(int groupId);
-    Guid StartReimport(int groupId);
+    Guid StartSync(int groupId, Guid? userId = null);
+    Guid StartReimport(int groupId, Guid? userId = null);
+    Guid StartDelete(int groupId, Guid? userId = null);
 }
 
 public interface ISyncImportRunner
@@ -123,8 +125,9 @@ public interface ISyncImportRunner
     Task<List<OldGroupSummary>> GetOldGroupSummariesAsync(CancellationToken ct = default);
     Task<int> SyncCommunitiesAndGroupsAsync(CancellationToken ct = default);
     Task<SyncStartResponse> SyncGroupAsync(SyncStartRequest request, CancellationToken ct = default);
-    Task<SyncStartResponse> SyncGroupWithProgressAsync(int groupId, IProgress<(int Current, int Total, string Status)> progress, CancellationToken ct = default);
-    Task<GroupImportResult> ReimportGroupAsync(int groupId, IProgress<(int Current, int Total, string Status)>? progress = null, CancellationToken ct = default);
+    Task<SyncStartResponse> SyncGroupWithProgressAsync(int groupId, IProgress<(int Current, int Total, string Status)> progress, CancellationToken ct = default, Guid? userId = null);
+    Task<GroupImportResult> ReimportGroupAsync(int groupId, IProgress<(int Current, int Total, string Status)>? progress = null, CancellationToken ct = default, Guid? userId = null);
+    Task DeleteGroupImportedDataAsync(int groupId, CancellationToken ct = default);
     Task<int> ImportUsersAsync(CancellationToken ct = default);
     Task<SyncStartResponse> SyncGroupsAsync(int[] groupIds, CancellationToken ct = default);
     Task<int> ImportLastVisitsAsync(int[] groupIds, CancellationToken ct = default);

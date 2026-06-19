@@ -9,18 +9,21 @@ public class OldDataService(string connectionString)
 {
     private IDbConnection CreateConnection() => new MySqlConnection(connectionString);
 
-    // Helper: CAST(CONVERT(x USING latin1) AS BINARY) unwraps the double-encoded UTF-8
-    // PHP stored UTF-8 bytes via a latin1 connection; MySQL converted them to the
-    // column's utf8 charset by interpreting the bytes as latin1 first.
-    // This CAST chain reverses that: forces the bytes back to latin1, then returns
-    // them as raw bytes so C# can decode them as proper UTF-8.
-    private const string BinaryDecode = "CAST(CONVERT(data USING latin1) AS BINARY)";
-    private const string InfoDecode = "CAST(CONVERT(info USING latin1) AS BINARY)";
+    // Helper: CONVERT(CAST(CONVERT(x USING latin1) AS BINARY) USING utf8mb4) unwraps
+    // the double-encoded UTF-8. PHP stored UTF-8 bytes via a latin1 connection;
+    // MySQL converted them by interpreting the bytes as latin1 first.
+    // This chain reverses that and returns a proper utf8mb4 string (not binary),
+    // so MySqlConnector handles it as text regardless of connection charset.
+    private const string DataDecode = "CONVERT(CAST(CONVERT(data USING latin1) AS BINARY) USING utf8mb4)";
+    private const string InfoDecode = "CONVERT(CAST(CONVERT(info USING latin1) AS BINARY) USING utf8mb4)";
+    private const string NameDecode = "CONVERT(CAST(CONVERT(name USING latin1) AS BINARY) USING utf8mb4)";
+    private const string DescrDecode = "CONVERT(CAST(CONVERT(description USING latin1) AS BINARY) USING utf8mb4)";
+    private const string UsernameDecode = "CONVERT(CAST(CONVERT(username USING latin1) AS BINARY) USING utf8mb4)";
 
     public async Task<List<OldGroupDto>> GetGroupsAsync(CancellationToken ct = default)
     {
         using var conn = CreateConnection();
-        var sql = $"SELECT id, name, {InfoDecode} AS info, entered FROM groups";
+        var sql = $"SELECT id, {NameDecode} AS name, {InfoDecode} AS info, entered FROM groups";
         return (await conn.QueryAsync<OldGroupDto>(sql)).ToList();
     }
 
@@ -34,7 +37,7 @@ public class OldDataService(string connectionString)
     public async Task<List<OldCommunityDto>> GetCommunitiesAsync(CancellationToken ct = default)
     {
         using var conn = CreateConnection();
-        var sql = "SELECT id, name, description, created_by, created_on FROM community";
+        var sql = $"SELECT id, {NameDecode} AS name, {DescrDecode} AS description, created_by, created_on FROM community";
         return (await conn.QueryAsync<OldCommunityDto>(sql)).ToList();
     }
 
@@ -49,7 +52,7 @@ public class OldDataService(string connectionString)
     {
         using var conn = CreateConnection();
         var sql = $"SELECT id, class AS ObjClass, " +
-                  $"{BinaryDecode} AS data, {InfoDecode} AS info, " +
+                  $"{DataDecode} AS data, {InfoDecode} AS info, " +
                   "entered, modified, group_id, parent_id, sender_id, sort_nr " +
                   "FROM objects " +
                   "WHERE class != 'imic' " +
@@ -66,7 +69,7 @@ public class OldDataService(string connectionString)
 
         using var conn = CreateConnection();
         var sql = $"SELECT id, class AS ObjClass, " +
-                  $"{BinaryDecode} AS data, {InfoDecode} AS info, " +
+                  $"{DataDecode} AS data, {InfoDecode} AS info, " +
                   "entered, modified, group_id, parent_id, sender_id, sort_nr " +
                   "FROM objects " +
                   "WHERE parent_id > 0 " +
@@ -86,8 +89,8 @@ public class OldDataService(string connectionString)
     public async Task<List<OldPersonDto>> GetPersonsAsync(CancellationToken ct = default)
     {
         using var conn = CreateConnection();
-        var sql = $"SELECT id, email, username, password, status, creator, entered, " +
-                  $"{PersonDataDecode} AS data, {InfoDecode} AS info " +
+        var sql = $"SELECT id, email, {UsernameDecode} AS username, password, status, creator, entered, " +
+                  $"{DataDecode} AS data, {InfoDecode} AS info " +
                   "FROM person";
         return (await conn.QueryAsync<OldPersonDto>(sql)).ToList();
     }
@@ -113,7 +116,7 @@ public class OldDataService(string connectionString)
     public async Task<OldGroupDto?> GetGroupAsync(int groupId, CancellationToken ct = default)
     {
         using var conn = CreateConnection();
-        var sql = $"SELECT id, name, {InfoDecode} AS info, entered FROM groups WHERE id = @id";
+        var sql = $"SELECT id, {NameDecode} AS name, {InfoDecode} AS info, entered FROM groups WHERE id = @id";
         return await conn.QueryFirstOrDefaultAsync<OldGroupDto>(sql, new { id = groupId });
     }
 
@@ -127,20 +130,18 @@ public class OldDataService(string connectionString)
     public async Task<OldPersonDto?> GetPersonAsync(int personId, CancellationToken ct = default)
     {
         using var conn = CreateConnection();
-        var sql = $"SELECT id, email, username, password, status, creator, entered, " +
-                  $"{PersonDataDecode} AS data, {InfoDecode} AS info " +
+        var sql = $"SELECT id, email, {UsernameDecode} AS username, password, status, creator, entered, " +
+                  $"{DataDecode} AS data, {InfoDecode} AS info " +
                   "FROM person WHERE id = @id";
         return await conn.QueryFirstOrDefaultAsync<OldPersonDto>(sql, new { id = personId });
     }
-
-    private const string PersonDataDecode = "CAST(CONVERT(data USING latin1) AS BINARY)";
 
     public async Task<List<OldAnnotationDto>> GetAnnotationsForObjectsAsync(HashSet<int> objectIds, int minId = 0, CancellationToken ct = default)
     {
         if (!objectIds.Any()) return [];
 
         using var conn = CreateConnection();
-        var sql = $"SELECT id, sender_id, object_id, {BinaryDecode} AS data, entered " +
+        var sql = $"SELECT id, sender_id, object_id, {DataDecode} AS data, entered " +
                   "FROM annotation WHERE object_id IN @objectIds AND id > @minId";
         return (await conn.QueryAsync<OldAnnotationDto>(sql, new { objectIds, minId })).ToList();
     }

@@ -3099,6 +3099,43 @@
         }
       }
     },
+    "/api/v1/admin/sync/groups/{groupId}/delete": {
+      "post": {
+        "tags": [
+          "Sync Import"
+        ],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncStartResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          }
+        }
+      }
+    },
     "/api/v1/admin/sync/job": {
       "get": {
         "tags": [
@@ -7586,6 +7623,13 @@
           "startedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "invokingUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },

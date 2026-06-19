@@ -231,3 +231,16 @@ When code adds/changes entities (new DbSet, new config, property changes):
 If `dotnet ef migrations add` fails (tool bug):
 - AI investigates and suggests workaround (version downgrade, manual migration, etc.)
 - Developer applies the fix
+
+### MySQL Double-Encoding (iPath2 Sync Import)
+
+The old iPath2 PHP app connected to MySQL with `Charset=latin1`. When storing UTF-8 bytes like `ö` (`C3 B6`), MySQL treated them as latin1 chars (`Ã¶`), then double-encoded the result into the column's utf8 charset — so the actual DB value is `C3 83 C2 B6`.
+
+**The trick:** `CONVERT(CAST(CONVERT(data USING latin1) AS BINARY) USING utf8mb4)` reverses this in SQL:
+1. `CONVERT(data USING latin1)` — tell MySQL to re-interpret the stored string as latin1 chars (recovering the original UTF-8 byte sequence as a latin1 string like `Ã¶`)
+2. `CAST(... AS BINARY)` — expose those underlying raw bytes (`C3 B6`)
+3. `CONVERT(... USING utf8mb4)` — decode those bytes as UTF-8 into a proper `utf8mb4` string
+
+This lets MySqlConnector/Dapper map the result directly to `string?` without any client-side `byte[] → Encoding.UTF8.GetString()` conversion.
+
+**Reference:** `OldDataService.cs` defines the SQL snippet constants `DataDecode` and `InfoDecode` using this pattern.

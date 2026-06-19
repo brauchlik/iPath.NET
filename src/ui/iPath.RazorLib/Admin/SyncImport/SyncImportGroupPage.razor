@@ -60,9 +60,9 @@ else if (_status is not null)
                     </MudButton>
                     <MudButton Variant="Variant.Outlined"
                                Color="Color.Error"
-                               StartIcon="@Icons.Material.Filled.RestartAlt"
-                               OnClick="@StartReimport">
-                        Re-import All
+                               StartIcon="@Icons.Material.Filled.DeleteForever"
+                               OnClick="@StartDelete">
+                        Remove imported data
                     </MudButton>
                 </div>
             }
@@ -161,26 +161,27 @@ else if (_status is not null)
         }
     }
 
-    private async Task StartReimport()
+    private async Task StartDelete()
     {
-        var confirmed = await dialog.ShowMessageBoxAsync("Re-import All",
-            $"Delete ALL synced data for \"{_status?.GroupName}\" and re-import everything?\n\n" +
-            $"This will remove all existing root objects, documents, annotations, and group members, then re-import from scratch.",
-            yesText: "Re-import", cancelText: "Cancel");
+        var confirmed = await dialog.ShowMessageBoxAsync("Remove imported data",
+            $"Delete ALL synced data for \"{_status?.GroupName}\"?\n\n" +
+            $"This will remove all root objects, documents, annotations, and group members.\n" +
+            $"Use 'Sync Group' afterward to re-import.",
+            yesText: "Delete", cancelText: "Cancel");
         if (confirmed != true) return;
 
         _isSyncing = true;
         _syncCurrent = 0;
         _syncTotal = _status?.OldRootCount ?? 1;
-        _syncStatus = "Starting...";
+        _syncStatus = "Deleting...";
         StateHasChanged();
 
         try
         {
-            var start = await api.StartReimport(GroupId);
+            var start = await api.DeleteImport(GroupId);
             if (!start.IsSuccessful)
             {
-                snackbar.Add($"Failed to start reimport: {start.Error?.Message}", Severity.Error);
+                snackbar.Add($"Failed to start delete: {start.Error?.Message}", Severity.Error);
                 return;
             }
 
@@ -191,18 +192,18 @@ else if (_status is not null)
                 if (!job.IsSuccessful || job.Content is null) break;
                 if (job.Content.IsDone) break;
                 if (job.Content.Error is not null)
-                    throw new InvalidOperationException($"Reimport failed: {job.Content.Error}");
+                    throw new InvalidOperationException($"Delete failed: {job.Content.Error}");
                 _syncCurrent = job.Content.Current;
                 _syncTotal = job.Content.Total;
                 _syncStatus = job.Content.Status;
                 StateHasChanged();
             }
-            snackbar.Add($"Reimport complete for \"{_status?.GroupName}\"", Severity.Success);
+            snackbar.Add($"Imported data removed for \"{_status?.GroupName}\"", Severity.Success);
             await LoadStatusAsync();
         }
         catch (Exception ex)
         {
-            snackbar.Add($"Reimport failed: {ex.Message}", Severity.Error);
+            snackbar.Add($"Delete failed: {ex.Message}", Severity.Error);
         }
         finally
         {

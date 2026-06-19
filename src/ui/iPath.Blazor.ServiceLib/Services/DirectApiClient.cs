@@ -764,14 +764,24 @@ public class DirectApiClient(
     public async Task<IApiResponse<SyncStartResponse>> StartSync(int groupId)
     {
         if (jobManager is null) return RespondError<SyncStartResponse>();
-        var jobId = jobManager.StartSync(groupId);
+        var userId = userSession.User?.Id;
+        var jobId = jobManager.StartSync(groupId, userId);
         return Respond(new SyncStartResponse(jobId.ToString()));
     }
 
     public async Task<IApiResponse<SyncStartResponse>> StartReimport(int groupId)
     {
         if (jobManager is null) return RespondError<SyncStartResponse>();
-        var jobId = jobManager.StartReimport(groupId);
+        var userId = userSession.User?.Id;
+        var jobId = jobManager.StartReimport(groupId, userId);
+        return Respond(new SyncStartResponse(jobId.ToString()));
+    }
+
+    public async Task<IApiResponse<SyncStartResponse>> DeleteImport(int groupId)
+    {
+        if (jobManager is null) return RespondError<SyncStartResponse>();
+        var userId = userSession.User?.Id;
+        var jobId = jobManager.StartDelete(groupId, userId);
         return Respond(new SyncStartResponse(jobId.ToString()));
     }
 

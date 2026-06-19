@@ -415,6 +415,9 @@ public interface IPathApi
     [Post("/api/v1/admin/sync/groups/{groupId}/reimport")]
     Task<IApiResponse<SyncStartResponse>> StartReimport(int groupId);
 
+    [Post("/api/v1/admin/sync/groups/{groupId}/delete")]
+    Task<IApiResponse<SyncStartResponse>> DeleteImport(int groupId);
+
     [Get("/api/v1/admin/sync/job")]
     Task<IApiResponse<SyncJobState>> GetSyncJobStatus();
 

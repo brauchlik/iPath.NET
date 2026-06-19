@@ -70,16 +70,6 @@ public class SyncImportRunner(
     private Guid MapNodeId(int id) => _nodeIds.TryGetValue(id, out var g) ? g : (_nodeIds[id] = Guid.CreateVersion7());
     private Guid MapDocId(int id) => _docIds.TryGetValue(id, out var g) ? g : (_docIds[id] = Guid.CreateVersion7());
 
-    private static string? Decode(byte[]? raw)
-    {
-        if (raw is null or { Length: 0 }) return null;
-        var s = Encoding.UTF8.GetString(raw);
-        var latin1 = Encoding.Latin1;
-        var asLatin1 = latin1.GetBytes(s);
-        var fixed_s = Encoding.UTF8.GetString(asLatin1);
-        return fixed_s.Contains('\uFFFD') ? s : fixed_s;
-    }
-
     private async Task<int> SaveWithDiagnosticsAsync(CancellationToken ct, [System.Runtime.CompilerServices.CallerMemberName] string caller = "")
     {
         try
@@ -100,10 +90,9 @@ public class SyncImportRunner(
         }
     }
 
-    private static XmlDocument LoadXml(byte[]? raw)
+    private static XmlDocument LoadXml(string? data)
     {
         var doc = new XmlDocument();
-        var data = Decode(raw);
         if (string.IsNullOrEmpty(data)) return doc;
         try
         {
@@ -263,9 +252,9 @@ public class SyncImportRunner(
 
         // Import communities
         var oldCommunities = await oldDb.GetCommunitiesAsync(ct);
-        var groupToComm = (await oldDb.GetCommunityGroupsAsync(ct))
+        var groupToCommIds = (await oldDb.GetCommunityGroupsAsync(ct))
             .GroupBy(cg => cg.Group_id)
-            .ToDictionary(g => g.Key, g => g.First().Community_id);
+            .ToDictionary(g => g.Key, g => g.Select(cg => cg.Community_id).ToList());
 
         foreach (var oc in oldCommunities)
         {
@@ -283,9 +272,25 @@ public class SyncImportRunner(
         foreach (var og in oldGroups)
         {
             if (_groupIds.ContainsKey(og.Id)) continue;
-            var communityId = groupToComm.TryGetValue(og.Id, out var cid) ? cid : (int?)null;
-            var ng = Group.Create(og.Name, _adminUserId, MapCommunityId(communityId));
+            var cids = groupToCommIds.TryGetValue(og.Id, out var list) ? list : null;
+            var primaryCommId = cids?.FirstOrDefault();
+            var ng = Group.Create(og.Name, _adminUserId, MapCommunityId(primaryCommId));
             ng.ipath2_id = og.Id;
+
+            if (cids is not null)
+            {
+                foreach (var extraCid in cids)
+                {
+                    var guid = MapCommunityId(extraCid);
+                    if (guid.HasValue)
+                        ng.AssignToCommunity(guid.Value);
+                }
+            }
+
+            var xml = LoadXml(og.Info);
+            ng.Settings.Purpose = xml.SelectSingleNode("/info/purpose")?.InnerText ?? "";
+            ng.Settings.DescriptionTemplate = xml.SelectSingleNode("/info/default_text")?.InnerText ?? "";
+
             newDb.Groups.Add(ng);
             _groupIds[og.Id] = ng.Id;
             count++;
@@ -328,13 +333,15 @@ public class SyncImportRunner(
 
     public async Task<int> SyncGroupAsync(int groupId, CancellationToken ct = default,
         IProgress<(int Current, int Total, string Status)>? progress = null,
-        int progressOffset = 0, int totalWork = 0)
+        int progressOffset = 0, int totalWork = 0,
+        bool skipChildDocs = false, int maxRoots = 0)
     {
         // Estimate total work early so we can fire a progress report before LoadIdMapsAsync
         if (totalWork == 0)
         {
             var rootCount = await oldDb.CountRootObjectsAsync(groupId, ct);
-            var childDocCount = await oldDb.CountChildObjectsForGroupAsync(groupId, ct);
+            if (maxRoots > 0) rootCount = Math.Min(rootCount, maxRoots);
+            var childDocCount = skipChildDocs ? 0 : await oldDb.CountChildObjectsForGroupAsync(groupId, ct);
             var annotationCount = await oldDb.CountAnnotationsForGroupAsync(groupId, ct);
             totalWork = rootCount + childDocCount + annotationCount;
         }
@@ -358,7 +365,8 @@ public class SyncImportRunner(
         ).DefaultIfEmpty().MaxAsync(ct);
 
         var roots = await oldDb.GetRootObjectsAsync([groupId], ct);
-        var rootsToImport = roots.Where(r => !_nodeIds.ContainsKey(r.Id)).ToList();
+        var rootsToImport = roots.Where(r => !_nodeIds.ContainsKey(r.Id))
+            .Take(maxRoots > 0 ? maxRoots : int.MaxValue).ToList();
         logger.LogInformation("Syncing group {GroupId}: {Count} new root objects", groupId, rootsToImport.Count);
 
         // Import root objects
@@ -367,14 +375,6 @@ public class SyncImportRunner(
         foreach (var o in rootsToImport)
         {
             if (ct.IsCancellationRequested) break;
-            var xml = LoadXml(o.Data);
-            if (string.IsNullOrWhiteSpace(xml.SelectSingleNode("/data/title")?.InnerText))
-            {
-                logger.LogWarning("Skipping object {Id}: no title in data XML", o.Id);
-                completed++;
-                progress?.Report((completed, totalWork, "Skipping unusable root objects..."));
-                continue;
-            }
             var (sr, sri) = BuildServiceRequest(o);
             serviceRequests.Add(sr);
             requestImports.Add(sri);
@@ -382,7 +382,10 @@ public class SyncImportRunner(
             progress?.Report((completed, totalWork, "Importing root objects..."));
         }
         if (serviceRequests.Any())
-            await newDb.BulkInsertAsync(serviceRequests, cancellationToken: ct);
+        {
+            newDb.ServiceRequests.AddRange(serviceRequests);
+            await SaveWithDiagnosticsAsync(ct);
+        }
         if (requestImports.Any())
             await newDb.BulkInsertAsync(requestImports, cancellationToken: ct);
 
@@ -394,32 +397,38 @@ public class SyncImportRunner(
         }
 
         // Import child documents and their annotations
-        var parentIds = rootsToImport.Select(r => r.Id).ToHashSet();
-        while (parentIds.Any())
+        if (!skipChildDocs)
         {
-            var children = await oldDb.GetChildObjectsAsync(parentIds, ct);
-            var newChildren = children.Where(c => !_docIds.ContainsKey(c.Id)).ToList();
-            progress?.Report((completed, totalWork, "Importing child documents..."));
-            var docs = new List<DocumentNode>(newChildren.Count);
-            var docImports = new List<DocumentImport>(newChildren.Count);
-            foreach (var o in newChildren)
+            var parentIds = rootsToImport.Select(r => r.Id).ToHashSet();
+            while (parentIds.Any())
             {
-                var (doc, di) = BuildDocument(o);
-                docs.Add(doc);
-                docImports.Add(di);
-            }
-            if (docs.Any())
-                await newDb.BulkInsertAsync(docs, cancellationToken: ct);
-            if (docImports.Any())
-                await newDb.BulkInsertAsync(docImports, cancellationToken: ct);
+                var children = await oldDb.GetChildObjectsAsync(parentIds, ct);
+                var newChildren = children.Where(c => !_docIds.ContainsKey(c.Id)).ToList();
+                progress?.Report((completed, totalWork, "Importing child documents..."));
+                var docs = new List<DocumentNode>(newChildren.Count);
+                var docImports = new List<DocumentImport>(newChildren.Count);
+                foreach (var o in newChildren)
+                {
+                    var (doc, di) = BuildDocument(o);
+                    docs.Add(doc);
+                    docImports.Add(di);
+                }
+                if (docs.Any())
+                {
+                    newDb.Documents.AddRange(docs);
+                    await SaveWithDiagnosticsAsync(ct);
+                }
+                if (docImports.Any())
+                    await newDb.BulkInsertAsync(docImports, cancellationToken: ct);
 
-            if (newChildren.Any())
-            {
-                progress?.Report((completed, totalWork, "Importing annotations..."));
-                completed = await ImportAnnotationsForObjectsAsync(newChildren.Select(c => c.Id).ToHashSet(), maxAnnotationId, ct, progress, completed, totalWork);
-            }
+                if (newChildren.Any())
+                {
+                    progress?.Report((completed, totalWork, "Importing annotations..."));
+                    completed = await ImportAnnotationsForObjectsAsync(newChildren.Select(c => c.Id).ToHashSet(), maxAnnotationId, ct, progress, completed, totalWork);
+                }
 
-            parentIds = newChildren.Select(c => c.Id).ToHashSet();
+                parentIds = newChildren.Select(c => c.Id).ToHashSet();
+            }
         }
 
         await LoadIdMapsAsync();
@@ -434,6 +443,11 @@ public class SyncImportRunner(
 
         var ng = Group.Create(oldGroup.Name, _adminUserId, null);
         ng.ipath2_id = oldGroup.Id;
+
+        var xml = LoadXml(oldGroup.Info);
+        ng.Settings.Purpose = xml.SelectSingleNode("/info/purpose")?.InnerText ?? "";
+        ng.Settings.DescriptionTemplate = xml.SelectSingleNode("/info/default_text")?.InnerText ?? "";
+
         newDb.Groups.Add(ng);
         _groupIds[groupId] = ng.Id;
 
@@ -538,14 +552,16 @@ public class SyncImportRunner(
 
             if (count % bulkBatchSize == 0)
             {
-                await newDb.BulkInsertAsync(annotations, cancellationToken: ct);
+                newDb.Annotations.AddRange(annotations);
+                await SaveWithDiagnosticsAsync(ct);
                 annotations.Clear();
             }
         }
 
         if (annotations.Any())
         {
-            await newDb.BulkInsertAsync(annotations, cancellationToken: ct);
+            newDb.Annotations.AddRange(annotations);
+            await SaveWithDiagnosticsAsync(ct);
         }
         completed += count - lastReported;
         progress?.Report((completed, totalWork, "Importing annotations..."));
@@ -560,31 +576,42 @@ public class SyncImportRunner(
         return new SyncStartResponse($"Synced {count} root nodes from group {request.GroupId}");
     }
 
-    async Task<SyncStartResponse> ISyncImportRunner.SyncGroupWithProgressAsync(int groupId, IProgress<(int Current, int Total, string Status)> progress, CancellationToken ct)
+    async Task<SyncStartResponse> ISyncImportRunner.SyncGroupWithProgressAsync(int groupId, IProgress<(int Current, int Total, string Status)> progress, CancellationToken ct, Guid? userId)
     {
         await InitAsync();
         var count = await SyncGroupAsync(groupId, ct, progress);
+        if (userId.HasValue)
+            await AddInvokingUserToGroupAsync(groupId, userId.Value, ct);
         return new SyncStartResponse($"Synced {count} root nodes from group {groupId}");
     }
 
-    async Task<GroupImportResult> ISyncImportRunner.ReimportGroupAsync(int groupId, IProgress<(int Current, int Total, string Status)>? progress, CancellationToken ct)
+    async Task<GroupImportResult> ISyncImportRunner.ReimportGroupAsync(int groupId, IProgress<(int Current, int Total, string Status)>? progress, CancellationToken ct, Guid? userId)
     {
         await InitAsync();
-
-        if (!_groupIds.TryGetValue(groupId, out var groupGuid))
-            return new GroupImportResult(0, $"Group {groupId} not found in new database", false);
-
-        // Estimate total work from old database for progress reporting
         var rootCount = await oldDb.CountRootObjectsAsync(groupId, ct);
-        var childDocCount = await oldDb.CountChildObjectsForGroupAsync(groupId, ct);
-        var annotationCount = await oldDb.CountAnnotationsForGroupAsync(groupId, ct);
-        var totalWork = rootCount + childDocCount + annotationCount + 2; // +2 for delete phase + members phase
-        var completed = 0;
-        progress?.Report((completed, totalWork, "Deleting existing data..."));
+        progress?.Report((0, rootCount, "Deleting existing data..."));
+        await DeleteGroupDataAsync(groupId, ct);
+        progress?.Report((0, rootCount, "Importing root objects..."));
+        await SyncCommunitiesAndGroupsAsync(ct);
+        var count = await SyncGroupAsync(groupId, ct, progress);
+        if (userId.HasValue)
+            await AddInvokingUserToGroupAsync(groupId, userId.Value, ct);
+        return new GroupImportResult(count, $"Re-imported {count} root nodes from group {groupId}", true);
+    }
 
-        logger.LogInformation("Re-importing group {GroupId}: deleting existing synced data...", groupId);
+    async Task ISyncImportRunner.DeleteGroupImportedDataAsync(int groupId, CancellationToken ct)
+    {
+        await InitAsync();
+        await DeleteGroupDataAsync(groupId, ct);
+    }
 
-        // Get all imported SR IDs for this group
+    private async Task DeleteGroupDataAsync(int groupId, CancellationToken ct)
+    {
+        await LoadIdMapsAsync();
+        if (!_groupIds.TryGetValue(groupId, out var groupGuid)) return;
+
+        logger.LogInformation("Deleting imported data for group {GroupId}...", groupId);
+
         var srIds = await newDb.ServiceRequests
             .Where(sr => sr.GroupId == groupGuid && sr.ipath2_id.HasValue)
             .Select(sr => sr.Id)
@@ -592,13 +619,11 @@ public class SyncImportRunner(
 
         if (srIds.Count > 0)
         {
-            // Get all imported document IDs belonging to these SRs
             var docIds = await newDb.Documents
                 .Where(d => d.ipath2_id.HasValue && srIds.Contains(d.ServiceRequestId))
                 .Select(d => d.Id)
                 .ToListAsync(ct);
 
-            // Delete in FK-safe order: annotations → lastvisits → docimports → docs → srimports → srs
             await newDb.Annotations
                 .Where(a => (a.ServiceRequestId.HasValue && srIds.Contains(a.ServiceRequestId.Value)) ||
                             (a.DcoumentNodeId.HasValue && docIds.Contains(a.DcoumentNodeId.Value)))
@@ -621,74 +646,33 @@ public class SyncImportRunner(
             await newDb.ServiceRequests.Where(sr => srIds.Contains(sr.Id)).ExecuteDeleteAsync(ct);
         }
 
-        // Delete group members
         await newDb.Set<GroupMember>()
             .Where(gm => gm.GroupId == groupGuid)
             .ExecuteDeleteAsync(ct);
 
-        // Clear change tracker to remove stale entities loaded by LoadIdMapsAsync
-        // whose rows were just deleted by ExecuteDeleteAsync
         newDb.ChangeTracker.Clear();
 
-        // Delete the group itself
         var grp = await newDb.Groups.FindAsync([groupGuid], ct);
         if (grp is not null)
             newDb.Groups.Remove(grp);
 
         await SaveWithDiagnosticsAsync(ct);
-        completed = 1;
-        progress?.Report((completed, totalWork, "Importing missing users..."));
-        logger.LogInformation("Re-importing group {GroupId}: old data deleted", groupId);
+        logger.LogInformation("Deleted imported data for group {GroupId}", groupId);
+    }
 
-        // Import missing users for this group's members
-        logger.LogInformation("Re-importing group {GroupId}: importing missing users...", groupId);
-        var oldMembers = await oldDb.GetGroupMembersForGroupAsync(groupId, ct);
-        var roleAdmin = await rm.FindByNameAsync("Admin");
-        var roleTranslator = await rm.FindByNameAsync("Translator");
-        var usedUsernames = new HashSet<string>(
-            await newDb.Users.Select(u => u.NormalizedUserName).ToListAsync(ct),
-            StringComparer.OrdinalIgnoreCase);
+    private async Task AddInvokingUserToGroupAsync(int groupId, Guid userId, CancellationToken ct)
+    {
+        if (!_groupIds.TryGetValue(groupId, out var groupGuid)) return;
 
-        foreach (var m in oldMembers)
+        var grp = await newDb.Groups.FindAsync([groupGuid], ct);
+        if (grp is null) return;
+
+        if (!grp.Members.Any(m => m.UserId == userId))
         {
-            if (_userIds.ContainsKey(m.User_id)) continue;
-            var p = await oldDb.GetPersonAsync(m.User_id, ct);
-            if (p is null) continue;
-            User u;
-            try { u = CreateUserEntity(p, usedUsernames, roleAdmin, roleTranslator); }
-            catch (InvalidOperationException ex)
-            {
-                logger.LogWarning("Skipped user {Username} (id={Id}): {Reason}", p.Username, p.Id, ex.Message);
-                continue;
-            }
-            newDb.Users.Add(u);
-            _userIds[p.Id] = u.Id;
-        }
-        await SaveWithDiagnosticsAsync(ct);
-
-        // Reimport group members into the existing group
-        grp = await newDb.Groups.FindAsync([groupGuid], ct);
-        if (grp is not null)
-        {
-            foreach (var m in oldMembers)
-            {
-                if (!_userIds.TryGetValue(m.User_id, out var uid)) continue;
-                var role = eMemberRole.User;
-                if ((m.Status & 4) != 0) role = eMemberRole.Moderator;
-                if ((m.Status & 2) != 0) role = eMemberRole.Banned;
-                if ((m.Status & 8) != 0) role = eMemberRole.Guest;
-                grp.AddMember(uid, role);
-            }
+            grp.AddMember(userId, eMemberRole.User);
             await SaveWithDiagnosticsAsync(ct);
+            logger.LogInformation("Added user {UserId} as member of group {GroupId}", userId, groupId);
         }
-
-        completed = 2;
-        progress?.Report((completed, totalWork, "Importing root objects..."));
-        logger.LogInformation("Re-importing group {GroupId}: members re-imported, now importing nodes...", groupId);
-
-        // Reimport root objects, child documents, and annotations with full progress tracking
-        var count = await SyncGroupAsync(groupId, ct, progress, completed, totalWork);
-        return new GroupImportResult(count, $"Re-imported {count} root nodes from group {groupId}", true);
     }
 
     async Task<int> ISyncImportRunner.ImportUsersAsync(CancellationToken ct)
@@ -778,13 +762,14 @@ public class SyncImportRunner(
         n.Description.CaseType = xml.SelectSingleNode("/data/type")?.InnerText;
         n.Description.AccessionNo = xml.SelectSingleNode("/data/speciment_code")?.InnerText;
         n.Description.Text = xml.SelectSingleNode("/data/description")?.InnerText;
+        n.Description.Status = xml.SelectSingleNode("/data/casestat")?.InnerText;
 
         return (n, new ServiceRequestImport
         {
             Id = Guid.CreateVersion7(),
             ServiceRequestId = n.Id,
-            Info = Decode(o.Info),
-            Data = Decode(o.Data)
+            Info = o.Info,
+            Data = o.Data
         });
     }
 
@@ -835,8 +820,8 @@ public class SyncImportRunner(
         {
             Id = Guid.CreateVersion7(),
             DocumentId = n.Id,
-            Info = Decode(o.Info),
-            Data = Decode(o.Data)
+            Info = o.Info,
+            Data = o.Data
         });
     }
 }

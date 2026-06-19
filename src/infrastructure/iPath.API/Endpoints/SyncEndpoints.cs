@@ -36,9 +36,10 @@ public static class SyncEndpoints
             var jobs = ctx.RequestServices.GetService<ISyncJobManager>();
             if (jobs is null)
                 return Results.BadRequest(new { error = "Sync import not available (ipath_old not configured)" });
+            var userId = GetUserId(ctx);
             try
             {
-                var jobId = jobs.StartSync(groupId);
+                var jobId = jobs.StartSync(groupId, userId);
                 return Results.Ok(new SyncStartResponse(jobId.ToString()));
             }
             catch (InvalidOperationException ex)
@@ -55,9 +56,30 @@ public static class SyncEndpoints
             var jobs = ctx.RequestServices.GetService<ISyncJobManager>();
             if (jobs is null)
                 return Results.BadRequest(new { error = "Sync import not available (ipath_old not configured)" });
+            var userId = GetUserId(ctx);
             try
             {
-                var jobId = jobs.StartReimport(groupId);
+                var jobId = jobs.StartReimport(groupId, userId);
+                return Results.Ok(new SyncStartResponse(jobId.ToString()));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Results.Conflict(new { error = ex.Message });
+            }
+        })
+            .Produces<SyncStartResponse>()
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status409Conflict);
+
+        sync.MapPost("groups/{groupId:int}/delete", (int groupId, HttpContext ctx) =>
+        {
+            var jobs = ctx.RequestServices.GetService<ISyncJobManager>();
+            if (jobs is null)
+                return Results.BadRequest(new { error = "Sync import not available (ipath_old not configured)" });
+            var userId = GetUserId(ctx);
+            try
+            {
+                var jobId = jobs.StartDelete(groupId, userId);
                 return Results.Ok(new SyncStartResponse(jobId.ToString()));
             }
             catch (InvalidOperationException ex)
@@ -79,5 +101,11 @@ public static class SyncEndpoints
             .Produces(StatusCodes.Status204NoContent);
 
         return route;
+    }
+
+    private static Guid? GetUserId(HttpContext ctx)
+    {
+        var val = ctx.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        return val is not null && Guid.TryParse(val, out var id) ? id : null;
     }
 }

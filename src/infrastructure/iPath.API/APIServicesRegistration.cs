@@ -7,6 +7,8 @@ using iPath.API.Services.Notifications.Processors;
 using iPath.API.Services.Notifications.Publisher;
 using iPath.API.Services.Storage;
 using iPath.API.Services.Thumbnail;
+using iPath.API.Services.SyncImport;
+using iPath.Application.Features.SyncImport;
 using iPath.Application.Coding;
 using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
@@ -140,6 +142,14 @@ public static class APIServicesRegistration
 
         // Google Workspace
         services.AddGoogleServices(config);
+
+        // Sync Import from old iPath2 MySQL
+        var syncCs = config.GetConnectionString("ipath_old");
+        if (!string.IsNullOrEmpty(syncCs))
+        {
+            services.AddSingleton(new OldDataService(syncCs));
+            services.AddScoped<ISyncImportRunner, SyncImportRunner>();
+        }
 
         // Configure JSON options for OpenAPI schema generation
         // Build-time OpenAPI generation needs higher MaxDepth for complex domain models

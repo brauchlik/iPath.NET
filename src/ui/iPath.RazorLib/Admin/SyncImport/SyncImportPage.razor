@@ -1,0 +1,107 @@
+@page "/admin/sync-import"
+@attribute [Authorize(Roles = "Admin")]
+
+@using iPath.Application.Features.SyncImport
+@inject ISyncImportRunner syncImport
+@inject NavigationManager nm
+@inject ISnackbar snackbar
+@inject IDialogService dialog
+
+<MudText Typo="Typo.h5" Class="mb-4">Sync Import (from old iPath2)</MudText>
+
+<MudAlert Severity="Severity.Warning" Class="mb-4" Dense="true">
+    Imports data from the old production MySQL. Only new items (not yet imported) are synced.
+    Existing data is never modified.
+</MudAlert>
+
+@if (_isLoading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    <MudText Class="mt-2">Loading groups from old system...</MudText>
+}
+else if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error">@_error</MudAlert>
+}
+else if (_groups.Count == 0)
+{
+    <MudAlert Severity="Severity.Info">No groups found in old system, or the old MySQL connection is not configured.</MudAlert>
+}
+else
+{
+    <MudDataGrid T="OldGroupSummary"
+                 Items="@_groups"
+                 Dense="true"
+                 Hover="true">
+        <Columns>
+            <PropertyColumn Property="x => x.Id" Title="ID" />
+            <PropertyColumn Property="x => x.Name" Title="Group Name" />
+            <PropertyColumn Property="x => x.RootNodeCount" Title="Root Nodes" />
+            <PropertyColumn Property="x => x.Entered" Title="Created">
+                <CellTemplate>
+                    @context.Item.Entered.ToString("yyyy-MM-dd")
+                </CellTemplate>
+            </PropertyColumn>
+            <TemplateColumn>
+                <CellTemplate>
+                    <MudIconButton Icon="@Icons.Material.Filled.Sync"
+                                   Size="Size.Small"
+                                   Color="Color.Primary"
+                                   Disabled="@(_syncingId == context.Item.Id)"
+                                   OnClick="@(() => StartSync(context.Item))" />
+                    @if (_syncingId == context.Item.Id)
+                    {
+                        <MudCircularProgress Indeterminate="true" Size="Size.Small" Class="ml-2" />
+                    }
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+    </MudDataGrid>
+}
+
+@code {
+    private List<OldGroupSummary> _groups = [];
+    private int? _syncingId;
+    private bool _isLoading = true;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _groups = await syncImport.GetOldGroupSummariesAsync();
+        }
+        catch (Exception ex)
+        {
+            _error = $"Failed to load groups: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task StartSync(OldGroupSummary group)
+    {
+        var confirmed = await dialog.ShowMessageBoxAsync("Sync Group",
+            $"Import all nodes from group \"{group.Name}\" ({group.RootNodeCount} roots)?",
+            yesText: "Sync", cancelText: "Cancel");
+        if (confirmed != true) return;
+
+        _syncingId = group.Id;
+        try
+        {
+            var result = await syncImport.SyncGroupAsync(new SyncStartRequest(group.Id));
+            snackbar.Add(result.JobId, Severity.Success);
+            _groups = await syncImport.GetOldGroupSummariesAsync();
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Sync failed: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _syncingId = null;
+        }
+    }
+}

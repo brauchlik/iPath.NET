@@ -1,0 +1,183 @@
+@page "/admin/sync-import/{GroupId:int}"
+@attribute [Authorize(Roles = "Admin")]
+
+@using iPath.Application.Features.SyncImport
+@inject ISyncImportRunner syncImport
+@inject NavigationManager nm
+@inject ISnackbar snackbar
+@inject IDialogService dialog
+
+<MudText Typo="Typo.h5" Class="mb-4">Sync Import — Group Detail</MudText>
+
+<MudButton Variant="Variant.Outlined"
+           Color="Color.Default"
+           Size="Size.Small"
+           StartIcon="@Icons.Material.Filled.ArrowBack"
+           OnClick="@GoBack"
+           Class="mb-4">
+    Back to group list
+</MudButton>
+
+@if (_isLoading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    <MudText Class="mt-2">Loading group status...</MudText>
+}
+else if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error">@_error</MudAlert>
+}
+else if (_status is not null)
+{
+    <MudCard Class="mb-4" Elevation="2">
+        <MudCardContent>
+            <MudText Typo="Typo.h6" Class="mb-4">@_status.GroupName</MudText>
+            <div class="mb-4" style="display: grid; grid-template-columns: 200px auto; gap: 8px;">
+                <MudText Typo="Typo.body2" Class="font-weight-bold">Root Objects</MudText>
+                <MudText Typo="Typo.body2">@_status.OldRootCount total (@_status.SyncedRootCount synced, @_status.RemainingRootCount remaining)</MudText>
+                <MudText Typo="Typo.body2" Class="font-weight-bold">Annotations</MudText>
+                <MudText Typo="Typo.body2">@_status.AnnotationCount</MudText>
+                <MudText Typo="Typo.body2" Class="font-weight-bold">Users</MudText>
+                <MudText Typo="Typo.body2">@_status.UserCount</MudText>
+            </div>
+            @if (_isSyncing)
+            {
+                <MudProgressLinear Determinate="true" Value="@_syncPercent" Color="Color.Primary" Class="mt-2" />
+                <div class="d-flex align-center mt-2" style="gap: 8px;">
+                    <MudText Typo="Typo.body2">@_syncStatus</MudText>
+                    <MudText Typo="Typo.body2">(@_syncPercent%)</MudText>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex" style="gap: 12px;">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.CloudDownload"
+                               OnClick="@StartSync">
+                        Sync Group
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Error"
+                               StartIcon="@Icons.Material.Filled.RestartAlt"
+                               OnClick="@StartReimport">
+                        Re-import All
+                    </MudButton>
+                </div>
+            }
+        </MudCardContent>
+    </MudCard>
+}
+
+@code {
+    [Parameter] public int GroupId { get; set; }
+
+    private GroupImportStatus? _status;
+    private bool _isLoading = true;
+    private bool _isSyncing;
+    private string? _error;
+    private int _syncCurrent;
+    private int _syncTotal;
+    private string _syncStatus = "";
+    private int _syncPercent => _syncTotal > 0 ? (int)(_syncCurrent * 100.0 / _syncTotal) : 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStatusAsync();
+    }
+
+    private async Task LoadStatusAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            _status = await syncImport.GetGroupImportStatusAsync(GroupId);
+        }
+        catch (Exception ex)
+        {
+            _error = $"Failed to load group status: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        nm.NavigateTo("/admin/sync-import");
+    }
+
+    private async Task StartSync()
+    {
+        var confirmed = await dialog.ShowMessageBoxAsync("Sync Group",
+            $"Import all nodes from \"{_status?.GroupName}\" ({_status?.OldRootCount} roots)?",
+            yesText: "Sync", cancelText: "Cancel");
+        if (confirmed != true) return;
+
+        _isSyncing = true;
+        _syncCurrent = 0;
+        _syncTotal = _status?.OldRootCount ?? 1;
+        _syncStatus = "Starting...";
+        InvokeAsync(StateHasChanged);
+
+        var progress = new Progress<(int Current, int Total, string Status)>(p =>
+        {
+            _syncCurrent = p.Current;
+            _syncTotal = p.Total;
+            if (p.Status is not null) _syncStatus = p.Status;
+            InvokeAsync(StateHasChanged);
+        });
+        try
+        {
+            var result = await syncImport.SyncGroupWithProgressAsync(GroupId, progress);
+            snackbar.Add(result.JobId, Severity.Success);
+            await LoadStatusAsync();
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Sync failed: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isSyncing = false;
+        }
+    }
+
+    private async Task StartReimport()
+    {
+        var confirmed = await dialog.ShowMessageBoxAsync("Re-import All",
+            $"Delete ALL synced data for \"{_status?.GroupName}\" and re-import everything?\n\n" +
+            $"This will remove all existing root objects, documents, annotations, and group members, then re-import from scratch.",
+            yesText: "Re-import", cancelText: "Cancel");
+        if (confirmed != true) return;
+
+        _isSyncing = true;
+        _syncCurrent = 0;
+        _syncTotal = _status?.OldRootCount ?? 1;
+        _syncStatus = "Starting...";
+        InvokeAsync(StateHasChanged);
+
+        var progress = new Progress<(int Current, int Total, string Status)>(p =>
+        {
+            _syncCurrent = p.Current;
+            _syncTotal = p.Total;
+            if (p.Status is not null) _syncStatus = p.Status;
+            InvokeAsync(StateHasChanged);
+        });
+        try
+        {
+            var result = await syncImport.ReimportGroupAsync(GroupId, progress);
+            snackbar.Add(result.Message, Severity.Success);
+            await LoadStatusAsync();
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Re-import failed: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isSyncing = false;
+        }
+    }
+}

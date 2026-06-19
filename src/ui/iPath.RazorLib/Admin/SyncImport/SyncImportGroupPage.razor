@@ -1,5 +1,5 @@
 @page "/admin/sync-import/{GroupId:int}"
-@attribute [Authorize(Roles = "Admin")]
+@attribute [Authorize(Roles = "Developer")]
 
 @using iPath.Application.Features.SyncImport
 @inject ISyncImportRunner syncImport
@@ -119,14 +119,14 @@ else if (_status is not null)
         _syncCurrent = 0;
         _syncTotal = _status?.OldRootCount ?? 1;
         _syncStatus = "Starting...";
-        InvokeAsync(StateHasChanged);
+        StateHasChanged();
 
         var progress = new Progress<(int Current, int Total, string Status)>(p =>
         {
             _syncCurrent = p.Current;
             _syncTotal = p.Total;
             if (p.Status is not null) _syncStatus = p.Status;
-            InvokeAsync(StateHasChanged);
+            StateHasChanged();
         });
         try
         {
@@ -156,14 +156,14 @@ else if (_status is not null)
         _syncCurrent = 0;
         _syncTotal = _status?.OldRootCount ?? 1;
         _syncStatus = "Starting...";
-        InvokeAsync(StateHasChanged);
+        StateHasChanged();
 
         var progress = new Progress<(int Current, int Total, string Status)>(p =>
         {
             _syncCurrent = p.Current;
             _syncTotal = p.Total;
             if (p.Status is not null) _syncStatus = p.Status;
-            InvokeAsync(StateHasChanged);
+            StateHasChanged();
         });
         try
         {

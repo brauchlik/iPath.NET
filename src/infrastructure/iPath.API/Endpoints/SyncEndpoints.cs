@@ -9,7 +9,8 @@ public static class SyncEndpoints
     {
         var sync = route.MapGroup("admin/sync")
             .WithTags("Sync Import")
-            .RequireAuthorization("Developer");
+            .RequireAuthorization("Developer")
+            .DisableAntiforgery();
 
         sync.MapGet("groups", async (HttpContext ctx, CancellationToken ct) =>
         {

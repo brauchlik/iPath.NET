@@ -1,3 +1,4 @@
+using iPath.Application.Features.Admin;
 using iPath.Application.Localization;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -11,22 +12,29 @@ public class StringLocalizerService : IStringLocalizer
     private readonly ILocalizationDataProvider _provider;
     private readonly IOptions<LocalizationSettings> _opts;
     private readonly ILogger<StringLocalizerService> _logger;
-    private readonly Dictionary<string, TranslationData> _translationsData = new();
+    private readonly ITranslationJobQueue _translationJobQueue;
+    private readonly ConcurrentDictionary<string, TranslationData> _translationsData = new();
 
     public StringLocalizerService(
         ILocalizationDataProvider provider, 
         IOptions<LocalizationSettings> opts, 
-        ILogger<StringLocalizerService> logger) 
+        ILogger<StringLocalizerService> logger,
+        ITranslationJobQueue translationJobQueue) 
     {
         _provider = provider;
         _opts = opts;
         _logger = logger;
+        _translationJobQueue = translationJobQueue;
         
-        _provider.TranslationDataSaved += locale =>
+        _provider.TranslationDataSaved += async locale =>
         {
-            lock (_translationsData)
+            try
             {
-                _translationsData.Remove(locale);
+                await LoadTranslationData(locale, reload: true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to reload translation data for locale {Locale}", locale);
             }
         };
     }
@@ -36,41 +44,18 @@ public class StringLocalizerService : IStringLocalizer
 
     public async Task<TranslationData> LoadTranslationData(string locale, bool reload = false)
     {
-        if (reload)
-        {
-            lock (_translationsData)
-            {
-                if (_translationsData.ContainsKey(locale))
-                {
-                    _translationsData.Remove(locale);
-                }
-            }
-        }
-
-        bool containsLocale;
-        lock (_translationsData)
-        {
-            containsLocale = _translationsData.ContainsKey(locale);
-        }
-
-        if (!containsLocale)
+        if (reload || !_translationsData.ContainsKey(locale))
         {
             try
             {
                 var resp = await _provider.GetTranslationDataAsync(locale);
-                lock (_translationsData)
+                if (resp.IsSuccess)
                 {
-                    if (!_translationsData.ContainsKey(locale))
-                    {
-                        if (resp.IsSuccess)
-                        {
-                            _translationsData.Add(locale, resp.Value);
-                        }
-                        else
-                        {
-                            _translationsData.Add(locale, new TranslationData { locale = locale, Words = new() });
-                        }
-                    }
+                    _translationsData[locale] = resp.Value;
+                }
+                else
+                {
+                    _translationsData.TryAdd(locale, new TranslationData { locale = locale, Words = new() });
                 }
             }
             catch (Exception ex)
@@ -85,37 +70,28 @@ public class StringLocalizerService : IStringLocalizer
             await EnsureEnglishCacheAsync();
         }
 
-        lock (_translationsData)
-        {
-            return _translationsData[locale];
-        }
+        return _translationsData.TryGetValue(locale, out var data) 
+            ? data 
+            : new TranslationData { locale = locale, Words = new() };
     }
 
     private async Task EnsureEnglishCacheAsync()
     {
-        bool hasEn;
-        lock (_translationsData) { hasEn = _translationsData.ContainsKey("en"); }
-        if (hasEn) return;
+        if (_translationsData.ContainsKey("en")) return;
 
         try
         {
             var resp = await _provider.GetTranslationDataAsync("en");
-            lock (_translationsData)
+            if (!_translationsData.ContainsKey("en"))
             {
-                if (!_translationsData.ContainsKey("en"))
-                {
-                    _translationsData["en"] = resp.IsSuccess ? resp.Value : new TranslationData { locale = "en", Words = new() };
-                }
+                _translationsData["en"] = resp.IsSuccess ? resp.Value : new TranslationData { locale = "en", Words = new() };
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error preloading English master translation data");
-            lock (_translationsData)
-            {
-                if (!_translationsData.ContainsKey("en"))
-                    _translationsData["en"] = new TranslationData { locale = "en", Words = new() };
-            }
+            if (!_translationsData.ContainsKey("en"))
+                _translationsData["en"] = new TranslationData { locale = "en", Words = new() };
         }
     }
 
@@ -158,10 +134,12 @@ public class StringLocalizerService : IStringLocalizer
                             // Backfill English master key list so all locales see this key for translation
                             if (_translationsData.TryGetValue("en", out var enData))
                             {
-                                enData.Words.TryAdd(key, key);
-                                _ = _provider.SaveTranslationDataAsync(enData);
+                                if (enData.Words.TryAdd(key, key))
+                                {
+                                    _translationJobQueue.EnqueueKey(key);
+                                    _ = _provider.SaveTranslationDataAsync(enData);
+                                }
                             }
-                            _ = _provider.SaveTranslationDataAsync(data);
                         }
                     }
                     catch (Exception ex)

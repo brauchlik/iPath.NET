@@ -139,7 +139,7 @@ public static class APIServicesRegistration
 
         // Localization
         services.Configure<LocalizationSettings>(config.GetSection(LocalizationSettings.ConfigName));
-        services.AddTransient<LocalizationFileService>();
+        services.AddSingleton<LocalizationFileService>();
 
         // Google Workspace
         services.AddGoogleServices(config);

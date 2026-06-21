@@ -53,10 +53,10 @@
                 </ChildContent>
                 <ErrorContent Context="errCtx">
                 <MudAlert Severity="Severity.Error">
-                        <b>Error:</b> @errCtx.Message<br />
+                        <b>@T["Error:"]</b> @errCtx.Message<br />
                         <p>@errCtx.HelpLink</p>
                         <MudButton Variant="Variant.Filled" OnCLick="_ => errorBoundary?.Recover()">
-                            try again
+                            @T["try again"]
                         </MudButton>
                 </MudAlert>
                 </ErrorContent>
@@ -114,7 +114,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await srvLoc.LoadTranslationData(locale);
         appState.OnChange += OnAppStateChanged;
         await appState.LoadSessionAsync();
     }

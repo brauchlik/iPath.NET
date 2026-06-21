@@ -1,4 +1,4 @@
-﻿@implements IDisposable
+@implements IDisposable
 @using iPath.Blazor.ServiceLib.ApiClient
 
 @inject IStringLocalizer T
@@ -15,13 +15,13 @@
                 @T["My Tasks"]
             </MudBadge>
         </MudNavLink>
-        <MudNavLink Href="user/cases" Icon="@Icons.Material.TwoTone.FolderShared">My Cases</MudNavLink>
+        <MudNavLink Href="user/cases" Icon="@Icons.Material.TwoTone.FolderShared">@T["My Cases"]</MudNavLink>
 
         @if (NewRequestCount > 0)
         {
             <MudNavLink Href="user/newcases" Icon="@Icons.Material.TwoTone.CreateNewFolder">
                 <MudBadge Content="@NewRequestCount" Origin="Origin.CenterRight" BadgeClass="mx-2" Color="Color.Info">
-                    @T["New Cases"]"
+                    @T["New Cases"]
                 </MudBadge>
             </MudNavLink>
 

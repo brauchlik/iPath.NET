@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @using iPath.Application.Features
 @using iPath.Application.Features.ServiceRequests
 @using iPath.Application.Features.Users
@@ -20,7 +20,7 @@
         {
             <div>
                 <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Medium" />
-                loading ...
+                @T["loading ..."]
             </div>
         }
 
@@ -46,14 +46,14 @@
                         {
                             <MudCard>
                                 <MudCardHeader Class="mud-theme-info">
-                                    <MudText Typo="Typo.subtitle2">Recent activity</MudText>
+                                    <MudText Typo="Typo.subtitle2">@T["Recent activity"]</MudText>
                                 </MudCardHeader>
                                 <MudCardContent>
-                                    <div>more to come here ....</div>
+                                    <div>@T["more to come here ...."]</div>
                                     <MudNavMenu>
-                                        <MudNavLink Href="user/groups" Icon="@Icons.Material.Filled.Group">My Groups</MudNavLink>
-                                        <MudNavLink Href="user/cases" Icon="@Icons.Material.Filled.FolderShared">My Cases</MudNavLink>
-                                        <MudNavLink Href="requests/search" Icon="@Icons.Material.Filled.Search">Search Cases</MudNavLink>
+                                        <MudNavLink Href="user/groups" Icon="@Icons.Material.Filled.Group">@T["My Groups"]</MudNavLink>
+                                        <MudNavLink Href="user/cases" Icon="@Icons.Material.Filled.FolderShared">@T["My Cases"]</MudNavLink>
+                                        <MudNavLink Href="requests/search" Icon="@Icons.Material.Filled.Search">@T["Search Cases"]</MudNavLink>
                                     </MudNavMenu>
                                 </MudCardContent>
                             </MudCard>
@@ -63,7 +63,7 @@
                     {
                         <div>
                             <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Medium" />
-                            loading ...
+                            @T["loading ..."]
                         </div>
                     }
                 </MudItem>
@@ -82,17 +82,17 @@
 <TopoLookup Class="mb-10" Variant="Variant.Outlined" />
 -->
 
-<MudText Typo="Typo.h6" Class="mt-15" GutterBottom="true">Version Information</MudText>
+<MudText Typo="Typo.h6" Class="mt-15" GutterBottom="true">@T["Version Information"]</MudText>
 
 <MudText>
-    This iPath.NET software was written in .NET 10 Framework with the help of
-    <MudLink Href="https://mudblazor.com/" Target="_blank">MudBlazor UI components</MudLink>,
-    and the <MudLink Href="https://lhncbc.nlm.nih.gov/LHC-research/LHC-projects/health-information/lhc-forms.html" Target="_blank">LHC-Forms Widget from NLM</MudLink>.
+    @T["This iPath.NET software was written in .NET 10 Framework with the help of"]
+    <MudLink Href="https://mudblazor.com/" Target="_blank">@T["MudBlazor UI components"]</MudLink>,
+    @T["and the"] <MudLink Href="https://lhncbc.nlm.nih.gov/LHC-research/LHC-projects/health-information/lhc-forms.html" Target="_blank">@T["LHC-Forms Widget from NLM"]</MudLink>.
 </MudText>
 
 
 <MudText Class="mt-2">
-    Source Code published under MIT License on GitHub:
+    @T["Source Code published under MIT License on GitHub:"]
     <MudLink Href="https://github.com/brauchlik/iPath.NET" Target="_blank">iPath.NET</MudLink>
 </MudText>
 

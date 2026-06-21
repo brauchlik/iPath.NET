@@ -194,6 +194,13 @@ var localizationOptions = new RequestLocalizationOptions()
 
 app.UseRequestLocalization(localizationOptions);
 
+// Preload ALL localization data into the Singleton cache at startup
+var srvLoc = app.Services.GetRequiredService<iPath.Blazor.ServiceLib.Services.StringLocalizerService>();
+foreach (var culture in supportedCultures)
+{
+    await srvLoc.LoadTranslationData(culture);
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 

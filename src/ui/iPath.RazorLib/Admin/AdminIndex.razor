@@ -1,4 +1,4 @@
-﻿@page "/admin"
+@page "/admin"
 
 
 <MudBreadcrumbs Items="_items" Class="mt-0 pt-0"></MudBreadcrumbs>
@@ -8,9 +8,14 @@
 <AdminNavMenu />
 
 @code {
-    private List<BreadcrumbItem> _items =
-    [
-        new("Home", href: "#"),
-        new("Administration", href: null, disabled: true)
-    ];
+    private List<BreadcrumbItem> _items = [];
+
+    protected override void OnInitialized()
+    {
+        _items =
+        [
+            new(T["Home"], href: "#"),
+            new(T["Administration"], href: null, disabled: true)
+        ];
+    }
 }

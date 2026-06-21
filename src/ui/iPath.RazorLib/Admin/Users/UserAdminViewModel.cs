@@ -1,4 +1,4 @@
-﻿using FluentResults;
+using FluentResults;
 using iPath.Blazor.Componenents.Users;
 using Microsoft.Extensions.Caching.Memory;
 using Refit;
@@ -273,9 +273,9 @@ public class UserAdminViewModel(IPathApi api,
     {
         if (user != null)
         {
-            var res = await dialog.ShowMessageBoxAsync("Warning",
-                $"Are you sure that you want to delete user {user.Username} completely?",
-                yesText: "Yes", cancelText: "Cancel");
+            var res = await dialog.ShowMessageBoxAsync(T["Warning"],
+                T["Are you sure that you want to delete user {0} completely?", user.Username],
+                yesText: T["Yes"], cancelText: T["Cancel"]);
             if (res is not null)
             {
                 var resp = await api.DeleteUser(user.Id);

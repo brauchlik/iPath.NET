@@ -1,5 +1,6 @@
 @page "/admin/ai"
 @attribute [Authorize(Roles = "Admin")]
+@implements IDisposable
 @using iPath.Application.Features.Admin
 @using iPath.Domain.Config
 @using Microsoft.Extensions.Options
@@ -177,7 +178,16 @@ else
                                 
                                 @if (_translationStatus.MissingKeys > 0)
                                 {
-                                    @if (_isTranslating)
+                                    @if (translationJobQueue.IsManualJobRunning && !_isTranslating)
+                                    {
+                                        <MudAlert Severity="Severity.Warning" Class="mt-4" Dense="true">
+                                            Another translation job is currently running from another session.
+                                        </MudAlert>
+                                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="true" Class="mt-4" FullWidth="true">
+                                            Auto-Translate @(_translationStatus.MissingKeys) Missing Keys
+                                        </MudButton>
+                                    }
+                                    else if (_isTranslating)
                                     {
                                         <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="CancelTranslation" Class="mt-4" FullWidth="true">
                                             Cancel Translation Job
@@ -227,7 +237,7 @@ else
                     }
 
                     <MudItem xs="12">
-                        <MudDataGrid Items="@_translationRows" T="TranslationRow" ReadOnly="false" EditMode="DataGridEditMode.Cell" CommittedItemChanges="@OnRowCommitted" QuickFilter="@_quickFilter" Bordered="true" Dense="true" Striped="true" Hover="true" Class="mt-4" Elevation="1">
+                        <MudDataGrid Items="@_translationRows" T="TranslationRow" ReadOnly="@translationJobQueue.IsManualJobRunning" EditMode="DataGridEditMode.Form" CommittedItemChanges="@OnRowCommitted" QuickFilter="@_quickFilter" Bordered="true" Dense="true" Striped="true" Hover="true" Class="mt-4" Elevation="1">
                             <ToolBarContent>
                                 <MudText Typo="Typo.h6">Phrase Repository</MudText>
                                 <MudSpacer />
@@ -235,7 +245,7 @@ else
                             </ToolBarContent>
                             <Columns>
                                 <PropertyColumn Property="x => x.Key" Title="English Key (Source)" ReadOnly="true" />
-                                <PropertyColumn Property="x => x.Translation" Title="Translation (Click to Edit)" />
+                                <PropertyColumn Property="x => x.Translation" Title="Translation" />
                                 <TemplateColumn Title="Status">
                                     <CellTemplate>
                                         @if (context.Item.IsHumanModified)
@@ -250,6 +260,11 @@ else
                                         {
                                             <MudChip T="string" Color="Color.Default" Size="Size.Small" Variant="Variant.Outlined">Missing</MudChip>
                                         }
+                                    </CellTemplate>
+                                </TemplateColumn>
+                                <TemplateColumn CellClass="d-flex justify-end" RequiredToBeEditable="false">
+                                    <CellTemplate>
+                                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" Disabled="@translationJobQueue.IsManualJobRunning" />
                                     </CellTemplate>
                                 </TemplateColumn>
                             </Columns>
@@ -272,6 +287,8 @@ else
 
 @inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
 @inject Microsoft.Extensions.Options.IOptions<iPath.Application.Localization.LocalizationSettings> localizationOpts
+@inject iPath.Blazor.ServiceLib.Services.StringLocalizerService srvLoc
+@inject iPath.Application.Features.Admin.ITranslationJobQueue translationJobQueue
 
 @code {
     private AiStatusDto? status;
@@ -399,10 +416,12 @@ else
 
     private async Task StartTranslationAsync()
     {
-        if (_translationStatus == null || _translationStatus.UntranslatedKeys.Count == 0 || _isTranslating)
+        if (_translationStatus == null || _translationStatus.UntranslatedKeys.Count == 0 || _isTranslating || translationJobQueue.IsManualJobRunning)
             return;
 
         _isTranslating = true;
+        translationJobQueue.IsManualJobRunning = true;
+        translationJobQueue.IsPaused = true;
         _isCancellationRequested = false;
         _currentProgress = 0;
         _progressMessage = "Preparing translation batches...";
@@ -471,7 +490,19 @@ else
         finally
         {
             _isTranslating = false;
+            translationJobQueue.IsManualJobRunning = false;
+            translationJobQueue.IsPaused = false;
             _isCancellationRequested = false;
+
+            try
+            {
+                await srvLoc.LoadTranslationData(_selectedLocale, reload: true);
+            }
+            catch (Exception ex)
+            {
+                _jobLog.Add($"[{DateTime.Now:HH:mm:ss}] Error reloading localizer cache: {ex.Message}");
+            }
+
             await LoadTranslationStatusAsync();
             StateHasChanged();
         }
@@ -494,6 +525,9 @@ else
                 row.IsHumanModified = true;
                 row.ModelUsed = "Human";
                 row.TranslatedAt = DateTime.UtcNow;
+
+                // Force localizer cache to reload
+                await srvLoc.LoadTranslationData(_selectedLocale, reload: true);
             }
             else
             {
@@ -505,6 +539,15 @@ else
             await LoadTranslationStatusAsync();
         }
         return MudBlazor.DataGridEditFormAction.Close;
+    }
+
+    public void Dispose()
+    {
+        if (_isTranslating)
+        {
+            translationJobQueue.IsManualJobRunning = false;
+            translationJobQueue.IsPaused = false;
+        }
     }
 
     public class TranslationRow

@@ -10,6 +10,7 @@ public class LocalizationFileService
 {
     private readonly IOptions<LocalizationSettings> _opts;
     private readonly ILogger<LocalizationFileService> _logger;
+    private readonly object _fileLock = new();
 
     public event Action<string>? TranslationSaved;
 
@@ -33,33 +34,44 @@ public class LocalizationFileService
 
     public TranslationData GetTranslationData(string locale)
     {
-        TranslationData data;
-
-        if (!_opts.Value.SupportedCultures.Contains(locale))
+        lock (_fileLock)
         {
-            throw new InvalidOperationException($"Culture {locale} is not supported");
-        }
+            TranslationData data;
 
-        string fileName = Path.Combine(_opts.Value.LocalesRoot, $"{locale}.json");
-        if (!File.Exists(fileName))
-        {
-            data = new();
-            data.locale = locale;
-            data.ModifiedOn = DateTime.Now;
-            data.Words = new();
-            data.Words["Test"] = "Test";
-            data.Words["Test2"] = "Test2";
-            if (_opts.Value.AutoSave) SaveTranslation(data);
-        }
-        else
-        {
-            data = JsonSerializer.Deserialize<TranslationData>(File.ReadAllText(fileName));
-        }
+            if (!_opts.Value.SupportedCultures.Contains(locale))
+            {
+                throw new InvalidOperationException($"Culture {locale} is not supported");
+            }
 
-        return data;
+            string fileName = Path.Combine(_opts.Value.LocalesRoot, $"{locale}.json");
+            if (!File.Exists(fileName))
+            {
+                data = new();
+                data.locale = locale;
+                data.ModifiedOn = DateTime.Now;
+                data.Words = new();
+                data.Words["Test"] = "Test";
+                data.Words["Test2"] = "Test2";
+                if (_opts.Value.AutoSave) SaveTranslationInternal(data);
+            }
+            else
+            {
+                data = JsonSerializer.Deserialize<TranslationData>(File.ReadAllText(fileName));
+            }
+
+            return data;
+        }
     }
 
     public bool SaveTranslation(TranslationData data)
+    {
+        lock (_fileLock)
+        {
+            return SaveTranslationInternal(data);
+        }
+    }
+
+    private bool SaveTranslationInternal(TranslationData data)
     {
         try
         {

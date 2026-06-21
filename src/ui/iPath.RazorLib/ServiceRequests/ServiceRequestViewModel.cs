@@ -1,4 +1,4 @@
-﻿using Hl7.Fhir.Model;
+using Hl7.Fhir.Model;
 using iPath.Application;
 using iPath.Application.Contracts;
 using iPath.Application.Features.Annotations;
@@ -561,7 +561,7 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             bool? result = await srvDialog.ShowMessageBoxAsync(
             T["Warning"],
-            string.Format(T["Are you sure that you want to delete the document {0}"], document.GalleryCaption),
+            T["Are you sure that you want to delete the document {0}", document.GalleryCaption],
             yesText: T["Yes"], cancelText: T["Cancel"]);
             if (result is null)
                 return;
@@ -577,7 +577,7 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             bool? result = await srvDialog.ShowMessageBoxAsync(
                 T["Warning"],
-                string.Format(T["Are you sure that you want to delete {0} items !"], ids.Count()),
+                T["Are you sure that you want to delete {0} items !", ids.Count()],
                 yesText: T["Yes"], cancelText: T["Cancel"]);
             if (result is null)
                 return;
@@ -830,7 +830,7 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             bool? confirm = await srvDialog.ShowMessageBoxAsync(
                 T["Task Already Exists"],
-                string.Format(T["A follow-up task (Status: {0}) already exists for this case. Create another one?"], existing.Status),
+                T["A follow-up task (Status: {0}) already exists for this case. Create another one?", existing.Status],
                 yesText: T["Yes"], cancelText: T["Cancel"]);
             if (confirm is null || !confirm.Value)
                 return;

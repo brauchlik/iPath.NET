@@ -110,13 +110,16 @@ public class TranslateKeysBatchHandler(
                         ?? aiSection.GetValue<string>($"{provider}:ChatModel") 
                         ?? "llama3";
 
-            string targetLanguage = request.Locale.ToLowerInvariant() switch
+            string targetLanguage;
+            try
             {
-                "de" => "German",
-                "fr" => "French",
-                "it" => "Italian",
-                _ => request.Locale
-            };
+                var culture = new System.Globalization.CultureInfo(request.Locale);
+                targetLanguage = culture.EnglishName.Split('(')[0].Trim();
+            }
+            catch
+            {
+                targetLanguage = request.Locale;
+            }
 
             // Build the source XML string
             var sourceBuilder = new System.Text.StringBuilder();
@@ -128,7 +131,14 @@ public class TranslateKeysBatchHandler(
             }
             sourceBuilder.Append("</source>");
 
-            var userPrompt = $"Translate the text between <source></source> tags below into {targetLanguage}. " +
+            var userPrompt = "Context: This is a medical tele-consultation platform (telemedicine). All phrases belong to clinical cases, diagnostics, and patient data.\n\n" +
+                             "Terminology Rules (Always apply to target translation):\n" +
+                             "- 'Body Site' refers to an anatomical location on a patient's body (e.g., skin topography, organ). Do NOT translate 'site' as a website, web page, or message body.\n" +
+                             "- 'Task Completed' means a workflow task is successfully finished. Do NOT translate it as 'disturbed', 'interrupted', or 'failed'.\n" +
+                             "- 'Register' refers to creating a new account (Sign Up). Do NOT translate it as logging in or signing in.\n" +
+                             "- 'Sender reference no' means the sender's reference number. Make sure to spell 'Referenz' correctly in German.\n" +
+                             "- If a phrase is an action button (e.g., 'Accept', 'Decline', 'Return'), translate it as an imperative verb or command.\n\n" +
+                             $"Translate the text between <source></source> tags below into {targetLanguage}. " +
                              "Note that you only need to output the translated result; do not provide additional explanations. " +
                              "The <sn></sn> tags indicate boundaries of individual phrases; preserve these tags in the corresponding positions. " +
                              $"The output format must be: <target><sn>translation1</sn><sn>translation2</sn>...</target>\n\n" +
@@ -200,6 +210,17 @@ public class TranslateKeysBatchHandler(
                     int updateCount = 0;
                     var successKeysList = new List<string>();
                     var emptyValueKeysList = new List<string>();
+
+                    if (translationsList.Count != request.Keys.Count)
+                    {
+                        logger.LogWarning("Batch translation count mismatch ({Mode}): Requested={RequestedCount}, Received={ReceivedCount}. Discarding batch to prevent key alignment corruption.", 
+                            hasXmlTags ? "XML Mode" : "JSON Array Mode", request.Keys.Count, translationsList.Count);
+                        
+                        result.IsSuccess = false;
+                        result.ErrorMessage = $"AI translation count mismatch (Requested {request.Keys.Count}, received {translationsList.Count}). Batch discarded to prevent alignment corruption.";
+                        result.FailedKeys = request.Keys;
+                        return result;
+                    }
 
                     for (int j = 0; j < Math.Min(request.Keys.Count, translationsList.Count); j++)
                     {

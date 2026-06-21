@@ -13,6 +13,8 @@ using Microsoft.Extensions.AI;
 using OllamaSharp;
 using iPath.Application.AI;
 using iPath.Database.EFCore.AI;
+using iPath.Application.Features.Admin;
+
 
 namespace iPath.API;
 
@@ -76,6 +78,10 @@ public static class PersistanceServiceRegistration
         services.AddScoped<ISemanticSearchService, SemanticSearchService>();
         services.AddSingleton<IAiTranscriptionQueue, AiTranscriptionQueue>();
         services.AddHostedService<AiTranscriptionQueueWorker>();
+
+        // Translation job queue for auto-translating newly discovered keys
+        services.AddSingleton<ITranslationJobQueue, TranslationJobQueue>();
+        services.AddHostedService<TranslationJobWorker>();
 
         // Register dynamic IChatClient and IEmbeddingGenerator based on configured provider
         var aiSection = config.GetSection("AiSettings");

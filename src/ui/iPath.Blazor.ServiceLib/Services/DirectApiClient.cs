@@ -72,6 +72,28 @@ public class DirectApiClient(
         return Respond(result.ValueOrDefault);
     }
 
+    public async Task<IApiResponse<bool>> AddMissingKeys(string lang, List<string> keys)
+    {
+        var data = await localization.GetTranslationDataAsync(lang);
+        if (data.IsSuccess && data.Value != null)
+        {
+            bool updated = false;
+            foreach (var key in keys)
+            {
+                if (data.Value.Words.TryAdd(key, ""))
+                {
+                    updated = true;
+                }
+            }
+            if (updated)
+            {
+                await localization.SaveTranslationDataAsync(data.Value);
+            }
+            return Respond(true);
+        }
+        return Respond(false);
+    }
+
     public async Task<IApiResponse<iPathClientConfig>> GetConfig()
     {
         return Respond(config.Value);
@@ -498,6 +520,26 @@ public class DirectApiClient(
     public async Task<IApiResponse<List<TableRowCountDto>>> GetDatabaseTableCounts()
     {
         return Respond(await mediator.Send(new GetDatabaseTableCountsQuery(), default));
+    }
+
+    public async Task<IApiResponse<AiStatusDto>> GetAiStatus(bool checkConnection = false)
+    {
+        return Respond(await mediator.Send(new GetAiStatusQuery(checkConnection), default));
+    }
+
+    public async Task<IApiResponse<TranslationStatusDto>> GetTranslationStatus(string locale)
+    {
+        return Respond(await mediator.Send(new GetTranslationStatusQuery(locale), default));
+    }
+
+    public async Task<IApiResponse<TranslationResultDto>> TranslateKeysBatch(TranslateKeysBatchCommand command)
+    {
+        return Respond(await mediator.Send(command, default));
+    }
+
+    public async Task<IApiResponse<bool>> UpdateTranslationKey(UpdateTranslationKeyCommand command)
+    {
+        return Respond(await mediator.Send(command, default));
     }
 
     public async Task<IApiResponse<DatabaseStatusDto>> ApplyDatabaseMigrations()

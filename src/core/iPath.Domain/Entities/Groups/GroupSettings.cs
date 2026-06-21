@@ -32,5 +32,7 @@ public class GroupSettings
     public eTaskAssignmentStrategy TaskAssignmentStrategy { get; set; } = eTaskAssignmentStrategy.None;
     public int? AutoAssignTimeoutHours { get; set; } = 24;
 
+    public AiConfig AiSettings { get; set; } = new();
+
     public GroupSettings Clone() => (GroupSettings)MemberwiseClone();
 }

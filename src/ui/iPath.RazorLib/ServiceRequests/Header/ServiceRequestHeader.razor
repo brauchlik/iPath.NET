@@ -1,6 +1,8 @@
-﻿@namespace iPath.Blazor.Componenents.ServiceRequests
+@namespace iPath.Blazor.Componenents.ServiceRequests
 
 @inherits ServiceRequestViewComponentBase
+@inject iPath.Application.AI.IAiTranscriptionQueue TranscriptionQueue
+@inject IOptions<iPathClientConfig> clientOpts
 
 <MudSwipeArea OnSwipeEnd="OnSwipeHandler">
     <div class="mud-theme-info ipath_node_header">
@@ -63,6 +65,13 @@
                     @if (vm.HasPreviewPlugin)
                     {
                         <IPathToolbarButton Icon="@Icons.Material.Outlined.Preview" OnClick="@(() => vm.ShowPreviewDialog())" />
+                    }
+
+                    @if (clientOpts.Value.AiEnabled)
+                    {
+                        <MudTooltip Text=@T["Trigger AI Transcription"]>
+                            <MudIconButton Icon="@Icons.Material.Outlined.Psychology" OnClick="TriggerTranscription" />
+                        </MudTooltip>
                     }
 
                     <MudTooltip Text=@T["View Events & Notifications"]>
@@ -140,4 +149,23 @@
 
     protected Color ShowDeletedColor => vm.ShowDeleted ? Color.Warning : Color.Default;
     protected string ShowDeletedIcon => vm.ShowDeleted ? Icons.Material.Filled.DeleteSweep : Icons.Material.Outlined.DeleteOutline;
+
+    private async Task TriggerTranscription()
+    {
+        if (vm.SelectedRequest == null)
+        {
+            snackbar.Add("No active case selected.", Severity.Error);
+            return;
+        }
+
+        var caseId = vm.SelectedRequest.Id;
+        if (TranscriptionQueue.IsInQueue(caseId))
+        {
+            snackbar.Add("Case is already in the AI transcription queue.", Severity.Warning);
+            return;
+        }
+
+        await TranscriptionQueue.EnqueueAsync(caseId);
+        snackbar.Add("Case added to AI transcription queue.", Severity.Success);
+    }
 }

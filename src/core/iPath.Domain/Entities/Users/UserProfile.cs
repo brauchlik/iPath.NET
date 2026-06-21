@@ -41,6 +41,8 @@ public class UserProfile
     public ContactDetails ContactDetails { get; set; } = new();
 
     public EmailImportSettings? EmailImportSettings { get; set; } = new();
+    
+    public AiConfig AiSettings { get; set; } = new();
 
 
     public static UserProfile AnonymousProfile()

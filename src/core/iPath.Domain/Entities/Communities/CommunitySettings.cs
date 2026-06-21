@@ -1,4 +1,4 @@
-﻿namespace iPath.Domain.Entities;
+namespace iPath.Domain.Entities;
 
 public class CommunitySettings
 {
@@ -17,6 +17,8 @@ public class CommunitySettings
 
 
     public StorageInfo? Storage { get; set; }
+
+    public AiConfig AiSettings { get; set; } = new();
 
     public CommunitySettings Clone() => (CommunitySettings)MemberwiseClone();
 }

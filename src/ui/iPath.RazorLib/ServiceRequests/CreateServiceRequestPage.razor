@@ -1,10 +1,11 @@
-﻿@page "/request/create/{groupId}"
+@page "/request/create/{groupId}"
 
 @inherits ServiceRequestViewComponentBase
 
 @attribute [Authorize]
 
 @inject GroupListViewModel gvm
+@inject IOptions<iPathClientConfig> clientOpts
 
 
 
@@ -13,7 +14,14 @@
 
     @if (vm.ActiveGroup.Settings.UseDescriptionWizzard)
     {
-        <ServiceRequestCreateWizzard CodingService="icdo" ValueSetId="@vm.TopograhyValueSet" />
+        @if (clientOpts.Value.AiEnabled && vm.ActiveGroup.Settings.AiSettings != null && vm.ActiveGroup.Settings.AiSettings.IsEnabled)
+        {
+            <ServiceRequestCreateAiWizzard CodingService="icdo" ValueSetId="@vm.TopograhyValueSet" />
+        }
+        else
+        {
+            <ServiceRequestCreateWizzard CodingService="icdo" ValueSetId="@vm.TopograhyValueSet" />
+        }
     }
     else
     {

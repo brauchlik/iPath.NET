@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -10,6 +10,8 @@ public class LocalizationFileService
 {
     private readonly IOptions<LocalizationSettings> _opts;
     private readonly ILogger<LocalizationFileService> _logger;
+
+    public event Action<string>? TranslationSaved;
 
     public LocalizationFileService(IOptions<LocalizationSettings> opts, ILogger<LocalizationFileService> logger)
     {
@@ -70,6 +72,7 @@ public class LocalizationFileService
             string json = JsonSerializer.Serialize(data, options);
             string fileName = Path.Combine(_opts.Value.LocalesRoot, $"{data.locale}.json");
             File.WriteAllText(fileName, json, System.Text.Encoding.UTF8);
+            TranslationSaved?.Invoke(data.locale);
             return true;
         }
         catch (Exception ex)
@@ -81,17 +84,38 @@ public class LocalizationFileService
 
 }
 
-public class FileLocalizaitonProvider(LocalizationFileService srv) : ILocalizationDataProvider
+public class FileLocalizaitonProvider : ILocalizationDataProvider
 {
+    private readonly LocalizationFileService _srv;
+    public event Action<string>? TranslationDataSaved;
+
+    public FileLocalizaitonProvider(LocalizationFileService srv)
+    {
+        _srv = srv;
+        _srv.TranslationSaved += locale => TranslationDataSaved?.Invoke(locale);
+    }
+
     public async Task<Result<TranslationData>> GetTranslationDataAsync(string locale)
     {
         try
         {
-            return new Result<TranslationData>().WithValue(srv.GetTranslationData(locale));
+            return new Result<TranslationData>().WithValue(_srv.GetTranslationData(locale));
         }
         catch (Exception ex)
         {
             return Result.Fail(ex.Message);
+        }
+    }
+
+    public Task<bool> SaveTranslationDataAsync(TranslationData data)
+    {
+        try
+        {
+            return Task.FromResult(_srv.SaveTranslation(data));
+        }
+        catch
+        {
+            return Task.FromResult(false);
         }
     }
 }

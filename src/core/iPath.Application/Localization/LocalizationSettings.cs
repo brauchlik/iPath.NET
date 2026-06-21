@@ -9,6 +9,13 @@ public class LocalizationSettings
     public bool AutoSave { get; set; }
     public string? LocalesRoot { get; set; }
 
+    public string[] SupportedCultures { get; set; } = ["en", "de", "fr", "it"];
 
-    public string[] SupportedCultures = ["en", "de", "fr", "it"];
+    public Dictionary<string, string> CultureDisplayNames { get; set; } = new()
+    {
+        ["en"] = "English",
+        ["de"] = "Deutsch",
+        ["fr"] = "Français",
+        ["it"] = "Italiano"
+    };
 }

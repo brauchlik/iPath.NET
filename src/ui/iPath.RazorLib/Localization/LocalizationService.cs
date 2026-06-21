@@ -107,11 +107,18 @@ public class LocalizationService(IOptions<LocalizationSettings> opts, ILogger<Lo
                 string trans = string.IsNullOrEmpty(data.Words[key]) ? key : data.Words[key];
                 return new LocalizedString(key, trans, false);
             }
-            else if (opts.Value.AddMissingStrings)
+        else if (opts.Value.AddMissingStrings)
+        {
+            data.Words.TryAdd(key, "");
+            if (opts.Value.AutoSave)
             {
-                data.Words.TryAdd(key, "");
-                if (opts.Value.AutoSave) SaveTranslation(data);
+                // Backfill English master key list
+                var enData = GetTranslationData("en");
+                enData.Words.TryAdd(key, key);
+                SaveTranslation(enData);
+                SaveTranslation(data);
             }
+        }
         }
 
         return new LocalizedString(key, key, true);

@@ -1,4 +1,4 @@
-﻿using Humanizer;
+using Humanizer;
 
 namespace iPath.Domain.Config;
 
@@ -42,4 +42,5 @@ public class iPathClientConfig
     public HashSet<string> WsiExtensions { get; set; } = [];
 
     public bool SyncImportEnabled { get; set; }
+    public bool AiEnabled { get; set; }
 }

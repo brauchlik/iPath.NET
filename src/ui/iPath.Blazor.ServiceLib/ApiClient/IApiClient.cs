@@ -1,4 +1,4 @@
-﻿using FluentResults;
+using FluentResults;
 using iPath.Application.Contracts;
 using iPath.Application.Features;
 using iPath.Application.Features.Admin;
@@ -26,6 +26,9 @@ public interface IPathApi
 
     [Get("/api/v1/translations/{lang}")]
     Task<IApiResponse<TranslationData>> GetTranslations(string lang);
+
+    [Post("/api/v1/translations/{lang}/add-missing")]
+    Task<IApiResponse<bool>> AddMissingKeys(string lang, [Body] List<string> keys);
 
     [Get("/api/v1/session")]
     Task<IApiResponse<SessionUserDto?>> GetSession();
@@ -290,6 +293,18 @@ public interface IPathApi
 
     [Get("/api/v1/admin/database/tables")]
     Task<IApiResponse<List<TableRowCountDto>>> GetDatabaseTableCounts();
+
+    [Get("/api/v1/admin/ai/status")]
+    Task<IApiResponse<AiStatusDto>> GetAiStatus([Query] bool checkConnection = false);
+
+    [Get("/api/v1/admin/ai/translations/status")]
+    Task<IApiResponse<TranslationStatusDto>> GetTranslationStatus([Query] string locale);
+
+    [Post("/api/v1/admin/ai/translations/translate")]
+    Task<IApiResponse<TranslationResultDto>> TranslateKeysBatch(TranslateKeysBatchCommand command);
+
+    [Post("/api/v1/admin/ai/translations/update-key")]
+    Task<IApiResponse<bool>> UpdateTranslationKey(UpdateTranslationKeyCommand command);
 
     [Post("/api/v1/admin/database/migrate")]
     Task<IApiResponse<DatabaseStatusDto>> ApplyDatabaseMigrations();

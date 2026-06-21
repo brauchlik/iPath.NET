@@ -1,5 +1,6 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 @implements IDisposable
+@using iPath.Application.Localization
 @using iPath.Blazor.Componenents.Notifications
 @inject IJSRuntime JS
 
@@ -17,6 +18,14 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudText Typo="Typo.h5" Class="ml-3">iPath.NET</MudText>
         <MudSpacer />
+        <MudMenu StartIcon="@Icons.Material.Filled.Translate" Label="@locale.ToUpperInvariant()" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="true">
+            @foreach (var culture in locOpts.Value.SupportedCultures)
+            {
+                <MudMenuItem OnClick='() => SwitchLanguage(culture)'>
+                    @(locOpts.Value.CultureDisplayNames.TryGetValue(culture, out var displayName) ? displayName : culture.ToUpperInvariant())
+                </MudMenuItem>
+            }
+        </MudMenu>
         <MudHidden Breakpoint="Breakpoint.Xs">
             <AuthorizeView>
                 <Authorized>
@@ -64,7 +73,9 @@
 
 @inject iPath.Blazor.ServiceLib.Services.StringLocalizerService srvLoc
 @inject IOptions<iPathClientConfig> opts
+@inject IOptions<LocalizationSettings> locOpts
 @inject AppState appState
+@inject NavigationManager nm
 
 
 @code {
@@ -77,6 +88,13 @@
     }
 
     string locale => System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+
+    private void SwitchLanguage(string culture)
+    {
+        var uri = new Uri(nm.Uri);
+        var localPath = uri.LocalPath + uri.Query;
+        nm.NavigateTo($"/api/localization/set?culture={culture}&redirectUri={Uri.EscapeDataString(localPath)}", forceLoad: true);
+    }
 
     private bool _isDarkMode = false;
     private MudTheme? _theme = null;

@@ -1,4 +1,4 @@
-﻿@using iPath.Application.Features.Admin
+@using iPath.Application.Features.Admin
 @using iPath.Domain.Config
 @using Microsoft.Extensions.Options
 
@@ -18,6 +18,10 @@
                     <MudChip T="string" Size="Size.Small" Color="Color.Warning" Class="ml-1">@pendingCount.ToString()</MudChip>
                 }
             </MudNavLink>
+            @if (ClientConfig.Value.AiEnabled)
+            {
+                <MudNavLink Href="admin/ai" Icon="@Icons.Material.Filled.Psychology">AI Status</MudNavLink>
+            }
         </MudNavGroup>
     </Authorized>
 </AuthorizeView>

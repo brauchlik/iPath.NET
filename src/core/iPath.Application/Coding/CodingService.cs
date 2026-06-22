@@ -12,6 +12,7 @@ public class CodingService
     private readonly IFhirDataLoader loader;
     private readonly Dictionary<string, ValueSetDisplay> _valueSet = new();
     private readonly string _codeSystemId;
+    private readonly SemaphoreSlim _loadLock = new(1, 1);
     private CodeSystem _codeSystem;
     private CodeSystemLookup? _lookup;
 
@@ -35,8 +36,19 @@ public class CodingService
     {
         if (_codeSystem is null && !string.IsNullOrEmpty(_codeSystemId))
         {
-            _codeSystem = await loader.GetResourceAsync<CodeSystem>($"CodeSystem/{_codeSystemId}");
-            _lookup = new CodeSystemLookup(_codeSystem);
+            await _loadLock.WaitAsync();
+            try
+            {
+                if (_codeSystem is null)
+                {
+                    _codeSystem = await loader.GetResourceAsync<CodeSystem>($"CodeSystem/{_codeSystemId}");
+                    _lookup = new CodeSystemLookup(_codeSystem);
+                }
+            }
+            finally
+            {
+                _loadLock.Release();
+            }
         }
     }
 

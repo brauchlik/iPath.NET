@@ -1,6 +1,6 @@
 ﻿using iPath.Application.Features.ServiceRequests;
 
-public class CreateServiceRequestCommandHandler(iPathDbContext db, IUserSession sess, IMediator mediator)
+public class CreateServiceRequestCommandHandler(iPathDbContext db, IUserSession sess)
     : IRequestHandler<CreateServiceRequestCommand, Task<ServiceRequestDto>>
 {
     public async Task<ServiceRequestDto> Handle(CreateServiceRequestCommand request, CancellationToken ct)
@@ -12,10 +12,12 @@ public class CreateServiceRequestCommandHandler(iPathDbContext db, IUserSession 
         var group = await db.Groups.FindAsync(request.GroupId, ct);
         Guard.Against.NotFound(request.GroupId, group);
 
-        var node = iPath.Application.Features.ServiceRequests.ServiceRequestCommandExtensions.CreateRequest(request, ownerId);
+        var node = ServiceRequestCommandExtensions.CreateRequest(request, ownerId);
         await db.ServiceRequests.AddAsync(node, ct);
         await db.SaveChangesAsync(ct);
 
-        return await mediator.Send(new GetServiceRequestByIdQuery(node.Id), ct);
+        var owner = await db.Users.FindAsync([ownerId], ct);
+        node.Owner = owner!;
+        return node.ToDto();
     }
 }

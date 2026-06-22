@@ -1,19 +1,20 @@
 using iPath.API.Services;
+using iPath.API.Sqlite;
+using iPath.Application.AI;
+using iPath.Application.Features.Admin;
 using iPath.Application.Features.Notifications;
+using iPath.Database.EFCore.AI;
 using iPath.EF.Core.Database;
 using iPath.EF.Core.FeatureHandlers.Emails;
 using iPath.EF.Core.FeatureHandlers.Groups;
 using iPath.EF.Core.FeatureHandlers.Notifications;
 using iPath.Google;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.AI;
 using OllamaSharp;
-using iPath.Application.AI;
-using iPath.Database.EFCore.AI;
-using iPath.Application.Features.Admin;
 
 
 namespace iPath.API;
@@ -50,11 +51,9 @@ public static class PersistanceServiceRegistration
             */
             else if (provider == DBProvider.Sqlite.Name)
             {
-                var cs = config.GetConnectionString(DBProvider.Sqlite.Name);
-                cfg.UseSqlite(
-                    config.GetConnectionString(DBProvider.Sqlite.Name) ?? "ipath.db", // default to ipath.db
-                    x => x.MigrationsAssembly(DBProvider.Sqlite.Assembly)
-                );
+                var cs = config.GetConnectionString(DBProvider.Sqlite.Name) ?? "ipath.db";
+                cfg.UseSqlite(cs, x => x.MigrationsAssembly(DBProvider.Sqlite.Assembly));
+                cfg.AddInterceptors(new SqliteWalInterceptor());  
             }
             else
             {
@@ -172,6 +171,7 @@ public static class PersistanceServiceRegistration
                     config.GetConnectionString(DBProvider.Sqlite.Name),
                     x => x.MigrationsAssembly(DBProvider.Sqlite.Assembly)
                 );
+                cfg.AddInterceptors(new SqliteWalInterceptor());
             }
             else
             {

@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 
 namespace iPath.Blazor.ServiceLib.Services;
 
-public class ClientStringLocalizerService : IStringLocalizer
+public class ClientStringLocalizerService : IStringLocalizer, ITranslationLoader
 {
     private readonly ILocalizationDataProvider _provider;
     private readonly IOptions<LocalizationSettings> _opts;

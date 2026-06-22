@@ -5,6 +5,7 @@ using FluentResults;
 using iPath.Application.Contracts;
 using iPath.Application.Features;
 using iPath.Application.Features.Admin;
+using iPath.Application.AI;
 using iPath.Application.Features.Annotations;
 using iPath.Application.Features.CMS;
 using iPath.Application.Features.Documents;
@@ -37,7 +38,8 @@ public class DirectApiClient(
     IOptions<iPathClientConfig> config,
     ILogger<DirectApiClient> logger,
     ISyncImportRunner? syncRunner = null,
-    ISyncJobManager? jobManager = null)
+    ISyncJobManager? jobManager = null,
+    IAiExtractionQueue? queue = null)
     : IPathApi
 {
     private static IApiResponse<T> Respond<T>(T? content) => new DirectApiResponse<T>(content);
@@ -557,6 +559,26 @@ public class DirectApiClient(
         return Respond(await mediator.Send(new ApplyDatabaseMigrationsCommand(), default));
     }
 
+    public async Task<IApiResponse<AiEnqueueResult>> EnqueueAiExtraction(Guid caseId)
+    {
+        try
+        {
+            if (queue is null) return RespondError<AiEnqueueResult>();
+
+            if (queue.IsInQueue(caseId))
+            {
+                return Respond(new AiEnqueueResult(Enqueued: false, Message: "Case is already in the AI transcription queue."));
+            }
+
+            await queue.EnqueueAsync(caseId);
+            return Respond(new AiEnqueueResult(Enqueued: true, Message: "Case added to AI transcription queue."));
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "EnqueueAiExtraction failed");
+            return RespondError<AiEnqueueResult>(ex);
+        }
+    }
 
     // -- ServiceRequest Events --
 

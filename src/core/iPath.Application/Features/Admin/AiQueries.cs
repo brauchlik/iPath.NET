@@ -52,3 +52,5 @@ public class AiLineageDetailDto
     public string? TopographyCode { get; set; }
     public string? TopographyName { get; set; }
 }
+
+public record AiEnqueueResult(bool Enqueued, string Message);

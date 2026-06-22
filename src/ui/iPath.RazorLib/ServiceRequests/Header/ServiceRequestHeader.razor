@@ -1,9 +1,9 @@
 @namespace iPath.Blazor.Componenents.ServiceRequests
 
 @inherits ServiceRequestViewComponentBase
-@inject iPath.Application.AI.IAiExtractionQueue ExtractionQueue
 @inject IOptions<iPathClientConfig> clientOpts
 @inject IDialogService dialog
+@inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
 
 <MudSwipeArea OnSwipeEnd="OnSwipeHandler">
     <div class="mud-theme-info ipath_node_header">
@@ -160,15 +160,15 @@
             return;
         }
 
-        var caseId = vm.SelectedRequest.Id;
-        if (ExtractionQueue.IsInQueue(caseId))
+        var resp = await api.EnqueueAiExtraction(vm.SelectedRequest.Id);
+        if (resp.IsSuccessful && resp.Content is not null)
         {
-            snackbar.Add("Case is already in the AI transcription queue.", Severity.Warning);
-            return;
+            snackbar.Add(resp.Content.Message, resp.Content.Enqueued ? Severity.Success : Severity.Warning);
         }
-
-        await ExtractionQueue.EnqueueAsync(caseId);
-        snackbar.Add("Case added to AI transcription queue.", Severity.Success);
+        else
+        {
+            snackbar.Add("Failed to enqueue case for transcription.", Severity.Error);
+        }
     }
 
     private async Task ShowAiResponses()

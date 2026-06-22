@@ -10,6 +10,7 @@ using iPath.Domain.Config;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using iPath.Application.Features.Admin;
+using iPath.Application.AI;
 using iPath.EF.Core.Database;
 
 namespace iPath.API;
@@ -198,6 +199,20 @@ public static class AdminEndpoints
             .WithTags("Admin")
             .RequireAuthorization("Admin");
 
+        route.MapPost("admin/ai/enqueue/{caseId}", async (Guid caseId, [FromServices] IAiExtractionQueue queue) =>
+        {
+            if (queue.IsInQueue(caseId))
+            {
+                return Results.Ok(new AiEnqueueResult(Enqueued: false, Message: "Case is already in the AI transcription queue."));
+            }
+
+            await queue.EnqueueAsync(caseId);
+            return Results.Ok(new AiEnqueueResult(Enqueued: true, Message: "Case added to AI transcription queue."));
+        })
+            .Produces<AiEnqueueResult>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
         route.MapPost("admin/database/migrate", async (IMediator mediator, CancellationToken ct) =>
         {
             try
@@ -224,3 +239,4 @@ public class AppSettings
 {
     public iPathClientConfig iPathClientConfig { get; set;  } = new iPathClientConfig();
 }
+

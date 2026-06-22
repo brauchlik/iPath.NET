@@ -35,6 +35,18 @@
         }
       }
     },
+    "/api/localization/current": {
+      "get": {
+        "tags": [
+          "iPath.Blazor.Server"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/mail/list": {
       "get": {
         "tags": [
@@ -642,6 +654,36 @@
               "application/json": {
                 "schema": {
                   "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/ai/enqueue/{caseId}": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiEnqueueResult"
                 }
               }
             }
@@ -3661,6 +3703,21 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "AiEnqueueResult": {
+        "required": [
+          "enqueued",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "enqueued": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
           }
         }
       },

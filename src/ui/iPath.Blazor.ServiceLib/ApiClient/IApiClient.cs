@@ -303,6 +303,9 @@ public interface IPathApi
     [Get("/api/v1/admin/ai/lineage/by-case/{caseId}")]
     Task<IApiResponse<List<AiLineageDetailDto>>> GetAiLineageByCase(Guid caseId);
 
+    [Post("/api/v1/admin/ai/enqueue/{caseId}")]
+    Task<IApiResponse<AiEnqueueResult>> EnqueueAiExtraction(Guid caseId);
+
     [Get("/api/v1/admin/ai/translations/status")]
     Task<IApiResponse<TranslationStatusDto>> GetTranslationStatus([Query] string locale);
 

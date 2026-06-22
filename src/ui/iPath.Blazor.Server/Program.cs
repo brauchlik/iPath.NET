@@ -1,4 +1,5 @@
 using iPath.API;
+using iPath.Application.Localization;
 using iPath.Blazor.Server;
 using iPath.Blazor.Server.Components;
 using iPath.Blazor.Server.Components.Account;
@@ -325,5 +326,12 @@ app.MapGet("/api/localization/set", (string culture, string redirectUri, HttpCon
     }
     return Results.LocalRedirect(redirectUri ?? "/");
 });
+
+app.MapGet("/api/localization/current", (HttpContext httpContext, IOptions<LocalizationSettings> l10n) =>
+{
+    var feature = httpContext.Features.Get<IRequestCultureFeature>();
+    var locale = feature?.RequestCulture.UICulture.TwoLetterISOLanguageName ?? "en";
+    return Results.Ok(new { currentCulture = locale, supportedCultures = l10n.Value.SupportedCultures, cultureDisplayNames = l10n.Value.CultureDisplayNames });
+}).AllowAnonymous();
 
 app.Run();

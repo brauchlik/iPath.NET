@@ -115,6 +115,10 @@
     protected override async Task OnInitializedAsync()
     {
         appState.OnChange += OnAppStateChanged;
+
+        var locale = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+        await srvLoc.LoadTranslationData(locale);
+
         await appState.LoadSessionAsync();
     }
 

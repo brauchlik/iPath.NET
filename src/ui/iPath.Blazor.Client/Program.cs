@@ -1,7 +1,10 @@
+using iPath.Application.Localization;
 using iPath.Domain.Config;
 using iPath.RazorLib;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
+using System.Globalization;
+using System.Text.Json;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -28,6 +31,30 @@ catch (Exception ex)
     // throw ex;
 }
 
+// fetch per-session culture from server (reads .AspNetCore.Culture cookie)
+string currentCulture = "en";
+try
+{
+    using var http = new HttpClient()
+    {
+        BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),
+        Timeout = TimeSpan.FromSeconds(5)
+    };
+
+    using var cultureResp = await http.GetAsync("api/localization/current");
+    using var cultureStream = await cultureResp.Content.ReadAsStreamAsync();
+    var cultureData = await JsonSerializer.DeserializeAsync<CultureResponse>(cultureStream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+    currentCulture = cultureData?.CurrentCulture ?? "en";
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error fetching culture: {ex}");
+}
+
+// set culture for ENTIRE app lifetime BEFORE building
+var ci = CultureInfo.GetCultureInfo(currentCulture);
+CultureInfo.DefaultThreadCurrentCulture = ci;
+CultureInfo.DefaultThreadCurrentUICulture = ci;
 
 builder.Services.AddMudServices();
 
@@ -42,22 +69,16 @@ await builder.Services.AddRazorLibServices(baseAddress, true);
 
 Console.WriteLine("Blazor WASM RunAsync()");
 
-
-
 var app = builder.Build();
 
 // DI for Extensions
 app.Services.InitComponenetsExtensions();
 
-// Preload localization data for WebAssembly client
+// Preload localization data for WebAssembly client (uses correct culture from DefaultThreadCurrentUICulture)
 try
 {
-    var srvLoc = (iPath.Blazor.ServiceLib.Services.ClientStringLocalizerService?)app.Services.GetService(typeof(iPath.Blazor.ServiceLib.Services.ClientStringLocalizerService));
-    if (srvLoc != null)
-    {
-        var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-        await srvLoc.LoadTranslationData(currentCulture);
-    }
+    var srvLoc = app.Services.GetRequiredService<ITranslationLoader>();
+    await srvLoc.LoadTranslationData(ci.TwoLetterISOLanguageName);
 }
 catch (Exception ex)
 {
@@ -65,3 +86,5 @@ catch (Exception ex)
 }
 
 await app.RunAsync();
+
+internal record CultureResponse(string CurrentCulture, string[] SupportedCultures, Dictionary<string, string> CultureDisplayNames);

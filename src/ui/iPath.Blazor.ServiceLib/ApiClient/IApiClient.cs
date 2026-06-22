@@ -297,6 +297,12 @@ public interface IPathApi
     [Get("/api/v1/admin/ai/status")]
     Task<IApiResponse<AiStatusDto>> GetAiStatus([Query] bool checkConnection = false);
 
+    [Get("/api/v1/admin/ai/lineage/{id}")]
+    Task<IApiResponse<AiLineageDetailDto>> GetAiLineageDetail(Guid id);
+
+    [Get("/api/v1/admin/ai/lineage/by-case/{caseId}")]
+    Task<IApiResponse<List<AiLineageDetailDto>>> GetAiLineageByCase(Guid caseId);
+
     [Get("/api/v1/admin/ai/translations/status")]
     Task<IApiResponse<TranslationStatusDto>> GetTranslationStatus([Query] string locale);
 

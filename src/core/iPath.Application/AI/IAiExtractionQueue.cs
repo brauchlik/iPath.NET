@@ -1,6 +1,6 @@
 namespace iPath.Application.AI;
 
-public interface IAiTranscriptionQueue
+public interface IAiExtractionQueue
 {
     ValueTask EnqueueAsync(Guid caseId);
     IAsyncEnumerable<Guid> ReadAllAsync(CancellationToken ct);

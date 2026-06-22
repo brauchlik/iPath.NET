@@ -19,6 +19,9 @@ public class CaseIngestionLineage : IBaseEntity
     public string? ModelIdentifierUsed { get; set; }
     public bool WasOverridden { get; set; }
     public bool HasBeenAnalyzedBySupervisor { get; set; } = false;
+
+    public string Status { get; set; } = "Queued";
+    public string? ErrorMessage { get; set; }
     
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }

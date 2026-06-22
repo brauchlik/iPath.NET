@@ -142,9 +142,11 @@ public class ServiceRequestCreateAiWizzardViewModel
             // Set the clinical history text directly
             Data.Text = RawIntakeText;
 
+            var extractionText = Data.GetExtractionText();
+
             // Trigger AI Extraction Service
             ExtractionResult = await _extractionService.ExtractAsync(
-                RawIntakeText,
+                extractionText,
                 _vm.ActiveGroup?.Community?.Id,
                 _vm.ActiveGroup?.Id,
                 _vm.SelectedRequest?.OwnerId
@@ -407,7 +409,7 @@ public class ServiceRequestCreateAiWizzardViewModel
                 await _extractionService.SaveIngestionLineageAsync(
                     _vm.SelectedRequest.Id,
                     GroupId,
-                    RawIntakeText,
+                    Data.GetExtractionText(),
                     ExtractionResult.RawSuggestedJson,
                     humanAcceptedJson,
                     ExtractionResult.ModelUsed,

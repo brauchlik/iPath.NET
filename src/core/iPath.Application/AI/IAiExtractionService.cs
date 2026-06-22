@@ -18,5 +18,5 @@ public interface IAiExtractionService
 {
     Task<AiExtractionResult> ExtractAsync(string rawText, Guid? communityId, Guid? groupId, Guid? userId, CancellationToken ct = default);
     Task SaveCorrectionDeltaAsync(Guid? groupId, string fieldName, string? wrongPrediction, string? correctedValue, string? snippet, CancellationToken ct = default);
-    Task SaveIngestionLineageAsync(Guid caseId, Guid? groupId, string rawText, string aiSuggestedJson, string humanAcceptedJson, string modelUsed, bool wasOverridden, CancellationToken ct = default);
+    Task SaveIngestionLineageAsync(Guid caseId, Guid? groupId, string rawText, string aiSuggestedJson, string humanAcceptedJson, string modelUsed, bool wasOverridden, CancellationToken ct = default, string status = "Completed");
 }

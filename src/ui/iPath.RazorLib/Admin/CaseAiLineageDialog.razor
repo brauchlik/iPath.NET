@@ -1,0 +1,172 @@
+@namespace iPath.Blazor.Componenents.Admin
+
+@inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
+
+<style>
+    .ai-dialog-content { min-width: 800px; max-width: 90vw; min-height: 400px; }
+</style>
+
+<MudDialog ContentClass="ai-dialog-content">
+    <TitleContent>
+        <MudText Typo="Typo.h6">AI Responses for @CaseTitle</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (Loading && Records is null)
+        {
+            <MudProgressLinear Indeterminate="true" Class="my-4" />
+        }
+        else if (Error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="my-2">
+                @Error
+            </MudAlert>
+        }
+        else if (Records is null || Records.Count == 0)
+        {
+            <MudText Class="my-4">No AI responses found for this case.</MudText>
+        }
+        else
+        {
+            <MudTable Items="Records" Dense="true" Hover="true" Class="mt-2"
+                      OnRowClick="@(async (TableRowClickEventArgs<AiLineageDetailDto> args) => await ShowDetail(args.Item))"
+                      RowStyleFunc="@RowStyle">
+                <ColGroup>
+                    <col style="width: 120px;" />
+                    <col style="width: 120px;" />
+                    <col style="width: 140px;" />
+                    <col />
+                </ColGroup>
+                <HeaderContent>
+                    <MudTh>Status</MudTh>
+                    <MudTh>Model</MudTh>
+                    <MudTh>Timestamp</MudTh>
+                    <MudTh>Error</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Status">
+                        @switch (context.Status)
+                        {
+                            case "Completed":
+                                <MudChip T="string" Color="Color.Success" Size="Size.Small">Completed</MudChip>
+                                break;
+                            case "Failed":
+                                <MudChip T="string" Color="Color.Error" Size="Size.Small">Failed</MudChip>
+                                break;
+                            case "Skipped":
+                                <MudChip T="string" Color="Color.Default" Size="Size.Small">Skipped</MudChip>
+                                break;
+                            case "Processing":
+                                <MudChip T="string" Color="Color.Info" Size="Size.Small">Processing</MudChip>
+                                break;
+                            case "Queued":
+                                <MudChip T="string" Color="Color.Warning" Size="Size.Small">Queued</MudChip>
+                                break;
+                            default:
+                                <MudChip T="string" Size="Size.Small">@context.Status</MudChip>
+                                break;
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Model">
+                        @(context.ModelUsed ?? "Unknown")
+                    </MudTd>
+                    <MudTd DataLabel="Timestamp">
+                        @context.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+                    </MudTd>
+                    <MudTd DataLabel="Error">
+                        @if (!string.IsNullOrEmpty(context.ErrorMessage))
+                        {
+                            <MudTooltip Text="@context.ErrorMessage">
+                                <MudIcon Icon="@Icons.Material.Filled.ErrorOutline" Color="Color.Error" Size="Size.Small" />
+                            </MudTooltip>
+                        }
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+
+            @if (SelectedRecord is not null)
+            {
+                <MudDivider Class="my-4" />
+                <MudText Typo="Typo.h6" Class="mb-2">
+                    Transcript Details
+                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Close" OnClick="@ClearSelection" Class="ml-2" Title="Close detail" />
+                </MudText>
+                @if (DetailLoading)
+                {
+                    <MudProgressLinear Indeterminate="true" Class="my-2" />
+                }
+                else
+                {
+                    <AiTranscriptView Model="SelectedRecord" />
+                }
+            }
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@(() => MudDialog.Close())">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public Guid CaseId { get; set; }
+
+    [Parameter]
+    public string CaseTitle { get; set; } = "";
+
+    private bool Loading = true;
+    private bool DetailLoading;
+    private string? Error;
+    private List<AiLineageDetailDto>? Records;
+    private AiLineageDetailDto? SelectedRecord;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await api.GetAiLineageByCase(CaseId);
+            Records = response.Content ?? new();
+        }
+        catch (Exception ex)
+        {
+            Error = $"Failed to load AI responses: {ex.Message}";
+        }
+        finally
+        {
+            Loading = false;
+        }
+    }
+
+    private string RowStyle(AiLineageDetailDto item, int rowIndex)
+    {
+        if (SelectedRecord is not null && item.Id == SelectedRecord.Id)
+            return "background-color: var(--mud-palette-background-gray)";
+        return "";
+    }
+
+    private async Task ShowDetail(AiLineageDetailDto record)
+    {
+        if (SelectedRecord?.Id == record.Id)
+        {
+            ClearSelection();
+            return;
+        }
+        try
+        {
+            DetailLoading = true;
+            var response = await api.GetAiLineageDetail(record.Id);
+            SelectedRecord = response.Content;
+        }
+        finally
+        {
+            DetailLoading = false;
+        }
+    }
+
+    private void ClearSelection()
+    {
+        SelectedRecord = null;
+    }
+}

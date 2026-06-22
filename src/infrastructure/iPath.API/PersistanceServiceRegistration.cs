@@ -76,8 +76,9 @@ public static class PersistanceServiceRegistration
         services.AddScoped<IPromptContextResolver, PromptContextResolver>();
         services.AddScoped<IAiExtractionService, AiExtractionService>();
         services.AddScoped<ISemanticSearchService, SemanticSearchService>();
-        services.AddSingleton<IAiTranscriptionQueue, AiTranscriptionQueue>();
-        services.AddHostedService<AiTranscriptionQueueWorker>();
+        services.AddSingleton<IAiExtractionQueue, AiExtractionQueue>();
+        services.AddHostedService<AiExtractionWorker>();
+        services.AddHostedService<AiExtractionBackfill>();
 
         // Translation job queue for auto-translating newly discovered keys
         services.AddSingleton<ITranslationJobQueue, TranslationJobQueue>();

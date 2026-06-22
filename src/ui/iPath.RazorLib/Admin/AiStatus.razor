@@ -2,8 +2,10 @@
 @attribute [Authorize(Roles = "Admin")]
 @implements IDisposable
 @using iPath.Application.Features.Admin
+@using iPath.Blazor.Componenents.Admin
 @using iPath.Domain.Config
 @using Microsoft.Extensions.Options
+@using MudBlazor
 
 @rendermode InteractiveServer
 
@@ -91,16 +93,43 @@ else
                     }
                     else
                     {
-                        <MudTable Items="@status.RecentActivities" Dense="true" Striped="true" Hover="true">
+                        <MudTable Items="@status.RecentActivities" Dense="true" Striped="true" Hover="true" OnRowClick="@(async (TableRowClickEventArgs<AiActivityDto> args) => await OpenDetailDialogAsync(args))">
                             <HeaderContent>
                                 <MudTh>Case Title</MudTh>
+                                <MudTh>Status</MudTh>
                                 <MudTh>Model Used</MudTh>
                                 <MudTh>Outcome</MudTh>
                                 <MudTh>Timestamp (UTC)</MudTh>
                             </HeaderContent>
                             <RowTemplate>
                                 <MudTd DataLabel="Case Title">
-                                    <MudLink Href="@($"/request/{context.CaseId}")">@context.CaseTitle</MudLink>
+                                    <MudLink Href="@($"/request/{context.CaseId}")" @onclick:stopPropagation="true">@context.CaseTitle</MudLink>
+                                </MudTd>
+                                <MudTd DataLabel="Status">
+                                    @if (context.Status == "Completed")
+                                    {
+                                        <MudChip T="string" Color="Color.Success" Size="Size.Small">Completed</MudChip>
+                                    }
+                                    else if (context.Status == "Failed")
+                                    {
+                                        <MudChip T="string" Color="Color.Error" Size="Size.Small">Failed</MudChip>
+                                    }
+                                    else if (context.Status == "Skipped")
+                                    {
+                                        <MudChip T="string" Color="Color.Default" Size="Size.Small">Skipped</MudChip>
+                                    }
+                                    else if (context.Status == "Processing")
+                                    {
+                                        <MudChip T="string" Color="Color.Info" Size="Size.Small">Processing</MudChip>
+                                    }
+                                    else if (context.Status == "Queued")
+                                    {
+                                        <MudChip T="string" Color="Color.Warning" Size="Size.Small">Queued</MudChip>
+                                    }
+                                    else
+                                    {
+                                        <MudChip T="string" Size="Size.Small">@context.Status</MudChip>
+                                    }
                                 </MudTd>
                                 <MudTd DataLabel="Model Used">@context.ModelUsed</MudTd>
                                 <MudTd DataLabel="Outcome">
@@ -108,9 +137,23 @@ else
                                     {
                                         <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Text">Overridden by User</MudChip>
                                     }
+                                    else if (context.Status == "Completed")
+                                    {
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Text">Accepted</MudChip>
+                                    }
+                                    else if (context.Status == "Failed")
+                                    {
+                                        <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Text">Error</MudChip>
+                                    }
                                     else
                                     {
-                                        <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Text">Accepted without edits</MudChip>
+                                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@context.Status</MudChip>
+                                    }
+                                    @if (!string.IsNullOrEmpty(context.ErrorMessage))
+                                    {
+                                        <MudTooltip Text="@context.ErrorMessage">
+                                            <MudIcon Icon="@Icons.Material.Filled.ErrorOutline" Color="Color.Error" Size="Size.Small" Class="ml-1" />
+                                        </MudTooltip>
                                     }
                                 </MudTd>
                                 <MudTd DataLabel="Timestamp">@context.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</MudTd>
@@ -289,6 +332,7 @@ else
 @inject Microsoft.Extensions.Options.IOptions<iPath.Application.Localization.LocalizationSettings> localizationOpts
 @inject iPath.Blazor.ServiceLib.Services.StringLocalizerService srvLoc
 @inject iPath.Application.Features.Admin.ITranslationJobQueue translationJobQueue
+@inject IDialogService dialog
 
 @code {
     private AiStatusDto? status;
@@ -547,6 +591,29 @@ else
         {
             translationJobQueue.IsManualJobRunning = false;
             translationJobQueue.IsPaused = false;
+        }
+    }
+
+    private async Task OpenDetailDialogAsync(TableRowClickEventArgs<AiActivityDto> args)
+    {
+        var activity = args.Item;
+        if (activity == null) return;
+        try
+        {
+            var response = await api.GetAiLineageDetail(activity.Id);
+            AiLineageDetailDto? detail = response.IsSuccessful ? response.Content : null;
+            if (detail == null) return;
+
+            var parameters = new DialogParameters<AiLineageDetailDialog>
+            {
+                { x => x.Model, detail }
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true };
+            await dialog.ShowAsync<AiLineageDetailDialog>("AI Extraction Detail", parameters, options);
+        }
+        catch
+        {
+            // Silently handle
         }
     }
 

@@ -1,7 +1,4 @@
 using iPath.Application.AI;
-using iPath.Domain.Entities;
-using iPath.EF.Core.Database;
-using Microsoft.EntityFrameworkCore;
 
 namespace iPath.Database.EFCore.AI;
 

@@ -33,17 +33,9 @@ public class CodingPlugin(CodingService coding, iPathDbContext db)
 
 
 
-    //[KernelFunction("get_description")]
-    //[Description("get the fulltext description of the request")]
     private string? GetDescription()
     {
-        var text = "Title: " + request?.Description.Title + Environment.NewLine;
-        if (!string.IsNullOrEmpty(request?.Description.Subtitle))
-        {
-            text += request?.Description.Subtitle + Environment.NewLine + Environment.NewLine;
-        }
-        text += request?.Description?.Text;
-        return text;
+        return request?.Description?.GetExtractionText();
     }
 
 

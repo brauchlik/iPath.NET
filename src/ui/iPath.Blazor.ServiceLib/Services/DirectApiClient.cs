@@ -542,6 +542,16 @@ public class DirectApiClient(
         return Respond(await mediator.Send(command, default));
     }
 
+    public async Task<IApiResponse<AiLineageDetailDto>> GetAiLineageDetail(Guid id)
+    {
+        return Respond(await mediator.Send(new GetAiLineageDetailQuery(id), default));
+    }
+
+    public async Task<IApiResponse<List<AiLineageDetailDto>>> GetAiLineageByCase(Guid caseId)
+    {
+        return Respond(await mediator.Send(new GetAiLineageByCaseQuery(caseId), default));
+    }
+
     public async Task<IApiResponse<DatabaseStatusDto>> ApplyDatabaseMigrations()
     {
         return Respond(await mediator.Send(new ApplyDatabaseMigrationsCommand(), default));

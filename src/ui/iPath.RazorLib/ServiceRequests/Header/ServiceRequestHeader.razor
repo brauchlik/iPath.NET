@@ -1,8 +1,9 @@
 @namespace iPath.Blazor.Componenents.ServiceRequests
 
 @inherits ServiceRequestViewComponentBase
-@inject iPath.Application.AI.IAiTranscriptionQueue TranscriptionQueue
+@inject iPath.Application.AI.IAiExtractionQueue ExtractionQueue
 @inject IOptions<iPathClientConfig> clientOpts
+@inject IDialogService dialog
 
 <MudSwipeArea OnSwipeEnd="OnSwipeHandler">
     <div class="mud-theme-info ipath_node_header">
@@ -69,9 +70,10 @@
 
                     @if (clientOpts.Value.AiEnabled)
                     {
-                        <MudTooltip Text=@T["Trigger AI Transcription"]>
-                            <MudIconButton Icon="@Icons.Material.Outlined.Psychology" OnClick="TriggerTranscription" />
-                        </MudTooltip>
+                        <MudMenu Icon="@Icons.Material.Outlined.Psychology" Style="align-self: auto;">
+                            <MudMenuItem Icon="@Icons.Material.Filled.FlashOn" OnClick="TriggerTranscription">@T["Enqueue for Transcription"]</MudMenuItem>
+                            <MudMenuItem Icon="@Icons.Material.Filled.List" OnClick="@ShowAiResponses">@T["AI Responses"]</MudMenuItem>
+                        </MudMenu>
                     }
 
                     <MudTooltip Text=@T["View Events & Notifications"]>
@@ -159,13 +161,25 @@
         }
 
         var caseId = vm.SelectedRequest.Id;
-        if (TranscriptionQueue.IsInQueue(caseId))
+        if (ExtractionQueue.IsInQueue(caseId))
         {
             snackbar.Add("Case is already in the AI transcription queue.", Severity.Warning);
             return;
         }
 
-        await TranscriptionQueue.EnqueueAsync(caseId);
+        await ExtractionQueue.EnqueueAsync(caseId);
         snackbar.Add("Case added to AI transcription queue.", Severity.Success);
+    }
+
+    private async Task ShowAiResponses()
+    {
+        if (vm.SelectedRequest == null) return;
+
+        var parameters = new DialogParameters<CaseAiLineageDialog>
+        {
+            { x => x.CaseId, vm.SelectedRequest.Id },
+            { x => x.CaseTitle, vm.SelectedRequest.Title ?? "Untitled" }
+        };
+        await dialog.ShowAsync<CaseAiLineageDialog>("AI Responses", parameters);
     }
 }

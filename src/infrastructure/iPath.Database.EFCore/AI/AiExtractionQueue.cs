@@ -4,7 +4,7 @@ using iPath.Application.AI;
 
 namespace iPath.Database.EFCore.AI;
 
-public class AiTranscriptionQueue : IAiTranscriptionQueue
+public class AiExtractionQueue : IAiExtractionQueue
 {
     private readonly Channel<Guid> _channel = Channel.CreateUnbounded<Guid>(new UnboundedChannelOptions
     {

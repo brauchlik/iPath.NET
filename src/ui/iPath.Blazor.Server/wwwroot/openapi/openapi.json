@@ -499,6 +499,69 @@
         }
       }
     },
+    "/api/v1/admin/ai/lineage/{id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiLineageDetailDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/ai/lineage/by-case/{caseId}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AiLineageDetailDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/ai/translations/status": {
       "get": {
         "tags": [
@@ -3569,6 +3632,15 @@
           "timestamp": {
             "type": "string",
             "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -3585,6 +3657,86 @@
             ]
           },
           "preferredModelId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "AiLineageDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "groupId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "caseTitle": {
+            "type": "string"
+          },
+          "rawInputText": {
+            "type": "string"
+          },
+          "aiSuggestedDataJson": {
+            "type": "string"
+          },
+          "humanAcceptedDataJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "modelUsed": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "wasOverridden": {
+            "type": "boolean"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "age": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sex": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "topographyCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "topographyName": {
             "type": [
               "null",
               "string"

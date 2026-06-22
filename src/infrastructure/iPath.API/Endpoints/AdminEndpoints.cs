@@ -153,6 +153,24 @@ public static class AdminEndpoints
             .WithTags("Admin")
             .RequireAuthorization("Admin");
 
+        route.MapGet("admin/ai/lineage/{id}", async (Guid id, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetAiLineageDetailQuery(id), ct);
+            return result is null ? Results.NotFound() : Results.Ok(result);
+        })
+            .Produces<AiLineageDetailDto>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapGet("admin/ai/lineage/by-case/{caseId}", async (Guid caseId, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetAiLineageByCaseQuery(caseId), ct);
+            return Results.Ok(result);
+        })
+            .Produces<List<AiLineageDetailDto>>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
         route.MapGet("admin/ai/translations/status", async (string locale, IMediator mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(new GetTranslationStatusQuery(locale), ct);

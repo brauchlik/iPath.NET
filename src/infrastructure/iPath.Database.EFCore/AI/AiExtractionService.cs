@@ -168,7 +168,7 @@ public class AiExtractionService : IAiExtractionService
         await _dbContext.SaveChangesAsync(ct);
     }
 
-    public async Task SaveIngestionLineageAsync(Guid caseId, Guid? groupId, string rawText, string aiSuggestedJson, string humanAcceptedJson, string modelUsed, bool wasOverridden, CancellationToken ct = default)
+    public async Task SaveIngestionLineageAsync(Guid caseId, Guid? groupId, string rawText, string aiSuggestedJson, string humanAcceptedJson, string modelUsed, bool wasOverridden, CancellationToken ct = default, string status = "Completed")
     {
         var lineage = new CaseIngestionLineage
         {
@@ -178,11 +178,46 @@ public class AiExtractionService : IAiExtractionService
             AiSuggestedDataJson = aiSuggestedJson,
             HumanAcceptedDataJson = humanAcceptedJson,
             ModelIdentifierUsed = modelUsed,
-            WasOverridden = wasOverridden
+            WasOverridden = wasOverridden,
+            Status = status
         };
 
         await _dbContext.CaseIngestionLineages.AddAsync(lineage, ct);
         await _dbContext.SaveChangesAsync(ct);
+    }
+
+    public static bool ApplyExtractionToCase(ServiceRequest caseItem, AiExtractionResult result, CodingService codingService)
+    {
+        if (caseItem.Description == null) return false;
+
+        bool caseUpdated = false;
+
+        caseItem.Description.PatientInfo ??= new PatientInfo();
+
+        if (!caseItem.Description.PatientInfo.Age.HasValue && result.Age.HasValue)
+        {
+            caseItem.Description.PatientInfo.Age = result.Age;
+            caseUpdated = true;
+        }
+
+        if (string.IsNullOrEmpty(caseItem.Description.PatientInfo.Gender) && !string.IsNullOrEmpty(result.Sex) && result.Sex != "U")
+        {
+            caseItem.Description.PatientInfo.Gender = result.Sex;
+            caseUpdated = true;
+        }
+
+        if (caseItem.Description.BodySite == null && !string.IsNullOrEmpty(result.TopographyCode) && result.IsTopographyValid)
+        {
+            caseItem.Description.BodySite = new CodedConcept
+            {
+                Code = result.TopographyCode,
+                Display = result.TopographyName ?? result.TopographyCode,
+                System = codingService.CodeSystemUrl
+            };
+            caseUpdated = true;
+        }
+
+        return caseUpdated;
     }
 
     private static string NormalizeSex(string? sex)

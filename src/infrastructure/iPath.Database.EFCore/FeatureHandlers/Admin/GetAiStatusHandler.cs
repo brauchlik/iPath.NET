@@ -11,7 +11,7 @@ namespace iPath.EF.Core.FeatureHandlers.Admin;
 public class GetAiStatusHandler(
     iPathDbContext db,
     IConfiguration config,
-    IAiTranscriptionQueue queue,
+    IAiExtractionQueue queue,
     IChatClient chatClient,
     ILogger<GetAiStatusHandler> logger)
     : IRequestHandler<GetAiStatusQuery, Task<AiStatusDto>>
@@ -84,7 +84,9 @@ public class GetAiStatusHandler(
                         CaseTitle = caseItem.Description != null ? (caseItem.Description.Title ?? "Untitled Case") : "Untitled Case",
                         ModelUsed = lineage.ModelIdentifierUsed ?? "Unknown",
                         WasOverridden = lineage.WasOverridden,
-                        Timestamp = lineage.Timestamp
+                        Timestamp = lineage.Timestamp,
+                        Status = lineage.Status,
+                        ErrorMessage = lineage.ErrorMessage
                     })
                 .ToListAsync(ct);
 

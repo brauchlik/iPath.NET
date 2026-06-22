@@ -200,9 +200,6 @@ public static class APIServicesRegistration
             services.AddHostedService<EmailImportWorker>();
         }
 
-        // Register Autonomous AI Ingestion/Extraction Worker
-        services.AddHostedService<AutonomousExtractionWorker>();
-
         return services;
     }
 

@@ -52,7 +52,7 @@ app.Services.InitComponenetsExtensions();
 // Preload localization data for WebAssembly client
 try
 {
-    var srvLoc = (iPath.Blazor.ServiceLib.Services.StringLocalizerService?)app.Services.GetService(typeof(iPath.Blazor.ServiceLib.Services.StringLocalizerService));
+    var srvLoc = (iPath.Blazor.ServiceLib.Services.ClientStringLocalizerService?)app.Services.GetService(typeof(iPath.Blazor.ServiceLib.Services.ClientStringLocalizerService));
     if (srvLoc != null)
     {
         var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;

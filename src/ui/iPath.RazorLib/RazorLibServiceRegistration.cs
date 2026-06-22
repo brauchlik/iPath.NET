@@ -65,9 +65,18 @@ public static class RazorLibServiceRegistration
             services.AddSingleton<ILocalizationDataProvider, FileLocalizaitonProvider>();
         }
 
-        services.AddSingleton<StringLocalizerService>();
-        // register the same singleton for use as IStringLocalizer
-        services.AddSingleton<IStringLocalizer>(p => p.GetRequiredService<StringLocalizerService>());
+        if (WasmClient)
+        {
+            // WASM: lightweight client-side lookup — no auto-translate queue
+            services.AddSingleton<ClientStringLocalizerService>();
+            services.AddSingleton<IStringLocalizer>(p => p.GetRequiredService<ClientStringLocalizerService>());
+        }
+        else
+        {
+            // Server: full localization with auto-translate queue
+            services.AddSingleton<StringLocalizerService>();
+            services.AddSingleton<IStringLocalizer>(p => p.GetRequiredService<StringLocalizerService>());
+        }
         services.AddLocalization();
 
 

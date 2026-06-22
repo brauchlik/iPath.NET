@@ -1,0 +1,302 @@
+@namespace iPath.Blazor.Componenents.ServiceRequests
+
+@inherits ServiceRequestViewComponentBase
+
+<MudStepper Vertical ShowResetButton @ref="stepper"
+            OnPreviewInteraction="wizzardVM.OnPreviewInteraction"
+            CompleteButtonIcon="@Icons.Material.Filled.Send"
+            @bind-ActiveIndex="wizzardVM.ActiveStepIndex">
+    <ChildContent>
+        <!-- Step 0: Free-Text Clinical Note Ingestion -->
+        <MudStep Title=@T["Clinical Note Intake"] 
+                 HasError="@(wizzardVM.Step0Complete == false)">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Class="pa-4 mb-4" Style="background-color: var(--mud-palette-info-hover); border-left: 4px solid var(--mud-palette-info);">
+                        <MudStack Row AlignItems="AlignItems.Center">
+                            <MudIcon Icon="@Icons.Material.Filled.AutoAwesome" Color="Color.Info" Class="mr-2" />
+                            <div>
+                                <MudText Typo="Typo.subtitle2" Color="Color.Info"><b>AI-Assisted Intake</b></MudText>
+                                <MudText Typo="Typo.body2">Paste the unstructured clinical note, pathology request, or email body below. Our AI will extract the patient details, topography, and diagnostic questions for you.</MudText>
+                            </div>
+                        </MudStack>
+                    </MudPaper>
+
+                    <MudTextField T="string" Label=@T["Paste Case Note / Clinical History"]
+                                  @bind-Value="wizzardVM.RawIntakeText"
+                                  Lines="8" Variant="Variant.Outlined"
+                                  Placeholder="e.g. A 45-year-old female presented with a lump in her left breast. Rule out invasive ductal carcinoma."
+                                  HelperText="Please make sure it does not contain sensitive identifying details like patient name or exact date of birth." />
+
+                    @if (wizzardVM.IsAnalyzing)
+                    {
+                        <div class="d-flex align-center mt-4">
+                            <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Primary" Class="mr-2" />
+                            <MudText Typo="Typo.body2">Analyzing text and extracting clinical entities...</MudText>
+                        </div>
+                    }
+                    else
+                    {
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.AutoAwesome"
+                                   OnClick="wizzardVM.AnalyzeClinicalHistoryAsync" Class="mt-4"
+                                   Disabled="@(string.IsNullOrWhiteSpace(wizzardVM.RawIntakeText))">
+                            Analyze Case Note
+                        </MudButton>
+                    }
+                </MudItem>
+            </MudGrid>
+        </MudStep>
+
+        <!-- Step 1: Verify AI Topography Suggestion -->
+        <MudStep Title=@T["Verify Body Site"] SecondaryText="@wizzardVM.TopoText"
+                 HasError="@(wizzardVM.Step1Complete == false)">
+            <MudGrid>
+                <!-- Ingestion View: Raw text on the left -->
+                <MudItem xs="12" sm="5">
+                    <IPathHeader Typo="Typo.subtitle1" Title="Raw Intake Text" />
+                    <MudPaper Class="pa-4 mt-2" Outlined="true" Style="height: 350px; overflow-y: auto; background-color: var(--mud-palette-background-grey);">
+                        <MudText Typo="Typo.body2" Style="white-space: pre-wrap; font-family: monospace;">@wizzardVM.RawIntakeText</MudText>
+                    </MudPaper>
+                </MudItem>
+
+                <!-- Extracted Site / Search on the right -->
+                <MudItem xs="12" sm="7">
+                    <IPathHeader Typo="Typo.subtitle1" Title=@T["AI Suggested Body Site"] />
+                    
+                    @if (wizzardVM.ExtractionResult != null)
+                    {
+                        <MudPaper Class="pa-4 my-2 d-flex align-center" Outlined="true" Style="background-color: var(--mud-palette-info-hover); border: 1px dashed var(--mud-palette-info);">
+                            <MudIcon Icon="@Icons.Material.Filled.AutoAwesome" Color="Color.Info" Class="mr-3" />
+                            <div style="flex-grow: 1;">
+                                <MudText Typo="Typo.subtitle2">Suggested Topography:</MudText>
+                                <MudText Typo="Typo.body1" Color="Color.Info"><b>@(wizzardVM.ExtractionResult.TopographyCode ?? "Not found")</b> - @(wizzardVM.ExtractionResult.TopographyName ?? "N/A")</MudText>
+                                @if (!string.IsNullOrEmpty(wizzardVM.ExtractionResult.Snippet))
+                                {
+                                    <MudText Typo="Typo.caption" Class="italic text-muted">Supporting evidence: "@wizzardVM.ExtractionResult.Snippet"</MudText>
+                                }
+                            </div>
+                            @if (wizzardVM.ExtractionResult.IsTopographyValid)
+                            {
+                                <MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Text" Icon="@Icons.Material.Filled.CheckCircle">Verified</MudChip>
+                            }
+                            else
+                            {
+                                <MudChip T="string" Color="Color.Warning" Size="Size.Small" Variant="Variant.Text" Icon="@Icons.Material.Filled.Warning">Unverified</MudChip>
+                            }
+                        </MudPaper>
+                    }
+
+                    <MudText Typo="Typo.body2" Class="mb-3">Confirm or modify the selected site below:</MudText>
+
+                    <TopoLookup Label=@T["Confirm Body Site"] Placeholder="Search topography code or name" Class="mb-4"
+                                @bind-Value="@wizzardVM.Topo"
+                                Variant="Variant.Outlined" Margin="Margin.Dense" ShrinkLabel="true"
+                                Clearable="true" MaxItems="100" />
+
+                    @if (wizzardVM.Organ is null)
+                    {
+                        <MudText Typo="Typo.caption">You can also expand the tree below or use search to find a code.</MudText>
+                    }
+                    <CodingTree @bind-Value="@wizzardVM.Topo" TreeItems="@wizzardVM.BodySiteCodes" ExpandOnClick="true" />
+                </MudItem>
+            </MudGrid>
+        </MudStep>
+
+        <!-- Step 2: Patient & Case Info -->
+        <MudStep Title=@T["Patient information"] SecondaryText="@wizzardVM.PatientText"
+                 HasError="@(wizzardVM.Step2Complete == false)">
+            <MudGrid>
+                <!-- Raw intake note panel on left -->
+                <MudItem xs="12" sm="4">
+                    <IPathHeader Typo="Typo.subtitle1" Title="Raw Intake Text" />
+                    <MudPaper Class="pa-4 mt-2" Outlined="true" Style="height: 350px; overflow-y: auto; background-color: var(--mud-palette-background-grey);">
+                        <MudText Typo="Typo.body2" Style="white-space: pre-wrap; font-family: monospace;">@wizzardVM.RawIntakeText</MudText>
+                    </MudPaper>
+                </MudItem>
+
+                <!-- Patient fields on right -->
+                <MudItem xs="12" sm="8">
+                    <MudStack>
+                        <MudGrid Spacing="1">
+                            <MudItem xs="6" sm="4">
+                                <MudTextField Label=@T["Accession No"] @bind-Value="@wizzardVM.Data.AccessionNo"
+                                              Placeholder=@T["your reference- or lab-number"]
+                                              Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+                            </MudItem>
+                            
+                            <MudItem xs="6" sm="4">
+                                <div style="position: relative;">
+                                    <GenderSelect Label=@T["Gender"] @bind-Value="@wizzardVM.Data.PatientInfo.Gender"
+                                                  Required="true" Dense="true"
+                                                  Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+                                    @if (wizzardVM.ExtractionResult?.Sex != null)
+                                    {
+                                        <div style="position: absolute; right: 28px; top: 12px;">
+                                            <MudTooltip Text="Extracted by AI">
+                                                <MudIcon Icon="@Icons.Material.Filled.AutoAwesome" Color="Color.Info" Size="Size.Small" />
+                                            </MudTooltip>
+                                        </div>
+                                    }
+                                </div>
+                            </MudItem>
+
+                            <MudItem xs="6" sm="4">
+                                <div style="position: relative;">
+                                    <MudNumericField @bind-Value="@wizzardVM.Data.PatientInfo.Age" Label=@T["Age (years)"]
+                                                     Required="true" Min="0" Max="199"
+                                                     Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+                                    @if (wizzardVM.ExtractionResult?.Age != null)
+                                    {
+                                        <div style="position: absolute; right: 8px; top: 12px;">
+                                            <MudTooltip Text="Extracted by AI">
+                                                <MudIcon Icon="@Icons.Material.Filled.AutoAwesome" Color="Color.Info" Size="Size.Small" />
+                                            </MudTooltip>
+                                        </div>
+                                    }
+                                </div>
+                            </MudItem>
+
+                            @if (wizzardVM.CaseTypeActive)
+                            {
+                                @if (wizzardVM.CaseTypes.IsEmpty())
+                                {
+                                    <MudTextField Label=@T["Case Type"] @bind-Value="@wizzardVM.Data.CaseType"
+                                                  Variant="Variant.Outlined" Margin="Margin.Dense" ShrinkLabel="true" />
+                                }
+                                else
+                                {
+                                    <MudItem xs="6" sm="4">
+                                        <CaseTypeLookup Label=@T["Case Type"] GroupId="wizzardVM.GroupId" @bind-Value="wizzardVM.Data.CaseType"
+                                                        Clearable="true" Dense="true" CoerceValue="true"
+                                                        Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+                                    </MudItem>
+                                }
+                            }
+                        </MudGrid>
+
+                        @if (wizzardVM.ShowCaseTitle)
+                        {
+                            <MudTextField @bind-Value="@wizzardVM.Data.Title" Label=@T["Case Title"]
+                                          Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+                        }
+
+                        @if (wizzardVM.ShowCaseSubTitle)
+                        {
+                            <MudTextField @bind-Value="@wizzardVM.Data.Subtitle" Label=@T["Subtitle"]
+                                          Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+                        }
+
+                        @if (wizzardVM.Data.Questionnaire is not null)
+                        {
+                            @if (wizzardVM.validForms.Count > 1)
+                            {
+                                <MudStack Row AlignItems="AlignItems.Center" Class="mt-2">
+                                    <MudCheckBox Label=@T["Clinical Form"] @bind-Value="@wizzardVM.UseQuestionnaire" />
+                                    <MudToggleGroup T="QuestionnaireForGroupDto"
+                                                    Color="Color.Default" Size="Size.Small" Class="ml-5"
+                                                    @bind-Value="@wizzardVM.SelectedQ"
+                                                    @bind-Value:after="@wizzardVM.LoadQuestionnaireForm">
+                                        @foreach (var q in wizzardVM.validForms)
+                                        {
+                                            <MudToggleItem Value="@q" />
+                                        }
+                                    </MudToggleGroup>
+                                </MudStack>
+                            }
+
+                            @if (wizzardVM.UseQuestionnaire)
+                            {
+                                <iPath.LHCForms.LhcForm @ref="qrForm" ReadOnly="false" OnAfterRendered="wizzardVM.LoadQuestionnaireForm" />
+                            }
+                        }
+
+                        @if (wizzardVM.ShowProvisionalDiagnosis)
+                        {
+                            <div style="position: relative;">
+                                <MudTextField @bind-Value="@wizzardVM.Data.ProvisionalDiagnosis" Label=@T["Provisional Diagnosis / Extracted Questions"]
+                                              Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+                                @if (wizzardVM.ExtractionResult?.ClinicalQuestions != null && wizzardVM.ExtractionResult.ClinicalQuestions.Count > 0)
+                                {
+                                    <div style="position: absolute; right: 8px; top: 12px;">
+                                        <MudTooltip Text="Extracted questions from case note by AI">
+                                            <MudIcon Icon="@Icons.Material.Filled.AutoAwesome" Color="Color.Info" Size="Size.Small" />
+                                        </MudTooltip>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <MudTextField @bind-Value="@wizzardVM.Data.Text" Label=@T["Clinical History"]
+                                      Lines="3" Required="true" Sizing="InputSizing.Auto"
+                                      Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+                    </MudStack>
+                </MudItem>
+            </MudGrid>
+        </MudStep>
+
+        <!-- Step 3: Upload Images -->
+        <MudStep Title="Upload Images">
+            <GalleryDropZone />
+            <MudDivider Class="mt-4" />
+            <MudSwitch @bind-Value="wizzardVM.SaveAsDraft" Label=@T["Save as Draft (not published in group yet)"]
+                       Color="Color.Warning" />
+        </MudStep>
+    </ChildContent>
+    <CompletedContent>
+        <MudText Typo="Typo.h6">@T["Next steps"]</MudText>
+        <MudDivider />
+        <MudStack Row Spacing="4" Class="mt-4 mb-10">
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Create" OnClick="Reset">@T["Create another request"]</MudButton>
+            <MudButton Color="Color.Info" Variant="Variant.Filled" Href="@vm.SelectedReuqestUrl" StartIcon="@Icons.Material.Filled.Preview">@T["Open request"]</MudButton>
+            <MudButton Variant="Variant.Filled" Href="@vm.NavUrl" StartIcon="@Icons.Material.Filled.List">@T["Back to list"]</MudButton>
+            <MudSpacer />
+        </MudStack>
+    </CompletedContent>
+</MudStepper>
+
+@implements IDisposable
+@inject IServiceProvider sp
+@inject IStringLocalizer T
+
+@code {
+    [Parameter, EditorRequired]
+    public string ValueSetId { get; set; }
+
+    [Parameter]
+    public string CodingService { get; set; } = "icdo";
+
+    private ServiceRequestCreateAiWizzardViewModel wizzardVM;
+    private MudStepper stepper;
+
+    iPath.LHCForms.LhcForm qrForm
+    {
+        get => field;
+        set
+        {
+            field = value;
+            wizzardVM.QuestionnaireViewer = field;
+        }
+    }
+
+    private int PatInfoFieldSmWith => wizzardVM.CaseTypeActive ? 3 : 4;
+
+    protected override async Task OnInitializedAsync()
+    {
+        wizzardVM = new ServiceRequestCreateAiWizzardViewModel(sp, vm);
+        wizzardVM.OnInitialized = StateHasChanged;
+        wizzardVM.OnComplete = StateHasChanged;
+
+        await wizzardVM.InitializeAsync(CodingService, ValueSetId);
+    }
+
+    private async Task Reset()
+    {
+        await vm.CreateNewNode(vm.ActiveGroup.Id);
+        await stepper.ResetAsync();
+    }
+
+    public void Dispose()
+    {
+        // No-op or clean up resources if needed
+    }
+}

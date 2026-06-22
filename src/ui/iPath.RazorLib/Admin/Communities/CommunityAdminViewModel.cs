@@ -1,4 +1,4 @@
-﻿using iPath.Blazor.Componenents.Admin.Groups;
+using iPath.Blazor.Componenents.Admin.Groups;
 using iPath.Blazor.Componenents.Admin.Users;
 using System.ComponentModel.DataAnnotations;
 
@@ -18,14 +18,14 @@ public class CommunityAdminViewModel(IPathApi api,
     public List<BreadcrumbItem> BreadCrumbs {
         get
         {
-            var ret = new List<BreadcrumbItem> { new("Administration", href: "admin") };
+            var ret = new List<BreadcrumbItem> { new(T["Administration"], href: "admin") };
             if (SelectedCommunity is null)
             {
-                ret.Add(new("Communities", href: null, disabled: true));
+                ret.Add(new(T["Communities"], href: null, disabled: true));
             }
             else
             {
-                ret.Add(new("Communities", href: "admin/communities"));
+                ret.Add(new(T["Communities"], href: "admin/communities"));
                 ret.Add(new(SelectedCommunity.Name, href: null, disabled: true));
             }
             return ret;

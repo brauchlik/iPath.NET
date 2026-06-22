@@ -1,4 +1,4 @@
-﻿using DispatchR.Extensions;
+using DispatchR.Extensions;
 using iPath.API.Services;
 using iPath.API.Services.Email;
 using iPath.API.Services.Email.Clients;
@@ -23,6 +23,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi;
+using iPath.Database.EFCore.AI;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -138,7 +139,7 @@ public static class APIServicesRegistration
 
         // Localization
         services.Configure<LocalizationSettings>(config.GetSection(LocalizationSettings.ConfigName));
-        services.AddTransient<LocalizationFileService>();
+        services.AddSingleton<LocalizationFileService>();
 
         // Google Workspace
         services.AddGoogleServices(config);
@@ -153,6 +154,7 @@ public static class APIServicesRegistration
         }
 
         services.PostConfigure<iPathClientConfig>(c => c.SyncImportEnabled = !string.IsNullOrEmpty(syncCs));
+        services.PostConfigure<iPathClientConfig>(c => c.AiEnabled = config.GetSection("AiSettings").GetValue<bool>("IsEnabled"));
 
         // Configure JSON options for OpenAPI schema generation
         // Build-time OpenAPI generation needs higher MaxDepth for complex domain models
@@ -197,6 +199,7 @@ public static class APIServicesRegistration
             services.AddScoped<IEmailAttachmentNameSanitizer, EmailAttachmentNameSanitizer>();
             services.AddHostedService<EmailImportWorker>();
         }
+
         return services;
     }
 

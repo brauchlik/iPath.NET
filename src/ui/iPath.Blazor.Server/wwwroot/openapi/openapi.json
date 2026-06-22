@@ -5,6 +5,36 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/localization/set": {
+      "get": {
+        "tags": [
+          "iPath.Blazor.Server"
+        ],
+        "parameters": [
+          {
+            "name": "culture",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "redirectUri",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/mail/list": {
       "get": {
         "tags": [
@@ -358,6 +388,48 @@
         }
       }
     },
+    "/api/v1/translations/{lang}/add-missing": {
+      "post": {
+        "tags": [
+          "Localization"
+        ],
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/database": {
       "get": {
         "tags": [
@@ -392,6 +464,184 @@
                   "items": {
                     "$ref": "#/components/schemas/TableRowCountDto"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/ai/status": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "checkConnection",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/ai/lineage/{id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AiLineageDetailDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/ai/lineage/by-case/{caseId}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AiLineageDetailDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/ai/translations/status": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "locale",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslationStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/ai/translations/translate": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranslateKeysBatchCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslationResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/ai/translations/update-key": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTranslationKeyCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
                 }
               }
             }
@@ -3359,6 +3609,181 @@
           }
         }
       },
+      "AiActivityDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseTitle": {
+            "type": "string"
+          },
+          "modelUsed": {
+            "type": "string"
+          },
+          "wasOverridden": {
+            "type": "boolean"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "AiConfig": {
+        "type": "object",
+        "properties": {
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "systemInstructionsOverride": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "preferredModelId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "AiLineageDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "groupId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "caseTitle": {
+            "type": "string"
+          },
+          "rawInputText": {
+            "type": "string"
+          },
+          "aiSuggestedDataJson": {
+            "type": "string"
+          },
+          "humanAcceptedDataJson": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "modelUsed": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "wasOverridden": {
+            "type": "boolean"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "age": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sex": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "topographyCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "topographyName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "AiStatusDto": {
+        "type": "object",
+        "properties": {
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "chatModel": {
+            "type": "string"
+          },
+          "translationModel": {
+            "type": "string"
+          },
+          "embeddingModel": {
+            "type": "string"
+          },
+          "isLlmOnline": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "queueLength": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "recentActivities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AiActivityDto"
+            }
+          }
+        }
+      },
       "AnnotationData": {
         "type": "object",
         "properties": {
@@ -3977,6 +4402,9 @@
                 "$ref": "#/components/schemas/StorageInfo"
               }
             ]
+          },
+          "aiSettings": {
+            "$ref": "#/components/schemas/AiConfig"
           }
         }
       },
@@ -5762,6 +6190,9 @@
               "string"
             ],
             "format": "int32"
+          },
+          "aiSettings": {
+            "$ref": "#/components/schemas/AiConfig"
           }
         }
       },
@@ -6011,6 +6442,9 @@
             }
           },
           "syncImportEnabled": {
+            "type": "boolean"
+          },
+          "aiEnabled": {
             "type": "boolean"
           }
         }
@@ -7793,6 +8227,24 @@
           }
         }
       },
+      "TranslateKeysBatchCommand": {
+        "required": [
+          "locale",
+          "keys"
+        ],
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string"
+          },
+          "keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "TranslationData": {
         "type": "object",
         "properties": {
@@ -7810,6 +8262,111 @@
             "type": "object",
             "additionalProperties": {
               "type": "string"
+            }
+          },
+          "wordMetadata": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TranslationMetadata"
+            }
+          }
+        }
+      },
+      "TranslationMetadata": {
+        "type": "object",
+        "properties": {
+          "modelUsed": {
+            "type": "string"
+          },
+          "translatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isHumanModified": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TranslationResultDto": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string"
+          },
+          "translatedCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "isSuccess": {
+            "type": "boolean"
+          },
+          "errorMessage": {
+            "type": "string"
+          },
+          "successfulKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failedKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "TranslationStatusDto": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string"
+          },
+          "totalKeys": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "translatedKeys": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "missingKeys": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "untranslatedKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "words": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "wordMetadata": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TranslationMetadata"
             }
           }
         }
@@ -8143,6 +8700,25 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "UpdateTranslationKeyCommand": {
+        "required": [
+          "locale",
+          "key",
+          "translation"
+        ],
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "translation": {
+            "type": "string"
           }
         }
       },
@@ -8714,6 +9290,9 @@
                 "$ref": "#/components/schemas/EmailImportSettings"
               }
             ]
+          },
+          "aiSettings": {
+            "$ref": "#/components/schemas/AiConfig"
           }
         }
       },
@@ -8782,6 +9361,9 @@
   },
   "tags": [
     {
+      "name": "iPath.Blazor.Server"
+    },
+    {
       "name": "Internal Mailbox"
     },
     {
@@ -8840,9 +9422,6 @@
     },
     {
       "name": "Sync Import"
-    },
-    {
-      "name": "iPath.Blazor.Server"
     }
   ]
 }

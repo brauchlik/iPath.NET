@@ -49,6 +49,11 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<UserUploadFolder> UserUploadFolders { get; set; }
     public DbSet<ServiceRequestUploadFolder> ServiceRequestUploadFolders { get; set; }
 
+    // AI Entities
+    public DbSet<CaseIngestionLineage> CaseIngestionLineages { get; set; }
+    public DbSet<AiCorrectionDelta> AiCorrectionDeltas { get; set; }
+    public DbSet<CaseEmbedding> CaseEmbeddings { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

@@ -24,6 +24,33 @@ public class RequestDescription
 
     public RequestDescription Clone() => (RequestDescription)MemberwiseClone();
 
+    public string GetExtractionText()
+    {
+        var sb = new System.Text.StringBuilder();
+        if (!string.IsNullOrWhiteSpace(Title))
+        {
+            sb.Append("Title: ");
+            sb.AppendLine(Title);
+        }
+        if (!string.IsNullOrWhiteSpace(Subtitle))
+        {
+            sb.Append("Subtitle: ");
+            sb.AppendLine(Subtitle);
+        }
+        if (!string.IsNullOrWhiteSpace(CaseType))
+        {
+            sb.Append("CaseType: ");
+            sb.AppendLine(CaseType);
+        }
+        if (!string.IsNullOrWhiteSpace(Text))
+        {
+            if (sb.Length > 0)
+                sb.AppendLine();
+            sb.Append(Text);
+        }
+        return sb.ToString().TrimEnd();
+    }
+
 
     public bool IsClinicalInfoValid
     {

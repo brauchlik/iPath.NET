@@ -1,25 +1,27 @@
-﻿@implements IDisposable
+@implements IDisposable
 @using iPath.Blazor.ServiceLib.ApiClient
+
+@inject IStringLocalizer T
 
 <AuthorizeView>
     <NotAuthorized>
-        <MudNavLink Href="Account/Login" Icon="@Icons.Material.TwoTone.Login">Login</MudNavLink>
-        <MudNavLink Href="Account/Register" Icon="@Icons.Material.TwoTone.AppRegistration">Register</MudNavLink>
+        <MudNavLink Href="Account/Login" Icon="@Icons.Material.TwoTone.Login">@T["Login"]</MudNavLink>
+        <MudNavLink Href="Account/Register" Icon="@Icons.Material.TwoTone.AppRegistration">@T["Register"]</MudNavLink>
     </NotAuthorized>
     <Authorized>
-        <MudNavLink Href="user/groups" Icon="@Icons.Material.TwoTone.Group">My Groups</MudNavLink>
+        <MudNavLink Href="user/groups" Icon="@Icons.Material.TwoTone.Group">@T["My Groups"]</MudNavLink>
         <MudNavLink Href="user/tasks" Icon="@Icons.Material.TwoTone.Assignment">
             <MudBadge Content="@PendingTaskCount" Origin="Origin.CenterRight" BadgeClass="mx-2" Color="Color.Warning" Visible="@(PendingTaskCount > 0)">
-                My Tasks
+                @T["My Tasks"]
             </MudBadge>
         </MudNavLink>
-        <MudNavLink Href="user/cases" Icon="@Icons.Material.TwoTone.FolderShared">My Cases</MudNavLink>
+        <MudNavLink Href="user/cases" Icon="@Icons.Material.TwoTone.FolderShared">@T["My Cases"]</MudNavLink>
 
         @if (NewRequestCount > 0)
         {
             <MudNavLink Href="user/newcases" Icon="@Icons.Material.TwoTone.CreateNewFolder">
                 <MudBadge Content="@NewRequestCount" Origin="Origin.CenterRight" BadgeClass="mx-2" Color="Color.Info">
-                    New Cases
+                    @T["New Cases"]
                 </MudBadge>
             </MudNavLink>
 
@@ -28,15 +30,15 @@
         {
             <MudNavLink Href="user/newannotations" Icon="@Icons.Material.TwoTone.Comment">
                 <MudBadge Content="@NewAnnotationCount" Origin="Origin.CenterRight" BadgeClass="mx-2" Color="Color.Info">
-                    New Annotations
+                    @T["New Annotations"]
                 </MudBadge>
             </MudNavLink>
         }
 
         <MudDivider />
-        <MudNavLink Href="user/profile" Icon="@Icons.Material.TwoTone.ManageAccounts">My Profile</MudNavLink>
+        <MudNavLink Href="user/profile" Icon="@Icons.Material.TwoTone.ManageAccounts">@T["My Profile"]</MudNavLink>
         <MudDivider />
-        <MudNavLink Href="Account/Logout" Icon="@Icons.Material.TwoTone.Logout">Logout</MudNavLink>
+        <MudNavLink Href="Account/Logout" Icon="@Icons.Material.TwoTone.Logout">@T["Logout"]</MudNavLink>
     </Authorized>
 </AuthorizeView>
 

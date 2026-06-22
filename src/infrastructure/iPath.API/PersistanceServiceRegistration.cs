@@ -1,4 +1,4 @@
-﻿using iPath.API.Services;
+using iPath.API.Services;
 using iPath.Application.Features.Notifications;
 using iPath.EF.Core.Database;
 using iPath.EF.Core.FeatureHandlers.Emails;
@@ -9,6 +9,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.AI;
+using OllamaSharp;
+using iPath.Application.AI;
+using iPath.Database.EFCore.AI;
+using iPath.Application.Features.Admin;
 
 
 namespace iPath.API;
@@ -66,6 +71,65 @@ public static class PersistanceServiceRegistration
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IGroupService, GroupService>();
         services.AddScoped<IGroupCache, GroupCacheServer>();
+
+        // Register AI Services
+        services.AddScoped<IPromptContextResolver, PromptContextResolver>();
+        services.AddScoped<IAiExtractionService, AiExtractionService>();
+        services.AddScoped<ISemanticSearchService, SemanticSearchService>();
+        services.AddSingleton<IAiExtractionQueue, AiExtractionQueue>();
+        services.AddHostedService<AiExtractionWorker>();
+        services.AddHostedService<AiExtractionBackfill>();
+
+        // Translation job queue for auto-translating newly discovered keys
+        services.AddSingleton<ITranslationJobQueue, TranslationJobQueue>();
+        services.AddHostedService<TranslationJobWorker>();
+
+        // Register dynamic IChatClient and IEmbeddingGenerator based on configured provider
+        var aiSection = config.GetSection("AiSettings");
+        var aiProvider = aiSection.GetValue<string>("Provider")?.ToLowerInvariant() ?? "ollama";
+
+        switch (aiProvider)
+        {
+            case "openai":
+                {
+                    var key = aiSection.GetValue<string>("OpenAI:ApiKey") ?? "";
+                    var chatModel = aiSection.GetValue<string>("OpenAI:ChatModel") ?? "gpt-4o";
+                    var embedModel = aiSection.GetValue<string>("OpenAI:EmbeddingModel") ?? "text-embedding-3-small";
+                    var client = new global::OpenAI.OpenAIClient(new global::System.ClientModel.ApiKeyCredential(key));
+                    services.AddScoped<IChatClient>(sp => client.GetChatClient(chatModel).AsIChatClient());
+                    services.AddScoped<IEmbeddingGenerator<string, Embedding<float>>>(sp => client.GetEmbeddingClient(embedModel).AsIEmbeddingGenerator());
+                }
+                break;
+
+            case "google":
+                {
+                    var key = aiSection.GetValue<string>("Google:ApiKey") ?? "";
+                    var chatModel = aiSection.GetValue<string>("Google:ChatModel") ?? "gemini-1.5-flash";
+                    var embedModel = aiSection.GetValue<string>("Google:EmbeddingModel") ?? "text-embedding-004";
+                    var client = new global::OpenAI.OpenAIClient(new global::System.ClientModel.ApiKeyCredential(key), new global::OpenAI.OpenAIClientOptions
+                    {
+                        Endpoint = new Uri("https://generativelanguage.googleapis.com/v1beta/openai/")
+                    });
+                    services.AddScoped<IChatClient>(sp => client.GetChatClient(chatModel).AsIChatClient());
+                    services.AddScoped<IEmbeddingGenerator<string, Embedding<float>>>(sp => client.GetEmbeddingClient(embedModel).AsIEmbeddingGenerator());
+                }
+                break;
+
+            case "ollama":
+            default:
+                {
+                    var baseUriStr = aiSection.GetValue<string>("Ollama:BaseUri") ?? "http://localhost:11434/";
+                    var chatModel = aiSection.GetValue<string>("Ollama:ChatModel") ?? "llama3";
+                    var embedModel = aiSection.GetValue<string>("Ollama:EmbeddingModel") ?? "nomic-embed-text";
+                    var baseUri = new Uri(baseUriStr);
+
+                    services.AddScoped<IChatClient>(sp =>
+                        new OllamaApiClient(baseUri, chatModel));
+                    services.AddScoped<IEmbeddingGenerator<string, Embedding<float>>>(sp =>
+                        new OllamaApiClient(baseUri, embedModel));
+                }
+                break;
+        }
 
         // Google Workspace
         services.AddGoogleServices(config);

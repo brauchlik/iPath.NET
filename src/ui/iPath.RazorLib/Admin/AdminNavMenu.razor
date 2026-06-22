@@ -1,39 +1,43 @@
-﻿@using iPath.Application.Features.Admin
+@using iPath.Application.Features.Admin
 @using iPath.Domain.Config
 @using Microsoft.Extensions.Options
 
 <AuthorizeView Roles="Admin">
     <Authorized>
-        <MudNavGroup Title="Admin" Expanded="true" HeaderClass="mud-theme-info">
-            <MudNavLink Href="admin/users" Icon="@Icons.Material.Filled.Person">Users</MudNavLink>
-            <MudNavLink Href="admin/groups" Icon="@Icons.Material.Filled.Group">Groups</MudNavLink>
-            <MudNavLink Href="admin/communities" Icon="@Icons.Material.TwoTone.GroupWork">Communities</MudNavLink>
-            <MudNavLink Href="admin/questionnaires" Icon="@Icons.Material.TwoTone.DynamicForm">Questionnaires</MudNavLink>
-            <MudNavLink Href="admin/cms" Icon="@Icons.Material.Filled.Pages">News and Pages</MudNavLink>
-            <MudNavLink Href="admin/system" Icon="@Icons.Material.Filled.Settings">System</MudNavLink>
+        <MudNavGroup Title=@T["Admin"] Expanded="true" HeaderClass="mud-theme-info">
+            <MudNavLink Href="admin/users" Icon="@Icons.Material.Filled.Person">@T["Users"]</MudNavLink>
+            <MudNavLink Href="admin/groups" Icon="@Icons.Material.Filled.Group">@T["Groups"]</MudNavLink>
+            <MudNavLink Href="admin/communities" Icon="@Icons.Material.TwoTone.GroupWork">@T["Communities"]</MudNavLink>
+            <MudNavLink Href="admin/questionnaires" Icon="@Icons.Material.TwoTone.DynamicForm">@T["Questionnaires"]</MudNavLink>
+            <MudNavLink Href="admin/cms" Icon="@Icons.Material.Filled.Pages">@T["News and Pages"]</MudNavLink>
+            <MudNavLink Href="admin/system" Icon="@Icons.Material.Filled.Settings">@T["System"]</MudNavLink>
             <MudNavLink Href="admin/database" Icon="@Icons.Material.Filled.Storage">
-                Database
+                @T["Database"]
                 @if (pendingCount > 0)
                 {
                     <MudChip T="string" Size="Size.Small" Color="Color.Warning" Class="ml-1">@pendingCount.ToString()</MudChip>
                 }
             </MudNavLink>
+            @if (ClientConfig.Value.AiEnabled)
+            {
+                <MudNavLink Href="admin/ai" Icon="@Icons.Material.Filled.Psychology">@T["AI Status"]</MudNavLink>
+            }
         </MudNavGroup>
     </Authorized>
 </AuthorizeView>
 
 <AuthorizeView Roles="Developer">
     <Authorized>
-        <MudNavGroup Title="Developers" Expanded="false" HeaderClass="mud-theme-info" Style="border-bottom: 1px solid;">
-            <MudNavLink Href="admin/mailbox" Icon="@Icons.Material.Filled.Mail">Mailbox</MudNavLink>
-            <MudNavLink Href="admin/email-import" Icon="@Icons.Material.Filled.Email">Email Import</MudNavLink>
+        <MudNavGroup Title=@T["Developers"] Expanded="false" HeaderClass="mud-theme-info" Style="border-bottom: 1px solid;">
+            <MudNavLink Href="admin/mailbox" Icon="@Icons.Material.Filled.Mail">@T["Mailbox"]</MudNavLink>
+            <MudNavLink Href="admin/email-import" Icon="@Icons.Material.Filled.Email">@T["Email Import"]</MudNavLink>
             @if (ClientConfig.Value.SyncImportEnabled)
             {
-                <MudNavLink Href="admin/sync-import" Icon="@Icons.Material.Filled.CloudDownload">Group Sync</MudNavLink>
+                <MudNavLink Href="admin/sync-import" Icon="@Icons.Material.Filled.CloudDownload">@T["Group Sync"]</MudNavLink>
             }
-            <MudNavLink Href="admin/notifications" Icon="@Icons.Material.Filled.Notifications">Notifications</MudNavLink>
-            <MudNavLink Href="admin/events" Icon="@Icons.Material.TwoTone.Event">Event Log</MudNavLink>
-            <MudNavLink Href="scalar" Target="_blank" Icon="@Icons.Material.Filled.Api">API</MudNavLink>
+            <MudNavLink Href="admin/notifications" Icon="@Icons.Material.Filled.Notifications">@T["Notifications"]</MudNavLink>
+            <MudNavLink Href="admin/events" Icon="@Icons.Material.TwoTone.Event">@T["Event Log"]</MudNavLink>
+            <MudNavLink Href="scalar" Target="_blank" Icon="@Icons.Material.Filled.Api">@T["API"]</MudNavLink>
         </MudNavGroup>
     </Authorized>
 </AuthorizeView>

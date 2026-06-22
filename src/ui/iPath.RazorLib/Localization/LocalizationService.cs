@@ -1,4 +1,5 @@
-﻿using iPath.Application.Localization;
+﻿using iPath.Application.Features.Admin;
+using iPath.Application.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Encodings.Web;
@@ -7,7 +8,7 @@ using System.Text.Unicode;
 
 namespace iPath.RazorLib.Localization;
 
-public class LocalizationService(IOptions<LocalizationSettings> opts, ILogger<LocalizationService> logger) 
+public class LocalizationService(IOptions<LocalizationSettings> opts, ILogger<LocalizationService> logger, ITranslationJobQueue translationJobQueue) 
     : IStringLocalizer
 {
     // private static Dictionary<string, Dictionary<string, LocalizedString>>? _translations = null!;
@@ -107,11 +108,21 @@ public class LocalizationService(IOptions<LocalizationSettings> opts, ILogger<Lo
                 string trans = string.IsNullOrEmpty(data.Words[key]) ? key : data.Words[key];
                 return new LocalizedString(key, trans, false);
             }
-            else if (opts.Value.AddMissingStrings)
+        else if (opts.Value.AddMissingStrings)
+        {
+            data.Words.TryAdd(key, "");
+            if (opts.Value.AutoSave)
             {
-                data.Words.TryAdd(key, "");
-                if (opts.Value.AutoSave) SaveTranslation(data);
+                // Backfill English master key list
+                var enData = GetTranslationData("en");
+                if (enData.Words.TryAdd(key, key))
+                {
+                    translationJobQueue.EnqueueKey(key);
+                }
+                SaveTranslation(enData);
+                SaveTranslation(data);
             }
+        }
         }
 
         return new LocalizedString(key, key, true);

@@ -67,6 +67,15 @@
                       Variant="@Variant" Type="@InputType.Number" Margin="Margin.Dense" ShrinkLabel="true" />
     }
 
+    <MudText Typo="Typo.h6" Class="mt-4">@T["AI Extraction"]</MudText>
+
+    <MudSwitch Label=@T["Enable AI extraction for this group"] @bind-Value="Model.AiSettings.IsEnabled" Color="Color.Info" />
+    @if (Model.AiSettings.IsEnabled)
+    {
+        <MudTextField Label=@T["Preferred AI model"] @bind-Value="Model.AiSettings.PreferredModelId"
+                      Variant="@Variant" Margin="Margin.Dense" ShrinkLabel="true" />
+    }
+
 </MudForm>
 
 @code {

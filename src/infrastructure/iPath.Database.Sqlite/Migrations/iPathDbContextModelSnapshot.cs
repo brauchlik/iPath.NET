@@ -18,7 +18,7 @@ namespace iPath.Database.Sqlite.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .UseCollation("NOCASE")
-                .HasAnnotation("ProductVersion", "10.0.5");
+                .HasAnnotation("ProductVersion", "10.0.9");
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
@@ -117,6 +117,37 @@ namespace iPath.Database.Sqlite.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("user_tokens", (string)null);
+                });
+
+            modelBuilder.Entity("iPath.Domain.Entities.AiCorrectionDelta", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ContextualSnippet")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CorrectedValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FieldName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WrongPrediction")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ai_correction_deltas", (string)null);
                 });
 
             modelBuilder.Entity("iPath.Domain.Entities.Annotation", b =>
@@ -220,6 +251,78 @@ namespace iPath.Database.Sqlite.Migrations
                     b.ToTable("AuditableEntity");
                 });
 
+            modelBuilder.Entity("iPath.Domain.Entities.CaseEmbedding", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ModelIdentifierUsed")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<byte[]>("VectorData")
+                        .HasColumnType("BLOB");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("case_embeddings", (string)null);
+                });
+
+            modelBuilder.Entity("iPath.Domain.Entities.CaseIngestionLineage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AiSuggestedDataJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("HasBeenAnalyzedBySupervisor")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("HumanAcceptedDataJson")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ModelIdentifierUsed")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RawInputText")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("WasOverridden")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("case_ingestion_lineages", (string)null);
+                });
+
             modelBuilder.Entity("iPath.Domain.Entities.Community", b =>
                 {
                     b.Property<Guid>("Id")
@@ -270,6 +373,17 @@ namespace iPath.Database.Sqlite.Migrations
                             b1.Property<string>("MorphologyValueSet");
 
                             b1.Property<string>("TopographyValueSet");
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "AiSettings", "iPath.Domain.Entities.Community.Settings#CommunitySettings.AiSettings#AiConfig", b2 =>
+                                {
+                                    b2.IsRequired();
+
+                                    b2.Property<bool>("IsEnabled");
+
+                                    b2.Property<string>("PreferredModelId");
+
+                                    b2.Property<string>("SystemInstructionsOverride");
+                                });
 
                             b1.ComplexProperty(typeof(Dictionary<string, object>), "Storage", "iPath.Domain.Entities.Community.Settings#CommunitySettings.Storage#StorageInfo", b2 =>
                                 {
@@ -651,6 +765,17 @@ namespace iPath.Database.Sqlite.Migrations
                             b1.Property<bool>("UseCaseTypeField");
 
                             b1.Property<bool>("UseDescriptionWizzard");
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "AiSettings", "iPath.Domain.Entities.Group.Settings#GroupSettings.AiSettings#AiConfig", b2 =>
+                                {
+                                    b2.IsRequired();
+
+                                    b2.Property<bool>("IsEnabled");
+
+                                    b2.Property<string>("PreferredModelId");
+
+                                    b2.Property<string>("SystemInstructionsOverride");
+                                });
 
                             b1.ComplexProperty(typeof(Dictionary<string, object>), "Storage", "iPath.Domain.Entities.Group.Settings#GroupSettings.Storage#StorageInfo", b2 =>
                                 {
@@ -1394,6 +1519,17 @@ namespace iPath.Database.Sqlite.Migrations
                             b1.Property<Guid>("UserId");
 
                             b1.Property<string>("Username");
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "AiSettings", "iPath.Domain.Entities.User.Profile#UserProfile.AiSettings#AiConfig", b2 =>
+                                {
+                                    b2.IsRequired();
+
+                                    b2.Property<bool>("IsEnabled");
+
+                                    b2.Property<string>("PreferredModelId");
+
+                                    b2.Property<string>("SystemInstructionsOverride");
+                                });
 
                             b1.ComplexProperty(typeof(Dictionary<string, object>), "ContactDetails", "iPath.Domain.Entities.User.Profile#UserProfile.ContactDetails#ContactDetails", b2 =>
                                 {

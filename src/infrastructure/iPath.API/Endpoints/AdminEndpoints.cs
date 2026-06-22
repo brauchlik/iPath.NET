@@ -1,4 +1,4 @@
-﻿using iPath.Application.Contracts;
+using iPath.Application.Contracts;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Users;
 using iPath.Application.Localization;
@@ -104,6 +104,26 @@ public static class AdminEndpoints
             .Produces<TranslationData>()
             .WithTags("Localization");
 
+        route.MapPost("translations/{lang}/add-missing", (string lang, List<string> keys, [FromServices] LocalizationFileService srv) =>
+        {
+            var data = srv.GetTranslationData(lang);
+            bool updated = false;
+            foreach (var key in keys)
+            {
+                if (data.Words.TryAdd(key, ""))
+                {
+                    updated = true;
+                }
+            }
+            if (updated)
+            {
+                srv.SaveTranslation(data);
+            }
+            return Results.Ok(true);
+        })
+        .Produces<bool>()
+        .WithTags("Localization");
+
 
         #region "-- Database Diagnostics --"
         route.MapGet("admin/database", async (IMediator mediator, CancellationToken ct) =>
@@ -121,6 +141,60 @@ public static class AdminEndpoints
             return Results.Ok(result);
         })
             .Produces<List<TableRowCountDto>>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapGet("admin/ai/status", async (bool? checkConnection, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetAiStatusQuery(checkConnection ?? false), ct);
+            return Results.Ok(result);
+        })
+            .Produces<AiStatusDto>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapGet("admin/ai/lineage/{id}", async (Guid id, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetAiLineageDetailQuery(id), ct);
+            return result is null ? Results.NotFound() : Results.Ok(result);
+        })
+            .Produces<AiLineageDetailDto>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapGet("admin/ai/lineage/by-case/{caseId}", async (Guid caseId, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetAiLineageByCaseQuery(caseId), ct);
+            return Results.Ok(result);
+        })
+            .Produces<List<AiLineageDetailDto>>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapGet("admin/ai/translations/status", async (string locale, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetTranslationStatusQuery(locale), ct);
+            return Results.Ok(result);
+        })
+            .Produces<TranslationStatusDto>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapPost("admin/ai/translations/translate", async (TranslateKeysBatchCommand command, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Ok(result);
+        })
+            .Produces<TranslationResultDto>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapPost("admin/ai/translations/update-key", async (UpdateTranslationKeyCommand command, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Ok(result);
+        })
+            .Produces<bool>()
             .WithTags("Admin")
             .RequireAuthorization("Admin");
 

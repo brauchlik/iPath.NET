@@ -1,0 +1,104 @@
+@namespace iPath.Blazor.Componenents.Admin
+
+@inject IJSRuntime JsRuntime
+
+@if (Model is null)
+{
+    <MudText>Loading...</MudText>
+}
+else
+{
+    <MudText Class="mb-1">
+        <b>Case:</b> <MudLink Href="@($"/request/{Model.CaseId}")">@Model.CaseTitle</MudLink>
+    </MudText>
+    <MudText Class="mb-1">
+        <b>Status:</b>
+        @switch (Model.Status)
+        {
+            case "Completed":
+                <MudChip T="string" Color="Color.Success" Size="Size.Small">Completed</MudChip>
+                break;
+            case "Failed":
+                <MudChip T="string" Color="Color.Error" Size="Size.Small">Failed</MudChip>
+                break;
+            case "Skipped":
+                <MudChip T="string" Color="Color.Default" Size="Size.Small">Skipped</MudChip>
+                break;
+            case "Processing":
+                <MudChip T="string" Color="Color.Info" Size="Size.Small">Processing</MudChip>
+                break;
+            case "Queued":
+                <MudChip T="string" Color="Color.Warning" Size="Size.Small">Queued</MudChip>
+                break;
+            default:
+                <MudChip T="string" Size="Size.Small">@Model.Status</MudChip>
+                break;
+        }
+    </MudText>
+    <MudText Class="mb-1"><b>Model Used:</b> @(Model.ModelUsed ?? "N/A")</MudText>
+    <MudText Class="mb-1"><b>Overridden:</b> @(Model.WasOverridden ? "Yes" : "No")</MudText>
+    <MudText Class="mb-1"><b>Timestamp:</b> @Model.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") UTC</MudText>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-2 mb-2" Dense="true">
+            @Model.ErrorMessage
+        </MudAlert>
+    }
+
+    <MudExpansionPanels Class="mt-4">
+        <MudExpansionPanel Text="Raw Input Text (sent to LLM)">
+            <div style="background-color: #1e1e1e; color: #d4d4d4; font-family: monospace; font-size: 0.8rem; padding: 12px; border-radius: 4px; max-height: 300px; overflow: auto; white-space: pre-wrap;">@Model.RawInputText</div>
+        </MudExpansionPanel>
+
+        <MudExpansionPanel Text="AI Suggested Response (JSON)">
+            <div class="d-flex justify-end mb-1">
+                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.ContentCopy" OnClick="@(() => CopyToClipboard(Model.AiSuggestedDataJson))" Title="Copy JSON" />
+            </div>
+            <div style="background-color: #1e1e1e; color: #d4d4d4; font-family: monospace; font-size: 0.8rem; padding: 12px; border-radius: 4px; max-height: 400px; overflow: auto; white-space: pre-wrap;">@FormatJson(Model.AiSuggestedDataJson)</div>
+        </MudExpansionPanel>
+
+        @if (!string.IsNullOrEmpty(Model.HumanAcceptedDataJson) && Model.WasOverridden)
+        {
+            <MudExpansionPanel Text="Human Accepted Data (after edits)">
+                <div style="background-color: #1e1e1e; color: #d4d4d4; font-family: monospace; font-size: 0.8rem; padding: 12px; border-radius: 4px; max-height: 400px; overflow: auto; white-space: pre-wrap;">@FormatJson(Model.HumanAcceptedDataJson)</div>
+            </MudExpansionPanel>
+        }
+
+        <MudExpansionPanel Text="Extracted Fields">
+            <MudStack>
+                <MudText><b>Age:</b> @(Model.Age ?? "N/A")</MudText>
+                <MudText><b>Sex:</b> @(Model.Sex ?? "N/A")</MudText>
+                <MudText><b>Topography Code:</b> @(Model.TopographyCode ?? "N/A")</MudText>
+                <MudText><b>Topography Name:</b> @(Model.TopographyName ?? "N/A")</MudText>
+            </MudStack>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+}
+
+@code {
+    [Parameter]
+    public AiLineageDetailDto? Model { get; set; }
+
+    private string FormatJson(string json)
+    {
+        if (string.IsNullOrEmpty(json) || json == "{}") return json;
+        try
+        {
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+            return System.Text.Json.JsonSerializer.Serialize(doc.RootElement, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        }
+        catch
+        {
+            return json;
+        }
+    }
+
+    private async Task CopyToClipboard(string text)
+    {
+        if (!string.IsNullOrEmpty(text))
+        {
+            await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        }
+    }
+}

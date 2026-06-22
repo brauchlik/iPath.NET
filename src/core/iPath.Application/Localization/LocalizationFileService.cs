@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -10,6 +10,9 @@ public class LocalizationFileService
 {
     private readonly IOptions<LocalizationSettings> _opts;
     private readonly ILogger<LocalizationFileService> _logger;
+    private readonly object _fileLock = new();
+
+    public event Action<string>? TranslationSaved;
 
     public LocalizationFileService(IOptions<LocalizationSettings> opts, ILogger<LocalizationFileService> logger)
     {
@@ -31,33 +34,44 @@ public class LocalizationFileService
 
     public TranslationData GetTranslationData(string locale)
     {
-        TranslationData data;
-
-        if (!_opts.Value.SupportedCultures.Contains(locale))
+        lock (_fileLock)
         {
-            throw new InvalidOperationException($"Culture {locale} is not supported");
-        }
+            TranslationData data;
 
-        string fileName = Path.Combine(_opts.Value.LocalesRoot, $"{locale}.json");
-        if (!File.Exists(fileName))
-        {
-            data = new();
-            data.locale = locale;
-            data.ModifiedOn = DateTime.Now;
-            data.Words = new();
-            data.Words["Test"] = "Test";
-            data.Words["Test2"] = "Test2";
-            if (_opts.Value.AutoSave) SaveTranslation(data);
-        }
-        else
-        {
-            data = JsonSerializer.Deserialize<TranslationData>(File.ReadAllText(fileName));
-        }
+            if (!_opts.Value.SupportedCultures.Contains(locale))
+            {
+                throw new InvalidOperationException($"Culture {locale} is not supported");
+            }
 
-        return data;
+            string fileName = Path.Combine(_opts.Value.LocalesRoot, $"{locale}.json");
+            if (!File.Exists(fileName))
+            {
+                data = new();
+                data.locale = locale;
+                data.ModifiedOn = DateTime.Now;
+                data.Words = new();
+                data.Words["Test"] = "Test";
+                data.Words["Test2"] = "Test2";
+                if (_opts.Value.AutoSave) SaveTranslationInternal(data);
+            }
+            else
+            {
+                data = JsonSerializer.Deserialize<TranslationData>(File.ReadAllText(fileName));
+            }
+
+            return data;
+        }
     }
 
     public bool SaveTranslation(TranslationData data)
+    {
+        lock (_fileLock)
+        {
+            return SaveTranslationInternal(data);
+        }
+    }
+
+    private bool SaveTranslationInternal(TranslationData data)
     {
         try
         {
@@ -70,6 +84,7 @@ public class LocalizationFileService
             string json = JsonSerializer.Serialize(data, options);
             string fileName = Path.Combine(_opts.Value.LocalesRoot, $"{data.locale}.json");
             File.WriteAllText(fileName, json, System.Text.Encoding.UTF8);
+            TranslationSaved?.Invoke(data.locale);
             return true;
         }
         catch (Exception ex)
@@ -81,17 +96,38 @@ public class LocalizationFileService
 
 }
 
-public class FileLocalizaitonProvider(LocalizationFileService srv) : ILocalizationDataProvider
+public class FileLocalizaitonProvider : ILocalizationDataProvider
 {
+    private readonly LocalizationFileService _srv;
+    public event Action<string>? TranslationDataSaved;
+
+    public FileLocalizaitonProvider(LocalizationFileService srv)
+    {
+        _srv = srv;
+        _srv.TranslationSaved += locale => TranslationDataSaved?.Invoke(locale);
+    }
+
     public async Task<Result<TranslationData>> GetTranslationDataAsync(string locale)
     {
         try
         {
-            return new Result<TranslationData>().WithValue(srv.GetTranslationData(locale));
+            return new Result<TranslationData>().WithValue(_srv.GetTranslationData(locale));
         }
         catch (Exception ex)
         {
             return Result.Fail(ex.Message);
+        }
+    }
+
+    public Task<bool> SaveTranslationDataAsync(TranslationData data)
+    {
+        try
+        {
+            return Task.FromResult(_srv.SaveTranslation(data));
+        }
+        catch
+        {
+            return Task.FromResult(false);
         }
     }
 }

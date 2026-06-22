@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using MudBlazor.Services;
@@ -184,6 +185,22 @@ app.Services.InitComponenetsExtensions();
 
 app.UseCors("CorsPolicy");
 
+var l10nSettings = app.Services.GetRequiredService<IOptions<iPath.Application.Localization.LocalizationSettings>>().Value;
+var supportedCultures = l10nSettings.SupportedCultures;
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture("en")
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
+app.UseRequestLocalization(localizationOptions);
+
+// Preload ALL localization data into the Singleton cache at startup
+var srvLoc = app.Services.GetRequiredService<iPath.Blazor.ServiceLib.Services.StringLocalizerService>();
+foreach (var culture in supportedCultures)
+{
+    await srvLoc.LoadTranslationData(culture);
+}
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -296,5 +313,17 @@ app.MapIPathApi(builder.Configuration);
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
 
+app.MapGet("/api/localization/set", (string culture, string redirectUri, HttpContext httpContext) =>
+{
+    if (!string.IsNullOrEmpty(culture))
+    {
+        httpContext.Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+            new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1), IsEssential = true }
+        );
+    }
+    return Results.LocalRedirect(redirectUri ?? "/");
+});
 
 app.Run();

@@ -2,12 +2,11 @@
 @attribute [Authorize(Roles = "Admin")]
 @implements IDisposable
 @using iPath.Application.Features.Admin
+@using iPath.Application.Localization
 @using iPath.Blazor.Componenents.Admin
 @using iPath.Domain.Config
 @using Microsoft.Extensions.Options
 @using MudBlazor
-
-@rendermode InteractiveServer
 
 <IPathHeader Title="AI Status Dashboard" />
 
@@ -330,8 +329,8 @@ else
 
 @inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
 @inject Microsoft.Extensions.Options.IOptions<iPath.Application.Localization.LocalizationSettings> localizationOpts
-@inject iPath.Blazor.ServiceLib.Services.StringLocalizerService srvLoc
-@inject iPath.Application.Features.Admin.ITranslationJobQueue translationJobQueue
+@inject ITranslationLoader translationLoader
+@inject ITranslationJobQueue translationJobQueue
 @inject IDialogService dialog
 
 @code {
@@ -540,7 +539,7 @@ else
 
             try
             {
-                await srvLoc.LoadTranslationData(_selectedLocale, reload: true);
+                await translationLoader.LoadTranslationData(_selectedLocale, reload: true);
             }
             catch (Exception ex)
             {
@@ -571,7 +570,7 @@ else
                 row.TranslatedAt = DateTime.UtcNow;
 
                 // Force localizer cache to reload
-                await srvLoc.LoadTranslationData(_selectedLocale, reload: true);
+                await translationLoader.LoadTranslationData(_selectedLocale, reload: true);
             }
             else
             {

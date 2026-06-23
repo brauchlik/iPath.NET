@@ -1,4 +1,5 @@
 ﻿using iPath.Application.Contracts;
+using iPath.Application.Features.Admin;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Fhir;
 using iPath.Application.Localization;
@@ -71,6 +72,7 @@ public static class RazorLibServiceRegistration
             services.AddSingleton<ClientStringLocalizerService>();
             services.AddSingleton<IStringLocalizer>(p => p.GetRequiredService<ClientStringLocalizerService>());
             services.AddSingleton<ITranslationLoader>(p => p.GetRequiredService<ClientStringLocalizerService>());
+            services.AddSingleton<ITranslationJobQueue, NoOpTranslationJobQueue>();
         }
         else
         {

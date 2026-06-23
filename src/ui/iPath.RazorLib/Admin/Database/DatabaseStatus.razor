@@ -1,9 +1,7 @@
 @page "/admin/database"
 
-@using DispatchR
 @using iPath.Application.Features.Admin
-
-@rendermode InteractiveServer
+@using iPath.Blazor.ServiceLib.ApiClient
 
 <IPathHeader Title="Database Status" />
 
@@ -107,7 +105,7 @@
 </MudTabs>
 
 
-@inject IMediator mediator
+@inject IPathApi api
 @inject ISnackbar snackbar
 @inject IDialogService dialog
 @inject NavigationManager navigation
@@ -147,7 +145,9 @@
     {
         try
         {
-            migrationData = await mediator.Send(new GetDatabaseStatusQuery(), CancellationToken.None);
+            var r = await api.GetDatabaseStatus();
+            if (r.IsSuccessful && r.Content is not null)
+                migrationData = r.Content;
         }
         catch (Exception ex)
         {
@@ -169,11 +169,17 @@
 
         try
         {
-            await mediator.Send(new ApplyDatabaseMigrationsCommand(), CancellationToken.None);
-            snackbar.Add($"Applied {pending} migration(s) successfully.", Severity.Success);
-
-            await LoadMigrationData();
-            StateHasChanged();
+            var r = await api.ApplyDatabaseMigrations();
+            if (r.IsSuccessful)
+            {
+                snackbar.Add($"Applied {pending} migration(s) successfully.", Severity.Success);
+                await LoadMigrationData();
+                StateHasChanged();
+            }
+            else
+            {
+                snackbar.AddError("Error applying migrations: API returned unsuccessful status.");
+            }
         }
         catch (Exception ex)
         {
@@ -185,7 +191,9 @@
     {
         try
         {
-            tableData = await mediator.Send(new GetDatabaseTableCountsQuery(), CancellationToken.None);
+            var r = await api.GetDatabaseTableCounts();
+            if (r.IsSuccessful && r.Content is not null)
+                tableData = r.Content;
         }
         catch (Exception ex)
         {

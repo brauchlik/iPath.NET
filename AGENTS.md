@@ -158,6 +158,29 @@ public class MyService
 var repo = Ioc.GetService<IRepository>();
 ```
 
+### Configuration
+```csharp
+// ✅ DO: Register config classes and use IOptions<T> — no magic strings
+// 1. Create a config class (in iPath.Domain.Config)
+public class AiSettingsConfig { public const string ConfigName = "AiSettings"; public bool IsEnabled { get; set; } }
+
+// 2. Register in AddIPathAPI or AddPersistance
+services.Configure<AiSettingsConfig>(config.GetSection(AiSettingsConfig.ConfigName));
+var aiCfg = new AiSettingsConfig();
+config.GetSection(AiSettingsConfig.ConfigName).Bind(aiCfg);
+
+// 3. Inject IOptions<T> in handlers/services
+public class MyHandler(IOptions<AiSettingsConfig> aiOpts) { ... }
+
+// 4. Or bind locally when needed (for services.AddXxx registration blocks)
+var aiCfg = new AiSettingsConfig();
+config.GetSection(AiSettingsConfig.ConfigName).Bind(aiCfg);
+services.PostConfigure<iPathClientConfig>(c => c.AiEnabled = aiCfg.IsEnabled);
+
+// ❌ AVOID: Magic strings for config section or property names
+config.GetSection("AiSettings").GetValue<bool>("IsEnabled");
+```
+
 ### Async/Await
 ```csharp
 // ✅ DO: Use async all the way

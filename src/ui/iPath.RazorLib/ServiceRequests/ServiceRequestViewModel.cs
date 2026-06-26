@@ -1124,6 +1124,34 @@ public class ServiceRequestViewModel(IPathApi api,
     }
 
 
+    public bool VsiTestActive => IsAdmin && opts.Value.VsiConversionEnabled;
+
+
+    public async Task ShowVsiImportDialog()
+    {
+        if (SelectedRequest is null) return;
+
+        var parameters = new DialogParameters<ImportVsiFromPathDialog>();
+        var dialogRef = await srvDialog.ShowAsync<ImportVsiFromPathDialog>("Import VSI from Server Path", parameters);
+        var result = await dialogRef.Result;
+
+        if (result is not null && !result.Canceled && result.Data is VsiImportRequest importReq)
+        {
+            var cmd = new VsiImportCommand(importReq.Path, SelectedRequest.Id, SelectedDocument?.Id, importReq.DeleteAfterImport);
+            var resp = await api.VsiImport(cmd);
+            if (snackbar.CheckSuccess(resp) && resp.Content is not null)
+            {
+                snackbar.Add($"Imported {resp.Content.Imported} file(s)", Severity.Success);
+                if (resp.Content.Errors.Count > 0)
+                {
+                    snackbar.Add($"Errors: {string.Join("; ", resp.Content.Errors)}", Severity.Warning);
+                }
+                await ReloadNode();
+            }
+        }
+    }
+
+
     public bool ExternalStorageActive => !string.IsNullOrEmpty(opts.Value.ExternalStorageName);
     public async Task SyncExternalStorage()
     {
@@ -1143,5 +1171,7 @@ public class ServiceRequestViewModel(IPathApi api,
             snackbar.CheckSuccess(resp);
         }
     }
+
+    public bool AiEnabled => opts.Value.AiEnabled;
 }
 

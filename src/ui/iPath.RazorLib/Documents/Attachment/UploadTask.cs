@@ -25,6 +25,14 @@ public class UploadTask(IPathApi api, long MaxFileSize)
         Filename = file.Name;
         try
         {
+            if (file.Size > MaxFileSize)
+            {
+                Error = $"File '{file.Name}' exceeds the maximum allowed size of {MaxFileSize} bytes.";
+                uploading = false;
+                OnChange?.Invoke();
+                return;
+            }
+
             var s = new StreamPart(file.OpenReadStream(maxAllowedSize: MaxFileSize), file.Name, file.ContentType);
             var resp = await api.UploadDocument(s, requestId, parentId);
             if (resp.IsSuccessful)

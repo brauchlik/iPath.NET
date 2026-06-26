@@ -1,0 +1,36 @@
+@using iPath.Application.Features.Documents
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Import VSI from Server Path</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="_path"
+                      Label="Server file path"
+                      HelperText="e.g. C:\slides\slide1.vsi or C:\slides\"
+                      Variant="Variant.Outlined"
+                      Style="width: 500px;" />
+        <MudCheckBox @bind-Checked="_deleteAfterImport" T="bool" Label="Delete .vsi and companion folder after import" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="Import" Color="Color.Primary" Variant="Variant.Filled"
+                   Disabled="@string.IsNullOrWhiteSpace(_path)">Import</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private string _path = string.Empty;
+    private bool _deleteAfterImport;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private void Import()
+    {
+        var data = new VsiImportRequest(_path, Guid.Empty, null, _deleteAfterImport);
+        MudDialog.Close(DialogResult.Ok(data));
+    }
+}

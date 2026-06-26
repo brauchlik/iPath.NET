@@ -4,6 +4,7 @@ using iPath.Application.AI;
 using iPath.Application.Features.Admin;
 using iPath.Application.Features.Notifications;
 using iPath.Database.EFCore.AI;
+using iPath.Domain.Config;
 using iPath.EF.Core.Database;
 using iPath.EF.Core.FeatureHandlers.Emails;
 using iPath.EF.Core.FeatureHandlers.Groups;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using OllamaSharp;
 
 
@@ -84,8 +86,10 @@ public static class PersistanceServiceRegistration
         services.AddHostedService<TranslationJobWorker>();
 
         // Register dynamic IChatClient and IEmbeddingGenerator based on configured provider
-        var aiSection = config.GetSection("AiSettings");
-        var aiProvider = aiSection.GetValue<string>("Provider")?.ToLowerInvariant() ?? "ollama";
+        var aiSection = config.GetSection(AiSettingsConfig.ConfigName);
+        var aiCfg = new AiSettingsConfig();
+        aiSection.Bind(aiCfg);
+        var aiProvider = aiCfg.Provider.ToLowerInvariant();
 
         switch (aiProvider)
         {

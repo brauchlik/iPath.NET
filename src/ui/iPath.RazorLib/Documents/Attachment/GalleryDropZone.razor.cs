@@ -49,6 +49,10 @@ public partial class GalleryDropZone
         {
             var t = vm.CreateUploadTask();
             await t.Upload(f, vm.SelectedRequest.Id, vm.SelectedDocument?.Id).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(t.Error))
+            {
+                snackbar.Add(t.Error, Severity.Error);
+            }
             _uploads.Add(t);
             await InvokeAsync(StateHasChanged);
         }

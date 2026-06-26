@@ -18,6 +18,6 @@ internal class AnnotationConfiguration : IEntityTypeConfiguration<Annotation>
 
         b.HasMany(x => x.QuestionnaireResponses).WithOne(r => r.Annotation).IsRequired(false);
 
-        b.HasIndex(x => x.ServiceRequestId);
+        b.HasIndex(x => new { x.ServiceRequestId, x.DeletedOn });
     }
 }

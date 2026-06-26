@@ -1,4 +1,4 @@
-﻿@page "/request/{id}/slideshow"
+@page "/request/{id}/slideshow"
 
 @attribute [Authorize]
 
@@ -30,7 +30,7 @@
             else if (Wsi && vm.SelectedDocument.IsWSI)
             {
                 <div class="d-flex justify-center ipath_osd">
-                    <iPath.OpenSeadragon.OsdViewerIFrame ImagePath=@($"/files/{vm.SelectedDocument.Id}") MaxHeight="700" />
+                    <iPath.OpenSeadragon.OsdViewerIFrame ImagePath="@(vm.SelectedDocument.FileExtension.ToLower() == ".vsi" ? $"/files/{vm.SelectedDocument.Id}.dzi" : $"/files/{vm.SelectedDocument.Id}")" MaxHeight="700" />
                 </div>
             }
             else

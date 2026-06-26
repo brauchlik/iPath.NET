@@ -1,9 +1,11 @@
 using System.Text.Json;
 using iPath.Application.Features.Admin;
 using iPath.Application.Localization;
+using iPath.Domain.Config;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace iPath.EF.Core.FeatureHandlers.Admin;
 
@@ -77,6 +79,7 @@ public class GetTranslationStatusHandler(
 public class TranslateKeysBatchHandler(
     LocalizationFileService localizationFileService,
     IChatClient chatClient,
+    IOptions<AiSettingsConfig> aiOpts,
     IConfiguration config,
     ILogger<TranslateKeysBatchHandler> logger)
     : IRequestHandler<TranslateKeysBatchCommand, Task<TranslationResultDto>>
@@ -96,16 +99,15 @@ public class TranslateKeysBatchHandler(
 
         try
         {
-            var aiSection = config.GetSection("AiSettings");
-            var isEnabled = aiSection.GetValue<bool>("IsEnabled");
-            if (!isEnabled)
+            var aiSection = config.GetSection(AiSettingsConfig.ConfigName);
+            if (!aiOpts.Value.IsEnabled)
             {
                 result.IsSuccess = false;
                 result.ErrorMessage = "AI translation is disabled because AI features are not globally enabled in configuration.";
                 return result;
             }
 
-            var provider = aiSection.GetValue<string>("Provider") ?? "Ollama";
+            var provider = aiOpts.Value.Provider;
             var model = aiSection.GetValue<string>($"{provider}:TranslationModel") 
                         ?? aiSection.GetValue<string>($"{provider}:ChatModel") 
                         ?? "llama3";

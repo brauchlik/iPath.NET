@@ -26,6 +26,9 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
     UserManager<Domain.Entities.User> um,
     IMimetypeService mime,
     IGroupCache groupCache,
+    IVsiConversionQueue vsiConversionQueue,
+    IEnumerable<IConversionPlugin> conversionPlugins,
+    IOptions<VsiConversionConfig> vsiConfig,
     ILogger<GoogleDriveStorageService> logger)
     : IRemoteStorageService
 {
@@ -786,16 +789,63 @@ and you can upload images and other files directly into that folder. From there 
                                     newDoc.File.ThumbData = await GetThumbnailBase64Async(item.Id);
                                     newDoc.DocumentType = "image";
                                 }
-                                if (clientOpts.Value.WsiExtensions.Contains(System.IO.Path.GetExtension(item.Name)))
+                                var ext = System.IO.Path.GetExtension(item.Name);
+                                if (clientOpts.Value.WsiExtensions.Contains(ext))
                                 {
-                                    // 
                                     newDoc.File.PublicUrl = await CreatePublicRangeLinkAsync(item.Id, ct);
                                     newDoc.DocumentType = "wsi";
                                 }
                                 else
                                 {
-                                    // view link for images & files
                                     newDoc.File.PublicUrl = await CreateViewLink(newDoc, ct);
+                                }
+
+                                var conversionPlugin = conversionPlugins.FirstOrDefault(p => p.CanHandle(ext));
+                                if (conversionPlugin != null)
+                                {
+                                    var stagingRoot = string.IsNullOrEmpty(vsiConfig.Value.StagingPath)
+                                        ? Path.Combine(opts.Value.TempDataPath, "conversion")
+                                        : vsiConfig.Value.StagingPath;
+                                    var stagingDir = Path.Combine(stagingRoot, newDoc.Id.ToString());
+                                    Directory.CreateDirectory(stagingDir);
+                                    var localFilePath = Path.Combine(stagingDir, item.Name);
+
+                                    // Download .vsi from GDrive
+                                    using (var downloadStream = new FileStream(localFilePath, FileMode.Create, FileAccess.Write))
+                                    {
+                                        await GDrive.Files.Get(item.Id).DownloadAsync(downloadStream, ct);
+                                    }
+
+                                    // Download companion folders per plugin hint
+                                    foreach (var companionName in conversionPlugin.GetRequiredCompanions(item.Name))
+                                    {
+                                        var companionListReq = GDrive.Files.List();
+                                        companionListReq.Q = $"'{folder.StorageId}' in parents and name = '{companionName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false";
+                                        companionListReq.Fields = "files(id, name, mimeType)";
+                                        var companionResult = await companionListReq.ExecuteAsync(ct);
+                                        var companionFolder = companionResult.Files?.FirstOrDefault();
+                                        if (companionFolder != null)
+                                        {
+                                            var companionLocal = Path.Combine(stagingDir, companionName);
+                                            await DownloadFolderContentsAsync(companionFolder.Id, companionLocal, ct);
+
+                                            // Move companion folder on GDrive to SR folder
+                                            var moveReq = GDrive.Files.Update(new v3.Data.File(), companionFolder.Id);
+                                            moveReq.AddParents = srFolderId;
+                                            moveReq.RemoveParents = folder.StorageId;
+                                            await moveReq.ExecuteAsync(ct);
+                                        }
+                                    }
+
+                                    newDoc.DocumentType = "wsi";
+
+                                    db.Set<VsiConversionJob>().Add(new VsiConversionJob
+                                    {
+                                        Id = Guid.CreateVersion7(),
+                                        DocumentId = newDoc.Id,
+                                        OriginalStorageId = localFilePath
+                                    });
+                                    await vsiConversionQueue.EnqueueAsync(newDoc.Id, ct);
                                 }
                             }
                             catch (Exception ex)
@@ -812,4 +862,31 @@ and you can upload images and other files directly into that folder. From there 
 
     }
     #endregion
+
+    private async Task DownloadFolderContentsAsync(string folderId, string localPath, CancellationToken ct)
+    {
+        var listReq = GDrive.Files.List();
+        listReq.Q = $"'{folderId}' in parents and trashed = false";
+        listReq.Fields = "files(id, name, mimeType)";
+
+        var result = await listReq.ExecuteAsync(ct);
+        if (result.Files == null) return;
+
+        Directory.CreateDirectory(localPath);
+
+        foreach (var item in result.Files)
+        {
+            if (item.MimeType == "application/vnd.google-apps.folder")
+            {
+                var subPath = Path.Combine(localPath, item.Name);
+                await DownloadFolderContentsAsync(item.Id, subPath, ct);
+            }
+            else
+            {
+                var filePath = Path.Combine(localPath, item.Name);
+                using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+                await GDrive.Files.Get(item.Id).DownloadAsync(stream, ct);
+            }
+        }
+    }
 }

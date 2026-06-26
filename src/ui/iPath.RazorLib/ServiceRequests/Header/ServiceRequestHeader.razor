@@ -1,7 +1,6 @@
 @namespace iPath.Blazor.Componenents.ServiceRequests
 
 @inherits ServiceRequestViewComponentBase
-@inject IOptions<iPathClientConfig> clientOpts
 @inject IDialogService dialog
 @inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
 
@@ -30,6 +29,10 @@
                         }
                         <MudMenuItem Icon="@Icons.Material.Filled.Folder">Folder</MudMenuItem>
                         <MudMenuItem Icon="@Icons.Material.Filled.DynamicForm">Form</MudMenuItem>
+                        @if (vm.VsiTestActive)
+                        {
+                            <MudMenuItem OnClick="@(() => vm.ShowVsiImportDialog())">VSI Import (Test)</MudMenuItem>
+                        }
                     </MudMenu>
                 </MudButtonGroup>
                 <MudTooltip Text=@T["add a comment"]>
@@ -68,7 +71,7 @@
                         <IPathToolbarButton Icon="@Icons.Material.Outlined.Preview" OnClick="@(() => vm.ShowPreviewDialog())" />
                     }
 
-                    @if (clientOpts.Value.AiEnabled)
+                    @if (vm.AiEnabled)
                     {
                         <MudMenu Icon="@Icons.Material.Outlined.Psychology" Style="align-self: auto;">
                             <MudMenuItem Icon="@Icons.Material.Filled.FlashOn" OnClick="TriggerTranscription">@T["Enqueue for Transcription"]</MudMenuItem>

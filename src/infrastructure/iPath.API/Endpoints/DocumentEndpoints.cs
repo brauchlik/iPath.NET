@@ -2,6 +2,7 @@
 using Google.Apis.Drive.v3.Data;
 using iPath.Application.Features.Documents;
 using iPath.Application.Features.ServiceRequests.Commands;
+using Microsoft.AspNetCore.Mvc;
 
 namespace iPath.API.Endpoints;
 
@@ -88,6 +89,11 @@ public static class DocumentEndpoints
             .DisableAntiforgery()
             .Produces<DocumentDto>()
             .RequireAuthorization();
+
+        grp.MapPost("vsi/import", async ([FromBody] VsiImportCommand request, [FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(request, ct))
+            .Produces<VsiImportResponse>()
+            .RequireAuthorization("Admin");
 
         return builder;
     }

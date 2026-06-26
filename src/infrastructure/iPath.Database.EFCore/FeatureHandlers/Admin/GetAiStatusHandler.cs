@@ -1,15 +1,18 @@
 using iPath.Application.AI;
 using iPath.Application.Features.Admin;
+using iPath.Domain.Config;
 using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace iPath.EF.Core.FeatureHandlers.Admin;
 
 public class GetAiStatusHandler(
     iPathDbContext db,
+    IOptions<AiSettingsConfig> aiOpts,
     IConfiguration config,
     IAiExtractionQueue queue,
     IChatClient chatClient,
@@ -18,9 +21,8 @@ public class GetAiStatusHandler(
 {
     public async Task<AiStatusDto> Handle(GetAiStatusQuery request, CancellationToken ct)
     {
-        var aiSection = config.GetSection("AiSettings");
-        var isEnabled = aiSection.GetValue<bool>("IsEnabled");
-        var provider = aiSection.GetValue<string>("Provider") ?? "Ollama";
+        var isEnabled = aiOpts.Value.IsEnabled;
+        var provider = aiOpts.Value.Provider;
         
         var dto = new AiStatusDto
         {
@@ -31,6 +33,8 @@ public class GetAiStatusHandler(
 
         if (isEnabled)
         {
+            var aiSection = config.GetSection(AiSettingsConfig.ConfigName);
+
             // Set models
             dto.ChatModel = aiSection.GetValue<string>($"{provider}:ChatModel") ?? "";
             dto.TranslationModel = aiSection.GetValue<string>($"{provider}:TranslationModel") ?? dto.ChatModel;

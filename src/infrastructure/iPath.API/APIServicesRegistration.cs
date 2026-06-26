@@ -43,6 +43,17 @@ public static class APIServicesRegistration
         var clcfg = new iPathClientConfig();
         config.GetSection(iPathClientConfig.ConfigName).Bind(clcfg);
 
+        // VSI conversion config
+        services.Configure<VsiConversionConfig>(config.GetSection(VsiConversionConfig.ConfigName));
+        var vsiCfg = new VsiConversionConfig();
+        config.GetSection(VsiConversionConfig.ConfigName).Bind(vsiCfg);
+        services.Configure<GDriveImportScannerConfig>(config.GetSection(GDriveImportScannerConfig.ConfigName));
+
+        // AI config
+        services.Configure<AiSettingsConfig>(config.GetSection(AiSettingsConfig.ConfigName));
+        var aiCfg = new AiSettingsConfig();
+        config.GetSection(AiSettingsConfig.ConfigName).Bind(aiCfg);
+
         // create root folder if requested
         CreateDataRoot(cfg);
 
@@ -127,6 +138,12 @@ public static class APIServicesRegistration
         services.AddHostedService<RemoteStorageUploadWorker>(); // Worker for IRemoteStorageUploadQueue
         services.AddScoped<LocalChacheService>();
 
+        // VSI Conversion
+        services.AddSingleton<IVsiConversionQueue>(ctx => new VsiConversionQueue(10));
+        services.AddSingleton<IConversionPlugin, VsiConversionPlugin>();
+        services.AddHostedService<VsiConversionWorker>();
+        services.AddHostedService<GDriveImportScanner>();
+
         // Questionnaire handling
         services.AddScoped<QuestionnaireCacheServer>();
         // services.AddTransient<IQuestionnaireToTextService, GenericQuestionnaireToCvsTextService>();
@@ -154,7 +171,8 @@ public static class APIServicesRegistration
         }
 
         services.PostConfigure<iPathClientConfig>(c => c.SyncImportEnabled = !string.IsNullOrEmpty(syncCs));
-        services.PostConfigure<iPathClientConfig>(c => c.AiEnabled = config.GetSection("AiSettings").GetValue<bool>("IsEnabled"));
+        services.PostConfigure<iPathClientConfig>(c => c.AiEnabled = aiCfg.IsEnabled);
+        services.PostConfigure<iPathClientConfig>(c => c.VsiConversionEnabled = vsiCfg.Enabled);
 
         // Configure JSON options for OpenAPI schema generation
         // Build-time OpenAPI generation needs higher MaxDepth for complex domain models

@@ -7,6 +7,7 @@ global using Microsoft.AspNetCore.Mvc;
 global using iPath.Application.Extensions;
 global using iPath.Application.Contracts;
 global using iPath.Domain.Config;
+global using iPath.Application.Features.Conversion;
 global using iPath.Application.Features.ServiceRequests;
 global using iPath.Domain.Entities;
 global using iPath.Application.Features;

@@ -1,0 +1,59 @@
+@page "/admin/system/config"
+@using Microsoft.Extensions.Configuration
+@using Microsoft.Extensions.Options
+@using iPath.Domain.Config
+
+@attribute [ExcludeFromInteractiveRouting]
+
+<IPathHeader Title="Server Configuration" />
+
+<b>@RendererInfo.Name @RendererInfo.IsInteractive</b>
+<p>max filesize: @clopts.Value.MaxFileSize = @clopts.Value.MaxFileSizeBytes Bytes</p>
+<MudDivider Class="my-2" />
+
+<p class="my-2">
+    <b>Temp Path: </b>
+    <span>@opts.Value.TempDataPath</span>
+    @if (TempDataPathExists)
+    {
+        <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success" />
+    }
+</p>
+
+<p class="my-2">
+    <b>Data Storage (@srvStorage.ProviderName): </b>
+    <span>@srvStorage.RootStorageName</span>
+    @if (LocalDataPathExists)
+    {
+        <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success" />
+    }
+</p>
+
+<MudDivider Class="my-4" />
+
+<MudTable Items="cfg.AsEnumerable()" Dense="true" Striped="true">
+    <HeaderContent>
+        <MudTh>Key</MudTh>
+        <MudTh>Value</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Key">@context.Key</MudTd>
+        <MudTd DataLabel="Value">@context.Value</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@inject IOptions<iPathConfig> opts
+@inject IOptions<iPathClientConfig> clopts
+@inject IRemoteStorageService srvStorage
+@inject IConfiguration cfg
+
+@code {
+    bool TempDataPathExists;
+    bool LocalDataPathExists;
+
+    protected override async Task OnInitializedAsync()
+    {
+        TempDataPathExists = System.IO.File.Exists(opts.Value.TempDataPath);
+        LocalDataPathExists = System.IO.File.Exists(opts.Value.LocalDataPath);
+    }
+}

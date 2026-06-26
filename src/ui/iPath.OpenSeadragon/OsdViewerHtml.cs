@@ -1,4 +1,4 @@
-﻿namespace iPath.OpenSeadragon;
+namespace iPath.OpenSeadragon;
 
 
 public class OsdViewerHtml
@@ -114,10 +114,6 @@ public class OsdViewerHtml
 
             elem.innerHTML = ""
 
-           
-            var tileSources = await OpenSeadragon.GeoTIFFTileSource.getAllTileSources(url, { logLatency: false, cache: true, slideOnly: true });
-            var dim = tileSources[0].dimensions;
-
             var osd = OpenSeadragon({
                 id: elem.id,
                 visibilityRatio: 1,
@@ -142,7 +138,12 @@ public class OsdViewerHtml
                 }
             });
 
-            osd.open(tileSources);
+            if (url.toLowerCase().endsWith(".dzi")) {
+                osd.open(url);
+            } else {
+                var tileSources = await OpenSeadragon.GeoTIFFTileSource.getAllTileSources(url, { logLatency: false, cache: true, slideOnly: true });
+                osd.open(tileSources);
+            }
         }
     </script>
     <body>

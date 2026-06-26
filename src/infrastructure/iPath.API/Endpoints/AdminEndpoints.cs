@@ -145,6 +145,15 @@ public static class AdminEndpoints
             .WithTags("Admin")
             .RequireAuthorization("Admin");
 
+        route.MapGet("admin/vsi/jobs", async (IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetVsiConversionJobsQuery(), ct);
+            return Results.Ok(result);
+        })
+            .Produces<List<VsiConversionJobDto>>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
         route.MapGet("admin/ai/status", async (bool? checkConnection, IMediator mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(new GetAiStatusQuery(checkConnection ?? false), ct);
@@ -226,6 +235,45 @@ public static class AdminEndpoints
             }
         })
             .Produces<DatabaseStatusDto>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+        #endregion
+
+
+        #region "-- Disk Purge --"
+        route.MapGet("admin/purge/deleted-documents", async (IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetDeletedDocumentsWithFilesQuery(), ct);
+            return Results.Ok(result);
+        })
+            .Produces<List<PurgeDocumentFileDto>>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapPost("admin/purge/document/{documentId}", async (string documentId, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new PurgeDocumentFilesCommand(Guid.Parse(documentId)), ct);
+            return Results.Ok(result);
+        })
+            .Produces<bool>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapGet("admin/purge/stale-cache", async (int? daysOld, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetStaleCacheFilesQuery(daysOld ?? 7), ct);
+            return Results.Ok(result);
+        })
+            .Produces<List<StaleCacheFileDto>>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapPost("admin/purge/stale-cache/clean", async (int? daysOld, IMediator mediator, CancellationToken ct) =>
+        {
+            var deleted = await mediator.Send(new CleanStaleCacheFilesCommand(daysOld ?? 7), ct);
+            return Results.Ok(deleted);
+        })
+            .Produces<int>()
             .WithTags("Admin")
             .RequireAuthorization("Admin");
         #endregion

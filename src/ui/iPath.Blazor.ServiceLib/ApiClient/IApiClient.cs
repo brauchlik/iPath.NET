@@ -229,13 +229,16 @@ public interface IPathApi
     Task<IApiResponse<DocumentDto>> UploadDocument([AliasAs("file")] StreamPart file, Guid requestId, [AliasAs("parentId")] Guid? parentId = null);
 
     [Delete("/api/v1/documents/{id}")]
-    Task<IApiResponse<Guid>> DeleteDocument(Guid id);
+    Task<IApiResponse> DeleteDocument(Guid id);
 
     [Put("/api/v1/documents/{id}")]
     Task<IApiResponse<Guid>> UpdateDocument(Guid id);
 
     [Put("/api/v1/documents/order")]
     Task<IApiResponse<ChildNodeSortOrderUpdatedEvent>> UpdateDocumentsSortOrder(UpdateDocumentsSortOrderCommand request);
+
+    [Post("/api/v1/documents/vsi/import")]
+    Task<IApiResponse<VsiImportResponse>> VsiImport([Body] VsiImportCommand request);
     #endregion
 
 
@@ -293,6 +296,21 @@ public interface IPathApi
 
     [Get("/api/v1/admin/database/tables")]
     Task<IApiResponse<List<TableRowCountDto>>> GetDatabaseTableCounts();
+
+    [Get("/api/v1/admin/vsi/jobs")]
+    Task<IApiResponse<List<VsiConversionJobDto>>> GetVsiConversionJobs();
+
+    [Get("/api/v1/admin/purge/deleted-documents")]
+    Task<IApiResponse<List<PurgeDocumentFileDto>>> GetDeletedDocumentsWithFiles();
+
+    [Post("/api/v1/admin/purge/document/{documentId}")]
+    Task<IApiResponse<bool>> PurgeDocumentFiles(Guid documentId);
+
+    [Get("/api/v1/admin/purge/stale-cache")]
+    Task<IApiResponse<List<StaleCacheFileDto>>> GetStaleCacheFiles([Query] int daysOld = 7);
+
+    [Post("/api/v1/admin/purge/stale-cache/clean")]
+    Task<IApiResponse<int>> CleanStaleCacheFiles([Query] int daysOld = 7);
 
     [Get("/api/v1/admin/ai/status")]
     Task<IApiResponse<AiStatusDto>> GetAiStatus([Query] bool checkConnection = false);

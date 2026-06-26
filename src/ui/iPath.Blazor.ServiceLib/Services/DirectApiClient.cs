@@ -391,10 +391,10 @@ public class DirectApiClient(
         return Respond(await mediator.Send(cmd, default));
     }
 
-    public async Task<IApiResponse<Guid>> DeleteDocument(Guid id)
+    public async Task<IApiResponse> DeleteDocument(Guid id)
     {
         await mediator.Send(new DeleteDocumentCommand(id), default);
-        return Respond<Guid>(id);
+        return RespondOk();
     }
 
     public async Task<IApiResponse<Guid>> UpdateDocument(Guid id)
@@ -404,6 +404,11 @@ public class DirectApiClient(
     }
 
     public async Task<IApiResponse<ChildNodeSortOrderUpdatedEvent>> UpdateDocumentsSortOrder(UpdateDocumentsSortOrderCommand request)
+    {
+        return Respond(await mediator.Send(request, default));
+    }
+
+    public async Task<IApiResponse<VsiImportResponse>> VsiImport(VsiImportCommand request)
     {
         return Respond(await mediator.Send(request, default));
     }
@@ -522,6 +527,31 @@ public class DirectApiClient(
     public async Task<IApiResponse<List<TableRowCountDto>>> GetDatabaseTableCounts()
     {
         return Respond(await mediator.Send(new GetDatabaseTableCountsQuery(), default));
+    }
+
+    public async Task<IApiResponse<List<VsiConversionJobDto>>> GetVsiConversionJobs()
+    {
+        return Respond(await mediator.Send(new GetVsiConversionJobsQuery(), default));
+    }
+
+    public async Task<IApiResponse<List<PurgeDocumentFileDto>>> GetDeletedDocumentsWithFiles()
+    {
+        return Respond(await mediator.Send(new GetDeletedDocumentsWithFilesQuery(), default));
+    }
+
+    public async Task<IApiResponse<bool>> PurgeDocumentFiles(Guid documentId)
+    {
+        return Respond(await mediator.Send(new PurgeDocumentFilesCommand(documentId), default));
+    }
+
+    public async Task<IApiResponse<List<StaleCacheFileDto>>> GetStaleCacheFiles(int daysOld = 7)
+    {
+        return Respond(await mediator.Send(new GetStaleCacheFilesQuery(daysOld), default));
+    }
+
+    public async Task<IApiResponse<int>> CleanStaleCacheFiles(int daysOld = 7)
+    {
+        return Respond(await mediator.Send(new CleanStaleCacheFilesCommand(daysOld), default));
     }
 
     public async Task<IApiResponse<AiStatusDto>> GetAiStatus(bool checkConnection = false)

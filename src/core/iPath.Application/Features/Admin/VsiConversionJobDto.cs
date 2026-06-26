@@ -2,6 +2,9 @@ using iPath.Domain.Entities;
 
 namespace iPath.Application.Features.Admin;
 
+public record GetVsiConversionJobsQuery()
+    : IRequest<GetVsiConversionJobsQuery, Task<List<VsiConversionJobDto>>>;
+
 public class VsiConversionJobDto
 {
     public Guid Id { get; set; }

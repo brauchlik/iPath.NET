@@ -114,10 +114,22 @@ public class VsiConversionPlugin(
                 null, 1, ct);
             if (result == null && File.Exists(thumbOutput))
             {
-                var bytes = await File.ReadAllBytesAsync(thumbOutput, ct);
-                ctx.Document.File.ThumbData = Convert.ToBase64String(bytes);
-                ctx.Document.File.ImageWidth = ctx.ThumbSize;
-                ctx.Document.File.ImageHeight = ctx.ThumbSize;
+                var fi = new FileInfo(thumbOutput);
+                if (fi.Length > 200)
+                {
+                    var bytes = await File.ReadAllBytesAsync(thumbOutput, ct);
+                    ctx.Document.File.ThumbData = Convert.ToBase64String(bytes);
+                    ctx.Document.File.ImageWidth = ctx.ThumbSize;
+                    ctx.Document.File.ImageHeight = ctx.ThumbSize;
+                }
+                else
+                {
+                    logger.LogWarning("vips thumbnail produced {Length} bytes for {Input}", fi.Length, inputPath);
+                }
+            }
+            else if (result != null)
+            {
+                logger.LogWarning("vips thumbnail failed for {Input}: {Error}", inputPath, result);
             }
         }
         finally { try { File.Delete(thumbOutput); } catch { } }

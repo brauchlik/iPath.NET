@@ -203,6 +203,14 @@ public static class AdminEndpoints
 
                 if (!File.Exists(thumbPath))
                     return Results.Problem("vips produced no output file");
+
+                // Save thumbnail to Document.ThumbData so gallery picks it up
+                var bytes = await File.ReadAllBytesAsync(thumbPath, ct);
+                doc.File.ThumbData = Convert.ToBase64String(bytes);
+                doc.File.ImageWidth = 100;
+                doc.File.ImageHeight = 100;
+                doc.File.ThumbRetryCount = 0;
+                await db.SaveChangesAsync(ct);
             }
             catch (Exception ex)
             {

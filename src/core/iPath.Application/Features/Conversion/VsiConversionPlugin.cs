@@ -66,11 +66,55 @@ public class VsiConversionPlugin(
 
     public async Task<ThumbnailResult> CreateThumbnailAsync(ThumbnailContext ctx, CancellationToken ct)
     {
+        // Option 1: vips thumbnail directly on source file (fastest, best quality)
         if (File.Exists(ctx.SourcePath))
         {
             await VipsThumbnailAsync(ctx.SourcePath, ctx, ct);
             return ThumbnailResult.Ok();
         }
+
+        // Option 2: DZI fallback — stitch multi-tile level, then thumbnail
+        var vips = config.Value.VipsPath;
+        var dziDir = Path.Combine(ctx.TempDataPath, $"{ctx.DocumentId}_files");
+
+        for (int level = 0; level <= 15; level++)
+        {
+            var levelDir = Path.Combine(dziDir, $"{level}");
+            if (!Directory.Exists(levelDir)) continue;
+
+            var tiles = Directory.GetFiles(levelDir, "*.webp")
+                .OrderBy(f => f).ToArray();
+            if (tiles.Length < 2 || tiles.Length > 9) continue;
+
+            // Compute grid from filenames (e.g. "0_1.webp" → col=0, row=1)
+            var colMax = tiles.Max(t =>
+            {
+                var name = Path.GetFileNameWithoutExtension(t);
+                return int.Parse(name.Split('_')[0]);
+            });
+            var across = colMax + 1;
+
+            // Build file list for vips arrayjoin @filelist syntax
+            var listFile = Path.GetTempFileName() + ".txt";
+            var composite = Path.GetTempFileName() + ".v";
+            try
+            {
+                await File.WriteAllLinesAsync(listFile, tiles, ct);
+                var joinResult = await RunProcessAsync(vips,
+                    $"arrayjoin \"@{listFile}\" \"{composite}\" --across {across}", null, 2, ct);
+                if (joinResult == null && File.Exists(composite))
+                {
+                    await VipsThumbnailAsync(composite, ctx, ct);
+                    return ThumbnailResult.Ok();
+                }
+            }
+            finally
+            {
+                try { File.Delete(listFile); } catch { }
+                try { File.Delete(composite); } catch { }
+            }
+        }
+
         return ThumbnailResult.Fail("Source file not available for thumbnail");
     }
 

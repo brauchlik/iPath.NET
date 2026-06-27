@@ -73,49 +73,91 @@ public class VsiConversionPlugin(
             return ThumbnailResult.Ok();
         }
 
-        // Option 2: DZI fallback — stitch multi-tile level, then thumbnail
-        var vips = config.Value.VipsPath;
+        // Option 2: DZI fallback — stitch tiles with vips join, then thumbnail
         var dziDir = Path.Combine(ctx.TempDataPath, $"{ctx.DocumentId}_files");
+        logger.LogInformation("DZI fallback: looking for tiles in {Dir}", dziDir);
 
         for (int level = 0; level <= 15; level++)
         {
             var levelDir = Path.Combine(dziDir, $"{level}");
             if (!Directory.Exists(levelDir)) continue;
 
-            var tiles = Directory.GetFiles(levelDir, "*.webp")
-                .OrderBy(f => f).ToArray();
-            if (tiles.Length < 2 || tiles.Length > 9) continue;
+            var files = Directory.GetFiles(levelDir, "*.webp");
+            if (files.Length < 2 || files.Length > 9) continue;
 
-            // Compute grid from filenames (e.g. "0_1.webp" → col=0, row=1)
-            var colMax = tiles.Max(t =>
-            {
-                var name = Path.GetFileNameWithoutExtension(t);
-                return int.Parse(name.Split('_')[0]);
-            });
-            var across = colMax + 1;
+            logger.LogInformation("DZI fallback: level {Level} has {Count} tiles", level, files.Length);
 
-            // Build file list for vips arrayjoin @filelist syntax
-            var listFile = Path.GetTempFileName() + ".txt";
-            var composite = Path.GetTempFileName() + ".v";
             try
             {
-                await File.WriteAllLinesAsync(listFile, tiles, ct);
-                var joinResult = await RunProcessAsync(vips,
-                    $"arrayjoin \"@{listFile}\" \"{composite}\" --across {across}", null, 2, ct);
-                if (joinResult == null && File.Exists(composite))
+                var composite = await StitchTilesAsync(files, ct);
+                if (composite != null)
                 {
                     await VipsThumbnailAsync(composite, ctx, ct);
+                    try { File.Delete(composite); } catch { }
                     return ThumbnailResult.Ok();
                 }
             }
-            finally
+            catch (Exception ex)
             {
-                try { File.Delete(listFile); } catch { }
-                try { File.Delete(composite); } catch { }
+                logger.LogWarning(ex, "DZI stitch failed for level {Level}", level);
             }
         }
 
+        logger.LogWarning("DZI fallback failed: no stitchable level found in {Dir}", dziDir);
         return ThumbnailResult.Fail("Source file not available for thumbnail");
+    }
+
+    private async Task<string?> StitchTilesAsync(string[] tiles, CancellationToken ct)
+    {
+        var vips = config.Value.VipsPath;
+
+        var parsed = tiles.Select(f =>
+        {
+            var name = Path.GetFileNameWithoutExtension(f);
+            var parts = name.Split('_');
+            return (Col: int.Parse(parts[0]), Row: int.Parse(parts[1]), Path: f);
+        }).ToList();
+
+        // Group by row, stitch each row horizontally
+        var rows = parsed.GroupBy(t => t.Row).OrderBy(g => g.Key);
+        var rowComposites = new List<string>();
+
+        foreach (var row in rows)
+        {
+            var rowTiles = row.OrderBy(t => t.Col).ToList();
+            var current = rowTiles[0].Path;
+            logger.LogDebug("Stitching row {Row}: {Count} tiles", row.Key, rowTiles.Count);
+
+            for (int i = 1; i < rowTiles.Count; i++)
+            {
+                var output = Path.GetTempFileName() + ".v";
+                logger.LogDebug("  join {Left} + {Right} -> {Out}", current, rowTiles[i].Path, output);
+                var result = await RunProcessAsync(vips,
+                    $"join \"{current}\" \"{rowTiles[i].Path}\" \"{output}\" horizontal", null, 1, ct);
+                if (result != null) { logger.LogWarning("hjoin failed: {Error}", result); return null; }
+                if (!File.Exists(output)) { logger.LogWarning("hjoin produced no output"); return null; }
+                if (current != rowTiles[0].Path) try { File.Delete(current); } catch { }
+                current = output;
+            }
+            rowComposites.Add(current);
+        }
+
+        // Stitch rows vertically
+        var composite = rowComposites[0];
+        for (int i = 1; i < rowComposites.Count; i++)
+        {
+            var output = Path.GetTempFileName() + ".v";
+            logger.LogDebug("vjoin {Top} + {Bottom} -> {Out}", composite, rowComposites[i], output);
+            var result = await RunProcessAsync(vips,
+                $"join \"{composite}\" \"{rowComposites[i]}\" \"{output}\" vertical", null, 1, ct);
+            if (result != null) { logger.LogWarning("vjoin failed: {Error}", result); return null; }
+            if (!File.Exists(output)) { logger.LogWarning("vjoin produced no output"); return null; }
+            if (composite != rowComposites[0]) try { File.Delete(composite); } catch { }
+            composite = output;
+        }
+
+        logger.LogInformation("DZI stitch complete: {Path}", composite);
+        return composite;
     }
 
     private async Task VipsThumbnailAsync(string inputPath, ThumbnailContext ctx, CancellationToken ct)

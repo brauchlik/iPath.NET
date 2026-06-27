@@ -1,10 +1,13 @@
 @page "/request/{id}"
 
+@using iPath.Blazor.ServiceLib.ApiClient
 @inherits ServiceRequestViewComponentBase
 @inject ServiceRequestViewModel vm
 @inject ServiceRequestListViewModel listVm
 @inject ISnackbar snackbar
 @inject IDialogService dialogService
+@inject IPathApi api
+@inject NavigationManager nm
 
 @attribute [Authorize()]
 
@@ -15,6 +18,15 @@
 
 
 <ServiceRequestHeader />
+
+@if (CaseRoomActive)
+{
+    <MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Filled"
+             Class="ma-1 mud-chip-link" OnClick="@NavigateToCaseRoom"
+             Icon="@Icons.Material.Filled.Group">
+        @CaseRoomParticipantCount in CaseRoom
+    </MudChip>
+}
 
 @if (vm.SelectedRequest is null)
 {
@@ -40,6 +52,8 @@ else
 
     bool ShowDescription = true;
     NodeAnnotations annotationView;
+    private bool CaseRoomActive;
+    private int CaseRoomParticipantCount;
 
     protected override void OnInitialized()
     {
@@ -68,5 +82,27 @@ else
         await vm.LoadNode(Guid.Parse(id), false);
         await InvokeAsync(StateHasChanged);
         await vm.MarkAsVisited();
+        _ = CheckCaseRoomStatusAsync();
+    }
+
+    private async Task CheckCaseRoomStatusAsync()
+    {
+        if (vm.SelectedRequest is null) return;
+        try
+        {
+            var resp = await api.GetCaseRoomStatus(vm.SelectedRequest.Id);
+            if (resp.IsSuccessful && resp.Content is not null)
+            {
+                CaseRoomActive = resp.Content.IsActive;
+                CaseRoomParticipantCount = resp.Content.ParticipantCount;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch { }
+    }
+
+    private void NavigateToCaseRoom()
+    {
+        nm.NavigateTo($"request/{id}/caseroom");
     }
 }

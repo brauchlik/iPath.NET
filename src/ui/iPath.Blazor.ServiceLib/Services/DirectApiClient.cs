@@ -2,11 +2,13 @@ using System.Net;
 using System.Net.Http.Headers;
 using DispatchR;
 using FluentResults;
+using iPath.API.Services.CaseRoom;
 using iPath.Application.Contracts;
 using iPath.Application.Features;
 using iPath.Application.Features.Admin;
 using iPath.Application.AI;
 using iPath.Application.Features.Annotations;
+using iPath.Application.Features.CaseRoom;
 using iPath.Application.Features.CMS;
 using iPath.Application.Features.Documents;
 using iPath.Application.Features.EmailImport;
@@ -39,7 +41,8 @@ public class DirectApiClient(
     ILogger<DirectApiClient> logger,
     ISyncImportRunner? syncRunner = null,
     ISyncJobManager? jobManager = null,
-    IAiExtractionQueue? queue = null)
+    IAiExtractionQueue? queue = null,
+    ICaseRoomSessionStore? caseRoomStore = null)
     : IPathApi
 {
     private static IApiResponse<T> Respond<T>(T? content) => new DirectApiResponse<T>(content);
@@ -891,4 +894,39 @@ public class DirectApiClient(
 
     public async Task<IApiResponse<SyncJobState>> GetSyncJobStatus()
         => Respond(jobManager?.Current);
+
+
+    // -- CaseRoom --
+
+    public async Task<IApiResponse<CaseRoomSnapshot>> JoinCaseRoom(Guid requestId)
+    {
+        if (caseRoomStore is null || userSession.User is null)
+            return RespondError<CaseRoomSnapshot>();
+        var snap = await caseRoomStore.JoinAsync(requestId, userSession.User.Id, userSession.User.Username, default);
+        return Respond(snap);
+    }
+
+    public async Task<IApiResponse> LeaveCaseRoom(Guid requestId)
+    {
+        if (caseRoomStore is null || userSession.User is null)
+            return RespondError();
+        await caseRoomStore.LeaveAsync(requestId, userSession.User.Id, default);
+        return RespondOk();
+    }
+
+    public async Task<IApiResponse> SyncCaseRoom(Guid requestId, SyncPayload payload)
+    {
+        if (caseRoomStore is null || userSession.User is null)
+            return RespondError();
+        await caseRoomStore.SyncAsync(requestId, userSession.User.Id, payload, default);
+        return RespondOk();
+    }
+
+    public async Task<IApiResponse<CaseRoomStatus?>> GetCaseRoomStatus(Guid requestId)
+    {
+        if (caseRoomStore is null)
+            return Respond<CaseRoomStatus?>(null);
+        var status = await caseRoomStore.GetStatusAsync(requestId, default);
+        return Respond(status);
+    }
 }

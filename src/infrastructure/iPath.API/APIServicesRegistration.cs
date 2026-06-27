@@ -138,9 +138,14 @@ public static class APIServicesRegistration
         services.AddHostedService<RemoteStorageUploadWorker>(); // Worker for IRemoteStorageUploadQueue
         services.AddScoped<LocalChacheService>();
 
+        // Thumbnail generation queue
+        services.AddSingleton<IThumbnailQueue, ThumbnailQueue>();
+        services.AddHostedService<ThumbnailWorker>();
+
         // VSI Conversion
         services.AddSingleton<IVsiConversionQueue>(ctx => new VsiConversionQueue(10));
         services.AddSingleton<IConversionPlugin, VsiConversionPlugin>();
+        services.AddSingleton<IConversionPlugin, WsiConversionPlugin>();
         services.AddHostedService<VsiConversionWorker>();
         services.AddHostedService<GDriveImportScanner>();
 

@@ -1,6 +1,6 @@
 ﻿@namespace iPath.Blazor.Componenents.Documents
 
-@if (Model.IsImage)
+@if (Model.IsImage || !string.IsNullOrEmpty(Model.ThumbUrl))
 {
     <img src="@Model.ThumbUrl" alt="@Model.GalleryCaption.ShortenTo(25)">
 }

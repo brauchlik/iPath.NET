@@ -154,6 +154,42 @@ public static class AdminEndpoints
             .WithTags("Admin")
             .RequireAuthorization("Admin");
 
+        route.MapGet("admin/debug/thumb/{docId}", async (string docId,
+            [FromServices] iPathDbContext db,
+            [FromServices] IEnumerable<IConversionPlugin> plugins,
+            [FromServices] IOptions<VsiConversionConfig> vsiConfig,
+            [FromServices] IOptions<iPathConfig> ipathConfig,
+            CancellationToken ct) =>
+        {
+            var doc = await db.Documents.FindAsync([Guid.Parse(docId)], ct);
+            if (doc?.File is null || string.IsNullOrEmpty(doc.File.Filename))
+                return Results.NotFound();
+
+            var ext = Path.GetExtension(doc.File.Filename);
+            var plugin = plugins.FirstOrDefault(p => p.CanHandle(ext));
+            if (plugin is null)
+                return Results.NotFound($"No plugin for extension {ext}");
+
+            var stagingPath = string.IsNullOrEmpty(vsiConfig.Value.StagingPath)
+                ? Path.Combine(ipathConfig.Value.TempDataPath, "conversion", doc.Id.ToString())
+                : Path.Combine(vsiConfig.Value.StagingPath, doc.Id.ToString());
+            var sourcePath = Path.Combine(stagingPath, doc.File.Filename);
+            if (!File.Exists(sourcePath))
+                sourcePath = Path.Combine(ipathConfig.Value.TempDataPath, doc.Id.ToString());
+
+            var ctx = new ThumbnailContext(doc.Id, sourcePath, ipathConfig.Value.TempDataPath, 100, doc);
+            var result = await plugin.CreateThumbnailAsync(ctx, ct);
+
+            if (result.Success && !string.IsNullOrEmpty(doc.File.ThumbData))
+            {
+                var bytes = Convert.FromBase64String(doc.File.ThumbData);
+                return Results.File(bytes, "image/jpeg");
+            }
+            return Results.Problem(result.ErrorMessage ?? "Thumbnail creation failed");
+        })
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
         route.MapGet("admin/ai/status", async (bool? checkConnection, IMediator mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(new GetAiStatusQuery(checkConnection ?? false), ct);

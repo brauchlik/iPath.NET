@@ -29,9 +29,19 @@
             }
             else if (Wsi && vm.SelectedDocument.IsWSI)
             {
-                <div class="d-flex justify-center ipath_osd">
-                    <iPath.OpenSeadragon.OsdViewerIFrame ImagePath="@(vm.SelectedDocument.FileExtension.ToLower() == ".vsi" ? $"/files/{vm.SelectedDocument.Id}.dzi" : $"/files/{vm.SelectedDocument.Id}")" MaxHeight="700" />
-                </div>
+                if (vm.SelectedDocument.File?.ConversionStatus == "converting")
+                {
+                    <MudAlert Severity="Severity.Info" Class="ma-2">
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                        This slide is being converted and will appear shortly.
+                    </MudAlert>
+                }
+                else
+                {
+                    <div class="d-flex justify-center ipath_osd">
+                        <iPath.OpenSeadragon.OsdViewerIFrame ImagePath="@(vm.SelectedDocument.FileExtension.ToLower() == ".vsi" ? $"/files/{vm.SelectedDocument.Id}.dzi" : $"/files/{vm.SelectedDocument.Id}")" MaxHeight="700" />
+                    </div>
+                }
             }
             else
             {

@@ -6,59 +6,54 @@ using Microsoft.Extensions.Options;
 
 namespace iPath.Application.Features.Conversion;
 
-public class VsiConversionPlugin(
+public class WsiConversionPlugin(
     IOptions<VsiConversionConfig> config,
     IOptions<iPathConfig> ipathConfig,
-    ILogger<VsiConversionPlugin> logger)
+    ILogger<WsiConversionPlugin> logger)
     : IConversionPlugin
 {
-    public bool CanHandle(string extension) =>
-        string.Equals(extension, ".vsi", StringComparison.OrdinalIgnoreCase);
-
-    public IReadOnlyList<string> GetRequiredCompanions(string fileName)
+    private static readonly HashSet<string> _extensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        var baseName = Path.GetFileNameWithoutExtension(fileName);
-        return [$"_{baseName}_"];
-    }
+        ".svs", ".ndpi", ".tiff"
+    };
+
+    public bool CanHandle(string extension) => _extensions.Contains(extension);
+
+    public IReadOnlyList<string> GetRequiredCompanions(string fileName) => [];
 
     public async Task<ConversionResult> ProcessAsync(ConversionJobContext ctx, CancellationToken ct)
     {
-        var cfg = config.Value;
-        var inputPath = Path.Combine(ctx.StagingPath, ctx.OriginalFilename);
-        var tiffPath = Path.Combine(ctx.StagingPath, $"{ctx.DocumentId}.ome.tiff");
-        var dziOutput = Path.Combine(ipathConfig.Value.TempDataPath, ctx.DocumentId.ToString());
-
         ctx.Document.File.ConversionStatus = "converting";
 
-        // Step 1: bfconvert .vsi → OME-TIFF
-        logger.LogInformation("bfconvert: {Series} {Input} -> {Output}",
-            cfg.SeriesIndex, inputPath, tiffPath);
-        var bfResult = await RunProcessAsync(
-            cfg.BfconvertPath,
-            $"-series {cfg.SeriesIndex} -compression JPEG \"{inputPath}\" \"{tiffPath}\"",
-            cfg.JavaMaxMemory, cfg.MaxConversionMinutes, ct);
-        if (bfResult != null) return ConversionResult.Fail(bfResult);
+        var sourcePath = Path.Combine(ctx.StagingPath, ctx.OriginalFilename);
+        var needsDzi = config.Value.ConvertToDzi.TryGetValue(ctx.FileExtension, out var convert) && convert;
 
-        var tiffInfo = new FileInfo(tiffPath);
-        if (!tiffInfo.Exists || tiffInfo.Length == 0)
-            return ConversionResult.Fail("bfconvert produced no output file");
+        if (needsDzi)
+        {
+            var tiffPath = Path.Combine(ctx.StagingPath, $"{ctx.DocumentId}.ome.tiff");
+            var dziOutput = Path.Combine(ipathConfig.Value.TempDataPath, ctx.DocumentId.ToString());
 
-        logger.LogInformation("OME-TIFF: {SizeMB} MB", tiffInfo.Length / (1024 * 1024));
+            logger.LogInformation("bfconvert: {Series} {Input} -> {Output}",
+                config.Value.SeriesIndex, sourcePath, tiffPath);
+            var bfResult = await RunProcessAsync(
+                config.Value.BfconvertPath,
+                $"-series {config.Value.SeriesIndex} -compression JPEG \"{sourcePath}\" \"{tiffPath}\"",
+                config.Value.JavaMaxMemory, config.Value.MaxConversionMinutes, ct);
+            if (bfResult != null) return ConversionResult.Fail(bfResult);
 
-        // Step 2: vips dzsave → DZI tiles
-        logger.LogInformation("vips dzsave: {Input} -> {Output}", tiffPath, dziOutput);
-        var vipsResult = await RunProcessAsync(
-            cfg.VipsPath,
-            $"dzsave \"{tiffPath}\" \"{dziOutput}\" --tile-size 254 --overlap 1 --suffix .webp[Q={cfg.WebpQuality}]",
-            null, cfg.MaxConversionMinutes, ct);
-        if (vipsResult != null) return ConversionResult.Fail(vipsResult);
+            logger.LogInformation("vips dzsave: {Input} -> {Output}", tiffPath, dziOutput);
+            var vipsResult = await RunProcessAsync(
+                config.Value.VipsPath,
+                $"dzsave \"{tiffPath}\" \"{dziOutput}\" --tile-size 254 --overlap 1 --suffix .webp[Q={config.Value.WebpQuality}]",
+                null, config.Value.MaxConversionMinutes, ct);
+            if (vipsResult != null) return ConversionResult.Fail(vipsResult);
 
-        // Step 3: Extract thumbnail
+            try { File.Delete(tiffPath); } catch { }
+        }
+
+        // Extract thumbnail
         await CreateThumbnailAsync(
-            new ThumbnailContext(ctx.DocumentId, inputPath, ipathConfig.Value.TempDataPath, 100, ctx.Document), ct);
-
-        // Step 4: Cleanup intermediate TIFF
-        try { File.Delete(tiffPath); } catch { }
+            new ThumbnailContext(ctx.DocumentId, sourcePath, ipathConfig.Value.TempDataPath, 100, ctx.Document), ct);
 
         ctx.Document.File.ConversionStatus = "completed";
         return ConversionResult.Ok();
@@ -66,37 +61,45 @@ public class VsiConversionPlugin(
 
     public async Task<ThumbnailResult> CreateThumbnailAsync(ThumbnailContext ctx, CancellationToken ct)
     {
-        // Option 1: extract overview from source .vsi
-        if (File.Exists(ctx.SourcePath))
+        // Try direct vips thumbnail on source (works for .tiff, .svs)
+        var thumbOutput = Path.GetTempFileName() + ".jpg";
+        try
         {
-            var overviewPath = Path.GetTempFileName() + ".ome.tiff";
-            try
+            var result = await RunProcessAsync(
+                config.Value.VipsPath,
+                $"thumbnail \"{ctx.SourcePath}\" \"{thumbOutput}\" {ctx.ThumbSize}",
+                null, 2, ct);
+            if (result == null && File.Exists(thumbOutput))
             {
-                var result = await RunProcessAsync(
-                    config.Value.BfconvertPath,
-                    $"-series {config.Value.SeriesIndex} -compression JPEG \"{ctx.SourcePath}\" \"{overviewPath}\"",
-                    config.Value.JavaMaxMemory, 2, ct);
-                if (result == null && File.Exists(overviewPath))
-                {
-                    await VipsThumbnailAsync(overviewPath, ctx, ct);
-                    return ThumbnailResult.Ok();
-                }
+                var bytes = await File.ReadAllBytesAsync(thumbOutput, ct);
+                ctx.Document.File.ThumbData = Convert.ToBase64String(bytes);
+                ctx.Document.File.ImageWidth = ctx.ThumbSize;
+                ctx.Document.File.ImageHeight = ctx.ThumbSize;
+                return ThumbnailResult.Ok();
             }
-            finally { try { File.Delete(overviewPath); } catch { } }
         }
+        finally { try { File.Delete(thumbOutput); } catch { } }
 
-        // Option 2 (fallback): extract from DZI level 0 tile
-        var level0 = Path.Combine(ctx.TempDataPath, $"{ctx.DocumentId}_files", "0", "0_0.webp");
-        if (File.Exists(level0))
+        // Fallback: bfconvert to get an overview, then vips thumbnail
+        var overviewPath = Path.GetTempFileName() + ".ome.tiff";
+        try
         {
-            await VipsThumbnailAsync(level0, ctx, ct);
-            return ThumbnailResult.Ok();
+            var result = await RunProcessAsync(
+                config.Value.BfconvertPath,
+                $"-series {config.Value.SeriesIndex} -compression JPEG \"{ctx.SourcePath}\" \"{overviewPath}\"",
+                config.Value.JavaMaxMemory, 2, ct);
+            if (result == null && File.Exists(overviewPath))
+            {
+                await VipsThumbnailFromAsync(overviewPath, ctx, ct);
+                return ThumbnailResult.Ok();
+            }
         }
+        finally { try { File.Delete(overviewPath); } catch { } }
 
         return ThumbnailResult.Fail("No source available for thumbnail");
     }
 
-    private async Task VipsThumbnailAsync(string inputPath, ThumbnailContext ctx, CancellationToken ct)
+    private async Task VipsThumbnailFromAsync(string inputPath, ThumbnailContext ctx, CancellationToken ct)
     {
         var thumbOutput = Path.GetTempFileName() + ".jpg";
         try

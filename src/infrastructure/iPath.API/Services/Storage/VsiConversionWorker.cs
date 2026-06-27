@@ -144,6 +144,7 @@ public class VsiConversionWorker : BackgroundService
 
             job.Status = VsiConversionStatus.Converting;
             job.StartedOn = DateTime.UtcNow;
+            document.File.ConversionStatus = "converting";
             await db.SaveChangesAsync(ct);
 
             var result = await plugin.ProcessAsync(ctx, ct);
@@ -152,6 +153,7 @@ public class VsiConversionWorker : BackgroundService
             {
                 job.Status = VsiConversionStatus.Completed;
                 job.CompletedOn = DateTime.UtcNow;
+                document.File.ConversionStatus = "completed";
                 await db.SaveChangesAsync(ct);
                 _logger.LogInformation("VSI conversion completed for document {DocId}", docId);
             }
@@ -166,11 +168,13 @@ public class VsiConversionWorker : BackgroundService
             job.Status = VsiConversionStatus.Failed;
             job.ErrorMessage = ex.Message;
             job.RetryCount++;
+            document.File.ConversionStatus = "failed";
             await db.SaveChangesAsync(ct);
 
             if (job.RetryCount < _config.MaxRetries)
             {
                 job.Status = VsiConversionStatus.Pending;
+                document.File.ConversionStatus = "pending";
                 await db.SaveChangesAsync(ct);
                 var queue = _sp.GetRequiredService<IVsiConversionQueue>();
                 await queue.EnqueueAsync(docId, ct);

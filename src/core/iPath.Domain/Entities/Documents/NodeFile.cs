@@ -12,6 +12,10 @@ public class NodeFile
     public int? ImageWidth { get; set; }
     public int? ImageHeight { get; set; }
 
+    public string? ConversionStatus { get; set; }
+
+    public int ThumbRetryCount { get; set; }
+
     public StorageInfo? Storage { get; set; }
 
     public NodeFile Clone() => (NodeFile)MemberwiseClone();

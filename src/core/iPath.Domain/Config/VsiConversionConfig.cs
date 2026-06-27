@@ -14,6 +14,12 @@ public class VsiConversionConfig
     public string VipsPath { get; set; } = "vips";
     public int WebpQuality { get; set; } = 80;
     public string StagingPath { get; set; } = "";
+    public Dictionary<string, bool> ConvertToDzi { get; set; } = new()
+    {
+        [".ndpi"] = true,
+        [".svs"] = false,
+        [".tiff"] = false
+    };
 }
 
 public class GDriveImportScannerConfig

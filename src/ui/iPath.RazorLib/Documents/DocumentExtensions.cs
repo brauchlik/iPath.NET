@@ -42,7 +42,7 @@ public static class DocumentExtensions
             {
                 if (!string.IsNullOrEmpty(document.File?.ThumbData))
                 {
-                    return $"data:image/jpeg;base64, {document.File.ThumbData}";
+                    return $"data:image/jpeg;base64,{document.File.ThumbData}";
                 }
                 else if (document.ipath2_id.HasValue)
                 {

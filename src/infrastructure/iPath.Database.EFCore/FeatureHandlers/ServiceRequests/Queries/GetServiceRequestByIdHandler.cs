@@ -1,11 +1,16 @@
-﻿
+﻿using iPath.Application.Contracts;
 using iPath.Application.Features.Annotations;
 using iPath.Application.Features.Documents;
 
 namespace iPath.EF.Core.FeatureHandlers.ServiceRequests.Queries;
 
 
-public class GetServiceRequestByIdQueryHandler(iPathDbContext db, IUserSession sess, ILogger<GetServiceRequestByIdQueryHandler> logger)
+public class GetServiceRequestByIdQueryHandler(
+    iPathDbContext db,
+    IUserSession sess,
+    IThumbnailQueue thumbnailQueue,
+    IEnumerable<IConversionPlugin> conversionPlugins,
+    ILogger<GetServiceRequestByIdQueryHandler> logger)
     : IRequestHandler<GetServiceRequestByIdQuery, Task<ServiceRequestDto>>
 {
     public async Task<ServiceRequestDto> Handle(GetServiceRequestByIdQuery request, CancellationToken cancellationToken)
@@ -39,6 +44,25 @@ public class GetServiceRequestByIdQueryHandler(iPathDbContext db, IUserSession s
         }
 
         var dto = node.ToDto();
+
+        // Enqueue thumbnail jobs for documents missing thumbnails
+        if (node.Documents is not null)
+        {
+            foreach (var doc in node.Documents)
+            {
+                var ext = Path.GetExtension(doc.File?.Filename ?? "");
+                if (string.IsNullOrEmpty(ext)) continue;
+
+                if (!string.IsNullOrEmpty(doc.File?.ThumbData)) continue;
+                if ((doc.File?.ThumbRetryCount ?? 0) >= 3) continue;
+
+                if (conversionPlugins.Any(p => p.CanHandle(ext)))
+                {
+                    await thumbnailQueue.EnqueueAsync(doc.Id, cancellationToken);
+                }
+            }
+        }
+
         return dto;
     }
 }

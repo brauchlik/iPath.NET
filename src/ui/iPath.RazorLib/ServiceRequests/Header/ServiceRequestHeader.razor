@@ -3,6 +3,7 @@
 @inherits ServiceRequestViewComponentBase
 @inject IDialogService dialog
 @inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
+@using iPath.Application.Features.CaseRoom
 
 <MudSwipeArea OnSwipeEnd="OnSwipeHandler">
     <div class="mud-theme-info ipath_node_header">
@@ -41,6 +42,21 @@
 
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled="@(!vm.HasSlideShow || vm.SelectedRequest is null)"
                                     Tooltip=@T["Show images in fullscreen mode"] />
+
+                @if (CaseRoomActive)
+                {
+                    <MudBadge Content="@CaseRoomParticipantCount" Color="Color.Success" Overlap="true" Bordered="true">
+                        <IPathToolbarButton Icon="@Icons.Material.Outlined.Group" Href="@($"/request/{vm.SelectedRequest?.Id}/caseroom")"
+                                            Disabled="@(vm.SelectedRequest is null)"
+                                            Tooltip="Start Case Sharing" />
+                    </MudBadge>
+                }
+                else
+                {
+                    <IPathToolbarButton Icon="@Icons.Material.Outlined.Group" Href="@($"/request/{vm.SelectedRequest?.Id}/caseroom")"
+                                        Disabled="@(vm.SelectedRequest is null)"
+                                        Tooltip="Start Case Sharing" />
+                }
 
                 @if (vm.IsModerator)
                 {
@@ -103,6 +119,68 @@
 
 
 @code {
+    [Inject] private ICaseRoomSyncReceiver SyncReceiver { get; set; } = null!;
+
+    private bool CaseRoomActive;
+    private int CaseRoomParticipantCount;
+    private IDisposable? _syncSub;
+    private Guid? _currentRequestId;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (vm.SelectedRequest is not null && _currentRequestId != vm.SelectedRequest.Id)
+        {
+            _currentRequestId = vm.SelectedRequest.Id;
+            _syncSub?.Dispose();
+
+            await CheckCaseRoomStatusAsync();
+
+            _syncSub = SyncReceiver.Subscribe(_currentRequestId.Value, e =>
+            {
+                _ = InvokeAsync(() =>
+                {
+                    if (e.Payload.Action == "Join" || e.Payload.Action == "Leave")
+                    {
+                        CaseRoomActive = e.Payload.Participants is not null && e.Payload.Participants.Length > 0;
+                        CaseRoomParticipantCount = e.Payload.Participants?.Length ?? 0;
+                        StateHasChanged();
+                    }
+                });
+            });
+        }
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task CheckCaseRoomStatusAsync()
+    {
+        if (_currentRequestId is null) return;
+        try
+        {
+            var resp = await api.GetCaseRoomStatus(_currentRequestId.Value);
+            if (resp.IsSuccessful && resp.Content is not null)
+            {
+                CaseRoomActive = resp.Content.IsActive;
+                CaseRoomParticipantCount = resp.Content.ParticipantCount;
+            }
+            else
+            {
+                CaseRoomActive = false;
+                CaseRoomParticipantCount = 0;
+            }
+        }
+        catch
+        {
+            CaseRoomActive = false;
+            CaseRoomParticipantCount = 0;
+        }
+    }
+
+    protected override async ValueTask OnDisposedAsync()
+    {
+        _syncSub?.Dispose();
+        await base.OnDisposedAsync();
+    }
+
     bool hideSave => !vm.IsEditing;
 
     private string EditIcon => vm.IsEditing ? Icons.Material.Outlined.Cancel : Icons.Material.Outlined.Edit;

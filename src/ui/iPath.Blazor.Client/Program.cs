@@ -66,6 +66,8 @@ var baseAddress = cfg.BaseAddress ?? builder.HostEnvironment.BaseAddress;
 Console.WriteLine("Blazor WASM starting with Base: " + baseAddress);
 
 await builder.Services.AddRazorLibServices(baseAddress, true);
+builder.Services.AddScoped<iPath.Application.Features.CaseRoom.ICaseRoomSyncService, iPath.Blazor.Componenents.CaseRoom.HttpCaseRoomSyncService>();
+builder.Services.AddScoped<iPath.Application.Features.CaseRoom.ICaseRoomSyncReceiver, iPath.Blazor.Componenents.CaseRoom.HttpCaseRoomSyncReceiver>();
 
 Console.WriteLine("Blazor WASM RunAsync()");
 

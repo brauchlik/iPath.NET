@@ -3648,6 +3648,128 @@
         }
       }
     },
+    "/api/v1/caseroom/{requestId}/join": {
+      "post": {
+        "tags": [
+          "iPath.Blazor.Server"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/caseroom/{requestId}/leave": {
+      "post": {
+        "tags": [
+          "iPath.Blazor.Server"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/caseroom/{requestId}/sync": {
+      "post": {
+        "tags": [
+          "iPath.Blazor.Server"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/caseroom/{requestId}": {
+      "get": {
+        "tags": [
+          "iPath.Blazor.Server"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/Account/PerformExternalLogin": {
       "post": {
         "tags": [
@@ -7395,6 +7517,37 @@
           }
         }
       },
+      "Participant": {
+        "required": [
+          "sessionId",
+          "userId",
+          "displayName",
+          "joinedAt",
+          "lastSeenAt"
+        ],
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "joinedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "PatientInfo": {
         "type": "object",
         "properties": {
@@ -8263,6 +8416,18 @@
           }
         }
       },
+      "SessionRequest": {
+        "required": [
+          "sessionId"
+        ],
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "SessionUserDto": {
         "required": [
           "id",
@@ -8444,6 +8609,54 @@
               "string"
             ],
             "format": "uuid"
+          }
+        }
+      },
+      "SyncPayload": {
+        "required": [
+          "documentId",
+          "viewport"
+        ],
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "viewport": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ViewportState"
+              }
+            ]
+          },
+          "sessionId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "action": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "participants": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Participant"
+            }
           }
         }
       },
@@ -9701,6 +9914,40 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "ViewportState": {
+        "required": [
+          "x",
+          "y",
+          "zoom"
+        ],
+        "type": "object",
+        "properties": {
+          "x": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "y": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "zoom": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
           }
         }
       },

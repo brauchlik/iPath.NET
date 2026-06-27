@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using iPath.Application.Features.CaseRoom;
 
 namespace iPath.Application.Features.Notifications;
 
@@ -12,6 +13,9 @@ public interface INotificationEventBus
 
     void PublishSystemEvent(SystemEventHint hint);
     IDisposable SubscribeSystemEvents(Action<SystemEventHint> handler);
+
+    void PublishCaseRoomSync(CaseRoomSyncEvent evt);
+    IDisposable SubscribeCaseRoomSync(Action<CaseRoomSyncEvent> handler);
 }
 
 public class NotificationEventBus : INotificationEventBus
@@ -19,6 +23,7 @@ public class NotificationEventBus : INotificationEventBus
     private readonly ConcurrentDictionary<Guid, List<Action<NotificationDto>>> _notificationSubs = new();
     private readonly ConcurrentDictionary<Guid, Action<DomainEventSummary>> _domainSubs = new();
     private readonly ConcurrentDictionary<Guid, Action<SystemEventHint>> _systemSubs = new();
+    private readonly ConcurrentDictionary<Guid, Action<CaseRoomSyncEvent>> _caseRoomSubs = new();
 
     public void PublishNotification(Guid userId, NotificationDto dto)
     {
@@ -69,6 +74,19 @@ public class NotificationEventBus : INotificationEventBus
         var key = Guid.NewGuid();
         _systemSubs[key] = handler;
         return new Unsubscriber(() => _systemSubs.TryRemove(key, out _));
+    }
+
+    public void PublishCaseRoomSync(CaseRoomSyncEvent evt)
+    {
+        foreach (var h in _caseRoomSubs.Values.ToArray())
+            h(evt);
+    }
+
+    public IDisposable SubscribeCaseRoomSync(Action<CaseRoomSyncEvent> handler)
+    {
+        var key = Guid.NewGuid();
+        _caseRoomSubs[key] = handler;
+        return new Unsubscriber(() => _caseRoomSubs.TryRemove(key, out _));
     }
 }
 

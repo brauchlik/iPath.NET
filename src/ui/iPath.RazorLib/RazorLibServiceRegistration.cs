@@ -1,5 +1,6 @@
 ﻿using iPath.Application.Contracts;
 using iPath.Application.Features.Admin;
+using iPath.Application.Features.CaseRoom;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Fhir;
 using iPath.Application.Localization;

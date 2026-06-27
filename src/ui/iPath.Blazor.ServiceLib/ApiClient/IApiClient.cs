@@ -3,6 +3,7 @@ using iPath.Application.Contracts;
 using iPath.Application.Features;
 using iPath.Application.Features.Admin;
 using iPath.Application.Features.Annotations;
+using iPath.Application.Features.CaseRoom;
 using iPath.Application.Features.CMS;
 using iPath.Application.Features.Documents;
 using iPath.Application.Features.EmailImport;
@@ -463,5 +464,20 @@ public interface IPathApi
     [Get("/api/v1/admin/sync/job")]
     Task<IApiResponse<SyncJobState>> GetSyncJobStatus();
 
+    #endregion
+
+
+    #region "-- CaseRoom --"
+    [Post("/api/v1/caseroom/{requestId}/join")]
+    Task<IApiResponse<CaseRoomSnapshot>> JoinCaseRoom(Guid requestId, [Body] SessionRequest body);
+
+    [Post("/api/v1/caseroom/{requestId}/leave")]
+    Task<IApiResponse> LeaveCaseRoom(Guid requestId, [Body] SessionRequest body);
+
+    [Post("/api/v1/caseroom/{requestId}/sync")]
+    Task<IApiResponse> SyncCaseRoom(Guid requestId, [Body] SyncPayload payload);
+
+    [Get("/api/v1/caseroom/{requestId}")]
+    Task<IApiResponse<CaseRoomStatus?>> GetCaseRoomStatus(Guid requestId);
     #endregion
 }

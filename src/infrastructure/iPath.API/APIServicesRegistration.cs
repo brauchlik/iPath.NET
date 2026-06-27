@@ -1,5 +1,6 @@
 using DispatchR.Extensions;
 using iPath.API.Services;
+using iPath.API.Services.CaseRoom;
 using iPath.API.Services.Email;
 using iPath.API.Services.Email.Clients;
 using iPath.API.Services.Notifications;
@@ -11,6 +12,7 @@ using iPath.API.Services.SyncImport;
 using iPath.Application.Features.SyncImport;
 using iPath.Application.Coding;
 using iPath.Application.Features.EmailImport;
+using iPath.Application.Features.CaseRoom;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Questionnaires;
 using iPath.Application.Features.TaskAssignments;
@@ -114,6 +116,11 @@ public static class APIServicesRegistration
 
         // In-process event bus for Server-mode direct subscription (avoids browser round trip)
         services.AddSingleton<INotificationEventBus, NotificationEventBus>();
+
+        // CaseRoom session store (in-memory, transient sessions)
+        services.AddSingleton<ICaseRoomSessionStore, CaseRoomSessionStore>();
+        services.AddScoped<ICaseRoomSyncService, InMemoryCaseRoomSyncService>();
+        services.AddScoped<ICaseRoomSyncReceiver, InMemoryCaseRoomSyncReceiver>();
 
         services.AddHostedService<NotificationPublisher>();
         services.AddTransient<IServiceRequestHtmlPreview, EmailNotificationPreview>();

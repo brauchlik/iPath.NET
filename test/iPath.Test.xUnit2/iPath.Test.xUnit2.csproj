@@ -47,6 +47,7 @@
     <ProjectReference Include="..\..\src\infrastructure\iPath.API\iPath.API.csproj" />
     <ProjectReference Include="..\..\src\infrastructure\iPath.Database.EFCore\iPath.Database.EFCore.csproj" />
     <ProjectReference Include="..\..\src\ui\iPath.Blazor.ServiceLib\iPath.Blazor.ServiceLib.csproj" />
+    <ProjectReference Include="..\..\src\ui\iPath.RazorLib\iPath.Blazor.Componenents.csproj" />
   </ItemGroup>
 
   <ItemGroup>

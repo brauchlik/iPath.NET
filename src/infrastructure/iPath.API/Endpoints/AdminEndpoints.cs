@@ -4,6 +4,7 @@ using iPath.Application.Features.Users;
 using iPath.Application.Localization;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Linq.Dynamic.Core;
 using iPath.API.EndpointFilters;
 using iPath.Domain.Config;
@@ -156,7 +157,6 @@ public static class AdminEndpoints
 
         route.MapGet("admin/debug/thumb/{docId}", async (string docId,
             [FromServices] iPathDbContext db,
-            [FromServices] IEnumerable<IConversionPlugin> plugins,
             [FromServices] IOptions<VsiConversionConfig> vsiConfig,
             [FromServices] IOptions<iPathConfig> ipathConfig,
             CancellationToken ct) =>
@@ -165,11 +165,7 @@ public static class AdminEndpoints
             if (doc?.File is null || string.IsNullOrEmpty(doc.File.Filename))
                 return Results.NotFound();
 
-            var ext = Path.GetExtension(doc.File.Filename);
-            var plugin = plugins.FirstOrDefault(p => p.CanHandle(ext));
-            if (plugin is null)
-                return Results.NotFound($"No plugin for extension {ext}");
-
+            // Find source file
             var stagingPath = string.IsNullOrEmpty(vsiConfig.Value.StagingPath)
                 ? Path.Combine(ipathConfig.Value.TempDataPath, "conversion", doc.Id.ToString())
                 : Path.Combine(vsiConfig.Value.StagingPath, doc.Id.ToString());
@@ -177,15 +173,43 @@ public static class AdminEndpoints
             if (!File.Exists(sourcePath))
                 sourcePath = Path.Combine(ipathConfig.Value.TempDataPath, doc.Id.ToString());
 
-            var ctx = new ThumbnailContext(doc.Id, sourcePath, ipathConfig.Value.TempDataPath, 100, doc);
-            var result = await plugin.CreateThumbnailAsync(ctx, ct);
+            if (!File.Exists(sourcePath))
+                return Results.NotFound("Source file not found");
 
-            if (result.Success && !string.IsNullOrEmpty(doc.File.ThumbData))
+            // Run vips thumbnail directly — writes temp/{docId}_thumb.jpg
+            var thumbPath = Path.Combine(ipathConfig.Value.TempDataPath, $"{doc.Id}_thumb.jpg");
+            try
             {
-                var bytes = Convert.FromBase64String(doc.File.ThumbData);
-                return Results.File(bytes, "image/jpeg");
+                var psi = new ProcessStartInfo
+                {
+                    FileName = vsiConfig.Value.VipsPath,
+                    Arguments = $"thumbnail \"{sourcePath}\" \"{thumbPath}\" 100",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using var proc = Process.Start(psi);
+                if (proc is null)
+                    return Results.Problem("Failed to start vips");
+
+                var stdout = await proc.StandardOutput.ReadToEndAsync(ct);
+                var stderr = await proc.StandardError.ReadToEndAsync(ct);
+                await proc.WaitForExitAsync(ct);
+
+                if (proc.ExitCode != 0)
+                    return Results.Problem($"vips failed (exit {proc.ExitCode}): {stderr}");
+
+                if (!File.Exists(thumbPath))
+                    return Results.Problem("vips produced no output file");
             }
-            return Results.Problem(result.ErrorMessage ?? "Thumbnail creation failed");
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+
+            return Results.File(thumbPath, "image/jpeg");
         })
             .WithTags("Admin")
             .RequireAuthorization("Admin");

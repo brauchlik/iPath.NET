@@ -5,7 +5,7 @@
 @inject ISnackbar snackbar
 @inject IDialogService srvDialog
 @inject DocumentViewModel dvm
-@inject IHttpClientFactory httpFactory
+@inject NavigationManager nm
 
 @**** Gallery View **********************************************@
 <div class="gallery">
@@ -23,7 +23,7 @@
                         <MudMenuItem Label=@T["Delete"] Disabled="vm.DeleteDisabled" OnClick=@(() => vm.DeleteDocument(c)) />
                         @if (vm.IsAdmin)
                         {
-                            <MudMenuItem Label="Generate Thumbnail" OnClick=@(() => GenerateThumbnail(c.Id)) />
+                            <MudMenuItem Label="Debug Thumbnail" OnClick=@(() => nm.NavigateTo($"/api/v1/admin/debug/thumb/{c.Id}", true)) />
                         }
                     </ChildContent>
                 </MudMenu>
@@ -41,28 +41,3 @@
         </div>
     }
 </div>
-
-@code {
-    private async Task GenerateThumbnail(Guid id)
-    {
-        try
-        {
-            var client = httpFactory.CreateClient();
-            var response = await client.GetAsync($"/api/v1/admin/debug/thumb/{id}");
-            if (response.IsSuccessStatusCode)
-            {
-                snackbar.Add("Thumbnail generated", Severity.Success);
-                await vm.ReloadNode();
-            }
-            else
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                snackbar.Add($"Failed: {error}", Severity.Error);
-            }
-        }
-        catch (Exception ex)
-        {
-            snackbar.Add(ex.Message, Severity.Error);
-        }
-    }
-}

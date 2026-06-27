@@ -21,6 +21,7 @@ public interface ISseConnectionManager
 public class SseConnectionManager(IServiceProvider services, ILogger<SseConnectionManager> logger)
     : ISseConnectionManager
 {
+    private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
     private readonly ConcurrentDictionary<Guid, List<SseConnection>> _connections = new();
     private PeriodicTimer? _keepAliveTimer;
     private CancellationTokenSource? _keepAliveCts;
@@ -59,7 +60,7 @@ public class SseConnectionManager(IServiceProvider services, ILogger<SseConnecti
     {
         if (!_connections.TryGetValue(userId, out var connections)) return;
 
-        var data = JsonSerializer.Serialize(payload);
+        var data = JsonSerializer.Serialize(payload, _jsonOptions);
         var message = new SseMessage(eventType, data, id);
         foreach (var conn in connections.ToList())
         {
@@ -80,7 +81,7 @@ public class SseConnectionManager(IServiceProvider services, ILogger<SseConnecti
             .Distinct()
             .ToListAsync();
 
-        var data = JsonSerializer.Serialize(payload);
+        var data = JsonSerializer.Serialize(payload, _jsonOptions);
         var message = new SseMessage(eventType, data, id);
         foreach (var userId in userIds)
         {
@@ -95,7 +96,7 @@ public class SseConnectionManager(IServiceProvider services, ILogger<SseConnecti
 
     public async Task BroadcastAsync(string eventType, object payload, string? id = null)
     {
-        var data = JsonSerializer.Serialize(payload);
+        var data = JsonSerializer.Serialize(payload, _jsonOptions);
         var message = new SseMessage(eventType, data, id);
         foreach (var kvp in _connections.ToList())
         {

@@ -21,11 +21,24 @@
         <MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Filled">
             @Participants.Count viewing
         </MudChip>
+        <div title="@(SseConnected ? "SSE connected" : "SSE disconnected")"
+             style="display: flex; align-items: center; gap: 2px; font-size: 10px; font-family: monospace; color: rgba(255,255,255,0.5);">
+            <span style="color: @(SseConnected ? "lime" : "red")">@(SseConnected ? "\u25cf" : "\u25cb")</span>
+            sse
+        </div>
         <MudIconButton Icon="@Icons.Material.Filled.CloseFullscreen" Size="Size.Small" OnClick="@ExitRoom" />
     </div>
 
     <MudPaper Class="ipath_image slideshow" Style="background-color: black;" Elevation="0">
         <div id="osd-caseroom" style="width: 100%; height: calc(100vh - 120px); background-color: black;"></div>
+        @if (CurrentViewport is not null)
+        {
+            <div style="position: absolute; bottom: 8px; left: 8px; color: rgba(255,255,255,0.5); font-size: 11px; font-family: monospace; pointer-events: none;">
+                X: @CurrentViewport.X.ToString("F2")
+                Y: @CurrentViewport.Y.ToString("F2")
+                Z: @CurrentViewport.Zoom.ToString("F2")
+            </div>
+        }
     </MudPaper>
 </MudSwipeArea>
 

@@ -7497,6 +7497,32 @@
           }
         }
       },
+      "Participant": {
+        "required": [
+          "userId",
+          "displayName",
+          "joinedAt",
+          "lastSeenAt"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "joinedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "PatientInfo": {
         "type": "object",
         "properties": {
@@ -8572,6 +8598,21 @@
                 "$ref": "#/components/schemas/ViewportState"
               }
             ]
+          },
+          "action": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "participants": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Participant"
+            }
           }
         }
       },

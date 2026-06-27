@@ -1,5 +1,4 @@
 using iPath.Application.Features.CaseRoom;
-using iPath.Application.Features.CaseRoom;
 
 namespace iPath.API;
 
@@ -44,6 +43,9 @@ public static class CaseRoomEndpoints
         {
             if (sess.User is null || !sess.User.IsAuthenticated)
                 return Results.Unauthorized();
+
+            if (payload.Viewport is not null && !payload.Viewport.IsValid())
+                return Results.BadRequest("Invalid viewport coordinates");
 
             await store.SyncAsync(requestId, sess.User.Id, payload, ct);
             return Results.NoContent();

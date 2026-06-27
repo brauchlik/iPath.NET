@@ -3,7 +3,7 @@ let dotNetRef = null;
 let throttleTimer = null;
 let isApplyingRemote = false;
 
-export function initOsd(divId, tileSourceUrl, dotNetReference) {
+export function initOsd(divId, tileSourceUrl, dotNetReference, initialViewport) {
     dotNetRef = dotNetReference;
 
     const elem = document.getElementById(divId);
@@ -23,10 +23,20 @@ export function initOsd(divId, tileSourceUrl, dotNetReference) {
         crossOriginPolicy: "Anonymous"
     });
 
-    viewer.addHandler('open', () => { });
+    viewer.addHandler('open', () => {
+        if (initialViewport && isFinite(initialViewport.x)) {
+            console.debug('[CaseRoom] applying initial viewport: x=%.4f, y=%.4f, zoom=%.4f',
+                initialViewport.x, initialViewport.y, initialViewport.zoom);
+            isApplyingRemote = true;
+            viewer.viewport.panTo({ x: initialViewport.x, y: initialViewport.y }, true);
+            viewer.viewport.zoomTo(initialViewport.zoom, null, true);
+        }
+        setTimeout(() => { isApplyingRemote = false; }, 200);
+    });
 
     viewer.addHandler('open-failed', (event) => {
         console.error('OSD open failed:', event.message);
+        isApplyingRemote = false;
     });
 
     viewer.addHandler('viewport-change', onViewportChange);
@@ -36,6 +46,7 @@ export function initOsd(divId, tileSourceUrl, dotNetReference) {
 
 export function openTileSource(url) {
     if (!viewer) return;
+    isApplyingRemote = true;
     if (url && url.toLowerCase().endsWith('.dzi')) {
         viewer.open(url);
     } else {
@@ -45,6 +56,7 @@ export function openTileSource(url) {
 
 export function setViewport(x, y, zoom) {
     if (!viewer) return;
+    console.debug('[CaseRoom] applying remote viewport: x=%.4f, y=%.4f, zoom=%.4f', x, y, zoom);
     isApplyingRemote = true;
     viewer.viewport.panTo({ x: x, y: y }, true);
     viewer.viewport.zoomTo(zoom, null, true);
@@ -71,6 +83,7 @@ function onViewportChange() {
     throttleTimer = setTimeout(() => {
         const c = viewer.viewport.getCenter();
         const z = viewer.viewport.getZoom();
+        console.debug('[CaseRoom] local viewport: x=%.4f, y=%.4f, zoom=%.4f', c.x, c.y, z);
         dotNetRef.invokeMethodAsync('OnViewportChanged', c.x, c.y, z);
         throttleTimer = null;
     }, 150);

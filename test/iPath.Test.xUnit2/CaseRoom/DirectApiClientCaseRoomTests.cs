@@ -53,7 +53,8 @@ public class DirectApiClientCaseRoomTests
         var (client, store) = CreateClient();
         var requestId = Guid.NewGuid();
 
-        var resp = await client.JoinCaseRoom(requestId);
+        var sessionId = Guid.NewGuid();
+        var resp = await client.JoinCaseRoom(requestId, new SessionRequest(sessionId));
 
         resp.IsSuccessful.Should().BeTrue();
         resp.Content!.RequestId.Should().Be(requestId);
@@ -65,9 +66,10 @@ public class DirectApiClientCaseRoomTests
     {
         var (client, store) = CreateClient();
         var requestId = Guid.NewGuid();
-        await client.JoinCaseRoom(requestId);
+        var sessionId = Guid.NewGuid();
+        await client.JoinCaseRoom(requestId, new SessionRequest(sessionId));
 
-        await client.SyncCaseRoom(requestId, new SyncPayload(null, new ViewportState(0.1, 0.2, 0.3)));
+        await client.SyncCaseRoom(requestId, new SyncPayload(null, new ViewportState(0.1, 0.2, 0.3), SessionId: sessionId));
 
         var status = await client.GetCaseRoomStatus(requestId);
         status.Content!.IsActive.Should().BeTrue();

@@ -28,7 +28,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         _ = StartCleanupLoopAsync(_cleanupCts.Token);
     }
 
-    public async Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid userId, string displayName, CancellationToken ct)
+    public async Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid sessionId, Guid userId, string displayName, CancellationToken ct)
     {
         var entry = _sessions.GetOrAdd(requestId, rid => new SessionEntry
         {
@@ -42,55 +42,67 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 
         CaseRoomSnapshot snapshot;
         CaseRoomSyncEvent joinEvt;
-        Guid[] participantIds;
+        Guid[] userIds;
 
         lock (entry)
         {
-            // Cancel any pending teardown
             entry.TeardownCts?.Cancel();
             entry.TeardownCts = null;
 
             var participant = new Participant(userId, displayName, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
-            entry.Session.Participants[userId] = participant;
+            entry.Session.Participants[sessionId] = participant;
+
+            var sessions = entry.Session.UserSessions.GetOrAdd(userId, _ => new HashSet<Guid>());
+            lock (sessions) { sessions.Add(sessionId); }
 
             snapshot = BuildSnapshot(entry.Session);
 
-            participantIds = entry.Session.Participants.Keys.ToArray();
+            userIds = entry.Session.UserSessions.Keys.ToArray();
             var updatedParticipants = entry.Session.Participants.Values.ToArray();
             var joinPayload = new SyncPayload(null, null, "Join", updatedParticipants);
             joinEvt = new CaseRoomSyncEvent(requestId, userId, displayName, joinPayload, DateTimeOffset.UtcNow);
         }
 
-        // Broadcast to all participants; client-side SessionId filter handles dedup
-        foreach (var pid in participantIds)
+        foreach (var uid in userIds)
         {
-            await _sseManager.SendToUserAsync(pid, "caseroom-sync", joinEvt);
+            await _sseManager.SendToUserAsync(uid, "caseroom-sync", joinEvt);
         }
         _eventBus.PublishCaseRoomSync(joinEvt);
+
+        _logger.LogInformation("Session {SessionId} joined CaseRoom {RequestId} (user {UserId})",
+            sessionId, requestId, userId);
 
         return snapshot;
     }
 
-    public async Task LeaveAsync(Guid requestId, Guid userId, CancellationToken ct)
+    public async Task LeaveAsync(Guid requestId, Guid sessionId, CancellationToken ct)
     {
         if (!_sessions.TryGetValue(requestId, out var entry)) return;
 
         CaseRoomSyncEvent? leaveEvt = null;
-        Guid[]? participantIds = null;
+        Guid[]? userIds = null;
         bool scheduleTeardown = false;
         CancellationTokenSource? cts = null;
 
         lock (entry)
         {
-            if (entry.Session.Participants.Remove(userId, out var removedParticipant))
+            if (entry.Session.Participants.Remove(sessionId, out var removedParticipant))
             {
-                var updatedParticipants = entry.Session.Participants.Values.ToArray();
-                participantIds = entry.Session.Participants.Keys.ToArray();
+                var uid = removedParticipant.UserId;
+                if (entry.Session.UserSessions.TryGetValue(uid, out var sessions))
+                {
+                    lock (sessions) { sessions.Remove(sessionId); }
+                    if (sessions.Count == 0)
+                        entry.Session.UserSessions.TryRemove(uid, out _);
+                }
 
-                if (participantIds.Length > 0)
+                var updatedParticipants = entry.Session.Participants.Values.ToArray();
+                userIds = entry.Session.UserSessions.Keys.ToArray();
+
+                if (userIds.Length > 0)
                 {
                     var leavePayload = new SyncPayload(null, null, "Leave", updatedParticipants);
-                    leaveEvt = new CaseRoomSyncEvent(requestId, userId, removedParticipant.DisplayName, leavePayload, DateTimeOffset.UtcNow);
+                    leaveEvt = new CaseRoomSyncEvent(requestId, uid, removedParticipant.DisplayName, leavePayload, DateTimeOffset.UtcNow);
                 }
                 else
                 {
@@ -101,11 +113,11 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
             }
         }
 
-        if (leaveEvt is not null && participantIds is not null)
+        if (leaveEvt is not null && userIds is not null)
         {
-            foreach (var pid in participantIds)
+            foreach (var uid in userIds)
             {
-                await _sseManager.SendToUserAsync(pid, "caseroom-sync", leaveEvt);
+                await _sseManager.SendToUserAsync(uid, "caseroom-sync", leaveEvt);
             }
             _eventBus.PublishCaseRoomSync(leaveEvt);
         }
@@ -124,21 +136,19 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                 }
             }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
         }
-
-        await Task.CompletedTask;
     }
 
-    public async Task SyncAsync(Guid requestId, Guid userId, SyncPayload payload, CancellationToken ct)
+    public async Task SyncAsync(Guid requestId, Guid sessionId, Guid userId, SyncPayload payload, CancellationToken ct)
     {
         if (!_sessions.TryGetValue(requestId, out var entry)) return;
 
         string displayName = "Unknown";
         lock (entry)
         {
-            if (entry.Session.Participants.TryGetValue(userId, out var p))
+            if (entry.Session.Participants.TryGetValue(sessionId, out var p))
             {
                 var updatedParticipant = p with { LastSeenAt = DateTimeOffset.UtcNow };
-                entry.Session.Participants[userId] = updatedParticipant;
+                entry.Session.Participants[sessionId] = updatedParticipant;
                 displayName = updatedParticipant.DisplayName;
             }
 
@@ -154,20 +164,20 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 
         var evt = new CaseRoomSyncEvent(requestId, userId, displayName, payload, DateTimeOffset.UtcNow);
 
-        Guid[] participantIds;
+        Guid[] userIds;
         lock (entry)
         {
-            participantIds = entry.Session.Participants.Keys.ToArray();
+            userIds = entry.Session.UserSessions.Keys.ToArray();
         }
 
-        foreach (var participantId in participantIds)
+        foreach (var uid in userIds)
         {
-            await _sseManager.SendToUserAsync(participantId, "caseroom-sync", evt);
+            await _sseManager.SendToUserAsync(uid, "caseroom-sync", evt);
         }
         _eventBus.PublishCaseRoomSync(evt);
 
-        _logger.LogDebug("CaseRoom {RequestId} sync from {UserId}: {Kind}",
-            requestId, userId, payload.DocumentId.HasValue ? "document" : "viewport");
+        _logger.LogDebug("CaseRoom {RequestId} sync session {SessionId} (user {UserId}): {Kind}",
+            requestId, sessionId, userId, payload.DocumentId.HasValue ? "document" : "viewport");
     }
 
     public Task<CaseRoomStatus?> GetStatusAsync(Guid requestId, CancellationToken ct)
@@ -215,13 +225,22 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 
                         if (toRemove.Count > 0)
                         {
-                            foreach (var uid in toRemove)
+                            foreach (var sid in toRemove)
                             {
-                                entry.Session.Participants.Remove(uid, out _);
+                                if (entry.Session.Participants.Remove(sid, out var removed))
+                                {
+                                    var uid = removed.UserId;
+                                    if (entry.Session.UserSessions.TryGetValue(uid, out var sessions))
+                                    {
+                                        lock (sessions) { sessions.Remove(sid); }
+                                        if (sessions.Count == 0)
+                                            entry.Session.UserSessions.TryRemove(uid, out _);
+                                    }
+                                }
                             }
 
                             var updatedParticipants = entry.Session.Participants.Values.ToArray();
-                            remainingIds = entry.Session.Participants.Keys.ToArray();
+                            remainingIds = entry.Session.UserSessions.Keys.ToArray();
 
                             var leavePayload = new SyncPayload(null, null, "Leave", updatedParticipants);
                             leaveEvt = new CaseRoomSyncEvent(requestId, Guid.Empty, "System", leavePayload, DateTimeOffset.UtcNow);
@@ -236,9 +255,9 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 
                     if (leaveEvt is not null && remainingIds is not null)
                     {
-                        foreach (var pid in remainingIds)
+                        foreach (var uid in remainingIds)
                         {
-                            await _sseManager.SendToUserAsync(pid, "caseroom-sync", leaveEvt);
+                            await _sseManager.SendToUserAsync(uid, "caseroom-sync", leaveEvt);
                         }
                         _eventBus.PublishCaseRoomSync(leaveEvt);
                     }
@@ -280,5 +299,6 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         public DateTimeOffset CreatedAt { get; init; }
         public Guid CreatedBy { get; init; }
         public ConcurrentDictionary<Guid, Participant> Participants { get; } = new();
+        public ConcurrentDictionary<Guid, HashSet<Guid>> UserSessions { get; } = new();
     }
 }

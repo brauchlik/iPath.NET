@@ -33,10 +33,12 @@ public class CaseRoomSyncTransportTests
 
         var userA = Guid.NewGuid();
         var userB = Guid.NewGuid();
-        await store.JoinAsync(requestId, userA, "Alice", default);
-        await store.JoinAsync(requestId, userB, "Bob", default);
+        var sessionA = Guid.NewGuid();
+        var sessionB = Guid.NewGuid();
+        await store.JoinAsync(requestId, sessionA, userA, "Alice", default);
+        await store.JoinAsync(requestId, sessionB, userB, "Bob", default);
 
-        await store.SyncAsync(requestId, userA, new SyncPayload(null, new ViewportState(0.5, 0.5, 2.0)), default);
+        await store.SyncAsync(requestId, sessionA, userA, new SyncPayload(null, new ViewportState(0.5, 0.5, 2.0)), default);
 
         received.Should().NotBeEmpty();
         sub.Dispose();

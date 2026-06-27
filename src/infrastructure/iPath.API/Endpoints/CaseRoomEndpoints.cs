@@ -10,6 +10,7 @@ public static class CaseRoomEndpoints
 
         group.MapPost("{requestId:guid}/join", async (
             Guid requestId,
+            SessionRequest body,
             [FromServices] ICaseRoomSessionStore store,
             [FromServices] IUserSession sess,
             CancellationToken ct) =>
@@ -17,12 +18,13 @@ public static class CaseRoomEndpoints
             if (sess.User is null || !sess.User.IsAuthenticated)
                 return Results.Unauthorized();
 
-            var snapshot = await store.JoinAsync(requestId, sess.User.Id, sess.User.Username, ct);
+            var snapshot = await store.JoinAsync(requestId, body.SessionId, sess.User.Id, sess.User.Username, ct);
             return Results.Ok(snapshot);
         });
 
         group.MapPost("{requestId:guid}/leave", async (
             Guid requestId,
+            SessionRequest body,
             [FromServices] ICaseRoomSessionStore store,
             [FromServices] IUserSession sess,
             CancellationToken ct) =>
@@ -30,7 +32,7 @@ public static class CaseRoomEndpoints
             if (sess.User is null || !sess.User.IsAuthenticated)
                 return Results.Unauthorized();
 
-            await store.LeaveAsync(requestId, sess.User.Id, ct);
+            await store.LeaveAsync(requestId, body.SessionId, ct);
             return Results.NoContent();
         });
 
@@ -47,7 +49,7 @@ public static class CaseRoomEndpoints
             if (payload.Viewport is not null && !payload.Viewport.IsValid())
                 return Results.BadRequest("Invalid viewport coordinates");
 
-            await store.SyncAsync(requestId, sess.User.Id, payload, ct);
+            await store.SyncAsync(requestId, payload.SessionId ?? Guid.Empty, sess.User.Id, payload, ct);
             return Results.NoContent();
         });
 

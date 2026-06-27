@@ -897,19 +897,19 @@ public class DirectApiClient(
 
     // -- CaseRoom --
 
-    public async Task<IApiResponse<CaseRoomSnapshot>> JoinCaseRoom(Guid requestId)
+    public async Task<IApiResponse<CaseRoomSnapshot>> JoinCaseRoom(Guid requestId, SessionRequest body)
     {
         if (caseRoomStore is null || userSession.User is null)
             return RespondError<CaseRoomSnapshot>();
-        var snap = await caseRoomStore.JoinAsync(requestId, userSession.User.Id, userSession.User.Username, default);
+        var snap = await caseRoomStore.JoinAsync(requestId, body.SessionId, userSession.User.Id, userSession.User.Username, default);
         return Respond(snap);
     }
 
-    public async Task<IApiResponse> LeaveCaseRoom(Guid requestId)
+    public async Task<IApiResponse> LeaveCaseRoom(Guid requestId, SessionRequest body)
     {
         if (caseRoomStore is null || userSession.User is null)
             return RespondError();
-        await caseRoomStore.LeaveAsync(requestId, userSession.User.Id, default);
+        await caseRoomStore.LeaveAsync(requestId, body.SessionId, default);
         return RespondOk();
     }
 
@@ -917,7 +917,7 @@ public class DirectApiClient(
     {
         if (caseRoomStore is null || userSession.User is null)
             return RespondError();
-        await caseRoomStore.SyncAsync(requestId, userSession.User.Id, payload, default);
+        await caseRoomStore.SyncAsync(requestId, payload.SessionId ?? Guid.Empty, userSession.User.Id, payload, default);
         return RespondOk();
     }
 

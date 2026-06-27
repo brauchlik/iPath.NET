@@ -26,8 +26,9 @@ public class CaseRoomSessionStoreTests
         var store = CreateStore();
         var requestId = Guid.NewGuid();
         var userId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
 
-        var snapshot = await store.JoinAsync(requestId, userId, "Alice", default);
+        var snapshot = await store.JoinAsync(requestId, sessionId, userId, "Alice", default);
 
         snapshot.RequestId.Should().Be(requestId);
         snapshot.Participants.Should().ContainSingle(p => p.UserId == userId);
@@ -40,23 +41,23 @@ public class CaseRoomSessionStoreTests
         var store = CreateStore();
         var requestId = Guid.NewGuid();
 
-        await store.JoinAsync(requestId, Guid.NewGuid(), "Alice", default);
-        var snapshot = await store.JoinAsync(requestId, Guid.NewGuid(), "Bob", default);
+        await store.JoinAsync(requestId, Guid.NewGuid(), Guid.NewGuid(), "Alice", default);
+        var snapshot = await store.JoinAsync(requestId, Guid.NewGuid(), Guid.NewGuid(), "Bob", default);
 
         snapshot.Participants.Should().HaveCount(2);
     }
 
     [Fact]
-    public async Task Join_IsIdempotent_ForSameUser()
+    public async Task Join_SameUserDifferentSession_AddsParticipant()
     {
         var store = CreateStore();
         var requestId = Guid.NewGuid();
         var userId = Guid.NewGuid();
 
-        await store.JoinAsync(requestId, userId, "Alice", default);
-        var snapshot = await store.JoinAsync(requestId, userId, "Alice", default);
+        await store.JoinAsync(requestId, Guid.NewGuid(), userId, "Alice", default);
+        var snapshot = await store.JoinAsync(requestId, Guid.NewGuid(), userId, "Alice", default);
 
-        snapshot.Participants.Should().ContainSingle();
+        snapshot.Participants.Should().HaveCount(2);
     }
 
     [Fact]
@@ -65,9 +66,10 @@ public class CaseRoomSessionStoreTests
         var store = CreateStore();
         var requestId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        await store.JoinAsync(requestId, userId, "Alice", default);
+        var sessionId = Guid.NewGuid();
+        await store.JoinAsync(requestId, sessionId, userId, "Alice", default);
 
-        await store.SyncAsync(requestId, userId,
+        await store.SyncAsync(requestId, sessionId, userId,
             new SyncPayload(null, new ViewportState(0.5, 0.5, 2.0)), default);
 
         var status = await store.GetStatusAsync(requestId, default);
@@ -80,12 +82,13 @@ public class CaseRoomSessionStoreTests
         var store = CreateStore();
         var requestId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        await store.JoinAsync(requestId, userId, "Alice", default);
+        var sessionId = Guid.NewGuid();
+        await store.JoinAsync(requestId, sessionId, userId, "Alice", default);
 
         var docId = Guid.NewGuid();
-        await store.SyncAsync(requestId, userId, new SyncPayload(docId, null), default);
+        await store.SyncAsync(requestId, sessionId, userId, new SyncPayload(docId, null), default);
 
-        var snapshot = await store.JoinAsync(requestId, Guid.NewGuid(), "Bob", default);
+        var snapshot = await store.JoinAsync(requestId, Guid.NewGuid(), Guid.NewGuid(), "Bob", default);
         snapshot.ActiveDocumentId.Should().Be(docId);
     }
 
@@ -95,12 +98,12 @@ public class CaseRoomSessionStoreTests
         var store = CreateStore();
         var requestId = Guid.NewGuid();
         var userId = Guid.NewGuid();
-        await store.JoinAsync(requestId, userId, "Alice", default);
+        var sessionId = Guid.NewGuid();
+        await store.JoinAsync(requestId, sessionId, userId, "Alice", default);
 
-        await store.LeaveAsync(requestId, userId, default);
+        await store.LeaveAsync(requestId, sessionId, default);
 
         var status = await store.GetStatusAsync(requestId, default);
-        // Session may still exist briefly due to teardown grace, but should not crash
         status.Should().NotBeNull();
     }
 

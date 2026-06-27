@@ -48,7 +48,7 @@ public partial class CaseRoomPage
 
             _dotNetRef = DotNetObjectReference.Create(this);
 
-            var snapshot = await SyncService.JoinAsync(RequestId);
+            var snapshot = await SyncService.JoinAsync(RequestId, _sessionId);
             Participants = snapshot.Participants.ToList();
             StateHasChanged();
 
@@ -204,7 +204,7 @@ public partial class CaseRoomPage
         catch (JSDisconnectedException) { }
         try
         {
-            await SyncService.LeaveAsync(RequestId);
+            await SyncService.LeaveAsync(RequestId, _sessionId);
         }
         catch { }
         _dotNetRef?.Dispose();

@@ -22,6 +22,8 @@ public record CaseRoomSnapshot(
 
 public record CaseRoomStatus(bool IsActive, int ParticipantCount, string[] ParticipantNames);
 
+public record SessionRequest(Guid SessionId);
+
 public record CaseRoomSyncEvent(
     Guid RequestId,
     Guid UserId,

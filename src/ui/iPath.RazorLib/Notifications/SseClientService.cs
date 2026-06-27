@@ -67,6 +67,7 @@ public class SseClientService : IAsyncDisposable
             _subscriptions.Add(_eventBus.SubscribeNotifications(userId, OnEventBusNotification));
             _subscriptions.Add(_eventBus.SubscribeDomainEvents(OnEventBusDomainEvent));
             _subscriptions.Add(_eventBus.SubscribeSystemEvents(OnEventBusSystemEvent));
+            _subscriptions.Add(_eventBus.SubscribeCaseRoomSync(OnEventBusCaseRoomSync));
             _logger.LogInformation("SSE connected in Server mode for user {UserId}", userId);
         }
         catch (Exception ex)
@@ -88,6 +89,11 @@ public class SseClientService : IAsyncDisposable
     private void OnEventBusSystemEvent(SystemEventHint hint)
     {
         SystemEventReceived?.Invoke(this, hint);
+    }
+
+    private void OnEventBusCaseRoomSync(CaseRoomSyncEvent evt)
+    {
+        CaseRoomSyncReceived?.Invoke(this, evt);
     }
 
     [JSInvokable]

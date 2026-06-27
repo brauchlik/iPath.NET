@@ -469,10 +469,10 @@ public interface IPathApi
 
     #region "-- CaseRoom --"
     [Post("/api/v1/caseroom/{requestId}/join")]
-    Task<IApiResponse<CaseRoomSnapshot>> JoinCaseRoom(Guid requestId);
+    Task<IApiResponse<CaseRoomSnapshot>> JoinCaseRoom(Guid requestId, [Body] SessionRequest body);
 
     [Post("/api/v1/caseroom/{requestId}/leave")]
-    Task<IApiResponse> LeaveCaseRoom(Guid requestId);
+    Task<IApiResponse> LeaveCaseRoom(Guid requestId, [Body] SessionRequest body);
 
     [Post("/api/v1/caseroom/{requestId}/sync")]
     Task<IApiResponse> SyncCaseRoom(Guid requestId, [Body] SyncPayload payload);

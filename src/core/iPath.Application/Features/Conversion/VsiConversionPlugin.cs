@@ -66,7 +66,22 @@ public class VsiConversionPlugin(
 
     public async Task<ThumbnailResult> CreateThumbnailAsync(ThumbnailContext ctx, CancellationToken ct)
     {
-        // Option 1: extract overview from source .vsi
+        // Option 1: vips thumbnail directly on source (fastest, proven to work)
+        if (File.Exists(ctx.SourcePath))
+        {
+            await VipsThumbnailAsync(ctx.SourcePath, ctx, ct);
+            return ThumbnailResult.Ok();
+        }
+
+        // Option 2 (fallback): extract from DZI level 0 tile
+        var level0 = Path.Combine(ctx.TempDataPath, $"{ctx.DocumentId}_files", "0", "0_0.webp");
+        if (File.Exists(level0))
+        {
+            await VipsThumbnailAsync(level0, ctx, ct);
+            return ThumbnailResult.Ok();
+        }
+
+        // Option 3 (last resort): bfconvert overview -> vips thumbnail
         if (File.Exists(ctx.SourcePath))
         {
             var overviewPath = Path.GetTempFileName() + ".ome.tiff";
@@ -83,14 +98,6 @@ public class VsiConversionPlugin(
                 }
             }
             finally { try { File.Delete(overviewPath); } catch { } }
-        }
-
-        // Option 2 (fallback): extract from DZI level 0 tile
-        var level0 = Path.Combine(ctx.TempDataPath, $"{ctx.DocumentId}_files", "0", "0_0.webp");
-        if (File.Exists(level0))
-        {
-            await VipsThumbnailAsync(level0, ctx, ct);
-            return ThumbnailResult.Ok();
         }
 
         return ThumbnailResult.Fail("No source available for thumbnail");

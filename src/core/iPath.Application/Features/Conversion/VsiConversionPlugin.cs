@@ -66,55 +66,12 @@ public class VsiConversionPlugin(
 
     public async Task<ThumbnailResult> CreateThumbnailAsync(ThumbnailContext ctx, CancellationToken ct)
     {
-        // Option 1: vips thumbnail directly on source (fastest, proven to work)
         if (File.Exists(ctx.SourcePath))
         {
             await VipsThumbnailAsync(ctx.SourcePath, ctx, ct);
             return ThumbnailResult.Ok();
         }
-
-        // Option 2 (fallback): best DZI tile by file size (most content)
-        var dziDir = Path.Combine(ctx.TempDataPath, $"{ctx.DocumentId}_files");
-        if (Directory.Exists(dziDir))
-        {
-            long bestSize = 0;
-            string? bestTile = null;
-            for (int level = 0; level <= 15; level++)
-            {
-                var tile = Path.Combine(dziDir, $"{level}", "0_0.webp");
-                if (File.Exists(tile))
-                {
-                    var fi = new FileInfo(tile);
-                    if (fi.Length > bestSize) { bestSize = fi.Length; bestTile = tile; }
-                }
-            }
-            if (bestTile != null)
-            {
-                await VipsThumbnailAsync(bestTile, ctx, ct);
-                return ThumbnailResult.Ok();
-            }
-        }
-
-        // Option 3 (last resort): bfconvert overview -> vips thumbnail
-        if (File.Exists(ctx.SourcePath))
-        {
-            var overviewPath = Path.GetTempFileName() + ".ome.tiff";
-            try
-            {
-                var result = await RunProcessAsync(
-                    config.Value.BfconvertPath,
-                    $"-series {config.Value.SeriesIndex} -compression JPEG \"{ctx.SourcePath}\" \"{overviewPath}\"",
-                    config.Value.JavaMaxMemory, 2, ct);
-                if (result == null && File.Exists(overviewPath))
-                {
-                    await VipsThumbnailAsync(overviewPath, ctx, ct);
-                    return ThumbnailResult.Ok();
-                }
-            }
-            finally { try { File.Delete(overviewPath); } catch { } }
-        }
-
-        return ThumbnailResult.Fail("No source available for thumbnail");
+        return ThumbnailResult.Fail("Source file not available for thumbnail");
     }
 
     private async Task VipsThumbnailAsync(string inputPath, ThumbnailContext ctx, CancellationToken ct)

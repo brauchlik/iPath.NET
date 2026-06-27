@@ -10,7 +10,6 @@ using iPath.Blazor.Componenents.Admin.Groups;
 using iPath.Blazor.Componenents.Admin.Questionnaires;
 using iPath.Blazor.Componenents.Admin.Users;
 using iPath.Blazor.Componenents.Communities;
-using iPath.Blazor.Componenents.CaseRoom;
 using iPath.Blazor.Componenents.Notifications;
 using iPath.Blazor.Componenents.Shared;
 using iPath.Blazor.Componenents.Users;
@@ -111,18 +110,6 @@ public static class RazorLibServiceRegistration
 
         services.AddScoped<AppState>();
         services.AddScoped<SseClientService>();
-
-        // CaseRoom: WASM uses HTTP+SSE; Server uses in-memory + EventBus
-        if (WasmClient)
-        {
-            services.AddScoped<ICaseRoomSyncService, HttpCaseRoomSyncService>();
-            services.AddScoped<ICaseRoomSyncReceiver, HttpCaseRoomSyncReceiver>();
-        }
-        else
-        {
-            services.AddScoped<ICaseRoomSyncService, InMemoryCaseRoomSyncService>();
-            services.AddScoped<ICaseRoomSyncReceiver, InMemoryCaseRoomSyncReceiver>();
-        }
 
         return services;
     }

@@ -42,6 +42,10 @@
                 <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled="@(!vm.HasSlideShow || vm.SelectedRequest is null)"
                                     Tooltip=@T["Show images in fullscreen mode"] />
 
+                <IPathToolbarButton Icon="@Icons.Material.Outlined.Group" Href="@($"/request/{vm.SelectedRequest?.Id}/caseroom")"
+                                    Disabled="@(vm.SelectedRequest is null)"
+                                    Tooltip="Start Case Sharing" />
+
                 @if (vm.IsModerator)
                 {
                     <MudTooltip Text=@T["assign tasks"]>

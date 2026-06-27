@@ -1,8 +1,7 @@
-using iPath.API.Services.CaseRoom;
 using iPath.Application.Features.CaseRoom;
 using iPath.Application.Contracts;
 
-namespace iPath.Blazor.Componenents.CaseRoom;
+namespace iPath.API.Services.CaseRoom;
 
 public class InMemoryCaseRoomSyncService(
     ICaseRoomSessionStore store,

@@ -1,6 +1,4 @@
-using iPath.Application.Features.CaseRoom;
-
-namespace iPath.API.Services.CaseRoom;
+namespace iPath.Application.Features.CaseRoom;
 
 public interface ICaseRoomSessionStore
 {

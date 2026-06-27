@@ -3648,6 +3648,108 @@
         }
       }
     },
+    "/api/v1/caseroom/{requestId}/join": {
+      "post": {
+        "tags": [
+          "iPath.Blazor.Server"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/caseroom/{requestId}/leave": {
+      "post": {
+        "tags": [
+          "iPath.Blazor.Server"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/caseroom/{requestId}/sync": {
+      "post": {
+        "tags": [
+          "iPath.Blazor.Server"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/caseroom/{requestId}": {
+      "get": {
+        "tags": [
+          "iPath.Blazor.Server"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/Account/PerformExternalLogin": {
       "post": {
         "tags": [
@@ -8447,6 +8549,32 @@
           }
         }
       },
+      "SyncPayload": {
+        "required": [
+          "documentId",
+          "viewport"
+        ],
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "viewport": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ViewportState"
+              }
+            ]
+          }
+        }
+      },
       "SyncServiceRequestToStorageCommand": {
         "type": "object",
         "properties": {
@@ -9701,6 +9829,40 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "ViewportState": {
+        "required": [
+          "x",
+          "y",
+          "zoom"
+        ],
+        "type": "object",
+        "properties": {
+          "x": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "y": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "zoom": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
           }
         }
       },

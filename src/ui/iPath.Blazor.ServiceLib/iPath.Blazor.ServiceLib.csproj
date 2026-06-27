@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\core\iPath.Application\iPath.Application.csproj" />
-    <ProjectReference Include="..\..\infrastructure\iPath.API\iPath.API.csproj" />
   </ItemGroup>
 
 </Project>

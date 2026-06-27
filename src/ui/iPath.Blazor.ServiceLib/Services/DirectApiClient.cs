@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Headers;
 using DispatchR;
 using FluentResults;
-using iPath.API.Services.CaseRoom;
 using iPath.Application.Contracts;
 using iPath.Application.Features;
 using iPath.Application.Features.Admin;

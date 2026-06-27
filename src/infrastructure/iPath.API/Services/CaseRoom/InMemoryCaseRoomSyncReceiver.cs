@@ -1,7 +1,7 @@
 using iPath.Application.Features.CaseRoom;
 using iPath.Application.Features.Notifications;
 
-namespace iPath.Blazor.Componenents.CaseRoom;
+namespace iPath.API.Services.CaseRoom;
 
 public sealed class InMemoryCaseRoomSyncReceiver(INotificationEventBus bus) : ICaseRoomSyncReceiver
 {

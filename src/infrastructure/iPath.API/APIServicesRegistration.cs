@@ -12,6 +12,7 @@ using iPath.API.Services.SyncImport;
 using iPath.Application.Features.SyncImport;
 using iPath.Application.Coding;
 using iPath.Application.Features.EmailImport;
+using iPath.Application.Features.CaseRoom;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Questionnaires;
 using iPath.Application.Features.TaskAssignments;
@@ -118,6 +119,8 @@ public static class APIServicesRegistration
 
         // CaseRoom session store (in-memory, transient sessions)
         services.AddSingleton<ICaseRoomSessionStore, CaseRoomSessionStore>();
+        services.AddScoped<ICaseRoomSyncService, InMemoryCaseRoomSyncService>();
+        services.AddScoped<ICaseRoomSyncReceiver, InMemoryCaseRoomSyncReceiver>();
 
         services.AddHostedService<NotificationPublisher>();
         services.AddTransient<IServiceRequestHtmlPreview, EmailNotificationPreview>();

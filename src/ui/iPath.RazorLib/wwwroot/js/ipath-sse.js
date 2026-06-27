@@ -13,6 +13,10 @@ export function connect(dotNetHelper, url) {
         dotNetHelper.invokeMethodAsync('OnSystemEvent', e.data, e.lastEventId);
     });
 
+    es.addEventListener('caseroom-sync', e => {
+        dotNetHelper.invokeMethodAsync('OnCaseRoomSync', e.data, e.lastEventId);
+    });
+
     es.onerror = () => {
         dotNetHelper.invokeMethodAsync('OnError');
     };

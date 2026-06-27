@@ -1,3 +1,4 @@
+using iPath.Application.Features.CaseRoom;
 using iPath.Application.Features.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
@@ -25,6 +26,7 @@ public class SseClientService : IAsyncDisposable
     public event EventHandler<NotificationDto>? NotificationReceived;
     public event EventHandler<DomainEventSummary>? DomainEventReceived;
     public event EventHandler<SystemEventHint>? SystemEventReceived;
+    public event EventHandler<CaseRoomSyncEvent>? CaseRoomSyncReceived;
     public event EventHandler? ConnectionError;
 
     public SseClientService(IJSRuntime js, IServiceProvider serviceProvider, ILogger<SseClientService> logger)
@@ -133,6 +135,22 @@ public class SseClientService : IAsyncDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to deserialize system-event");
+        }
+    }
+
+    [JSInvokable]
+    public void OnCaseRoomSync(string data, string lastEventId)
+    {
+        _lastEventId = lastEventId;
+        try
+        {
+            var evt = JsonSerializer.Deserialize<CaseRoomSyncEvent>(data, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            if (evt is not null)
+                CaseRoomSyncReceived?.Invoke(this, evt);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to deserialize caseroom-sync");
         }
     }
 

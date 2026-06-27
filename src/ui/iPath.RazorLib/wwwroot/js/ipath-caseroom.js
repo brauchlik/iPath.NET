@@ -58,8 +58,8 @@ export function setViewport(x, y, zoom) {
     if (!viewer) return;
     console.debug('[CaseRoom] applying remote viewport: x=%.4f, y=%.4f, zoom=%.4f', x, y, zoom);
     isApplyingRemote = true;
-    viewer.viewport.panTo({ x: x, y: y }, true);
-    viewer.viewport.zoomTo(zoom, null, true);
+    viewer.viewport.panTo({ x: x, y: y }, false);
+    viewer.viewport.zoomTo(zoom, null, false);
     setTimeout(() => { isApplyingRemote = false; }, 50);
 }
 

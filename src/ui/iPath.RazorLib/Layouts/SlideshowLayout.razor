@@ -1,4 +1,4 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
 <MudThemeProvider IsDarkMode="true" />
 <MudSnackbarProvider />
@@ -8,6 +8,12 @@
                    BackdropClick="false"
                    Position="DialogPosition.Center"
                    CloseOnEscapeKey="true" />
+
+<AuthorizeView>
+    <Authorized>
+        <SseConnectionHost />
+    </Authorized>
+</AuthorizeView>
 
 <MudLayout Style="background-color: black;" Class="pa-0">
     <MudMainContent Style="background-color: black;">

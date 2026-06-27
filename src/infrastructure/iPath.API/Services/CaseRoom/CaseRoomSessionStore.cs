@@ -49,7 +49,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
             entry.TeardownCts?.Cancel();
             entry.TeardownCts = null;
 
-            var participant = new Participant(userId, displayName, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+            var participant = new Participant(sessionId, userId, displayName, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
             entry.Session.Participants[sessionId] = participant;
 
             var sessions = entry.Session.UserSessions.GetOrAdd(userId, _ => new HashSet<Guid>());
@@ -59,7 +59,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 
             userIds = entry.Session.UserSessions.Keys.ToArray();
             var updatedParticipants = entry.Session.Participants.Values.ToArray();
-            var joinPayload = new SyncPayload(null, null, "Join", updatedParticipants);
+            var joinPayload = new SyncPayload(null, null, sessionId, "Join", updatedParticipants);
             joinEvt = new CaseRoomSyncEvent(requestId, userId, displayName, joinPayload, DateTimeOffset.UtcNow);
         }
 
@@ -101,7 +101,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 
                 if (userIds.Length > 0)
                 {
-                    var leavePayload = new SyncPayload(null, null, "Leave", updatedParticipants);
+                    var leavePayload = new SyncPayload(null, null, sessionId, "Leave", updatedParticipants);
                     leaveEvt = new CaseRoomSyncEvent(requestId, uid, removedParticipant.DisplayName, leavePayload, DateTimeOffset.UtcNow);
                 }
                 else
@@ -176,8 +176,17 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         }
         _eventBus.PublishCaseRoomSync(evt);
 
-        _logger.LogDebug("CaseRoom {RequestId} sync session {SessionId} (user {UserId}): {Kind}",
-            requestId, sessionId, userId, payload.DocumentId.HasValue ? "document" : "viewport");
+        if (payload.Viewport is not null)
+        {
+            _logger.LogDebug("CaseRoom {RequestId} viewport update: Session {SessionId} (user {UserId}) -> X={X:F4}, Y={Y:F4}, Zoom={Zoom:F4}",
+                requestId, sessionId, userId, payload.Viewport.X, payload.Viewport.Y, payload.Viewport.Zoom);
+        }
+
+        if (payload.DocumentId.HasValue)
+        {
+            _logger.LogInformation("CaseRoom {RequestId} document update: Session {SessionId} (user {UserId}) -> Document={DocumentId}",
+                requestId, sessionId, userId, payload.DocumentId.Value);
+        }
     }
 
     public Task<CaseRoomStatus?> GetStatusAsync(Guid requestId, CancellationToken ct)
@@ -242,7 +251,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                             var updatedParticipants = entry.Session.Participants.Values.ToArray();
                             remainingIds = entry.Session.UserSessions.Keys.ToArray();
 
-                            var leavePayload = new SyncPayload(null, null, "Leave", updatedParticipants);
+                            var leavePayload = new SyncPayload(null, null, default, "Leave", updatedParticipants);
                             leaveEvt = new CaseRoomSyncEvent(requestId, Guid.Empty, "System", leavePayload, DateTimeOffset.UtcNow);
                         }
 

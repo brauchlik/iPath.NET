@@ -8,7 +8,7 @@ public class InMemoryCaseRoomSyncService : ICaseRoomSyncService
 {
     private readonly ICaseRoomSessionStore _store;
     private readonly IUserSession _userSession;
-    private readonly ConcurrentBag<(Guid RequestId, Guid SessionId)> _joined = new();
+    private readonly ConcurrentBag<(Guid RequestId, Guid SessionId)> _joinedSessions = new();
 
     public InMemoryCaseRoomSyncService(
         ICaseRoomSessionStore store,
@@ -22,7 +22,7 @@ public class InMemoryCaseRoomSyncService : ICaseRoomSyncService
     {
         if (_userSession.User is null)
             throw new InvalidOperationException("User not authenticated");
-        _joined.Add((requestId, sessionId));
+        _joinedSessions.Add((requestId, sessionId));
         return _store.JoinAsync(requestId, sessionId, _userSession.User.Id, _userSession.User.Username, ct);
     }
 
@@ -40,13 +40,13 @@ public class InMemoryCaseRoomSyncService : ICaseRoomSyncService
 
     public async ValueTask DisposeAsync()
     {
-        if (_userSession.User is not null)
+        foreach (var (reqId, sessId) in _joinedSessions)
         {
-            foreach (var (reqId, sessId) in _joined)
+            try
             {
-                try { await _store.LeaveAsync(reqId, sessId, default); }
-                catch { }
+                await _store.LeaveAsync(reqId, sessId, default);
             }
+            catch { }
         }
     }
 }

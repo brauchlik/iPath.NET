@@ -5,14 +5,14 @@ public record ViewportState(double X, double Y, double Zoom)
     public bool IsValid() => double.IsFinite(X) && double.IsFinite(Y) && double.IsFinite(Zoom) && Zoom > 0;
 }
 
-public record Participant(Guid UserId, string DisplayName, DateTimeOffset JoinedAt, DateTimeOffset LastSeenAt);
+public record Participant(Guid SessionId, Guid UserId, string DisplayName, DateTimeOffset JoinedAt, DateTimeOffset LastSeenAt);
 
 public record SyncPayload(
     Guid? DocumentId,
     ViewportState? Viewport,
+    Guid? SessionId = null,
     string? Action = null,
-    Participant[]? Participants = null,
-    Guid? SessionId = null);
+    Participant[]? Participants = null);
 
 public record CaseRoomSnapshot(
     Guid RequestId,

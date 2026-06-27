@@ -7519,6 +7519,7 @@
       },
       "Participant": {
         "required": [
+          "sessionId",
           "userId",
           "displayName",
           "joinedAt",
@@ -7526,6 +7527,10 @@
         ],
         "type": "object",
         "properties": {
+          "sessionId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "userId": {
             "type": "string",
             "format": "uuid"
@@ -8631,6 +8636,13 @@
               }
             ]
           },
+          "sessionId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
           "action": {
             "type": [
               "null",
@@ -8645,13 +8657,6 @@
             "items": {
               "$ref": "#/components/schemas/Participant"
             }
-          },
-          "sessionId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
           }
         }
       },

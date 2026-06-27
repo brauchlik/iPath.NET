@@ -73,12 +73,26 @@ public class VsiConversionPlugin(
             return ThumbnailResult.Ok();
         }
 
-        // Option 2 (fallback): extract from DZI level 0 tile
-        var level0 = Path.Combine(ctx.TempDataPath, $"{ctx.DocumentId}_files", "0", "0_0.webp");
-        if (File.Exists(level0))
+        // Option 2 (fallback): best DZI tile by file size (most content)
+        var dziDir = Path.Combine(ctx.TempDataPath, $"{ctx.DocumentId}_files");
+        if (Directory.Exists(dziDir))
         {
-            await VipsThumbnailAsync(level0, ctx, ct);
-            return ThumbnailResult.Ok();
+            long bestSize = 0;
+            string? bestTile = null;
+            for (int level = 0; level <= 15; level++)
+            {
+                var tile = Path.Combine(dziDir, $"{level}", "0_0.webp");
+                if (File.Exists(tile))
+                {
+                    var fi = new FileInfo(tile);
+                    if (fi.Length > bestSize) { bestSize = fi.Length; bestTile = tile; }
+                }
+            }
+            if (bestTile != null)
+            {
+                await VipsThumbnailAsync(bestTile, ctx, ct);
+                return ThumbnailResult.Ok();
+            }
         }
 
         // Option 3 (last resort): bfconvert overview -> vips thumbnail

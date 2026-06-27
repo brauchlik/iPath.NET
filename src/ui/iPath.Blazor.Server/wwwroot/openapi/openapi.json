@@ -505,6 +505,28 @@
         }
       }
     },
+    "/api/v1/admin/debug/thumb/{docId}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "docId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/admin/ai/status": {
       "get": {
         "tags": [
@@ -6777,6 +6799,20 @@
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "conversionStatus": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "thumbRetryCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
               "integer",
               "string"
             ],

@@ -47,7 +47,7 @@
         <MudTh Style="width: 10rem;"><MudTableSortLabel SortLabel="CreatedOn" T="ServiceRequestListDto" InitialDirection="SortDirection.Descending">Date</MudTableSortLabel></MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Title" Class="ipath_node_title2" @onclick="@(() => vm.GotoNode(context))">
+        <MudTd DataLabel="Title" Class="ipath_node_title2">
             <MudLink Href=@($"request/{context.Id}")>
                 <MudHighlighter Text="@context.Title" HighlightedText="@vm.SearchString" Style="font-weight: bold;" />
             </MudLink>

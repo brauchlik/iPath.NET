@@ -15,11 +15,11 @@
         <div class="ipath_header_toolbar">
             <MudToolBar WrapContent="true">
                 <MudTooltip Text=@T["edits"]>
-                    <IPathToolbarButton Icon="@EditIcon" OnClick="OnEditClick" Disabled="vm.EditDisabled" />
+                    <IPathToolbarButton Icon="@EditIcon" OnClick="OnEditClick" Disabled="@(vm.EditDisabled || vm.SelectedRequest is null)" />
                 </MudTooltip>
-                <IPathToolbarButton Icon="@Icons.Material.Outlined.Save" OnClick="@(() => vm.Save())" Hidden="@hideSave" />
+                <IPathToolbarButton Icon="@Icons.Material.Outlined.Save" OnClick="@(() => vm.Save())" Hidden="@hideSave" Disabled="@(vm.SelectedRequest is null)" />
                 <MudTooltip Text=@T["Upload Files"]>
-                    <FileUploadButton Disabled="@vm.AttachFileDisabled" Icon="@Icons.Material.Filled.DriveFolderUpload" />
+                    <FileUploadButton Disabled="@(vm.AttachFileDisabled || vm.SelectedRequest is null)" Icon="@Icons.Material.Filled.DriveFolderUpload" />
                 </MudTooltip>
                 <MudButtonGroup>
                     <MudMenu Icon="@Icons.Material.Filled.AttachFile" Style="align-self: auto;">
@@ -36,10 +36,10 @@
                     </MudMenu>
                 </MudButtonGroup>
                 <MudTooltip Text=@T["add a comment"]>
-                    <IPathToolbarButton Icon="@Icons.Material.Outlined.AddComment" OnClick="@(() => vm.StartAnnotation())" Disabled="vm.AnnotateDisabled" />
+                    <IPathToolbarButton Icon="@Icons.Material.Outlined.AddComment" OnClick="@(() => vm.StartAnnotation())" Disabled="@(vm.AnnotateDisabled || vm.SelectedRequest is null)" />
                 </MudTooltip>
 
-                <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled=@(!vm.HasSlideShow)
+                <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled="@(!vm.HasSlideShow || vm.SelectedRequest is null)"
                                     Tooltip=@T["Show images in fullscreen mode"] />
 
                 @if (vm.IsModerator)
@@ -56,11 +56,11 @@
                 @if (vm.CanMoveRequest)
                 {
                     <MudTooltip Text=@T["move to another group"]>
-                        <IPathToolbarButton Icon="@Icons.Material.Outlined.DriveFileMove" OnClick="@(() => vm.MoveRequest())" />
+                        <IPathToolbarButton Icon="@Icons.Material.Outlined.DriveFileMove" OnClick="@(() => vm.MoveRequest())" Disabled="@(vm.SelectedRequest is null)" />
                     </MudTooltip>
                 }
                 <MudTooltip Text=@T["delete"]>
-                    <IPathToolbarButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => vm.Delete())" Disabled="vm.DeleteDisabled" />
+                    <IPathToolbarButton Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => vm.Delete())" Disabled="@(vm.DeleteDisabled || vm.SelectedRequest is null)" />
                 </MudTooltip>
 
                 @if (vm.IsAdmin)
@@ -135,12 +135,15 @@
     {
         get
         {
-            if (vm.SelectedRequest is null)
+            var isDraft = vm.SelectedRequest?.IsDraft ?? vm.SelectedRequestHeader?.IsDraft ?? false;
+            var title = vm.SelectedRequest?.Title ?? vm.SelectedRequestHeader?.Title;
+
+            if (title is null)
                 return T["loading ..."];
-            else if (vm.SelectedRequest.IsDraft)
+            else if (isDraft)
                 return T["New Case"];
 
-            var ret = vm.SelectedRequest.Title;
+            var ret = title;
 
             if (!vm.IsRootNodeSelected && vm.SelectedDocument is not null)
             {

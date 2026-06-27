@@ -1,4 +1,4 @@
-﻿@page "/groups/{groupId}"
+@page "/groups/{groupId}"
 
 @attribute [Authorize]
 
@@ -31,12 +31,17 @@ else
     [Parameter]
     public GroupDto Model { get; set; }
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         if (!string.IsNullOrEmpty(groupId))
         {
-            await vm.LoadGroup(Guid.Parse(groupId));
-            Model = vm.Model;
-            StateHasChanged();
+            _ = LoadGroupAsync();
         }
+    }
+
+    private async Task LoadGroupAsync()
+    {
+        await vm.LoadGroup(Guid.Parse(groupId));
+        Model = vm.Model;
+        await InvokeAsync(StateHasChanged);
     }}

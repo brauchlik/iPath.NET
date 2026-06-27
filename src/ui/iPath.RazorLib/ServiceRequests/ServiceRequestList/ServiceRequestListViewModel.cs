@@ -1,4 +1,4 @@
-﻿using iPath.Blazor.Componenents.ServiceRequests;
+using iPath.Blazor.Componenents.ServiceRequests;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace iPath.Blazor.Componenents.ServiceRequests;
@@ -28,6 +28,8 @@ public class ServiceRequestListViewModel(IPathApi api,
     public string SearchString { get; set; }
     public CodedConcept? SearchBodySite { get; set; }
 
+    public IReadOnlyList<ServiceRequestListDto>? LastLoadedItems { get; private set; }
+
     public async Task<TableData<ServiceRequestListDto>> GetServiceRequestListAsync(TableState state, CancellationToken ct)
     {
         var query = state.BuildQuery(new GetServiceRequestListQuery
@@ -48,8 +50,9 @@ public class ServiceRequestListViewModel(IPathApi api,
 
         nvm.LastQuery = query;
         var resp = await api.GetRequestList(query);
-        if (resp.IsSuccessful)
+        if (resp.IsSuccessful && resp.Content is not null)
         {
+            LastLoadedItems = resp.Content.Items.ToList();
             return resp.Content.ToTableData();
         }
 

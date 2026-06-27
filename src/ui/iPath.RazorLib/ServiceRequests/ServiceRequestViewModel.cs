@@ -39,6 +39,8 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public string SearchString { get; set; }
 
+    public ServiceRequestListDto? SelectedRequestHeader { get; set; }
+
     public ServiceRequestDto? SelectedRequest
     {
         get;
@@ -116,6 +118,7 @@ public class ServiceRequestViewModel(IPathApi api,
     public void ClearData()
     {
         SelectedRequest = null;
+        SelectedRequestHeader = null;
         SelectedDocument = null;
         RequestOwner = null;
         NotifyStateChanged();

@@ -1,6 +1,10 @@
-﻿@page "/request/{id}"
+@page "/request/{id}"
 
 @inherits ServiceRequestViewComponentBase
+@inject ServiceRequestViewModel vm
+@inject ServiceRequestListViewModel listVm
+@inject ISnackbar snackbar
+@inject IDialogService dialogService
 
 @attribute [Authorize()]
 
@@ -9,11 +13,16 @@
     <TaskPrompt ServiceRequestId="@vm.SelectedRequest.Id" Class="mb-5" />
 }
 
+
 <ServiceRequestHeader />
 
 @if (vm.SelectedRequest is null)
 {
-    <LoadingMessage />
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="200px" />
+        <MudSkeleton SkeletonType="SkeletonType.Text" Class="mt-4" />
+        <MudSkeleton SkeletonType="SkeletonType.Text" />
+    </MudContainer>
 }
 else
 {
@@ -30,39 +39,34 @@ else
     public string id { get; set; }
 
     bool ShowDescription = true;
-    bool Loading;
-
     NodeAnnotations annotationView;
-
 
     protected override void OnInitialized()
     {
-        vm.OnLoadingStarted += StartLoding;
-        vm.OnLoadingStarted += StartLoding;
+        if (listVm.LastLoadedItems != null && Guid.TryParse(id, out var guid))
+        {
+            vm.SelectedRequestHeader = listVm.LastLoadedItems.FirstOrDefault(x => x.Id == guid);
+        }
+        
+        base.OnInitialized();
     }
 
     protected override async ValueTask OnDisposedAsync()
     {
         vm.ClearData();
-        vm.OnLoadingStarted -= StartLoding;
-        vm.OnLoadingStarted -= StartLoding;
+        await base.OnDisposedAsync();
     }
 
-    void StartLoding()
+    protected override void OnParametersSet()
     {
-        Loading = true;
+        _ = LoadDataAsync();
     }
 
-    void StoptLoding()
+    private async Task LoadDataAsync()
     {
-        Loading = false;
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
+        await Task.Yield();
         await vm.LoadNode(Guid.Parse(id), false);
-        StateHasChanged();
-
+        await InvokeAsync(StateHasChanged);
         await vm.MarkAsVisited();
     }
 }

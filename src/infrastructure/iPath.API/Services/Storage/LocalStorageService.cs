@@ -74,7 +74,7 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
 
             // copy to local file
             var localFile = Path.Combine(opts.Value.TempDataPath, document.Id.ToString());
-            if (!File.Exists(localFile)) File.Delete(localFile);
+                if (File.Exists(localFile)) File.Delete(localFile);
             File.Copy(filePath, localFile);
 
             logger.LogInformation($"Node {0} retrieved", document.Id);

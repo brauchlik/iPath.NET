@@ -475,14 +475,14 @@ and you can upload images and other files directly into that folder. From there 
             Type = "anyone",
             Role = "reader"
         };
-        await GDrive.Permissions.Create(newPermission, doc.File.Storage.StorageId).ExecuteAsync();
+        await GDrive.Permissions.Create(newPermission, doc.File.Storage.StorageId).ExecuteAsync(ct);
 
 
         // create a preview link
         var request = GDrive.Files.Get(doc.File.Storage.StorageId);
         // Request both thumbnail and the original link as a fallback
         request.Fields = "thumbnailLink, webContentLink";
-        var file = await request.ExecuteAsync();
+        var file = await request.ExecuteAsync(ct);
 
         if (!string.IsNullOrEmpty(file.ThumbnailLink))
         {
@@ -504,8 +504,6 @@ and you can upload images and other files directly into that folder. From there 
         // Fallback: If no thumbnail exists, we might have to use the direct link
         return file.WebContentLink;
 
-        // alternative: https://drive.google.com/uc?export=view&id={StorageId}
-        return $"https://drive.google.com/uc?export=view&id={doc.File.Storage.StorageId}";
     }
 
 
@@ -699,6 +697,7 @@ and you can upload images and other files directly into that folder. From there 
             var uFolder = UserUploadFolder.Create(user.Id, this.ProviderName, gDir);
             await db.UserUploadFolders.AddAsync(uFolder, ct);
             await db.SaveChangesAsync(ct);
+            return uFolder;
         }
         return folder;
     }
@@ -750,14 +749,28 @@ and you can upload images and other files directly into that folder. From there 
         }
     }
 
-    public Task DeleteRequestUploadFolderAsync(Guid FolderId, CancellationToken ct)
+    public async Task DeleteRequestUploadFolderAsync(Guid FolderId, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        var folder = await db.ServiceRequestUploadFolders.FindAsync([FolderId], ct);
+        if (folder is not null)
+        {
+            await DeleteFolderAsync(folder.StorageId, ct);
+        }
     }
 
-    public Task<ScanExternalDocumentResponse> ScanUploadFolderAsync(ServiceRequestUploadFolder folder, CancellationToken ctk = default)
+    public async Task<ScanExternalDocumentResponse> ScanUploadFolderAsync(ServiceRequestUploadFolder folder, CancellationToken ctk = default)
     {
-        throw new NotImplementedException();
+        FilesResource.ListRequest listRequest = GDrive.Files.List();
+        listRequest.Q = $"'{folder.StorageId}' in parents and trashed = false";
+        listRequest.Fields = "files(id, name, mimeType, size, createdTime)";
+
+        var result = await listRequest.ExecuteAsync(ctk);
+        var files = result.Files?
+            .Where(f => f.MimeType != "application/vnd.google-apps.folder")
+            .Select(f => new ExternalFile(f.Id, f.Name, f.MimeType, f.Size, f.CreatedTimeDateTimeOffset))
+            .ToList();
+
+        return new ScanExternalDocumentResponse(ProviderName, files ?? []);
     }
 
     public async Task<FolderImportResponse> ImportUploadFolderAsync(ServiceRequestUploadFolder folder, IReadOnlyList<string>? storageIds, CancellationToken ct = default)

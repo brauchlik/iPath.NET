@@ -198,6 +198,14 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
             }
         }
 
+        // Ensure primitive collections are never null (EF accesses backing fields directly)
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.Entity is Community community && community.Settings.CaseTypes is null)
+                community.Settings.CaseTypes = [];
+            if (entry.Entity is Group grp && grp.Settings.CaseTypes is null)
+                grp.Settings.CaseTypes = [];
+        }
 
         // doamin events
         var entitiesWithEvents = ChangeTracker

@@ -25,20 +25,14 @@ public class GDriveImportScanner : BackgroundService
         _logger = logger;
     }
 
-    public override async Task StartAsync(CancellationToken cancellationToken)
-    {
-        if (_config.Enabled && _config.IntervalMinutes > 0)
-        {
-            await base.StartAsync(cancellationToken);
-        }
-        else
-        {
-            await StopAsync(cancellationToken);
-        }
-    }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (!_config.Enabled || _config.IntervalMinutes <= 0)
+        {
+            _logger.LogInformation("GDriveImportScanner is disabled");
+            return;
+        }
+
         _logger.LogInformation(
             "GDriveImportScanner started. Interval: {Interval} minutes",
             _config.IntervalMinutes);

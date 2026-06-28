@@ -369,4 +369,3 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /docs/vsi
-src/ui/iPath.Blazor.Server/wwwroot/openapi/openapi.json

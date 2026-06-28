@@ -13,7 +13,8 @@
 		<DockerDefaultImageTag>latest</DockerDefaultImageTag>
 		<ContainerRepository>ipath-server-image</ContainerRepository>
 		<!-- OpenAPI build-time generation -->
-		<OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
+		<OpenApiGenerateDocuments Condition="'$(Configuration)' == 'Debug'">true</OpenApiGenerateDocuments>
+		<OpenApiGenerateDocuments Condition="'$(Configuration)' != 'Debug'">false</OpenApiGenerateDocuments>
 		<OpenApiDocumentsDirectory>wwwroot\openapi</OpenApiDocumentsDirectory>
 		<OpenApiGenerateDocumentsOptions>--file-name openapi</OpenApiGenerateDocumentsOptions>
 	</PropertyGroup>

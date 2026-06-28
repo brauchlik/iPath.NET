@@ -897,6 +897,9 @@ and you can upload images and other files directly into that folder. From there 
                                         OriginalStorageId = localFilePath,
                                         PluginType = conversionPlugin.GetType().Name
                                     });
+
+                                    // Save before enqueue so the worker can find the job in the DB
+                                    await db.SaveChangesAsync(ct);
                                     await wsiConversionQueue.EnqueueAsync(newDoc.Id, ct);
                                 }
                             }

@@ -93,8 +93,22 @@ public class WsiConversionWorker : BackgroundService
 
         if (job is null || job.Document is null)
         {
-            _logger.LogWarning("WsiConversionJob or Document not found for {DocId}", docId);
-            return;
+            // Could be a race between scanner saving the job and the worker picking it up from the channel
+            for (int i = 0; i < 3; i++)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1), ct);
+                job = await db.Set<WsiConversionJob>()
+                    .Include(j => j.Document)
+                    .FirstOrDefaultAsync(j => j.DocumentId == docId, ct);
+                if (job?.Document is not null)
+                    break;
+            }
+
+            if (job is null || job.Document is null)
+            {
+                _logger.LogWarning("WsiConversionJob or Document not found for {DocId} after retries", docId);
+                return;
+            }
         }
 
         var document = job.Document;

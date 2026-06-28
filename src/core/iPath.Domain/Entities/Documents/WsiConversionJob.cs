@@ -1,6 +1,6 @@
 namespace iPath.Domain.Entities;
 
-public enum VsiConversionStatus
+public enum WsiConversionStatus
 {
     Pending = 0,
     Downloading = 1,
@@ -10,11 +10,11 @@ public enum VsiConversionStatus
     Failed = 5
 }
 
-public class VsiConversionJob
+public class WsiConversionJob
 {
     public Guid Id { get; set; }
     public Guid DocumentId { get; set; }
-    public VsiConversionStatus Status { get; set; } = VsiConversionStatus.Pending;
+    public WsiConversionStatus Status { get; set; } = WsiConversionStatus.Pending;
     public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
     public DateTime? StartedOn { get; set; }
     public DateTime? CompletedOn { get; set; }
@@ -22,6 +22,7 @@ public class VsiConversionJob
     public int RetryCount { get; set; }
     public string? OriginalStorageId { get; set; }
     public string? ConvertedStorageId { get; set; }
+    public string? PluginType { get; set; }
 
     public DocumentNode Document { get; set; } = null!;
 }

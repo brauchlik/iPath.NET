@@ -1,4 +1,4 @@
-﻿namespace iPath.Domain.Entities;
+namespace iPath.Domain.Entities;
 
 public class DocumentNode
      : AuditableEntityWithEvents
@@ -26,6 +26,8 @@ public class DocumentNode
     public NodeFile? File { get; set; } = null!;
 
     public string DocumentType { get; set; } = "";
+
+    public DateTime? PurgedOn { get; set; }
 
     public void Delete()
     {

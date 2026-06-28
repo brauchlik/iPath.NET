@@ -11,16 +11,16 @@ using Microsoft.Extensions.Options;
 
 namespace iPath.API.Services.Storage;
 
-public class VsiConversionWorker : BackgroundService
+public class WsiConversionWorker : BackgroundService
 {
     private readonly IServiceProvider _sp;
-    private readonly VsiConversionConfig _config;
-    private readonly ILogger<VsiConversionWorker> _logger;
+    private readonly WsiConversionConfig _config;
+    private readonly ILogger<WsiConversionWorker> _logger;
 
-    public VsiConversionWorker(
+    public WsiConversionWorker(
         IServiceProvider sp,
-        IOptions<VsiConversionConfig> config,
-        ILogger<VsiConversionWorker> logger)
+        IOptions<WsiConversionConfig> config,
+        ILogger<WsiConversionWorker> logger)
     {
         _sp = sp;
         _config = config.Value;
@@ -29,34 +29,31 @@ public class VsiConversionWorker : BackgroundService
 
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
-        if (_config.Enabled)
-        {
-            _logger.LogInformation("VsiConversionWorker starting, reloading pending/active jobs from DB");
-            using var scope = _sp.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<iPathDbContext>();
-            var activeJobs = await db.Set<VsiConversionJob>()
-                .Where(j => j.Status == VsiConversionStatus.Pending || 
-                            j.Status == VsiConversionStatus.Downloading ||
-                            j.Status == VsiConversionStatus.Converting ||
-                            j.Status == VsiConversionStatus.Uploading)
-                .OrderBy(j => j.CreatedOn)
-                .ToListAsync(cancellationToken);
+        _logger.LogInformation("WsiConversionWorker starting, reloading pending/active jobs from DB");
+        using var scope = _sp.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<iPathDbContext>();
+        var activeJobs = await db.Set<WsiConversionJob>()
+            .Where(j => j.Status == WsiConversionStatus.Pending || 
+                        j.Status == WsiConversionStatus.Downloading ||
+                        j.Status == WsiConversionStatus.Converting ||
+                        j.Status == WsiConversionStatus.Uploading)
+            .OrderBy(j => j.CreatedOn)
+            .ToListAsync(cancellationToken);
 
-            if (activeJobs.Count > 0)
+        if (activeJobs.Count > 0)
+        {
+            var queue = _sp.GetRequiredService<IWsiConversionQueue>();
+            foreach (var job in activeJobs)
             {
-                var queue = _sp.GetRequiredService<IVsiConversionQueue>();
-                foreach (var job in activeJobs)
+                if (job.Status != WsiConversionStatus.Pending)
                 {
-                    if (job.Status != VsiConversionStatus.Pending)
-                    {
-                        _logger.LogInformation("Resetting stuck VSI job {DocId} from status {Status} to Pending", job.DocumentId, job.Status);
-                        job.Status = VsiConversionStatus.Pending;
-                    }
-                    await queue.EnqueueAsync(job.DocumentId, cancellationToken);
+                    _logger.LogInformation("Resetting stuck WSI job {DocId} from status {Status} to Pending", job.DocumentId, job.Status);
+                    job.Status = WsiConversionStatus.Pending;
                 }
-                await db.SaveChangesAsync(cancellationToken);
-                _logger.LogInformation("Reloaded {Count} VSI conversion jobs", activeJobs.Count);
+                await queue.EnqueueAsync(job.DocumentId, cancellationToken);
             }
+            await db.SaveChangesAsync(cancellationToken);
+            _logger.LogInformation("Reloaded {Count} WSI conversion jobs", activeJobs.Count);
         }
 
         await base.StartAsync(cancellationToken);
@@ -64,13 +61,11 @@ public class VsiConversionWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (!_config.Enabled) return;
-
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                var queue = _sp.GetRequiredService<IVsiConversionQueue>();
+                var queue = _sp.GetRequiredService<IWsiConversionQueue>();
                 var docId = await queue.DequeueAsync(stoppingToken);
                 await ProcessJobAsync(docId, stoppingToken);
             }
@@ -80,7 +75,7 @@ public class VsiConversionWorker : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error in VsiConversionWorker");
+                _logger.LogError(ex, "Unexpected error in WsiConversionWorker");
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
             }
         }
@@ -92,25 +87,44 @@ public class VsiConversionWorker : BackgroundService
         var db = scope.ServiceProvider.GetRequiredService<iPathDbContext>();
         var plugins = scope.ServiceProvider.GetRequiredService<IEnumerable<IConversionPlugin>>();
 
-        var job = await db.Set<VsiConversionJob>()
+        var job = await db.Set<WsiConversionJob>()
             .Include(j => j.Document)
             .FirstOrDefaultAsync(j => j.DocumentId == docId, ct);
 
         if (job is null || job.Document is null)
         {
-            _logger.LogWarning("VsiConversionJob or Document not found for {DocId}", docId);
+            _logger.LogWarning("WsiConversionJob or Document not found for {DocId}", docId);
             return;
         }
 
         var document = job.Document;
-        var ext = Path.GetExtension(document.File.Filename ?? "");
-        var plugin = plugins.FirstOrDefault(p => p.CanHandle(ext));
+
+        IConversionPlugin? plugin;
+        if (!string.IsNullOrEmpty(job.PluginType))
+        {
+            plugin = plugins.FirstOrDefault(p => p.GetType().Name == job.PluginType);
+        }
+        else
+        {
+            var ext = Path.GetExtension(document.File.Filename ?? "");
+            plugin = plugins.FirstOrDefault(p => p.CanHandle(ext));
+        }
 
         if (plugin is null)
         {
-            _logger.LogWarning("No conversion plugin found for extension {Ext} (doc {DocId})", ext, docId);
-            job.Status = VsiConversionStatus.Failed;
-            job.ErrorMessage = $"No plugin for extension {ext}";
+            _logger.LogWarning("No conversion plugin found (doc {DocId}, pluginType {PluginType})", docId, job.PluginType);
+            job.Status = WsiConversionStatus.Failed;
+            job.ErrorMessage = $"No plugin for {(string.IsNullOrEmpty(job.PluginType) ? "ext " + Path.GetExtension(document.File.Filename ?? "") : job.PluginType)}";
+            await db.SaveChangesAsync(ct);
+            return;
+        }
+
+        if (!_config.Enabled && plugin.RequiresConversion)
+        {
+            _logger.LogWarning("WSI conversion disabled, skipping job for document {DocId}", docId);
+            job.Status = WsiConversionStatus.Failed;
+            job.ErrorMessage = "WSI conversion is currently disabled";
+            document.File.ConversionStatus = DocumentConversionStatus.Failed;
             await db.SaveChangesAsync(ct);
             return;
         }
@@ -138,24 +152,28 @@ public class VsiConversionWorker : BackgroundService
                 DocumentId: docId,
                 StagingPath: stagingPath,
                 OriginalFilename: document.File.Filename ?? "slide",
-                FileExtension: ext,
+                FileExtension: Path.GetExtension(document.File.Filename ?? ""),
                 Document: document
             );
 
-            job.Status = VsiConversionStatus.Converting;
+            job.Status = WsiConversionStatus.Converting;
             job.StartedOn = DateTime.UtcNow;
-            document.File.ConversionStatus = "converting";
+            document.File.ConversionStatus = DocumentConversionStatus.Converting;
             await db.SaveChangesAsync(ct);
 
             var result = await plugin.ProcessAsync(ctx, ct);
 
             if (result.Success)
             {
-                job.Status = VsiConversionStatus.Completed;
+                job.Status = WsiConversionStatus.Completed;
                 job.CompletedOn = DateTime.UtcNow;
-                document.File.ConversionStatus = "completed";
+
                 await db.SaveChangesAsync(ct);
-                _logger.LogInformation("VSI conversion completed for document {DocId}", docId);
+                
+                var remoteQueue = _sp.GetRequiredService<IRemoteStorageUploadQueue>();
+                await remoteQueue.EnqueueAsync(new RemoteStorageCommand(docId, eRemoteStorageCommand.UploadDocument), ct);
+
+                _logger.LogInformation("VSI conversion completed and remote storage upload enqueued for document {DocId}", docId);
             }
             else
             {
@@ -165,18 +183,18 @@ public class VsiConversionWorker : BackgroundService
         catch (Exception ex)
         {
             _logger.LogError(ex, "VSI conversion failed for document {DocId}", docId);
-            job.Status = VsiConversionStatus.Failed;
+            job.Status = WsiConversionStatus.Failed;
             job.ErrorMessage = ex.Message;
             job.RetryCount++;
-            document.File.ConversionStatus = "failed";
+            document.File.ConversionStatus = DocumentConversionStatus.Failed;
             await db.SaveChangesAsync(ct);
 
             if (job.RetryCount < _config.MaxRetries)
             {
-                job.Status = VsiConversionStatus.Pending;
-                document.File.ConversionStatus = "pending";
+                job.Status = WsiConversionStatus.Pending;
+                document.File.ConversionStatus = DocumentConversionStatus.Pending;
                 await db.SaveChangesAsync(ct);
-                var queue = _sp.GetRequiredService<IVsiConversionQueue>();
+                var queue = _sp.GetRequiredService<IWsiConversionQueue>();
                 await queue.EnqueueAsync(docId, ct);
                 _logger.LogInformation(
                     "VSI conversion re-queued for document {DocId} (attempt {Retry}/{Max})",

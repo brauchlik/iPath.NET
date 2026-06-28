@@ -12,14 +12,14 @@
         <br />
     }
     <div class="gallery-item-label">@Model.File?.Filename.ShortenTo(12)</div>
-    @if (Model.File?.ConversionStatus == "converting")
+    @if (Model.File?.ConversionStatus == DocumentConversionStatus.Converting || Model.File?.ConversionStatus == DocumentConversionStatus.Pending)
     {
         <MudChip T="string" Size="Size.Small" Color="Color.Info" Class="gallery-converting-badge">
             <MudProgressCircular Size="Size.Small" Indeterminate="true" />
             Converting
         </MudChip>
     }
-    else if (Model.File?.ConversionStatus == "failed")
+    else if (Model.File?.ConversionStatus == DocumentConversionStatus.Failed)
     {
         <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error" Size="Size.Small" Class="gallery-error-icon" />
     }

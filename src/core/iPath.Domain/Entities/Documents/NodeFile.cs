@@ -1,4 +1,15 @@
+using System.Text.Json.Serialization;
+
 namespace iPath.Domain.Entities;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum DocumentConversionStatus
+{
+    Pending,
+    Converting,
+    Completed,
+    Failed
+}
 
 public class NodeFile
 {
@@ -12,7 +23,9 @@ public class NodeFile
     public int? ImageWidth { get; set; }
     public int? ImageHeight { get; set; }
 
-    public string? ConversionStatus { get; set; }
+    public DocumentConversionStatus? ConversionStatus { get; set; }
+
+    public bool ConversionSkipped { get; set; }
 
     public int ThumbRetryCount { get; set; }
 

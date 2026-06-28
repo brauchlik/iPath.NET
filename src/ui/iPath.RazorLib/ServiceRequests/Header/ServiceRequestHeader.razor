@@ -40,7 +40,9 @@
                     <IPathToolbarButton Icon="@Icons.Material.Outlined.AddComment" OnClick="@(() => vm.StartAnnotation())" Disabled="@(vm.AnnotateDisabled || vm.SelectedRequest is null)" />
                 </MudTooltip>
 
-                <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" Href="@vm.SlideShowUrl" Disabled="@(!vm.HasSlideShow || vm.SelectedRequest is null)"
+                <IPathToolbarButton Icon="@Icons.Material.Outlined.Fullscreen" 
+                                    Href="@vm.SlideShowUrl" 
+                                    Disabled="@(!vm.HasSlideShow || vm.SelectedRequest is null)"
                                     Tooltip=@T["Show images in fullscreen mode"] />
 
                 @if (CaseRoomActive)

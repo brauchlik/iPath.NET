@@ -175,7 +175,7 @@ public partial class CaseRoomPage
     private string GetTileSourceUrl(DocumentDto? doc)
     {
         if (doc is null) return string.Empty;
-        return doc.FileExtension.ToLower() == ".vsi"
+        return doc.IsWSI
             ? $"/files/{doc.Id}.dzi"
             : $"/files/{doc.Id}";
     }

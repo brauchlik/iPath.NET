@@ -1,6 +1,5 @@
 using iPath.API;
 using iPath.Application.Localization;
-using iPath.Blazor.Server;
 using iPath.Blazor.Server.Components;
 using iPath.Blazor.Server.Components.Account;
 using iPath.Domain.Config;
@@ -276,6 +275,58 @@ if (!string.IsNullOrWhiteSpace(externalFilesPath))
                     ctx.Context.Response.Headers.Append("Expires", "0");
                 }
                 */
+            });
+
+            // Fallback for missing WSI files under /files path (unzip on demand)
+            app.Use(async (context, next) =>
+            {
+                var path = context.Request.Path.Value;
+                if (path != null && path.StartsWith("/files/", StringComparison.OrdinalIgnoreCase))
+                {
+                    var parts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length > 1)
+                    {
+                        var target = parts[1];
+                        Guid? docId = null;
+                        if (target.EndsWith(".dzi", StringComparison.OrdinalIgnoreCase) && Guid.TryParse(target[..^4], out var id1))
+                        {
+                            docId = id1;
+                        }
+                        else if (target.EndsWith("_files", StringComparison.OrdinalIgnoreCase) && Guid.TryParse(target[..^6], out var id2))
+                        {
+                            docId = id2;
+                        }
+
+                        if (docId.HasValue)
+                        {
+                            var mediator = context.RequestServices.GetRequiredService<DispatchR.IMediator>();
+                            var res = await mediator.Send(new iPath.Application.Features.GetDocumentFileQuery(docId.Value), context.RequestAborted);
+                            if (res != null && !res.NotFound && !res.AccessDenied && res.TempFile != null)
+                            {
+                                var filename = res.Info?.Filename;
+                                var isZip = filename?.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) == true
+                                            || filename?.EndsWith(".dzi", StringComparison.OrdinalIgnoreCase) == true
+                                            || filename?.EndsWith(".vsi", StringComparison.OrdinalIgnoreCase) == true;
+                                if (isZip && File.Exists(res.TempFile))
+                                {
+                                    try
+                                    {
+                                        System.IO.Compression.ZipFile.ExtractToDirectory(res.TempFile, externalFilesPath, overwriteFiles: true);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                                        logger.LogError(ex, "Failed to unzip cache file {Path} to {Temp}", res.TempFile, externalFilesPath);
+                                    }
+                                }
+                                
+                                context.Response.Redirect(context.Request.Path + context.Request.QueryString);
+                                return;
+                            }
+                        }
+                    }
+                }
+                await next(context);
             });
         }
         else

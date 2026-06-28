@@ -239,7 +239,7 @@ public interface IPathApi
     Task<IApiResponse<ChildNodeSortOrderUpdatedEvent>> UpdateDocumentsSortOrder(UpdateDocumentsSortOrderCommand request);
 
     [Post("/api/v1/documents/vsi/import")]
-    Task<IApiResponse<VsiImportResponse>> VsiImport([Body] VsiImportCommand request);
+    Task<IApiResponse<WsiImportResponse>> WsiImport([Body] WsiImportCommand request);
     #endregion
 
 
@@ -299,7 +299,7 @@ public interface IPathApi
     Task<IApiResponse<List<TableRowCountDto>>> GetDatabaseTableCounts();
 
     [Get("/api/v1/admin/vsi/jobs")]
-    Task<IApiResponse<List<VsiConversionJobDto>>> GetVsiConversionJobs();
+    Task<IApiResponse<List<WsiConversionJobDto>>> GetWsiConversionJobs();
 
     [Get("/api/v1/admin/purge/deleted-documents")]
     Task<IApiResponse<List<PurgeDocumentFileDto>>> GetDeletedDocumentsWithFiles();

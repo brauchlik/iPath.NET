@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO.Compression;
 using iPath.Application.Contracts;
 using iPath.Domain.Config;
 using Microsoft.Extensions.Logging;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace iPath.Application.Features.Conversion;
 
 public class WsiConversionPlugin(
-    IOptions<VsiConversionConfig> config,
+    IOptions<WsiConversionConfig> config,
     IOptions<iPathConfig> ipathConfig,
     ILogger<WsiConversionPlugin> logger)
     : IConversionPlugin
@@ -19,11 +20,15 @@ public class WsiConversionPlugin(
 
     public bool CanHandle(string extension) => _extensions.Contains(extension);
 
+    public bool CanHandleZip(ZipArchive archive) => false;
+
+    public bool RequiresConversion => true;
+
     public IReadOnlyList<string> GetRequiredCompanions(string fileName) => [];
 
     public async Task<ConversionResult> ProcessAsync(ConversionJobContext ctx, CancellationToken ct)
     {
-        ctx.Document.File.ConversionStatus = "converting";
+        ctx.Document.File.ConversionStatus = DocumentConversionStatus.Converting;
 
         var sourcePath = Path.Combine(ctx.StagingPath, ctx.OriginalFilename);
         var needsDzi = config.Value.ConvertToDzi.TryGetValue(ctx.FileExtension, out var convert) && convert;
@@ -55,7 +60,7 @@ public class WsiConversionPlugin(
         await CreateThumbnailAsync(
             new ThumbnailContext(ctx.DocumentId, sourcePath, ipathConfig.Value.TempDataPath, 100, ctx.Document), ct);
 
-        ctx.Document.File.ConversionStatus = "completed";
+        ctx.Document.File.ConversionStatus = DocumentConversionStatus.Completed;
         return ConversionResult.Ok();
     }
 

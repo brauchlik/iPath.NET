@@ -9,6 +9,15 @@ else
     <MudIcon Size="Size.Large" Icon="@Model.FileIcon" />
     <br />
 }
+@if (Model.File?.ConversionStatus == DocumentConversionStatus.Converting ||
+     Model.File?.ConversionStatus == DocumentConversionStatus.Pending)
+{
+    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="gallery-converting-badge" />
+}
+else if (Model.File?.ConversionStatus == DocumentConversionStatus.Failed)
+{
+    <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error" Size="Size.Small" Class="gallery-error-icon" />
+}
 <div class="gallery-item-label">@Model.File?.Filename.ShortenTo(12)</div>
 
 

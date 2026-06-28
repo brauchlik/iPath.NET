@@ -3,11 +3,11 @@ using iPath.Application.Contracts;
 
 namespace iPath.API.Services.Storage;
 
-public class VsiConversionQueue : IVsiConversionQueue
+public class WsiConversionQueue : IWsiConversionQueue
 {
     private readonly Channel<Guid> _channel;
 
-    public VsiConversionQueue(int maxQueueSize = 10)
+    public WsiConversionQueue(int maxQueueSize = 10)
     {
         _channel = Channel.CreateBounded<Guid>(new BoundedChannelOptions(maxQueueSize)
         {

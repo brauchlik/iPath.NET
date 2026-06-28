@@ -3,12 +3,12 @@ using Microsoft.Extensions.Logging;
 
 namespace iPath.EF.Core.FeatureHandlers.Documents.Commands;
 
-public class VsiImportCommandHandler(
+public class WsiImportCommandHandler(
     IMediator mediator,
-    ILogger<VsiImportCommandHandler> logger)
-    : IRequestHandler<VsiImportCommand, Task<VsiImportResponse>>
+    ILogger<WsiImportCommandHandler> logger)
+    : IRequestHandler<WsiImportCommand, Task<WsiImportResponse>>
 {
-    public async Task<VsiImportResponse> Handle(VsiImportCommand request, CancellationToken ct)
+    public async Task<WsiImportResponse> Handle(WsiImportCommand request, CancellationToken ct)
     {
         var importedFiles = new List<string>();
         var errors = new List<string>();
@@ -46,12 +46,12 @@ public class VsiImportCommandHandler(
             else
             {
                 logger.LogWarning("VSI import failed: Companion folder '{Companion}' not found for '{File}'", companion, request.Path);
-                return new VsiImportResponse(0, [], [$"Companion folder '{companion}' not found for VSI slide: {request.Path}"]);
+                return new WsiImportResponse(0, [], [$"Companion folder '{companion}' not found for VSI slide: {request.Path}"]);
             }
         }
         else
         {
-            return new VsiImportResponse(0, [], [$"Not a .vsi file or folder: {request.Path}"]);
+            return new WsiImportResponse(0, [], [$"Not a .vsi file or folder: {request.Path}"]);
         }
 
         foreach (var vsiPath in vsiPaths)
@@ -101,7 +101,7 @@ public class VsiImportCommandHandler(
             }
         }
 
-        return new VsiImportResponse(
+        return new WsiImportResponse(
             importedFiles.Count - errors.Count(e => !e.Contains("delete")),
             importedFiles,
             errors);

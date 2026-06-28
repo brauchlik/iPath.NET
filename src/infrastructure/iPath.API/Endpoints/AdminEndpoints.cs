@@ -147,17 +147,17 @@ public static class AdminEndpoints
 
         route.MapGet("admin/vsi/jobs", async (IMediator mediator, CancellationToken ct) =>
         {
-            var result = await mediator.Send(new GetVsiConversionJobsQuery(), ct);
+            var result = await mediator.Send(new GetWsiConversionJobsQuery(), ct);
             return Results.Ok(result);
         })
-            .Produces<List<VsiConversionJobDto>>()
+            .Produces<List<WsiConversionJobDto>>()
             .WithTags("Admin")
             .RequireAuthorization("Admin");
 
         route.MapGet("admin/debug/thumb/{docId}", async (string docId,
             [FromServices] iPathDbContext db,
             [FromServices] IEnumerable<IConversionPlugin> plugins,
-            [FromServices] IOptions<VsiConversionConfig> vsiConfig,
+            [FromServices] IOptions<WsiConversionConfig> wsiConfig,
             [FromServices] IOptions<iPathConfig> ipathConfig,
             CancellationToken ct) =>
         {
@@ -171,9 +171,9 @@ public static class AdminEndpoints
                 return Results.NotFound($"No plugin for extension {ext}");
 
             // Find source file (same as ThumbnailWorker)
-            var stagingPath = string.IsNullOrEmpty(vsiConfig.Value.StagingPath)
+            var stagingPath = string.IsNullOrEmpty(wsiConfig.Value.StagingPath)
                 ? Path.Combine(ipathConfig.Value.TempDataPath, "conversion", doc.Id.ToString())
-                : Path.Combine(vsiConfig.Value.StagingPath, doc.Id.ToString());
+                : Path.Combine(wsiConfig.Value.StagingPath, doc.Id.ToString());
             var sourcePath = Path.Combine(stagingPath, doc.File.Filename);
             if (!File.Exists(sourcePath))
                 sourcePath = Path.Combine(ipathConfig.Value.TempDataPath, doc.Id.ToString());

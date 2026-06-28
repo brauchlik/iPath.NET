@@ -11,3 +11,7 @@ public record GetStaleCacheFilesQuery(int DaysOld = 7)
 
 public record CleanStaleCacheFilesCommand(int DaysOld = 7)
     : IRequest<CleanStaleCacheFilesCommand, Task<int>>;
+
+public record CleanStaleConversionStagingCommand(int DaysOld = 2)
+    : IRequest<CleanStaleConversionStagingCommand, Task<int>>;
+

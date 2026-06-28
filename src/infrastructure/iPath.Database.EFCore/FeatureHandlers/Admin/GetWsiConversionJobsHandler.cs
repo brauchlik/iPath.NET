@@ -6,16 +6,16 @@ using DispatchR.Abstractions.Send;
 
 namespace iPath.EF.Core.FeatureHandlers.Admin;
 
-public class GetVsiConversionJobsHandler(iPathDbContext db)
-    : IRequestHandler<GetVsiConversionJobsQuery, Task<List<VsiConversionJobDto>>>
+public class GetWsiConversionJobsHandler(iPathDbContext db)
+    : IRequestHandler<GetWsiConversionJobsQuery, Task<List<WsiConversionJobDto>>>
 {
-    public async Task<List<VsiConversionJobDto>> Handle(GetVsiConversionJobsQuery request, CancellationToken ct)
+    public async Task<List<WsiConversionJobDto>> Handle(GetWsiConversionJobsQuery request, CancellationToken ct)
     {
-        var jobs = await db.Set<VsiConversionJob>()
+        var jobs = await db.Set<WsiConversionJob>()
             .Include(j => j.Document)
             .OrderByDescending(j => j.CreatedOn)
             .Take(10)
-            .Select(j => new VsiConversionJobDto
+            .Select(j => new WsiConversionJobDto
             {
                 Id = j.Id,
                 DocumentId = j.DocumentId,

@@ -22,7 +22,12 @@ public class GroupSettings
         set => field = value; 
     }
     
-    public ICollection<string> CaseTypes { get; set; } = [];
+    private ICollection<string> _caseTypes = [];
+    public ICollection<string> CaseTypes
+    {
+        get => _caseTypes ??= [];
+        set => _caseTypes = value ?? [];
+    }
 
     public ICollection<eAnnotationType> AllowedAnnotationTypes { get; set; } = [ eAnnotationType.Comment, eAnnotationType.FinalAssesment, eAnnotationType.FollowUp ];
 

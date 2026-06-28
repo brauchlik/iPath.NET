@@ -9,6 +9,8 @@ using iPath.API.Services.Notifications.Publisher;
 using iPath.API.Services.Storage;
 using iPath.API.Services.Thumbnail;
 using iPath.API.Services.SyncImport;
+using iPath.API.Services.Jobs;
+
 using iPath.Application.Features.SyncImport;
 using iPath.Application.Coding;
 using iPath.Application.Features.EmailImport;
@@ -46,15 +48,20 @@ public static class APIServicesRegistration
         config.GetSection(iPathClientConfig.ConfigName).Bind(clcfg);
 
         // VSI conversion config
-        services.Configure<VsiConversionConfig>(config.GetSection(VsiConversionConfig.ConfigName));
-        var vsiCfg = new VsiConversionConfig();
-        config.GetSection(VsiConversionConfig.ConfigName).Bind(vsiCfg);
+        services.Configure<WsiConversionConfig>(config.GetSection(WsiConversionConfig.ConfigName));
+        var wsiCfg = new WsiConversionConfig();
+        config.GetSection(WsiConversionConfig.ConfigName).Bind(wsiCfg);
         services.Configure<GDriveImportScannerConfig>(config.GetSection(GDriveImportScannerConfig.ConfigName));
 
         // AI config
         services.Configure<AiSettingsConfig>(config.GetSection(AiSettingsConfig.ConfigName));
         var aiCfg = new AiSettingsConfig();
         config.GetSection(AiSettingsConfig.ConfigName).Bind(aiCfg);
+
+        // System Cleanup config
+        services.Configure<SystemCleanupConfig>(config.GetSection(SystemCleanupConfig.ConfigName));
+        var cleanupCfg = new SystemCleanupConfig();
+        config.GetSection(SystemCleanupConfig.ConfigName).Bind(cleanupCfg);
 
         // create root folder if requested
         CreateDataRoot(cfg);
@@ -150,11 +157,13 @@ public static class APIServicesRegistration
         services.AddHostedService<ThumbnailWorker>();
 
         // VSI Conversion
-        services.AddSingleton<IVsiConversionQueue>(ctx => new VsiConversionQueue(10));
+        services.AddSingleton<IWsiConversionQueue>(ctx => new WsiConversionQueue(10));
         services.AddSingleton<IConversionPlugin, VsiConversionPlugin>();
         services.AddSingleton<IConversionPlugin, WsiConversionPlugin>();
-        services.AddHostedService<VsiConversionWorker>();
+        services.AddSingleton<IConversionPlugin, DziImportPlugin>();
+        services.AddHostedService<WsiConversionWorker>();
         services.AddHostedService<GDriveImportScanner>();
+        services.AddHostedService<SystemCleanupWorker>();
 
         // Questionnaire handling
         services.AddScoped<QuestionnaireCacheServer>();
@@ -184,7 +193,7 @@ public static class APIServicesRegistration
 
         services.PostConfigure<iPathClientConfig>(c => c.SyncImportEnabled = !string.IsNullOrEmpty(syncCs));
         services.PostConfigure<iPathClientConfig>(c => c.AiEnabled = aiCfg.IsEnabled);
-        services.PostConfigure<iPathClientConfig>(c => c.VsiConversionEnabled = vsiCfg.Enabled);
+        services.PostConfigure<iPathClientConfig>(c => c.WsiConversionEnabled = wsiCfg.Enabled);
 
         // Configure JSON options for OpenAPI schema generation
         // Build-time OpenAPI generation needs higher MaxDepth for complex domain models

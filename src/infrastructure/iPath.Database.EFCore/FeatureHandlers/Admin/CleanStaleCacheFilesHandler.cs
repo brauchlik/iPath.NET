@@ -26,7 +26,11 @@ public class CleanStaleCacheFilesHandler(
 
         foreach (var fi in tempDir.GetFiles())
         {
-            if (Guid.TryParse(fi.Name, out var docId) && fi.CreationTimeUtc < cutoff)
+            var name = fi.Name;
+            if (name.EndsWith(".dzi", StringComparison.OrdinalIgnoreCase))
+                name = name[..^4];
+
+            if (Guid.TryParse(name, out var docId) && fi.CreationTimeUtc < cutoff)
                 candidates.TryAdd(docId, fi);
         }
 
@@ -56,15 +60,29 @@ public class CleanStaleCacheFilesHandler(
             })
             .ToListAsync(ct);
 
-        var deleted = 0;
+        var existingDocIds = docs.Select(d => d.Id).ToHashSet();
+        var orphanDocIds = docIds.Where(id => !existingDocIds.Contains(id)).ToList();
+
+        var idsToDelete = new List<Guid>();
+
+        // 1. Add orphans (already older than cutoff since candidates are filtered)
+        idsToDelete.AddRange(orphanDocIds);
+
+        // 2. Add stale documents
         foreach (var doc in docs)
         {
             if (doc.LastSrVisit.HasValue && doc.LastSrVisit.Value >= cutoff)
                 continue;
+            idsToDelete.Add(doc.Id);
+        }
 
-            var idStr = doc.Id.ToString();
+        var deleted = 0;
+        foreach (var id in idsToDelete)
+        {
+            var idStr = id.ToString();
             var tempFile = Path.Combine(_tempPath, idStr);
             var dziFolder = Path.Combine(_tempPath, $"{idStr}_files");
+            var dziDescFile = Path.Combine(_tempPath, $"{idStr}.dzi");
 
             try
             {
@@ -78,6 +96,20 @@ public class CleanStaleCacheFilesHandler(
             catch (Exception ex)
             {
                 logger.LogWarning(ex, "Cache hygiene: failed to delete {Path}", tempFile);
+            }
+
+            try
+            {
+                if (File.Exists(dziDescFile))
+                {
+                    File.Delete(dziDescFile);
+                    deleted++;
+                    logger.LogInformation("Cache hygiene: deleted {Path}", dziDescFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Cache hygiene: failed to delete {Path}", dziDescFile);
             }
 
             try

@@ -1,4 +1,4 @@
-﻿using Ardalis.GuardClauses;
+using Ardalis.GuardClauses;
 using iPath.EF.Core.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -224,9 +224,57 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
 
 
 
-    public Task<StorageRepsonse> DeleteFileAsync(Guid Id, CancellationToken ctk = default)
+    public async Task<StorageRepsonse> DeleteFileAsync(Guid Id, CancellationToken ctk = default)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var document = await db.Documents
+                .IgnoreQueryFilters()
+                .Include(n => n.ServiceRequest)
+                .FirstOrDefaultAsync(n => n.Id == Id, ctk);
+            if (document == null)
+            {
+                logger.LogWarning("DeleteFileAsync: Document {Id} not found in database", Id);
+                return StorageRepsonse.Fail($"Document {Id} not found");
+            }
+
+            if (document.File?.Storage == null)
+            {
+                logger.LogInformation("DeleteFileAsync: File or storage info is null for Document {Id}. Nothing to delete.", Id);
+                return new StorageRepsonse(true);
+            }
+
+            if (!document.File.Storage.IsLocal())
+            {
+                logger.LogInformation("DeleteFileAsync: File for Document {Id} is not stored locally ({Provider})", Id, document.File.Storage.ProviderName);
+                return StorageRepsonse.Ok(document.File.Storage);
+            }
+
+            if (document.ServiceRequest == null)
+            {
+                logger.LogWarning("DeleteFileAsync: ServiceRequest not found for Document {Id}", Id);
+                return StorageRepsonse.Fail("Document does not belong to a service request");
+            }
+
+            var filePath = Path.Combine(GetServiceRequestPath(document.ServiceRequest), document.File.Storage.StorageId);
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+                logger.LogInformation("Deleted storage file {Path}", filePath);
+            }
+            else
+            {
+                logger.LogWarning("DeleteFileAsync: Storage file {Path} not found on disk", filePath);
+            }
+
+            return StorageRepsonse.Ok(document.File.Storage);
+        }
+        catch (Exception ex)
+        {
+            var msg = $"Error deleting storage file for Document {Id}: {ex.Message}";
+            logger.LogError(msg);
+            return StorageRepsonse.Fail(msg);
+        }
     }
 
     public Task<StorageRepsonse> DeleteServiceRequestJsonAsync(Guid Id, CancellationToken ctk = default)

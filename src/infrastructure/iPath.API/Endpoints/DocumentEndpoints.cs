@@ -90,9 +90,9 @@ public static class DocumentEndpoints
             .Produces<DocumentDto>()
             .RequireAuthorization();
 
-        grp.MapPost("vsi/import", async ([FromBody] VsiImportCommand request, [FromServices] IMediator mediator, CancellationToken ct)
+        grp.MapPost("vsi/import", async ([FromBody] WsiImportCommand request, [FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(request, ct))
-            .Produces<VsiImportResponse>()
+            .Produces<WsiImportResponse>()
             .RequireAuthorization("Admin");
 
         return builder;

@@ -9,7 +9,12 @@ public class CommunitySettings
     
     public string? BaseUrl { get; set; }
 
-    public ICollection<string> CaseTypes { get; set; } = [];
+    private ICollection<string> _caseTypes = [];
+    public ICollection<string> CaseTypes
+    {
+        get => _caseTypes ??= [];
+        set => _caseTypes = value ?? [];
+    }
 
 
     public string? MorphologyValueSet { get; set; }

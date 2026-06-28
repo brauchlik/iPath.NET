@@ -43,5 +43,5 @@ public class iPathClientConfig
 
     public bool SyncImportEnabled { get; set; }
     public bool AiEnabled { get; set; }
-    public bool VsiConversionEnabled { get; set; }
+    public bool WsiConversionEnabled { get; set; }
 }

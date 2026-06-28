@@ -4,18 +4,21 @@ using iPath.Domain.Config;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using DispatchR.Abstractions.Send;
+using Microsoft.EntityFrameworkCore;
+using iPath.EF.Core.Database;
 
 namespace iPath.EF.Core.FeatureHandlers.Admin;
 
 public class PurgeDocumentFilesHandler(
+    iPathDbContext db,
     IOptions<iPathConfig> ipathOpts,
-    IOptions<VsiConversionConfig> vsiOpts,
+    IOptions<WsiConversionConfig> wsiOpts,
     IRemoteStorageService storage,
     ILogger<PurgeDocumentFilesHandler> logger)
     : IRequestHandler<PurgeDocumentFilesCommand, Task<bool>>
 {
     private readonly string _tempPath = ipathOpts.Value.TempDataPath;
-    private readonly string _stagingPath = vsiOpts.Value.StagingPath;
+    private readonly string _stagingPath = wsiOpts.Value.StagingPath;
 
     public async Task<bool> Handle(PurgeDocumentFilesCommand request, CancellationToken ct)
     {
@@ -25,6 +28,10 @@ public class PurgeDocumentFilesHandler(
         var tempFile = Path.Combine(_tempPath, id);
         try { if (File.Exists(tempFile)) { File.Delete(tempFile); logger.LogInformation("Deleted temp file {Path}", tempFile); } }
         catch (Exception ex) { errors.Add($"temp file: {ex.Message}"); }
+
+        var dziDescFile = Path.Combine(_tempPath, $"{id}.dzi");
+        try { if (File.Exists(dziDescFile)) { File.Delete(dziDescFile); logger.LogInformation("Deleted DZI descriptor file {Path}", dziDescFile); } }
+        catch (Exception ex) { errors.Add($"DZI descriptor file: {ex.Message}"); }
 
         var dziFolder = Path.Combine(_tempPath, $"{id}_files");
         try { if (Directory.Exists(dziFolder)) { Directory.Delete(dziFolder, true); logger.LogInformation("Deleted DZI folder {Path}", dziFolder); } }
@@ -45,6 +52,23 @@ public class PurgeDocumentFilesHandler(
             logger.LogWarning("Purge for document {DocId} completed with errors: {Errors}", request.DocumentId, string.Join("; ", errors));
             return false;
         }
+
+        try
+        {
+            var doc = await db.Documents.IgnoreQueryFilters().FirstOrDefaultAsync(d => d.Id == request.DocumentId, ct);
+            if (doc != null)
+            {
+                doc.PurgedOn = DateTime.UtcNow;
+                db.Documents.Update(doc);
+                await db.SaveChangesAsync(ct);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to mark document {DocId} as purged in database", request.DocumentId);
+            return false;
+        }
+
         return true;
     }
 }

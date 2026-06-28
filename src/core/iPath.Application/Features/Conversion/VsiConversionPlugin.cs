@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO.Compression;
 using iPath.Application.Contracts;
 using iPath.Domain.Config;
 using Microsoft.Extensions.Logging;
@@ -7,13 +8,20 @@ using Microsoft.Extensions.Options;
 namespace iPath.Application.Features.Conversion;
 
 public class VsiConversionPlugin(
-    IOptions<VsiConversionConfig> config,
+    IOptions<WsiConversionConfig> config,
     IOptions<iPathConfig> ipathConfig,
     ILogger<VsiConversionPlugin> logger)
     : IConversionPlugin
 {
     public bool CanHandle(string extension) =>
         string.Equals(extension, ".vsi", StringComparison.OrdinalIgnoreCase);
+
+    public bool CanHandleZip(ZipArchive archive) =>
+        archive.Entries.Any(e =>
+            e.Name.EndsWith(".vsi", StringComparison.OrdinalIgnoreCase)
+            && !e.FullName.Contains("__MACOSX"));
+
+    public bool RequiresConversion => true;
 
     public IReadOnlyList<string> GetRequiredCompanions(string fileName)
     {
@@ -28,7 +36,7 @@ public class VsiConversionPlugin(
         var tiffPath = Path.Combine(ctx.StagingPath, $"{ctx.DocumentId}.ome.tiff");
         var dziOutput = Path.Combine(ipathConfig.Value.TempDataPath, ctx.DocumentId.ToString());
 
-        ctx.Document.File.ConversionStatus = "converting";
+        ctx.Document.File.ConversionStatus = DocumentConversionStatus.Converting;
 
         // Step 1: bfconvert .vsi → OME-TIFF
         logger.LogInformation("bfconvert: {Series} {Input} -> {Output}",
@@ -60,7 +68,19 @@ public class VsiConversionPlugin(
         // Step 4: Cleanup intermediate TIFF
         try { File.Delete(tiffPath); } catch { }
 
-        ctx.Document.File.ConversionStatus = "completed";
+        // Step 5: Zip DZI output for storage
+        try
+        {
+            ZipDziOutput(ctx.DocumentId.ToString(), ipathConfig.Value.TempDataPath);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to zip DZI output for document {DocId}", ctx.DocumentId);
+            return ConversionResult.Fail($"Failed to zip DZI output: {ex.Message}");
+        }
+
+        ctx.Document.File.Filename = Path.ChangeExtension(ctx.Document.File.Filename, ".dzi");
+        ctx.Document.File.ConversionStatus = DocumentConversionStatus.Completed;
         return ConversionResult.Ok();
     }
 
@@ -256,5 +276,44 @@ public class VsiConversionPlugin(
         }
 
         return null; // success
+    }
+
+    private void ZipDziOutput(string documentId, string tempDataPath)
+    {
+        var zipPath = Path.Combine(tempDataPath, $"{documentId}.zip");
+
+        var dziFile = Path.Combine(tempDataPath, $"{documentId}.dzi");
+        var dziFolder = Path.Combine(tempDataPath, $"{documentId}_files");
+
+        using (var archive = ZipFile.Open(zipPath, ZipArchiveMode.Create))
+        {
+            if (File.Exists(dziFile))
+            {
+                archive.CreateEntryFromFile(dziFile, $"{documentId}.dzi", CompressionLevel.NoCompression);
+            }
+            if (Directory.Exists(dziFolder))
+            {
+                AddDirectoryToArchive(archive, dziFolder, $"{documentId}_files", CompressionLevel.NoCompression);
+            }
+        }
+
+        // Replace the original uploaded file with the canonical zip for storage
+        var targetPath = Path.Combine(tempDataPath, documentId);
+        if (File.Exists(targetPath)) File.Delete(targetPath);
+        File.Move(zipPath, targetPath);
+    }
+
+    private void AddDirectoryToArchive(ZipArchive archive, string sourceDir, string archivePath, CompressionLevel level)
+    {
+        foreach (var file in Directory.GetFiles(sourceDir))
+        {
+            var entryName = Path.Combine(archivePath, Path.GetFileName(file)).Replace('\\', '/');
+            archive.CreateEntryFromFile(file, entryName, level);
+        }
+        foreach (var dir in Directory.GetDirectories(sourceDir))
+        {
+            var entryName = Path.Combine(archivePath, Path.GetFileName(dir)).Replace('\\', '/');
+            AddDirectoryToArchive(archive, dir, entryName, level);
+        }
     }
 }

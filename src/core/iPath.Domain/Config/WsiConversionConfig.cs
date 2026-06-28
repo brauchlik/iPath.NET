@@ -1,8 +1,8 @@
 namespace iPath.Domain.Config;
 
-public class VsiConversionConfig
+public class WsiConversionConfig
 {
-    public const string ConfigName = "VsiConversion";
+    public const string ConfigName = "WsiConversion";
 
     public bool Enabled { get; set; }
     public string BfconvertPath { get; set; } = "bfconvert";

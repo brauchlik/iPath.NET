@@ -5,8 +5,8 @@
 
 <IPathHeader Title="Running Jobs" />
 
-<MudText Typo="Typo.h6" Class="mb-4">VSI Conversion Jobs (Last 10)</MudText>
-<MudDataGrid Items="conversionJobs" T="VsiConversionJobDto" Dense="true" Striped="true" Hover="true">
+<MudText Typo="Typo.h6" Class="mb-4">WSI Conversion Jobs (Last 10)</MudText>
+<MudDataGrid Items="conversionJobs" T="WsiConversionJobDto" Dense="true" Striped="true" Hover="true">
     <Columns>
         <PropertyColumn Property="x => x.CreatedOn" Title="Created On" Format="g" />
         <PropertyColumn Property="x => x.DocumentId" Title="Document ID" />
@@ -15,16 +15,16 @@
             <CellTemplate>
                 @switch (context.Item.Status)
                 {
-                    case VsiConversionStatus.Completed:
+                    case WsiConversionStatus.Completed:
                         <MudChip T="string" Color="Color.Success" Size="Size.Small">Completed</MudChip>
                         break;
-                    case VsiConversionStatus.Failed:
+                    case WsiConversionStatus.Failed:
                         <MudChip T="string" Color="Color.Error" Size="Size.Small">Failed</MudChip>
                         break;
-                    case VsiConversionStatus.Converting:
+                    case WsiConversionStatus.Converting:
                         <MudChip T="string" Color="Color.Warning" Size="Size.Small">Converting</MudChip>
                         break;
-                    case VsiConversionStatus.Downloading:
+                    case WsiConversionStatus.Downloading:
                         <MudChip T="string" Color="Color.Info" Size="Size.Small">Downloading</MudChip>
                         break;
                     default:
@@ -131,7 +131,7 @@
 @inject IPathApi api
 
 @code {
-    List<VsiConversionJobDto> conversionJobs = new();
+    List<WsiConversionJobDto> conversionJobs = new();
     List<PurgeDocumentFileDto> deletedDocs = new();
     List<StaleCacheFileDto> staleCacheJobs = new();
 
@@ -139,7 +139,7 @@
     {
         try
         {
-            var jobsRes = await api.GetVsiConversionJobs();
+            var jobsRes = await api.GetWsiConversionJobs();
             if (jobsRes.IsSuccessStatusCode && jobsRes.Content != null)
                 conversionJobs = jobsRes.Content;
 

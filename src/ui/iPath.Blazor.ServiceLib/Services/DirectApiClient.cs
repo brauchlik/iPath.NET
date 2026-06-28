@@ -410,7 +410,7 @@ public class DirectApiClient(
         return Respond(await mediator.Send(request, default));
     }
 
-    public async Task<IApiResponse<VsiImportResponse>> VsiImport(VsiImportCommand request)
+    public async Task<IApiResponse<WsiImportResponse>> WsiImport(WsiImportCommand request)
     {
         return Respond(await mediator.Send(request, default));
     }
@@ -531,9 +531,9 @@ public class DirectApiClient(
         return Respond(await mediator.Send(new GetDatabaseTableCountsQuery(), default));
     }
 
-    public async Task<IApiResponse<List<VsiConversionJobDto>>> GetVsiConversionJobs()
+    public async Task<IApiResponse<List<WsiConversionJobDto>>> GetWsiConversionJobs()
     {
-        return Respond(await mediator.Send(new GetVsiConversionJobsQuery(), default));
+        return Respond(await mediator.Send(new GetWsiConversionJobsQuery(), default));
     }
 
     public async Task<IApiResponse<List<PurgeDocumentFileDto>>> GetDeletedDocumentsWithFiles()

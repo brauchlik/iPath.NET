@@ -13,14 +13,14 @@ public class ThumbnailWorker : BackgroundService
 {
     private readonly IServiceProvider _sp;
     private readonly IThumbnailQueue _queue;
-    private readonly VsiConversionConfig _config;
+    private readonly WsiConversionConfig _config;
     private readonly iPathConfig _ipathConfig;
     private readonly ILogger<ThumbnailWorker> _logger;
 
     public ThumbnailWorker(
         IServiceProvider sp,
         IThumbnailQueue queue,
-        IOptions<VsiConversionConfig> config,
+        IOptions<WsiConversionConfig> config,
         IOptions<iPathConfig> ipathConfig,
         ILogger<ThumbnailWorker> logger)
     {

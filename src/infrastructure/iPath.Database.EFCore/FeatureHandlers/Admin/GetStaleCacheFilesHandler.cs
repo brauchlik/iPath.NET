@@ -24,7 +24,11 @@ public class GetStaleCacheFilesHandler(
 
         foreach (var fi in tempDir.GetFiles())
         {
-            if (Guid.TryParse(fi.Name, out var docId) && fi.CreationTimeUtc < cutoff)
+            var name = fi.Name;
+            if (name.EndsWith(".dzi", StringComparison.OrdinalIgnoreCase))
+                name = name[..^4];
+
+            if (Guid.TryParse(name, out var docId) && fi.CreationTimeUtc < cutoff)
                 candidates.TryAdd(docId, fi);
         }
 
@@ -56,16 +60,26 @@ public class GetStaleCacheFilesHandler(
             })
             .ToListAsync(ct);
 
+        var existingDocIds = docs.Select(d => d.Id).ToHashSet();
+        var orphanDocIds = docIds.Where(id => !existingDocIds.Contains(id)).ToList();
+
         var result = new List<StaleCacheFileDto>();
+
+        // 1. Add stale documents
         foreach (var doc in docs)
         {
             if (doc.LastSrVisit.HasValue && doc.LastSrVisit.Value >= cutoff)
                 continue;
 
             var id = doc.Id.ToString();
-            var hasDzi = Directory.Exists(Path.Combine(_tempPath, $"{id}_files"));
-            var dziSize = hasDzi ? DirSize(Path.Combine(_tempPath, $"{id}_files")) : 0;
-            var tempFileSize = candidates[doc.Id] is FileInfo fi ? fi.Length : 0;
+            var tempFile = Path.Combine(_tempPath, id);
+            var dziFolder = Path.Combine(_tempPath, $"{id}_files");
+            var dziDescFile = Path.Combine(_tempPath, $"{id}.dzi");
+
+            var tempFileSize = File.Exists(tempFile) ? new FileInfo(tempFile).Length : 0;
+            var dziDescSize = File.Exists(dziDescFile) ? new FileInfo(dziDescFile).Length : 0;
+            var hasDzi = Directory.Exists(dziFolder);
+            var dziSize = hasDzi ? DirSize(dziFolder) : 0;
 
             result.Add(new StaleCacheFileDto
             {
@@ -73,10 +87,42 @@ public class GetStaleCacheFilesHandler(
                 Filename = doc.Filename,
                 CreatedOn = doc.CreatedOn,
                 LastSrVisit = doc.LastSrVisit,
-                TempFileSize = tempFileSize,
+                TempFileSize = tempFileSize + dziDescSize,
                 HasDziFolder = hasDzi,
                 DziFolderSize = dziSize,
-                TotalSize = tempFileSize + dziSize
+                TotalSize = tempFileSize + dziDescSize + dziSize
+            });
+        }
+
+        // 2. Add orphan files (failed uploads or purged records)
+        foreach (var orphanId in orphanDocIds)
+        {
+            var id = orphanId.ToString();
+            var tempFile = Path.Combine(_tempPath, id);
+            var dziFolder = Path.Combine(_tempPath, $"{id}_files");
+            var dziDescFile = Path.Combine(_tempPath, $"{id}.dzi");
+
+            var tempFileSize = File.Exists(tempFile) ? new FileInfo(tempFile).Length : 0;
+            var dziDescSize = File.Exists(dziDescFile) ? new FileInfo(dziDescFile).Length : 0;
+            var hasDzi = Directory.Exists(dziFolder);
+            var dziSize = hasDzi ? DirSize(dziFolder) : 0;
+
+            DateTime created = DateTime.MinValue;
+            if (candidates.TryGetValue(orphanId, out var fsInfo))
+            {
+                created = fsInfo.CreationTimeUtc;
+            }
+
+            result.Add(new StaleCacheFileDto
+            {
+                DocumentId = orphanId,
+                Filename = "[Orphan / Failed Upload]",
+                CreatedOn = created,
+                LastSrVisit = null,
+                TempFileSize = tempFileSize + dziDescSize,
+                HasDziFolder = hasDzi,
+                DziFolderSize = dziSize,
+                TotalSize = tempFileSize + dziDescSize + dziSize
             });
         }
 

@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace iPath_EFCore.Database.Configurations;
 
-internal class VsiConversionJobConfiguration : IEntityTypeConfiguration<VsiConversionJob>
+internal class WsiConversionJobConfiguration : IEntityTypeConfiguration<WsiConversionJob>
 {
-    public void Configure(EntityTypeBuilder<VsiConversionJob> b)
+    public void Configure(EntityTypeBuilder<WsiConversionJob> b)
     {
-        b.ToTable("vsi_conversion_jobs");
+        b.ToTable("wsi_conversion_jobs");
         b.HasKey(x => x.Id);
         b.Property(x => x.Id).HasColumnName("id");
 
@@ -24,6 +24,7 @@ internal class VsiConversionJobConfiguration : IEntityTypeConfiguration<VsiConve
         b.Property(x => x.RetryCount).HasColumnName("retry_count");
         b.Property(x => x.OriginalStorageId).HasMaxLength(200).HasColumnName("original_storage_id");
         b.Property(x => x.ConvertedStorageId).HasMaxLength(200).HasColumnName("converted_storage_id");
+        b.Property(x => x.PluginType).HasMaxLength(100).HasColumnName("plugin_type");
 
         b.HasOne(x => x.Document)
             .WithMany()

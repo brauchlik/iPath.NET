@@ -10,17 +10,17 @@ namespace iPath.EF.Core.FeatureHandlers.Admin;
 public class GetDeletedDocumentsWithFilesHandler(
     iPathDbContext db,
     IOptions<iPathConfig> ipathOpts,
-    IOptions<VsiConversionConfig> vsiOpts)
+    IOptions<WsiConversionConfig> wsiOpts)
     : IRequestHandler<GetDeletedDocumentsWithFilesQuery, Task<List<PurgeDocumentFileDto>>>
 {
     private readonly string _tempPath = ipathOpts.Value.TempDataPath;
-    private readonly string _stagingPath = vsiOpts.Value.StagingPath;
+    private readonly string _stagingPath = wsiOpts.Value.StagingPath;
 
     public async Task<List<PurgeDocumentFileDto>> Handle(GetDeletedDocumentsWithFilesQuery request, CancellationToken ct)
     {
         var docs = await db.Documents
             .IgnoreQueryFilters()
-            .Where(d => d.DeletedOn != null)
+            .Where(d => d.DeletedOn != null && d.PurgedOn == null)
             .Select(d => new { d.Id, d.File!.Filename, d.DeletedOn })
             .ToListAsync(ct);
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using iPath.Domain.Entities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace iPath_EFCore.Database.Configurations;
 
@@ -18,7 +19,15 @@ internal class DocumentNodeConfiguration : IEntityTypeConfiguration<DocumentNode
 
         b.HasMany(x => x.Annotations).WithOne(a => a.Document).HasForeignKey(a => a.DcoumentNodeId).OnDelete(DeleteBehavior.Cascade);
 
-        b.ComplexProperty(x => x.File, pb => pb.ToJson("file"));
+        b.ComplexProperty(x => x.File, pb =>
+        {
+            pb.ToJson("file");
+            pb.Property(f => f.ConversionStatus)
+                .HasConversion(
+                    v => v.HasValue ? v.Value.ToString().ToLower() : (string?)null,
+                    v => string.IsNullOrEmpty(v) ? (DocumentConversionStatus?)null
+                        : Enum.Parse<DocumentConversionStatus>(v, ignoreCase: true));
+        });
 
         b.HasQueryFilter(x => !x.DeletedOn.HasValue);
     }

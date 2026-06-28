@@ -761,6 +761,12 @@ public class ServiceRequestViewModel(IPathApi api,
                     // append to child nodes
                     SelectedRequest.Documents.Add(t.Result);
                     NotifyStateChanged();
+
+                    if (t.Result.File?.ConversionSkipped == true)
+                    {
+                        snackbar.Add("WSI conversion is disabled — file saved as-is", Severity.Warning);
+                        t.Result.File.ConversionSkipped = false;
+                    }
                 }
                 else
                 {
@@ -1127,7 +1133,7 @@ public class ServiceRequestViewModel(IPathApi api,
     }
 
 
-    public bool VsiTestActive => IsAdmin && opts.Value.VsiConversionEnabled;
+    public bool VsiTestActive => IsAdmin && opts.Value.WsiConversionEnabled;
 
 
     public async Task ShowVsiImportDialog()
@@ -1138,10 +1144,10 @@ public class ServiceRequestViewModel(IPathApi api,
         var dialogRef = await srvDialog.ShowAsync<ImportVsiFromPathDialog>("Import VSI from Server Path", parameters);
         var result = await dialogRef.Result;
 
-        if (result is not null && !result.Canceled && result.Data is VsiImportRequest importReq)
+        if (result is not null && !result.Canceled && result.Data is WsiImportRequest importReq)
         {
-            var cmd = new VsiImportCommand(importReq.Path, SelectedRequest.Id, SelectedDocument?.Id, importReq.DeleteAfterImport);
-            var resp = await api.VsiImport(cmd);
+            var cmd = new WsiImportCommand(importReq.Path, SelectedRequest.Id, SelectedDocument?.Id, importReq.DeleteAfterImport);
+            var resp = await api.WsiImport(cmd);
             if (snackbar.CheckSuccess(resp) && resp.Content is not null)
             {
                 snackbar.Add($"Imported {resp.Content.Imported} file(s)", Severity.Success);

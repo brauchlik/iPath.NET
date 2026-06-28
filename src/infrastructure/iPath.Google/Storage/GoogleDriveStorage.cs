@@ -1,4 +1,4 @@
-﻿using Ardalis.GuardClauses;
+using Ardalis.GuardClauses;
 using iPath.Domain.Entities;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
@@ -26,9 +26,9 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
     UserManager<Domain.Entities.User> um,
     IMimetypeService mime,
     IGroupCache groupCache,
-    IVsiConversionQueue vsiConversionQueue,
+    IWsiConversionQueue wsiConversionQueue,
     IEnumerable<IConversionPlugin> conversionPlugins,
-    IOptions<VsiConversionConfig> vsiConfig,
+    IOptions<WsiConversionConfig> wsiConfig,
     ILogger<GoogleDriveStorageService> logger)
     : IRemoteStorageService
 {
@@ -139,9 +139,47 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
         }
     }
 
-    public Task<StorageRepsonse> DeleteFileAsync(Guid Id, CancellationToken ctk = default)
+    public async Task<StorageRepsonse> DeleteFileAsync(Guid Id, CancellationToken ctk = default)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var document = await db.Documents
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(n => n.Id == Id, ctk);
+            if (document == null)
+            {
+                logger.LogWarning("DeleteFileAsync: Document {Id} not found in database", Id);
+                return StorageRepsonse.Fail($"Document {Id} not found");
+            }
+
+            if (document.File?.Storage == null)
+            {
+                logger.LogInformation("DeleteFileAsync: File or storage info is null for Document {Id}. Nothing to delete.", Id);
+                return new StorageRepsonse(true);
+            }
+
+            if (!document.File.Storage.IsGoogle())
+            {
+                logger.LogInformation("DeleteFileAsync: File for Document {Id} is not stored on Google Drive ({Provider})", Id, document.File.Storage.ProviderName);
+                return StorageRepsonse.Ok(document.File.Storage);
+            }
+
+            logger.LogInformation("Deleting file {FileId} from Google Drive", document.File.Storage.StorageId);
+            await GDrive.Files.Delete(document.File.Storage.StorageId).ExecuteAsync(ctk);
+
+            return StorageRepsonse.Ok(document.File.Storage);
+        }
+        catch (GoogleApiException ex) when (ex.HttpStatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            logger.LogWarning("DeleteFileAsync: Google Drive file for Document {Id} was not found (already deleted)", Id);
+            return new StorageRepsonse(true);
+        }
+        catch (Exception ex)
+        {
+            var msg = $"Error deleting Google Drive file for Document {Id}: {ex.Message}";
+            logger.LogError(msg);
+            return StorageRepsonse.Fail(msg);
+        }
     }
 
     public async Task<StorageRepsonse> PutFileAsync(Guid Id, CancellationToken ct = default)
@@ -803,9 +841,9 @@ and you can upload images and other files directly into that folder. From there 
                                 var conversionPlugin = conversionPlugins.FirstOrDefault(p => p.CanHandle(ext));
                                 if (conversionPlugin != null)
                                 {
-                                    var stagingRoot = string.IsNullOrEmpty(vsiConfig.Value.StagingPath)
+                                    var stagingRoot = string.IsNullOrEmpty(wsiConfig.Value.StagingPath)
                                         ? Path.Combine(opts.Value.TempDataPath, "conversion")
-                                        : vsiConfig.Value.StagingPath;
+                                        : wsiConfig.Value.StagingPath;
                                     var stagingDir = Path.Combine(stagingRoot, newDoc.Id.ToString());
                                     Directory.CreateDirectory(stagingDir);
                                     var localFilePath = Path.Combine(stagingDir, item.Name);
@@ -839,13 +877,14 @@ and you can upload images and other files directly into that folder. From there 
 
                                     newDoc.DocumentType = "wsi";
 
-                                    db.Set<VsiConversionJob>().Add(new VsiConversionJob
+                                    db.Set<WsiConversionJob>().Add(new WsiConversionJob
                                     {
                                         Id = Guid.CreateVersion7(),
                                         DocumentId = newDoc.Id,
-                                        OriginalStorageId = localFilePath
+                                        OriginalStorageId = localFilePath,
+                                        PluginType = conversionPlugin.GetType().Name
                                     });
-                                    await vsiConversionQueue.EnqueueAsync(newDoc.Id, ct);
+                                    await wsiConversionQueue.EnqueueAsync(newDoc.Id, ct);
                                 }
                             }
                             catch (Exception ex)

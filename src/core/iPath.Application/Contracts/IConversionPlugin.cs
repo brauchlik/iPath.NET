@@ -6,6 +6,10 @@ public interface IConversionPlugin
 {
     bool CanHandle(string extension);
 
+    bool CanHandleZip(System.IO.Compression.ZipArchive archive);
+
+    bool RequiresConversion { get; }
+
     IReadOnlyList<string> GetRequiredCompanions(string fileName);
 
     Task<ConversionResult> ProcessAsync(ConversionJobContext context, CancellationToken ct);

@@ -54,7 +54,7 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<AiCorrectionDelta> AiCorrectionDeltas { get; set; }
     public DbSet<CaseEmbedding> CaseEmbeddings { get; set; }
 
-    public DbSet<VsiConversionJob> VsiConversionJobs { get; set; }
+    public DbSet<WsiConversionJob> WsiConversionJobs { get; set; }
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

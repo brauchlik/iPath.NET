@@ -8,6 +8,7 @@
         <MudTextField @bind-Value="_path"
                       Label="Server file path"
                       HelperText="e.g. C:\slides\slide1.vsi or C:\slides\"
+                      Immediate="true"
                       Variant="Variant.Outlined"
                       Style="width: 500px;" />
         <MudCheckBox @bind-Checked="_deleteAfterImport" T="bool" Label="Delete .vsi and companion folder after import" />
@@ -30,7 +31,7 @@
 
     private void Import()
     {
-        var data = new VsiImportRequest(_path, Guid.Empty, null, _deleteAfterImport);
+        var data = new WsiImportRequest(_path, Guid.Empty, null, _deleteAfterImport);
         MudDialog.Close(DialogResult.Ok(data));
     }
 }

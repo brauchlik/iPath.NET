@@ -1,6 +1,6 @@
 namespace iPath.Application.Contracts;
 
-public interface IVsiConversionQueue
+public interface IWsiConversionQueue
 {
     ValueTask EnqueueAsync(Guid documentId, CancellationToken ct);
 

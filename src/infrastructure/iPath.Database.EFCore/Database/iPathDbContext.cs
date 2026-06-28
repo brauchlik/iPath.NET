@@ -198,13 +198,25 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
             }
         }
 
-        // Ensure primitive collections are never null (EF accesses backing fields directly)
+        // Ensure primitive collections and complex types are never null (EF accesses backing fields directly)
         foreach (var entry in ChangeTracker.Entries())
         {
-            if (entry.Entity is Community community && community.Settings.CaseTypes is null)
-                community.Settings.CaseTypes = [];
-            if (entry.Entity is Group grp && grp.Settings.CaseTypes is null)
-                grp.Settings.CaseTypes = [];
+            if (entry.Entity is Community community)
+            {
+                if (community.Settings.CaseTypes is null)
+                    community.Settings.CaseTypes = [];
+                if (community.Settings.AiSettings is null)
+                    community.Settings.AiSettings = new();
+            }
+            if (entry.Entity is Group grp)
+            {
+                if (grp.Settings.CaseTypes is null)
+                    grp.Settings.CaseTypes = [];
+                if (grp.Settings.AiSettings is null)
+                    grp.Settings.AiSettings = new();
+            }
+            if (entry.Entity is User usr && usr.Profile.AiSettings is null)
+                usr.Profile.AiSettings = new();
         }
 
         // doamin events

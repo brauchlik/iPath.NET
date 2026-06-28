@@ -42,7 +42,12 @@ public class UserProfile
 
     public EmailImportSettings? EmailImportSettings { get; set; } = new();
     
-    public AiConfig AiSettings { get; set; } = new();
+    private AiConfig _aiSettings = new();
+    public AiConfig AiSettings
+    {
+        get => _aiSettings;
+        set => _aiSettings = value ?? new();
+    }
 
 
     public static UserProfile AnonymousProfile()

@@ -23,7 +23,12 @@ public class CommunitySettings
 
     public StorageInfo? Storage { get; set; }
 
-    public AiConfig AiSettings { get; set; } = new();
+    private AiConfig _aiSettings = new();
+    public AiConfig AiSettings
+    {
+        get => _aiSettings;
+        set => _aiSettings = value ?? new();
+    }
 
     public CommunitySettings Clone() => (CommunitySettings)MemberwiseClone();
 }

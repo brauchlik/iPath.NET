@@ -54,9 +54,10 @@ public static class CaseRoomEndpoints
             [FromServices] ICaseRoomSessionStore store,
             [FromServices] IUserSession sess,
             SyncPayload payload,
+            HttpContext ctx,
             CancellationToken ct) =>
         {
-            if (sess.User is null || !sess.User.IsAuthenticated)
+            if (sess.User is null || (!sess.User.IsAuthenticated && !ctx.User.IsInRole("CaseRoomGuest")))
                 return Results.Unauthorized();
 
             if (payload.Viewport is not null && !payload.Viewport.IsValid())

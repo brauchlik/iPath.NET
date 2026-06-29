@@ -18,6 +18,7 @@ public class ConversionItemViewModel : INotifyPropertyChanged
     private string? _outputPath;
     private string? _outputSize;
     private string? _errorText;
+    private string _log = "";
 
     public string FileName { get => _fileName; set => SetProperty(ref _fileName, value); }
     public string FilePath { get => _filePath; set => SetProperty(ref _filePath, value); }
@@ -30,6 +31,7 @@ public class ConversionItemViewModel : INotifyPropertyChanged
     public string? OutputPath { get => _outputPath; set => SetProperty(ref _outputPath, value); }
     public string? OutputSize { get => _outputSize; set => SetProperty(ref _outputSize, value); }
     public string? ErrorText { get => _errorText; set => SetProperty(ref _errorText, value); }
+    public string Log { get => _log; set => SetProperty(ref _log, value); }
 
     public bool IsDone => Status is ConversionStatus.Completed or ConversionStatus.Failed or ConversionStatus.Cancelled;
     public bool IsFailed => Status == ConversionStatus.Failed;

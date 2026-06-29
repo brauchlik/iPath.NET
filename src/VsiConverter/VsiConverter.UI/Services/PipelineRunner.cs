@@ -49,11 +49,17 @@ public class PipelineRunner
             var bfArgs = $"-series {seriesIndex} -compression JPEG \"{vsiPath}\" \"{omeTiff}\"";
 
             bool bfResult;
+            int bfPct = 5;
+            Action<string> onBfLine = line =>
+            {
+                bfPct = Math.Min(bfPct + 1, 45);
+                progress.Report(new ConversionProgress("Converting to OME-TIFF", bfPct, line));
+            };
             if (_bfconvertPath.EndsWith(".jar", StringComparison.OrdinalIgnoreCase))
             {
                 var javaPath = ToolchainManager.FindTool("java") ?? "java";
                 var javaArgs = $"-cp \"{_bfconvertPath}\" loci.formats.tools.ImageConverter {bfArgs}";
-                bfResult = await RunProcessAsync(javaPath, javaArgs, null, TimeSpan.FromMinutes(30), progress, ct);
+                bfResult = await RunProcessAsync(javaPath, javaArgs, null, TimeSpan.FromMinutes(30), progress, ct, onBfLine);
             }
             else
             {
@@ -61,7 +67,7 @@ public class PipelineRunner
                     _bfconvertPath, bfArgs,
                     new Dictionary<string, string> { ["BF_MAX_MEM"] = "8g" },
                     TimeSpan.FromMinutes(30),
-                    progress, ct);
+                    progress, ct, onBfLine);
             }
 
             if (!bfResult)
@@ -75,11 +81,17 @@ public class PipelineRunner
 
             var vipsArgs = $"dzsave \"{omeTiff}\" \"{dziBase}\" --tile-size 254 --overlap 1 --suffix \".webp[Q={quality}]\"";
 
+            int vipsPct = 50;
             var vipsResult = await RunProcessAsync(
                 _vipsPath, vipsArgs, null,
                 TimeSpan.FromMinutes(30),
                 progress,
-                ct);
+                ct,
+                line =>
+                {
+                    vipsPct = Math.Min(vipsPct + 1, 85);
+                    progress.Report(new ConversionProgress("Creating DZI tiles", vipsPct, line));
+                });
 
             if (!vipsResult)
             {
@@ -134,7 +146,8 @@ public class PipelineRunner
         Dictionary<string, string>? environment,
         TimeSpan timeout,
         IProgress<ConversionProgress> progress,
-        CancellationToken ct)
+        CancellationToken ct,
+        Action<string>? onStderrLine = null)
     {
         var psi = new ProcessStartInfo(fileName, arguments)
         {
@@ -153,9 +166,10 @@ public class PipelineRunner
         using var process = Process.Start(psi);
         if (process is null) return false;
 
-        // Read stdout/stderr concurrently to avoid deadlocks
         var stdoutTask = process.StandardOutput.ReadToEndAsync();
-        var stderrTask = process.StandardError.ReadToEndAsync();
+        var stderrTask = onStderrLine is not null
+            ? ReadStderrLinesAsync(process.StandardError, onStderrLine)
+            : process.StandardError.ReadToEndAsync();
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         cts.CancelAfter(timeout);
@@ -174,5 +188,15 @@ public class PipelineRunner
         await Task.WhenAll(stdoutTask, stderrTask);
 
         return process.ExitCode == 0;
+    }
+
+    private static async Task ReadStderrLinesAsync(StreamReader reader, Action<string> onLine)
+    {
+        string? line;
+        while ((line = await reader.ReadLineAsync()) != null)
+        {
+            if (!string.IsNullOrWhiteSpace(line))
+                onLine(line);
+        }
     }
 }

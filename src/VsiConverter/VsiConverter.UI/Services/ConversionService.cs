@@ -106,7 +106,10 @@ public class ConversionService
             {
                 next.Progress = p.Percent;
                 if (p.Detail is not null)
+                {
                     next.StatusText = p.Detail;
+                    next.Log += (next.Log.Length > 0 ? "\n" : "") + p.Detail;
+                }
                 if (p.Stage == "Zipping DZI")
                     next.Status = ConversionStatus.Zipping;
                 var elapsed = DateTime.UtcNow - startTime;

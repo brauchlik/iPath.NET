@@ -8,7 +8,8 @@
 
   <Window.DataTemplates>
     <DataTemplate DataType="{x:Type vm:ConversionItemViewModel}">
-      <Border Margin="4" Padding="8" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4">
+      <Border Margin="4" Padding="8" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4"
+              ToolTip.Tip="{Binding Log}">
         <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
           <TextBlock Text="{Binding FileName}" FontWeight="Bold" />
           <TextBlock Text="{Binding FileSize}" Grid.Column="1" Foreground="Gray" />

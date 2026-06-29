@@ -17,6 +17,8 @@ public partial class MainWindow : Window
         _vm = new MainViewModel(new ConversionService());
         DataContext = _vm;
 
+        Loaded += async (_, _) => await _vm.CheckToolsAsync();
+
         BtnAddFiles.Click += async (_, _) =>
         {
             var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
@@ -38,11 +40,15 @@ public partial class MainWindow : Window
         BtnClearDone.Click += (_, _) => _vm.ClearDone();
         BtnCancelAll.Click += (_, _) => _vm.CancelAll();
 
-        BtnSettings.Click += async (_, _) =>
+        async Task OpenSettingsAndRecheckAsync()
         {
             var dialog = new SettingsDialog();
             await dialog.ShowDialog(this);
-        };
+            await _vm.CheckToolsAsync();
+        }
+
+        BtnSettings.Click += async (_, _) => await OpenSettingsAndRecheckAsync();
+        BtnConfigureTools.Click += async (_, _) => await OpenSettingsAndRecheckAsync();
 
         BtnAbout.Click += async (_, _) =>
         {

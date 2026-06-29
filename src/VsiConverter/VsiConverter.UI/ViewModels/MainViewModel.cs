@@ -10,6 +10,8 @@ namespace VsiConverter.UI.ViewModels;
 public class MainViewModel : INotifyPropertyChanged
 {
     private readonly ConversionService _conversionService;
+    private bool _toolsReady;
+    private bool _showToolsWarning;
 
     public MainViewModel(ConversionService conversionService)
     {
@@ -18,6 +20,16 @@ public class MainViewModel : INotifyPropertyChanged
     }
 
     public ObservableCollection<ConversionItemViewModel> Queue => _conversionService.Queue;
+
+    public bool ToolsReady { get => _toolsReady; set => SetProperty(ref _toolsReady, value); }
+    public bool ShowToolsWarning { get => _showToolsWarning; set => SetProperty(ref _showToolsWarning, value); }
+
+    public async Task CheckToolsAsync()
+    {
+        var status = await ToolchainManager.DetectAllAsync();
+        ToolsReady = status.JavaFound && status.BfconvertFound && status.VipsFound;
+        ShowToolsWarning = !ToolsReady;
+    }
 
     public string? StatsText
     {
@@ -32,12 +44,14 @@ public class MainViewModel : INotifyPropertyChanged
 
     public void AddFiles(string[] filePaths)
     {
+        if (!ToolsReady) return;
         foreach (var path in filePaths)
             _ = _conversionService.EnqueueAsync(path);
     }
 
     public void AddFolder(string folderPath)
     {
+        if (!ToolsReady) return;
         _ = _conversionService.EnqueueFolderAsync(folderPath);
     }
 
@@ -47,6 +61,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     public void OnDrop(object? sender, DragEventArgs e)
     {
+        if (!ToolsReady) return;
         if (e.DataTransfer.Contains(DataFormat.File))
         {
             var items = e.DataTransfer.TryGetFiles();
@@ -68,4 +83,13 @@ public class MainViewModel : INotifyPropertyChanged
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected void SetProperty<T>(ref T field, T value, [CallerMemberName] string? name = null)
+    {
+        if (!EqualityComparer<T>.Default.Equals(field, value))
+        {
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+    }
 }

@@ -30,24 +30,33 @@
     </DataTemplate>
   </Window.DataTemplates>
 
-  <Grid RowDefinitions="Auto,*,Auto">
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
     <!-- Toolbar -->
     <StackPanel Orientation="Horizontal" Margin="8" Spacing="8">
-      <Button x:Name="BtnAddFiles" Content="+ Add Files" />
-      <Button x:Name="BtnAddFolder" Content="+ Add Folder" />
+      <Button x:Name="BtnAddFiles" Content="+ Add Files" IsEnabled="{Binding ToolsReady}" />
+      <Button x:Name="BtnAddFolder" Content="+ Add Folder" IsEnabled="{Binding ToolsReady}" />
       <Button x:Name="BtnClearDone" Content="Clear Done" />
       <Button x:Name="BtnCancelAll" Content="Cancel All" />
       <Button x:Name="BtnSettings" Content="⚙" Width="32" />
       <Button x:Name="BtnAbout" Content="?" Width="32" />
     </StackPanel>
 
+    <!-- Tools warning bar -->
+    <Border Grid.Row="1" IsVisible="{Binding ShowToolsWarning}" Background="#FFF3CD" Padding="8,6">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock Text="⚠" FontSize="16" VerticalAlignment="Center" />
+        <TextBlock VerticalAlignment="Center">Conversion tools not found. Configure them to enable processing.</TextBlock>
+        <Button x:Name="BtnConfigureTools" Content="Open Settings" />
+      </StackPanel>
+    </Border>
+
     <!-- File list -->
-    <ListBox Grid.Row="1" 
+    <ListBox Grid.Row="2" 
              ItemsSource="{Binding Queue}"
              BorderThickness="0" />
 
     <!-- Status bar -->
-    <Border Grid.Row="2" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="8,4">
+    <Border Grid.Row="3" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="8,4">
       <TextBlock Text="{Binding StatsText}" />
     </Border>
   </Grid>

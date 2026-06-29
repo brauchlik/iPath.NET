@@ -45,10 +45,10 @@ public class PipelineRunner
             var omeTiff = Path.Combine(tempDir, $"{baseName}.ome.tiff");
             progress.Report(new ConversionProgress("Converting to OME-TIFF", 5, "bfconvert"));
 
-            var bfArgs = $"-cp \"{_bfconvertPath}\" loci.formats.tools.ImageConverter -series {seriesIndex} -compression JPEG \"{vsiPath}\" \"{omeTiff}\"";
+            var bfArgs = $"-series {seriesIndex} -compression JPEG \"{vsiPath}\" \"{omeTiff}\"";
 
             var bfResult = await RunProcessAsync(
-                "java", bfArgs,
+                _bfconvertPath, bfArgs,
                 new Dictionary<string, string> { ["BF_MAX_MEM"] = "8g" },
                 TimeSpan.FromMinutes(30),
                 progress,
@@ -60,10 +60,10 @@ public class PipelineRunner
             }
 
             // vips dzsave → DZI tiles
-            var dziDir = Path.Combine(tempDir, baseName);
+            var dziBase = Path.Combine(tempDir, baseName);
             progress.Report(new ConversionProgress("Creating DZI tiles", 50, "vips dzsave"));
 
-            var vipsArgs = $"dzsave \"{omeTiff}\" \"{dziDir}\" --tile-size 254 --overlap 1 --suffix \".webp[Q={quality}]\"";
+            var vipsArgs = $"dzsave \"{omeTiff}\" \"{dziBase}\" --tile-size 254 --overlap 1 --suffix \".webp[Q={quality}]\"";
 
             var vipsResult = await RunProcessAsync(
                 _vipsPath, vipsArgs, null,
@@ -84,20 +84,18 @@ public class PipelineRunner
 
             using (var zip = ZipFile.Open(outputZip, ZipArchiveMode.Create))
             {
-                // Add .dzi descriptor
-                var dziFile = Path.Combine(dziDir, $"{baseName}.dzi");
+                var dziFile = dziBase + ".dzi";
                 if (File.Exists(dziFile))
                 {
                     zip.CreateEntryFromFile(dziFile, $"{baseName}.dzi", CompressionLevel.NoCompression);
                 }
 
-                // Add _files directory
-                var filesDir = Path.Combine(dziDir, $"{baseName}_files");
+                var filesDir = dziBase + "_files";
                 if (Directory.Exists(filesDir))
                 {
                     foreach (var file in Directory.GetFiles(filesDir, "*", SearchOption.AllDirectories))
                     {
-                        var relativePath = Path.GetRelativePath(dziDir, file);
+                        var relativePath = Path.GetRelativePath(tempDir, file);
                         zip.CreateEntryFromFile(file, relativePath, CompressionLevel.NoCompression);
                     }
                 }

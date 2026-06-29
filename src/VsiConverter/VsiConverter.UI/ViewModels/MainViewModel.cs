@@ -3,15 +3,20 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
+using VsiConverter.UI.Models;
 using VsiConverter.UI.Services;
 
 namespace VsiConverter.UI.ViewModels;
+
+public record SeriesSelectionResult(int SelectedIndex, bool UseForAll);
 
 public class MainViewModel : INotifyPropertyChanged
 {
     private readonly ConversionService _conversionService;
     private bool _toolsReady;
     private bool _showToolsWarning;
+    private int? _sessionSeriesIndex;
+    private bool _useSameSeries;
 
     public MainViewModel(ConversionService conversionService)
     {
@@ -23,6 +28,12 @@ public class MainViewModel : INotifyPropertyChanged
 
     public bool ToolsReady { get => _toolsReady; set => SetProperty(ref _toolsReady, value); }
     public bool ShowToolsWarning { get => _showToolsWarning; set => SetProperty(ref _showToolsWarning, value); }
+
+    /// <summary>
+    /// Set by MainWindow to open the series selection dialog.
+    /// Takes file path and detected series list, returns the user's choice or null if skipped.
+    /// </summary>
+    public Func<string, List<AvailableSeries>, Task<SeriesSelectionResult?>>? ShowSeriesSelectionDialogAsync { get; set; }
 
     public async Task CheckToolsAsync()
     {
@@ -42,24 +53,54 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    public void AddFiles(string[] filePaths)
+    public async Task AddFilesAsync(string[] filePaths)
     {
         if (!ToolsReady) return;
         foreach (var path in filePaths)
-            _ = _conversionService.EnqueueAsync(path);
+        {
+            var seriesIndex = await ResolveSeriesIndexAsync(path);
+            await _conversionService.EnqueueAsync(path, seriesIndex);
+        }
     }
 
-    public void AddFolder(string folderPath)
+    public async Task AddFolderAsync(string folderPath)
     {
         if (!ToolsReady) return;
-        _ = _conversionService.EnqueueFolderAsync(folderPath);
+        var files = Directory.GetFiles(folderPath, "*.vsi", SearchOption.AllDirectories);
+        foreach (var path in files)
+        {
+            var seriesIndex = await ResolveSeriesIndexAsync(path);
+            await _conversionService.EnqueueAsync(path, seriesIndex);
+        }
+    }
+
+    private async Task<int> ResolveSeriesIndexAsync(string filePath)
+    {
+        if (_useSameSeries && _sessionSeriesIndex.HasValue)
+            return _sessionSeriesIndex.Value;
+
+        var series = await SeriesDetector.DetectSeriesAsync(filePath);
+
+        if (ShowSeriesSelectionDialogAsync is not null)
+        {
+            var result = await ShowSeriesSelectionDialogAsync(filePath, series);
+            if (result is not null)
+            {
+                _useSameSeries = result.UseForAll;
+                _sessionSeriesIndex = result.SelectedIndex;
+                return result.SelectedIndex;
+            }
+        }
+
+        // Dialog skipped or not available — use best
+        return series.Count > 0 ? series.MaxBy(s => (long)s.Width * s.Height)!.Index : 0;
     }
 
     public void ClearDone() => _conversionService.ClearCompleted();
     public void CancelAll() => _conversionService.CancelAll();
     public void CancelItem(ConversionItemViewModel item) => _conversionService.CancelItem(item);
 
-    public void OnDrop(object? sender, DragEventArgs e)
+    public async void OnDrop(object? sender, DragEventArgs e)
     {
         if (!ToolsReady) return;
         if (e.DataTransfer.Contains(DataFormat.File))
@@ -69,9 +110,9 @@ public class MainViewModel : INotifyPropertyChanged
             foreach (var item in items)
             {
                 if (item is IStorageFolder folder)
-                    AddFolder(folder.Path.LocalPath);
+                    await AddFolderAsync(folder.Path.LocalPath);
                 else if (item is IStorageFile sf && sf.Name.EndsWith(".vsi", StringComparison.OrdinalIgnoreCase))
-                    AddFiles([sf.Path.LocalPath]);
+                    await AddFilesAsync([sf.Path.LocalPath]);
             }
         }
     }

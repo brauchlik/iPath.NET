@@ -18,7 +18,11 @@ public static partial class SeriesDetector
         if (bfconvertPath is null)
             return results;
 
-        var psi = new ProcessStartInfo("java", $"-cp \"{bfconvertPath}\" loci.formats.tools.ImageInfo -nopix -no-upgrade \"{vsiPath}\"")
+        var jarPath = ResolveJar(bfconvertPath);
+        if (jarPath is null)
+            return results;
+
+        var psi = new ProcessStartInfo("java", $"-cp \"{jarPath}\" loci.formats.tools.ImageInfo -nopix -no-upgrade \"{vsiPath}\"")
         {
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -101,6 +105,23 @@ public static partial class SeriesDetector
         }
 
         return results;
+    }
+
+    private static string? ResolveJar(string? bfconvertPath)
+    {
+        if (bfconvertPath is null) return null;
+        var ext = Path.GetExtension(bfconvertPath);
+        if (string.Equals(ext, ".jar", StringComparison.OrdinalIgnoreCase))
+            return bfconvertPath;
+
+        var dir = Path.GetDirectoryName(bfconvertPath)!;
+        var jarPath = Path.Combine(dir, "bfconvert.jar");
+        if (File.Exists(jarPath)) return jarPath;
+
+        jarPath = Path.Combine(dir, "bioformats_package.jar");
+        if (File.Exists(jarPath)) return jarPath;
+
+        return null;
     }
 
     [GeneratedRegex(@"^\s*(?:Series|Pixels)\s+#?(\d+)\s*", RegexOptions.IgnoreCase)]

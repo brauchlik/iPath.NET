@@ -20,6 +20,7 @@
                        Height="18" Margin="0,4" />
 
           <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="12">
+            <TextBlock Text="{Binding SeriesInfo}" Foreground="Gray" FontSize="11" />
             <TextBlock Text="{Binding CompanionStatus}" Foreground="Gray" FontSize="11" />
             <TextBlock Text="{Binding StatusText}" FontSize="11" />
             <TextBlock Text="{Binding ElapsedText}" Foreground="Gray" FontSize="11" />

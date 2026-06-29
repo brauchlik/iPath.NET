@@ -57,7 +57,7 @@ class Program
             Console.WriteLine($"{series.Count} found");
             foreach (var s in series)
                 Console.WriteLine($"  Series {s.Index}: {s.Width}x{s.Height}");
-            bestIndex = series.MaxBy(s => s.Width * s.Height)!.Index;
+            bestIndex = series.MaxBy(s => (long)s.Width * s.Height)!.Index;
             Console.WriteLine($"  \u2192 Using series {bestIndex}\n");
         }
 
@@ -68,7 +68,7 @@ class Program
         var cts = new CancellationTokenSource();
         Console.CancelKeyPress += (_, _) => { Console.WriteLine("\nCancelling..."); cts.Cancel(); };
 
-        // ReadStderrLinesAsync already echoes every tool line with [bfconvert]/[vips]
+        // ReadToolOutputAsync already echoes every tool line with [bfconvert]/[vips]
         var progress = new Progress<ConversionProgress>(_ => { });
 
         var startTime = DateTime.UtcNow;

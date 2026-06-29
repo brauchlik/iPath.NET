@@ -148,8 +148,8 @@ public class PipelineRunner
         TimeSpan timeout,
         IProgress<ConversionProgress> progress,
         CancellationToken ct,
-        Action<string>? onStderrLine = null,
-        string stderrStage = "")
+        Action<string>? onOutputLine = null,
+        string toolStage = "")
     {
         var psi = new ProcessStartInfo(fileName, arguments)
         {
@@ -168,10 +168,9 @@ public class PipelineRunner
         using var process = Process.Start(psi);
         if (process is null) return false;
 
-        var stdoutTask = process.StandardOutput.ReadToEndAsync();
-        var stderrTask = onStderrLine is not null
-            ? ReadStderrLinesAsync(process.StandardError, onStderrLine, stderrStage)
-            : process.StandardError.ReadToEndAsync();
+        var outputTask = onOutputLine is not null
+            ? ReadToolOutputAsync(process.StandardOutput, process.StandardError, onOutputLine, toolStage)
+            : Task.WhenAll(process.StandardOutput.ReadToEndAsync(), process.StandardError.ReadToEndAsync());
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         cts.CancelAfter(timeout);
@@ -187,19 +186,35 @@ public class PipelineRunner
             return false;
         }
 
-        await Task.WhenAll(stdoutTask, stderrTask);
+        await outputTask;
 
         return process.ExitCode == 0;
     }
 
-    private static async Task ReadStderrLinesAsync(StreamReader reader, Action<string> onLine, string stage)
+    private static async Task ReadToolOutputAsync(
+        StreamReader stdout, StreamReader stderr,
+        Action<string> onLine, string stage)
     {
-        string? line;
-        while ((line = await reader.ReadLineAsync()) != null)
-        {
-            Console.WriteLine($"[{stage}] {line}");
-            if (!string.IsNullOrWhiteSpace(line))
-                onLine(line);
-        }
+        await Task.WhenAll(
+            Task.Run(async () =>
+            {
+                string? line;
+                while ((line = await stdout.ReadLineAsync()) != null)
+                {
+                    Console.WriteLine($"[{stage}] {line}");
+                    if (!string.IsNullOrWhiteSpace(line))
+                        onLine(line);
+                }
+            }),
+            Task.Run(async () =>
+            {
+                string? line;
+                while ((line = await stderr.ReadLineAsync()) != null)
+                {
+                    Console.WriteLine($"[{stage}:err] {line}");
+                    if (!string.IsNullOrWhiteSpace(line))
+                        onLine(line);
+                }
+            }));
     }
 }

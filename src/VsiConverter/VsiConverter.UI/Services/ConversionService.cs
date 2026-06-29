@@ -14,7 +14,7 @@ public class ConversionService
 
     public event Action? QueueChanged;
 
-    public async Task EnqueueAsync(string filePath)
+    public async Task EnqueueAsync(string filePath, int seriesIndex)
     {
         if (Queue.Any(i => i.FilePath == filePath))
             return;
@@ -25,6 +25,7 @@ public class ConversionService
             FilePath = filePath,
             FileName = fileInfo.Name,
             FileSize = FormatSize(fileInfo.Length),
+            SeriesInfo = $"Series {seriesIndex}",
             Status = ConversionStatus.Queued
         };
 
@@ -36,14 +37,6 @@ public class ConversionService
         QueueChanged?.Invoke();
 
         _ = ProcessQueueAsync();
-    }
-
-    public async Task EnqueueFolderAsync(string folderPath)
-    {
-        foreach (var file in Directory.GetFiles(folderPath, "*.vsi", SearchOption.AllDirectories))
-        {
-            await EnqueueAsync(file);
-        }
     }
 
     public void CancelItem(ConversionItemViewModel item)
@@ -119,11 +112,9 @@ public class ConversionService
             var settings = SettingsStore.Load();
             var quality = settings.CompressionQuality;
 
-            // Auto-detect best series
-            var series = await SeriesDetector.DetectSeriesAsync(next.FilePath, token);
-            var bestIndex = series.Count > 0 ? series.MaxBy(s => s.Width * s.Height)!.Index : 0;
+            var seriesIndex = int.TryParse(next.SeriesInfo.Replace("Series ", ""), out var idx) ? idx : 0;
 
-            var result = await _runner.RunAsync(next.FilePath, bestIndex, quality, progress, token);
+            var result = await _runner.RunAsync(next.FilePath, seriesIndex, quality, progress, token);
 
             if (result.Success)
             {

@@ -19,11 +19,13 @@ public class ConversionItemViewModel : INotifyPropertyChanged
     private string? _outputSize;
     private string? _errorText;
     private string _log = "";
+    private string _seriesInfo = "";
 
     public string FileName { get => _fileName; set => SetProperty(ref _fileName, value); }
     public string FilePath { get => _filePath; set => SetProperty(ref _filePath, value); }
     public string FileSize { get => _fileSize; set => SetProperty(ref _fileSize, value); }
     public string CompanionStatus { get => _companionStatus; set => SetProperty(ref _companionStatus, value); }
+    public string SeriesInfo { get => _seriesInfo; set => SetProperty(ref _seriesInfo, value); }
     public ConversionStatus Status { get => _status; set => SetProperty(ref _status, value); }
     public int Progress { get => _progress; set => SetProperty(ref _progress, value); }
     public string StatusText { get => _statusText; set => SetProperty(ref _statusText, value); }

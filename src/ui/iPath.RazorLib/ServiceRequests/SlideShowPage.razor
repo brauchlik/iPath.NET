@@ -39,7 +39,7 @@
                 else
                 {
                     <div class="d-flex justify-center ipath_osd">
-                        <iPath.OpenSeadragon.OsdViewerIFrame ImagePath="@(vm.SelectedDocument.IsWSI ? $"/api/v1/documents/files/{vm.SelectedDocument.Id}.dzi" : $"/api/v1/documents/files/{vm.SelectedDocument.Id}")" MaxHeight="700" />
+                        <iPath.OpenSeadragon.OsdViewer ImagePath="@(vm.SelectedDocument.IsWSI ? $"/api/v1/documents/files/{vm.SelectedDocument.Id}.dzi" : $"/api/v1/documents/files/{vm.SelectedDocument.Id}")" MaxHeight="700" />
                     </div>
                 }
             }

@@ -1,0 +1,47 @@
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <MudAlert Severity="Severity.Warning" Class="ma-1">
+        @_errorMessage
+    </MudAlert>
+}
+
+<MudPaper Elevation="2" Style="@_paperStyle" Class="ipath-osd-wrapper">
+    <div id="@_elementId" style="width: @_viewerWidth; height: @_viewerHeight; background-color: black;">
+    </div>
+    @if (_isLoading)
+    {
+        <div class="ipath-osd-loader">
+            <div class="ipath-osd-loader-content">
+                <div class="ipath-osd-spinner"></div>
+                <h3>Loading Slide...</h3>
+                <p>Fetching metadata ...</p>
+            </div>
+        </div>
+    }
+</MudPaper>
+
+<style>
+    .ipath-osd-loader {
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(0,0,0,0.6); z-index: 1000;
+        color: white; font-family: sans-serif;
+    }
+    .ipath-osd-loader-content { text-align: center; }
+    .ipath-osd-spinner {
+        border: 4px solid rgba(255,255,255,0.3);
+        border-top: 4px solid #fff;
+        border-radius: 50%;
+        width: 40px; height: 40px;
+        animation: ipath-osd-spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+    .ipath-osd-wrapper { overflow: hidden; }
+    @@keyframes ipath-osd-spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>

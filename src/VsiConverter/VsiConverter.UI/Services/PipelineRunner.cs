@@ -59,7 +59,7 @@ public class PipelineRunner
             {
                 var javaPath = ToolchainManager.FindTool("java") ?? "java";
                 var javaArgs = $"-cp \"{_bfconvertPath}\" loci.formats.tools.ImageConverter {bfArgs}";
-                bfResult = await RunProcessAsync(javaPath, javaArgs, null, TimeSpan.FromMinutes(30), progress, ct, onBfLine);
+                bfResult = await RunProcessAsync(javaPath, javaArgs, null, TimeSpan.FromMinutes(30), progress, ct, onBfLine, "bfconvert");
             }
             else
             {
@@ -67,7 +67,7 @@ public class PipelineRunner
                     _bfconvertPath, bfArgs,
                     new Dictionary<string, string> { ["BF_MAX_MEM"] = "8g" },
                     TimeSpan.FromMinutes(30),
-                    progress, ct, onBfLine);
+                    progress, ct, onBfLine, "bfconvert");
             }
 
             if (!bfResult)
@@ -91,7 +91,8 @@ public class PipelineRunner
                 {
                     vipsPct = Math.Min(vipsPct + 1, 85);
                     progress.Report(new ConversionProgress("Creating DZI tiles", vipsPct, line));
-                });
+                },
+                "vips");
 
             if (!vipsResult)
             {
@@ -147,7 +148,8 @@ public class PipelineRunner
         TimeSpan timeout,
         IProgress<ConversionProgress> progress,
         CancellationToken ct,
-        Action<string>? onStderrLine = null)
+        Action<string>? onStderrLine = null,
+        string stderrStage = "")
     {
         var psi = new ProcessStartInfo(fileName, arguments)
         {
@@ -168,7 +170,7 @@ public class PipelineRunner
 
         var stdoutTask = process.StandardOutput.ReadToEndAsync();
         var stderrTask = onStderrLine is not null
-            ? ReadStderrLinesAsync(process.StandardError, onStderrLine)
+            ? ReadStderrLinesAsync(process.StandardError, onStderrLine, stderrStage)
             : process.StandardError.ReadToEndAsync();
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -190,11 +192,12 @@ public class PipelineRunner
         return process.ExitCode == 0;
     }
 
-    private static async Task ReadStderrLinesAsync(StreamReader reader, Action<string> onLine)
+    private static async Task ReadStderrLinesAsync(StreamReader reader, Action<string> onLine, string stage)
     {
         string? line;
         while ((line = await reader.ReadLineAsync()) != null)
         {
+            Console.WriteLine($"[{stage}] {line}");
             if (!string.IsNullOrWhiteSpace(line))
                 onLine(line);
         }

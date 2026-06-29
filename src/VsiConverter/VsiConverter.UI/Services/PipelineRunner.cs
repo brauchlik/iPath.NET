@@ -3,7 +3,7 @@ using System.IO.Compression;
 
 namespace VsiConverter.UI.Services;
 
-public record ConversionResult(bool Success, string? OutputPath, string? ErrorMessage);
+public record ConversionResult(bool Success, string? OutputPath, string? ErrorMessage, bool IsCancelled = false);
 
 public record ConversionProgress(string Stage, int Percent, string? Detail);
 
@@ -47,12 +47,21 @@ public class PipelineRunner
 
             var bfArgs = $"-series {seriesIndex} -compression JPEG \"{vsiPath}\" \"{omeTiff}\"";
 
-            var bfResult = await RunProcessAsync(
-                _bfconvertPath, bfArgs,
-                new Dictionary<string, string> { ["BF_MAX_MEM"] = "8g" },
-                TimeSpan.FromMinutes(30),
-                progress,
-                ct);
+            bool bfResult;
+            if (_bfconvertPath.EndsWith(".jar", StringComparison.OrdinalIgnoreCase))
+            {
+                var javaPath = ToolchainManager.FindTool("java") ?? "java";
+                var javaArgs = $"-cp \"{_bfconvertPath}\" loci.formats.tools.ImageConverter {bfArgs}";
+                bfResult = await RunProcessAsync(javaPath, javaArgs, null, TimeSpan.FromMinutes(30), progress, ct);
+            }
+            else
+            {
+                bfResult = await RunProcessAsync(
+                    _bfconvertPath, bfArgs,
+                    new Dictionary<string, string> { ["BF_MAX_MEM"] = "8g" },
+                    TimeSpan.FromMinutes(30),
+                    progress, ct);
+            }
 
             if (!bfResult)
             {
@@ -106,7 +115,7 @@ public class PipelineRunner
         }
         catch (OperationCanceledException)
         {
-            return new ConversionResult(false, null, "Conversion was cancelled.");
+            return new ConversionResult(false, null, "Conversion was cancelled.", IsCancelled: true);
         }
         catch (Exception ex)
         {

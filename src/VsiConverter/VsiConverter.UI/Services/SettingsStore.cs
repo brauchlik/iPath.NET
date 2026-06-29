@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using System.Runtime.InteropServices;
 
@@ -33,7 +34,10 @@ public static class SettingsStore
                 return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"SettingsStore.Load failed: {ex.Message}");
+        }
         return new AppSettings();
     }
 
@@ -45,6 +49,9 @@ public static class SettingsStore
             var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(path, json);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"SettingsStore.Save failed: {ex.Message}");
+        }
     }
 }

@@ -16,6 +16,9 @@ public class ConversionService
 
     public async Task EnqueueAsync(string filePath)
     {
+        if (Queue.Any(i => i.FilePath == filePath))
+            return;
+
         var fileInfo = new FileInfo(filePath);
         var item = new ConversionItemViewModel
         {
@@ -104,11 +107,20 @@ public class ConversionService
                 next.Progress = p.Percent;
                 if (p.Detail is not null)
                     next.StatusText = p.Detail;
+                if (p.Stage == "Zipping DZI")
+                    next.Status = ConversionStatus.Zipping;
                 var elapsed = DateTime.UtcNow - startTime;
                 next.ElapsedText = $"{(int)elapsed.TotalHours:D2}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}";
             });
 
-            var result = await _runner.RunAsync(next.FilePath, 7, 90, progress, token);
+            var settings = SettingsStore.Load();
+            var quality = settings.CompressionQuality;
+
+            // Auto-detect best series
+            var series = await SeriesDetector.DetectSeriesAsync(next.FilePath, token);
+            var bestIndex = series.Count > 0 ? series.MaxBy(s => s.Width * s.Height)!.Index : 0;
+
+            var result = await _runner.RunAsync(next.FilePath, bestIndex, quality, progress, token);
 
             if (result.Success)
             {
@@ -122,6 +134,11 @@ public class ConversionService
                     if (outFile.Exists)
                         next.OutputSize = FormatSize(outFile.Length);
                 }
+            }
+            else if (result.IsCancelled)
+            {
+                next.Status = ConversionStatus.Cancelled;
+                next.StatusText = "Cancelled";
             }
             else
             {

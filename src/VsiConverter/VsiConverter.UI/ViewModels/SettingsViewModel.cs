@@ -6,7 +6,7 @@ namespace VsiConverter.UI.ViewModels;
 
 public class SettingsViewModel : INotifyPropertyChanged
 {
-    private int _compressionQuality = 90;
+    private int _compressionQuality;
     private bool _javaFound;
     private bool _bfconvertFound;
     private bool _vipsFound;
@@ -14,12 +14,26 @@ public class SettingsViewModel : INotifyPropertyChanged
     private string? _bfconvertPath;
     private string? _vipsPath;
     private string _statusText = "";
+    private double _downloadProgress;
     private bool _isChecking;
+
+    public SettingsViewModel()
+    {
+        _compressionQuality = SettingsStore.Load().CompressionQuality;
+    }
 
     public int CompressionQuality
     {
         get => _compressionQuality;
-        set => SetProperty(ref _compressionQuality, Math.Clamp(value, 50, 100));
+        set
+        {
+            if (SetProperty(ref _compressionQuality, Math.Clamp(value, 50, 100)))
+            {
+                var s = SettingsStore.Load();
+                s.CompressionQuality = _compressionQuality;
+                SettingsStore.Save(s);
+            }
+        }
     }
 
     public bool JavaFound { get => _javaFound; set => SetProperty(ref _javaFound, value); }
@@ -30,6 +44,7 @@ public class SettingsViewModel : INotifyPropertyChanged
     public string? VipsPath { get => _vipsPath; set => SetProperty(ref _vipsPath, value); }
     public bool IsChecking { get => _isChecking; set => SetProperty(ref _isChecking, value); }
     public string StatusText { get => _statusText; set => SetProperty(ref _statusText, value); }
+    public double DownloadProgress { get => _downloadProgress; set => SetProperty(ref _downloadProgress, value); }
 
     public async Task CheckToolsAsync()
     {
@@ -59,10 +74,16 @@ public class SettingsViewModel : INotifyPropertyChanged
     public async Task DownloadToolAsync(string toolName)
     {
         StatusText = $"Downloading {toolName}...";
+        DownloadProgress = 0;
         try
         {
-            await ToolchainManager.DownloadToolAsync(toolName, new Progress<double>(p => { }), CancellationToken.None);
+            await ToolchainManager.DownloadToolAsync(toolName, new Progress<double>(p =>
+            {
+                DownloadProgress = p * 100;
+                StatusText = $"Downloading {toolName}... {(int)(p * 100)}%";
+            }), CancellationToken.None);
             StatusText = $"{toolName} downloaded";
+            DownloadProgress = 100;
             await CheckToolsAsync();
         }
         catch (Exception ex)
@@ -73,12 +94,14 @@ public class SettingsViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected void SetProperty<T>(ref T field, T value, [CallerMemberName] string? name = null)
+    protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? name = null)
     {
         if (!EqualityComparer<T>.Default.Equals(field, value))
         {
             field = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            return true;
         }
+        return false;
     }
 }

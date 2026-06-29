@@ -44,6 +44,12 @@ public partial class MainWindow : Window
             await dialog.ShowDialog(this);
         };
 
+        BtnAbout.Click += async (_, _) =>
+        {
+            var dialog = new AboutDialog();
+            await dialog.ShowDialog(this);
+        };
+
         DragDrop.SetAllowDrop(this, true);
         AddHandler(DragDrop.DropEvent, OnDrop);
         AddHandler(DragDrop.DragOverEvent, OnDragOver);

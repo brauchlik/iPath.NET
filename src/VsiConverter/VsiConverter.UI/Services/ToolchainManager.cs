@@ -62,6 +62,10 @@ public static class ToolchainManager
         var storagePath = Path.Combine(storageDir, exeName);
         if (File.Exists(storagePath)) return storagePath;
 
+        // Check storageDir/bin/ (vips extracts to bin/vips.exe)
+        var binPath = Path.Combine(storageDir, "bin", exeName);
+        if (File.Exists(binPath)) return binPath;
+
         // For bfconvert, also check for .jar variant
         if (name == "bfconvert")
         {

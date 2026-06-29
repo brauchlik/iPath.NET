@@ -1,16 +1,10 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:VsiConverter.UI.ViewModels"
-        xmlns:conv="clr-namespace:VsiConverter.UI.Converters"
-        xmlns:views="clr-namespace:VsiConverter.UI.Views"
         x:Class="VsiConverter.UI.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="VSI → DZI Converter"
         Width="950" Height="650">
-
-  <Window.Resources>
-    <conv:StatusToColorConverter x:Key="StatusToColor" />
-  </Window.Resources>
 
   <Window.DataTemplates>
     <DataTemplate DataType="{x:Type vm:ConversionItemViewModel}">
@@ -43,6 +37,7 @@
       <Button x:Name="BtnClearDone" Content="Clear Done" />
       <Button x:Name="BtnCancelAll" Content="Cancel All" />
       <Button x:Name="BtnSettings" Content="⚙" Width="32" />
+      <Button x:Name="BtnAbout" Content="?" Width="32" />
     </StackPanel>
 
     <!-- File list -->

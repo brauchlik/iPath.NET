@@ -1,127 +1,135 @@
-### Task 4: CaseRoom API endpoints
+## Task 4: SeriesDetector
 
 **Files:**
-- Create: `src/infrastructure/iPath.API/Endpoints/CaseRoomEndpoints.cs`
-- Modify: `src/infrastructure/iPath.API/MapEndpoints.cs:36` — add `.MapCaseRoomApi()`
-- Modify: `src/infrastructure/iPath.API/APIServicesRegistration.cs:113` — register `ICaseRoomSessionStore` as singleton
+- Create: `src/VsiConverter/VsiConverter.UI/Services/SeriesDetector.cs`
 
 **Interfaces:**
-- Consumes: `ICaseRoomSessionStore` (Task 3), `IUserSession` (existing)
-- Produces: 4 endpoints under `/api/v1/caseroom/{requestId}:...`
+- Consumes: Task 2 (AvailableSeries model), Task 3 (ToolchainManager.FindTool for locating showinf/bfconvert)
+- Produces: `SeriesDetector` static class with:
+  - `static Task<List<AvailableSeries>> DetectSeriesAsync(string vsiPath, CancellationToken ct = default)`
 
-- [ ] **Step 1: Register the session store as singleton**
-
-Modify `src/infrastructure/iPath.API/APIServicesRegistration.cs`. After line 116 (`services.AddSingleton<INotificationEventBus, NotificationEventBus>();`), add:
-
-```csharp
-        // CaseRoom session store (in-memory, transient sessions)
-        services.AddSingleton<ICaseRoomSessionStore, CaseRoomSessionStore>();
-```
-
-And add at the top with the other using directives (preserve alphabetical-style ordering):
+- [ ] **Step 1: Create SeriesDetector.cs**
+  File: `src/VsiConverter/VsiConverter.UI/Services/SeriesDetector.cs`
 
 ```csharp
-using iPath.API.Services.CaseRoom;
-```
+using System.Diagnostics;
+using System.Text.RegularExpressions;
+using VsiConverter.UI.Models;
 
-- [ ] **Step 2: Create the endpoints file**
+namespace VsiConverter.UI.Services;
 
-Create `src/infrastructure/iPath.API/Endpoints/CaseRoomEndpoints.cs`:
-
-```csharp
-using iPath.API.Services.CaseRoom;
-using iPath.Application.Features.CaseRoom;
-
-namespace iPath.API;
-
-public static class CaseRoomEndpoints
+public static partial class SeriesDetector
 {
-    public static IEndpointRouteBuilder MapCaseRoomApi(this IEndpointRouteBuilder route)
+    private static readonly Regex SeriesHeaderRx = SeriesHeaderRegex();
+    private static readonly Regex DimensionRx = DimensionRegex();
+
+    public static async Task<List<AvailableSeries>> DetectSeriesAsync(string vsiPath, CancellationToken ct = default)
     {
-        var group = route.MapGroup("caseroom").RequireAuthorization();
+        var results = new List<AvailableSeries>();
 
-        group.MapPost("{requestId:guid}/join", async (
-            Guid requestId,
-            [FromServices] ICaseRoomSessionStore store,
-            [FromServices] IUserSession sess,
-            CancellationToken ct) =>
+        var bfconvertPath = ToolchainManager.FindTool("bfconvert");
+        if (bfconvertPath is null)
+            return results;
+
+        var psi = new ProcessStartInfo("java", $"-cp \"{bfconvertPath}\" loci.formats.tools.ImageInfo -nopix -no-upgrade \"{vsiPath}\"")
         {
-            if (sess.User is null || !sess.User.IsAuthenticated)
-                return Results.Unauthorized();
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
 
-            var snapshot = await store.JoinAsync(requestId, sess.User.Id, sess.User.DisplayName ?? "Anonymous", ct);
-            return Results.Ok(snapshot);
-        });
+        using var process = Process.Start(psi);
+        if (process is null) return results;
 
-        group.MapPost("{requestId:guid}/leave", async (
-            Guid requestId,
-            [FromServices] ICaseRoomSessionStore store,
-            [FromServices] IUserSession sess,
-            CancellationToken ct) =>
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        cts.CancelAfter(TimeSpan.FromSeconds(60));
+
+        try
         {
-            if (sess.User is null || !sess.User.IsAuthenticated)
-                return Results.Unauthorized();
+            var outputTask = process.StandardOutput.ReadToEndAsync();
+            var errorTask = process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync(cts.Token);
+            var output = await outputTask;
 
-            await store.LeaveAsync(requestId, sess.User.Id, ct);
-            return Results.NoContent();
-        });
+            if (process.ExitCode != 0)
+                return results;
 
-        group.MapPost("{requestId:guid}/sync", async (
-            Guid requestId,
-            [FromServices] ICaseRoomSessionStore store,
-            [FromServices] IUserSession sess,
-            SyncPayload payload,
-            CancellationToken ct) =>
+            string? currentSeries = null;
+            int? currentWidth = null;
+            int? currentHeight = null;
+            double? pixelSize = null;
+
+            foreach (var line in output.Split('\n', '\r'))
+            {
+                var seriesMatch = SeriesHeaderRx.Match(line);
+                if (seriesMatch.Success)
+                {
+                    if (currentSeries is not null && currentWidth.HasValue && currentHeight.HasValue)
+                    {
+                        results.Add(new AvailableSeries(
+                            results.Count,
+                            currentWidth.Value,
+                            currentHeight.Value,
+                            pixelSize ?? 0,
+                            currentSeries));
+                    }
+                    currentSeries = seriesMatch.Groups[1].Value;
+                    currentWidth = null;
+                    currentHeight = null;
+                    pixelSize = null;
+                    continue;
+                }
+
+                var dimMatch = DimensionRx.Match(line);
+                if (dimMatch.Success)
+                {
+                    var label = dimMatch.Groups[1].Value;
+                    var value = int.Parse(dimMatch.Groups[2].Value);
+                    if (label.Contains("Width")) currentWidth = value;
+                    else if (label.Contains("Height")) currentHeight = value;
+                }
+
+                if (line.Contains("PixelSizeX") || line.Contains("pixelSizeX"))
+                {
+                    var parts = line.Split('=', ':');
+                    if (parts.Length >= 2 && double.TryParse(parts[^1].Trim(), out var ps))
+                        pixelSize = ps;
+                }
+            }
+
+            if (currentSeries is not null && currentWidth.HasValue && currentHeight.HasValue)
+            {
+                results.Add(new AvailableSeries(
+                    results.Count,
+                    currentWidth.Value,
+                    currentHeight.Value,
+                    pixelSize ?? 0,
+                    currentSeries));
+            }
+        }
+        catch (OperationCanceledException)
         {
-            if (sess.User is null || !sess.User.IsAuthenticated)
-                return Results.Unauthorized();
+            try { process.Kill(); } catch { }
+        }
 
-            await store.SyncAsync(requestId, sess.User.Id, payload, ct);
-            return Results.NoContent();
-        });
-
-        group.MapGet("{requestId:guid}", async (
-            Guid requestId,
-            [FromServices] ICaseRoomSessionStore store,
-            CancellationToken ct) =>
-        {
-            var status = await store.GetStatusAsync(requestId, ct);
-            return status is null ? Results.NotFound() : Results.Ok(status);
-        });
-
-        return route;
+        return results;
     }
+
+    [GeneratedRegex(@"^\s*(?:Series|Pixels)\s+#?(\d+)\s*", RegexOptions.IgnoreCase)]
+    private static partial Regex SeriesHeaderRegex();
+
+    [GeneratedRegex(@"^\s*(Width|Height)\s*=\s*(\d+)", RegexOptions.IgnoreCase)]
+    private static partial Regex DimensionRegex();
 }
 ```
 
-> **Note:** `IUserSession.User` exposes `Id`, `IsAuthenticated`, and `DisplayName`. Verify these property names by reading `src/infrastructure/iPath.API/Services/UserSession.cs` or the `IUserSession` interface if any naming mismatch arises — the existing `NotificationEndpoints.cs` uses `sess.User.Id` and `sess.User.IsAuthenticated`, follow that pattern exactly.
+- [ ] **Step 2: Verify build**
+  Run: `dotnet build src/VsiConverter/VsiConverter.UI/VsiConverter.UI.csproj`
+  Expected: Build succeeds with 0 warnings, 0 errors
 
-- [ ] **Step 3: Wire up MapCaseRoomApi in the endpoint chain**
-
-Modify `src/infrastructure/iPath.API/MapEndpoints.cs:36`. Change the chain from:
-
-```csharp
-            .MapTaskAssignmentEndpoints()
-            .MapSyncApi();
-```
-
-to:
-
-```csharp
-            .MapTaskAssignmentEndpoints()
-            .MapSyncApi()
-            .MapCaseRoomApi();
-```
-
-- [ ] **Step 4: Build to verify everything compiles**
-
-Run: `dotnet build src/infrastructure/iPath.API/iPath.API.csproj`
-Expected: Build succeeded.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add src/infrastructure/iPath.API/Endpoints/CaseRoomEndpoints.cs src/infrastructure/iPath.API/MapEndpoints.cs src/infrastructure/iPath.API/APIServicesRegistration.cs
-git commit -m "feat(caseroom): add API endpoints for join/leave/sync/status"
-```
-
+- [ ] **Step 3: Commit**
+  ```bash
+  git add src/VsiConverter/
+  git commit -m "feat: add SeriesDetector for parsing showinf output"
+  ```

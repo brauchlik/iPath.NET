@@ -1,116 +1,197 @@
-### Task 5: SSE integration — `SseClientService` + `ipath-sse.js`
+## Task 5: PipelineRunner
 
 **Files:**
-- Modify: `src/ui/iPath.RazorLib/Notifications/SseClientService.cs`
-- Modify: `src/ui/iPath.RazorLib/wwwroot/js/ipath-sse.js`
-- Test: `test/iPath.Test.xUnit2/CaseRoom/CaseRoomSseClientTests.cs`
+- Create: `src/VsiConverter/VsiConverter.UI/Services/PipelineRunner.cs`
 
 **Interfaces:**
-- Consumes: `CaseRoomSyncEvent` from Task 1, existing `SseClientService` infrastructure
-- Produces: `SseClientService.CaseRoomSyncReceived` event + `[JSInvokable] OnCaseRoomSync(string, string)`, JS dispatch for `caseroom-sync` event
+- Consumes: Task 2 (AvailableSeries model — indirectly), Task 3 (ToolchainManager.FindTool)
+- Produces: `PipelineRunner` class with:
+  - `Task<ConversionResult> RunAsync(string vsiPath, int seriesIndex, int quality, IProgress<ConversionProgress> progress, CancellationToken ct)`
+  - `ConversionResult(bool Success, string? OutputPath, string? ErrorMessage)`
+  - `ConversionProgress(string Stage, int Percent, string? Detail)`
 
-- [ ] **Step 1: Write the failing test**
-
-Create `test/iPath.Test.xUnit2/CaseRoom/CaseRoomSseClientTests.cs`:
+- [ ] **Step 1: Create PipelineRunner.cs**
+  File: `src/VsiConverter/VsiConverter.UI/Services/PipelineRunner.cs`
 
 ```csharp
-using iPath.Blazor.Componenents.Notifications;
-using iPath.Application.Features.CaseRoom;
-using iPath.Application.Features.Notifications;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
-using NSubstitute;
-using FluentAssertions;
+using System.Diagnostics;
+using System.IO.Compression;
 
-namespace iPath.Test.xUnit2.CaseRoom;
+namespace VsiConverter.UI.Services;
 
-public class CaseRoomSseClientTests
+public record ConversionResult(bool Success, string? OutputPath, string? ErrorMessage);
+
+public record ConversionProgress(string Stage, int Percent, string? Detail);
+
+public class PipelineRunner
 {
-    [Fact]
-    public void OnCaseRoomSync_RaisesEventWithDeserializedPayload()
+    private readonly string _bfconvertPath;
+    private readonly string _vipsPath;
+
+    public PipelineRunner()
     {
-        // Arrange — SseClientService in WASM mode (no INotificationEventBus in DI)
-        var services = new ServiceCollection().BuildServiceProvider();
-        var logger = new LoggerFactory().CreateLogger<SseClientService>();
-        var js = Substitute.For<IJSRuntime>();
-        var service = new SseClientService(js, services, logger);
+        _bfconvertPath = ToolchainManager.FindTool("bfconvert") ?? "bfconvert";
+        _vipsPath = ToolchainManager.FindTool("vips") ?? "vips";
+    }
 
-        var received = new List<CaseRoomSyncEvent>();
-        service.CaseRoomSyncReceived += (_, e) => received.Add(e);
+    public async Task<ConversionResult> RunAsync(
+        string vsiPath,
+        int seriesIndex,
+        int quality,
+        IProgress<ConversionProgress> progress,
+        CancellationToken ct)
+    {
+        var vsiDir = Path.GetDirectoryName(vsiPath)!;
+        var baseName = Path.GetFileNameWithoutExtension(vsiPath);
+        var tempDir = Path.Combine(Path.GetTempPath(), "VsiConverter", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
 
-        var requestId = Guid.NewGuid();
-        var userId = Guid.NewGuid();
-        var payload = $"{{\"requestId\":\"{requestId}\",\"userId\":\"{userId}\",\"displayName\":\"Alice\",\"payload\":{{\"documentId\":null,\"viewport\":{{\"x\":0.5,\"y\":0.5,\"zoom\":2.0}}}},\"timestamp\":\"2026-06-27T12:00:00+00:00\"}}";
+        try
+        {
+            // Check companion folder
+            progress.Report(new ConversionProgress("Checking companion", 0, null));
+            var companionDir = Path.Combine(vsiDir, $"_{baseName}_");
+            if (!Directory.Exists(companionDir))
+            {
+                return new ConversionResult(false, null,
+                    $"Companion folder not found: expected '{companionDir}' next to the .vsi file.");
+            }
 
-        // Act — simulate the JS calling back
-        var lastEventId = DateTimeOffset.UtcNow.ToString("o");
-        service.OnCaseRoomSync(payload, lastEventId);
+            // bfconvert .vsi → OME-TIFF
+            var omeTiff = Path.Combine(tempDir, $"{baseName}.ome.tiff");
+            progress.Report(new ConversionProgress("Converting to OME-TIFF", 5, "bfconvert"));
 
-        // Assert
-        received.Should().ContainSingle();
-        received[0].RequestId.Should().Be(requestId);
-        received[0].DisplayName.Should().Be("Alice");
-        received[0].Payload.Viewport!.Zoom.Should().Be(2.0);
+            var bfArgs = $"-cp \"{_bfconvertPath}\" loci.formats.tools.ImageConverter -series {seriesIndex} -compression JPEG \"{vsiPath}\" \"{omeTiff}\"";
+
+            var bfResult = await RunProcessAsync(
+                "java", bfArgs,
+                new Dictionary<string, string> { ["BF_MAX_MEM"] = "8g" },
+                TimeSpan.FromMinutes(30),
+                progress,
+                ct);
+
+            if (!bfResult)
+            {
+                return new ConversionResult(false, null, "bfconvert failed to convert .vsi to OME-TIFF.");
+            }
+
+            // vips dzsave → DZI tiles
+            var dziDir = Path.Combine(tempDir, baseName);
+            progress.Report(new ConversionProgress("Creating DZI tiles", 50, "vips dzsave"));
+
+            var vipsArgs = $"dzsave \"{omeTiff}\" \"{dziDir}\" --tile-size 254 --overlap 1 --suffix \".webp[Q={quality}]\"";
+
+            var vipsResult = await RunProcessAsync(
+                _vipsPath, vipsArgs, null,
+                TimeSpan.FromMinutes(30),
+                progress,
+                ct);
+
+            if (!vipsResult)
+            {
+                return new ConversionResult(false, null, "vips dzsave failed to create DZI tiles.");
+            }
+
+            // Zip DZI output
+            var outputZip = Path.Combine(vsiDir, $"{baseName}.dzi.zip");
+            progress.Report(new ConversionProgress("Zipping DZI", 90, null));
+
+            if (File.Exists(outputZip)) File.Delete(outputZip);
+
+            using (var zip = ZipFile.Open(outputZip, ZipArchiveMode.Create))
+            {
+                // Add .dzi descriptor
+                var dziFile = Path.Combine(dziDir, $"{baseName}.dzi");
+                if (File.Exists(dziFile))
+                {
+                    zip.CreateEntryFromFile(dziFile, $"{baseName}.dzi", CompressionLevel.NoCompression);
+                }
+
+                // Add _files directory
+                var filesDir = Path.Combine(dziDir, $"{baseName}_files");
+                if (Directory.Exists(filesDir))
+                {
+                    foreach (var file in Directory.GetFiles(filesDir, "*", SearchOption.AllDirectories))
+                    {
+                        var relativePath = Path.GetRelativePath(dziDir, file);
+                        zip.CreateEntryFromFile(file, relativePath, CompressionLevel.NoCompression);
+                    }
+                }
+            }
+
+            progress.Report(new ConversionProgress("Completed", 100, outputZip));
+            return new ConversionResult(true, outputZip, null);
+        }
+        catch (OperationCanceledException)
+        {
+            return new ConversionResult(false, null, "Conversion was cancelled.");
+        }
+        catch (Exception ex)
+        {
+            return new ConversionResult(false, null, $"Conversion failed: {ex.Message}");
+        }
+        finally
+        {
+            try { Directory.Delete(tempDir, recursive: true); } catch { }
+        }
+    }
+
+    private static async Task<bool> RunProcessAsync(
+        string fileName,
+        string arguments,
+        Dictionary<string, string>? environment,
+        TimeSpan timeout,
+        IProgress<ConversionProgress> progress,
+        CancellationToken ct)
+    {
+        var psi = new ProcessStartInfo(fileName, arguments)
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        if (environment is not null)
+        {
+            foreach (var kvp in environment)
+                psi.EnvironmentVariables[kvp.Key] = kvp.Value;
+        }
+
+        using var process = Process.Start(psi);
+        if (process is null) return false;
+
+        // Read stdout/stderr concurrently to avoid deadlocks
+        var stdoutTask = process.StandardOutput.ReadToEndAsync();
+        var stderrTask = process.StandardError.ReadToEndAsync();
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        cts.CancelAfter(timeout);
+
+        try
+        {
+            await process.WaitForExitAsync(cts.Token);
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        {
+            // Timeout, not user cancellation
+            try { process.Kill(); } catch { }
+            return false;
+        }
+
+        await Task.WhenAll(stdoutTask, stderrTask);
+
+        return process.ExitCode == 0;
     }
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [ ] **Step 2: Verify build**
+  Run: `dotnet build src/VsiConverter/VsiConverter.UI/VsiConverter.UI.csproj`
+  Expected: Build succeeds with 0 warnings, 0 errors
 
-Run: `dotnet test test/iPath.Test.xUnit2/iPath.Test.xUnit2.csproj --filter "FullyQualifiedName~CaseRoomSseClientTests"`
-Expected: Compile failure — `CaseRoomSyncReceived` event and `OnCaseRoomSync` method don't exist.
-
-- [ ] **Step 3: Add CaseRoomSync event to SseClientService**
-
-Modify `src/ui/iPath.RazorLib/Notifications/SseClientService.cs`:
-
-1. Add `using iPath.Application.Features.CaseRoom;` at the top.
-2. After the `SystemEventReceived` event declaration, add:
-
-```csharp
-    public event EventHandler<CaseRoomSyncEvent>? CaseRoomSyncReceived;
-```
-
-3. After the `OnSystemEvent` method, add:
-
-```csharp
-    [JSInvokable]
-    public void OnCaseRoomSync(string data, string lastEventId)
-    {
-        _lastEventId = lastEventId;
-        try
-        {
-            var evt = JsonSerializer.Deserialize<CaseRoomSyncEvent>(data, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-            if (evt is not null)
-                CaseRoomSyncReceived?.Invoke(this, evt);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to deserialize caseroom-sync");
-        }
-    }
-```
-
-- [ ] **Step 4: Add JS listener for `caseroom-sync`**
-
-Modify `src/ui/iPath.RazorLib/wwwroot/js/ipath-sse.js`. After the `system-event` listener, add:
-
-```javascript
-    es.addEventListener('caseroom-sync', e => {
-        dotNetHelper.invokeMethodAsync('OnCaseRoomSync', e.data, e.lastEventId);
-    });
-```
-
-- [ ] **Step 5: Run test to verify it passes**
-
-Run: `dotnet test test/iPath.Test.xUnit2/iPath.Test.xUnit2.csproj --filter "FullyQualifiedName~CaseRoomSseClientTests"`
-Expected: PASS (1 test).
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add src/ui/iPath.RazorLib/Notifications/SseClientService.cs src/ui/iPath.RazorLib/wwwroot/js/ipath-sse.js test/iPath.Test.xUnit2/CaseRoom/CaseRoomSseClientTests.cs
-git commit -m "feat(caseroom): wire caseroom-sync SSE event through SseClientService"
-```
-
+- [ ] **Step 3: Commit**
+  ```bash
+  git add src/VsiConverter/
+  git commit -m "feat: add PipelineRunner for bfconvert → vips → zip pipeline"
+  ```

@@ -1,198 +1,235 @@
-### Task 6: `IPathApi` Refit methods + `DirectApiClient` implementations
+## Task 6: ConversionService + ConversionItemViewModel
 
 **Files:**
-- Modify: `src/ui/iPath.Blazor.ServiceLib/ApiClient/IApiClient.cs` — add 4 Refit methods
-- Modify: `src/ui/iPath.Blazor.ServiceLib/Services/DirectApiClient.cs` — implement the 4 methods
-- Test: `test/iPath.Test.xUnit2/CaseRoom/DirectApiClientCaseRoomTests.cs`
+- Create: `src/VsiConverter/VsiConverter.UI/Services/ConversionService.cs`
+- Create: `src/VsiConverter/VsiConverter.UI/ViewModels/ConversionItemViewModel.cs`
 
 **Interfaces:**
-- Consumes: `ICaseRoomSessionStore` (Task 3) for `DirectApiClient`, `CaseRoomModels` (Task 1)
-- Produces: `IPathApi.JoinCaseRoomAsync`, `LeaveCaseRoomAsync`, `SyncCaseRoomAsync`, `GetCaseRoomStatusAsync`
+- Consumes: Task 5 (PipelineRunner, ConversionResult, ConversionProgress)
+- Produces: 
+  - `ConversionItemViewModel` — INotifyPropertyChanged with all queue item properties
+  - `ConversionService` — queue orchestrator, single-file processing, cancellation
 
-- [ ] **Step 1: Add Refit methods to `IPathApi`**
-
-Modify `src/ui/iPath.Blazor.ServiceLib/ApiClient/IApiClient.cs`. Add `using iPath.Application.Features.CaseRoom;` at the top, and add a new region after the existing `-- Notifications --` region (or wherever geographically sensible adjacent to ServiceRequest region):
-
-```csharp
-    #region "-- CaseRoom --"
-    [Post("/api/v1/caseroom/{requestId}/join")]
-    Task<IApiResponse<CaseRoomSnapshot>> JoinCaseRoom(Guid requestId);
-
-    [Post("/api/v1/caseroom/{requestId}/leave")]
-    Task<IApiResponse> LeaveCaseRoom(Guid requestId);
-
-    [Post("/api/v1/caseroom/{requestId}/sync")]
-    Task<IApiResponse> SyncCaseRoom(Guid requestId, [Body] SyncPayload payload);
-
-    [Get("/api/v1/caseroom/{requestId}")]
-    Task<IApiResponse<CaseRoomStatus?>> GetCaseRoomStatus(Guid requestId);
-    #endregion
-```
-
-- [ ] **Step 2: Implement on DirectApiClient**
-
-Modify `src/ui/iPath.Blazor.ServiceLib/Services/DirectApiClient.cs`:
-
-1. Add `using iPath.API.Services.CaseRoom;` and `using iPath.Application.Features.CaseRoom;` at the top.
-2. Add `ICaseRoomSessionStore caseRoomStore` as a constructor parameter (the last optional one — pattern matches the existing `syncRunner`, `jobManager`, `queue` parameters).
-
-Construct signature change:
+- [ ] **Step 1: Create ConversionItemViewModel.cs**
+  File: `src/VsiConverter/VsiConverter.UI/ViewModels/ConversionItemViewModel.cs`
 
 ```csharp
-public class DirectApiClient(
-    IMediator mediator,
-    IGroupService groupService,
-    IEmailRepository emailRepo,
-    INotificationRepository notificationRepo,
-    IUserSession userSession,
-    ILocalizationDataProvider localization,
-    IOptions<iPathClientConfig> config,
-    ILogger<DirectApiClient> logger,
-    ISyncImportRunner? syncRunner = null,
-    ISyncJobManager? jobManager = null,
-    IAiExtractionQueue? queue = null,
-    ICaseRoomSessionStore? caseRoomStore = null)
-    : IPathApi
-```
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using VsiConverter.UI.Models;
+using VsiConverter.UI.Services;
 
-3. Implement the 4 methods at the end of the class (last `#endregion`):
+namespace VsiConverter.UI.ViewModels;
 
-```csharp
-    // -- CaseRoom --
-
-    public async Task<IApiResponse<CaseRoomSnapshot>> JoinCaseRoom(Guid requestId)
-    {
-        if (caseRoomStore is null || userSession.User is null)
-            return RespondError<CaseRoomSnapshot>();
-        var snap = await caseRoomStore.JoinAsync(requestId, userSession.User.Id, userSession.User.DisplayName ?? "Anonymous", default);
-        return Respond(snap);
-    }
-
-    public async Task<IApiResponse> LeaveCaseRoom(Guid requestId)
-    {
-        if (caseRoomStore is null || userSession.User is null)
-            return RespondError();
-        await caseRoomStore.LeaveAsync(requestId, userSession.User.Id, default);
-        return RespondOk();
-    }
-
-    public async Task<IApiResponse> SyncCaseRoom(Guid requestId, SyncPayload payload)
-    {
-        if (caseRoomStore is null || userSession.User is null)
-            return RespondError();
-        await caseRoomStore.SyncAsync(requestId, userSession.User.Id, payload, default);
-        return RespondOk();
-    }
-
-    public async Task<IApiResponse<CaseRoomStatus?>> GetCaseRoomStatus(Guid requestId)
-    {
-        if (caseRoomStore is null)
-            return Respond<CaseRoomStatus?>(null);
-        var status = await caseRoomStore.GetStatusAsync(requestId, default);
-        return Respond(status);
-    }
-```
-
-> **Note:** The `DirectApiClient` lives in iPath.Blazor.ServiceLib. It references `iPath.API` only because `caseRoomStore` lives there — verify `iPath.API.csproj` is referenced by `iPath.Blazor.ServiceLib.csproj`. It already is: `DirectApiClient` imports `iPath.API.Services` indirectly via other handlers. If the using `iPath.API.Services.CaseRoom` causes a build error (missing project reference), add a project reference to `iPath.API.csproj` from `iPath.Blazor.ServiceLib.csproj`.
-
-- [ ] **Step 3: Write a smoke test for DirectApiClient CaseRoom methods**
-
-Create `test/iPath.Test.xUnit2/CaseRoom/DirectApiClientCaseRoomTests.cs`:
-
-```csharp
-using iPath.API.Services.CaseRoom;
-using iPath.Application.Features.CaseRoom;
-using iPath.Application.Features.Notifications;
-using iPath.Blazor.ServiceLib.Services;
-using iPath.Application.Contracts;
-using iPath.Application.Localization;
-using iPath.Domain.Config;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using NSubstitute;
-using DispatchR;
-using iPath.Application.Contracts;
-using FluentAssertions;
-
-namespace iPath.Test.xUnit2.CaseRoom;
-
-public class DirectApiClientCaseRoomTests
+public class ConversionItemViewModel : INotifyPropertyChanged
 {
-    private static (DirectApiClient client, CaseRoomSessionStore store) CreateClient()
+    private string _fileName = "";
+    private string _filePath = "";
+    private string _fileSize = "";
+    private string _companionStatus = "";
+    private ConversionStatus _status;
+    private int _progress;
+    private string _statusText = "";
+    private string _elapsedText = "";
+    private string? _outputPath;
+    private string? _outputSize;
+    private string? _errorText;
+
+    public string FileName { get => _fileName; set => SetProperty(ref _fileName, value); }
+    public string FilePath { get => _filePath; set => SetProperty(ref _filePath, value); }
+    public string FileSize { get => _fileSize; set => SetProperty(ref _fileSize, value); }
+    public string CompanionStatus { get => _companionStatus; set => SetProperty(ref _companionStatus, value); }
+    public ConversionStatus Status { get => _status; set => SetProperty(ref _status, value); }
+    public int Progress { get => _progress; set => SetProperty(ref _progress, value); }
+    public string StatusText { get => _statusText; set => SetProperty(ref _statusText, value); }
+    public string ElapsedText { get => _elapsedText; set => SetProperty(ref _elapsedText, value); }
+    public string? OutputPath { get => _outputPath; set => SetProperty(ref _outputPath, value); }
+    public string? OutputSize { get => _outputSize; set => SetProperty(ref _outputSize, value); }
+    public string? ErrorText { get => _errorText; set => SetProperty(ref _errorText, value); }
+
+    public bool IsDone => Status is ConversionStatus.Completed or ConversionStatus.Failed or ConversionStatus.Cancelled;
+    public bool IsFailed => Status == ConversionStatus.Failed;
+    public bool IsConverting => Status == ConversionStatus.Converting;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected void SetProperty<T>(ref T field, T value, [CallerMemberName] string? name = null)
     {
-        var store = new CaseRoomSessionStore(
-            Substitute.For<iPath.API.Services.Notifications.ISseConnectionManager>(),
-            new NotificationEventBus(),
-            new LoggerFactory().CreateLogger<CaseRoomSessionStore>());
-
-        var mediator = Substitute.For<IMediator>();
-        var userSession = Substitute.For<IUserSession>();
-        userSession.User.Returns(new SessionUserDto { Id = Guid.NewGuid(), DisplayName = "Test", IsAuthenticated = true });
-
-        var opts = Substitute.For<IOptions<iPathClientConfig>>();
-        opts.Value.Returns(new iPathClientConfig());
-
-        var client = new DirectApiClient(
-            mediator: mediator,
-            groupService: Substitute.For<IGroupService>(),
-            emailRepo: Substitute.For<IEmailRepository>(),
-            notificationRepo: Substitute.For<INotificationRepository>(),
-            userSession: userSession,
-            localization: Substitute.For<ILocalizationDataProvider>(),
-            config: opts,
-            logger: new LoggerFactory().CreateLogger<DirectApiClient>(),
-            caseRoomStore: store);
-
-        return (client, store);
-    }
-
-    [Fact]
-    public async Task DirectApiClient_JoinCaseRoom_ReturnsSnapshotFromStore()
-    {
-        var (client, store) = CreateClient();
-        var requestId = Guid.NewGuid();
-
-        var resp = await client.JoinCaseRoom(requestId);
-
-        resp.IsSuccessful.Should().BeTrue();
-        resp.Content!.RequestId.Should().Be(requestId);
-        resp.Content.Participants.Should().ContainSingle();
-    }
-
-    [Fact]
-    public async Task DirectApiClient_SyncCaseRoom_PersistsViewport()
-    {
-        var (client, store) = CreateClient();
-        var requestId = Guid.NewGuid();
-        await client.JoinCaseRoom(requestId);
-
-        await client.SyncCaseRoom(requestId, new SyncPayload(null, new ViewportState(0.1, 0.2, 0.3)));
-
-        var status = await client.GetCaseRoomStatus(requestId);
-        status.Content!.IsActive.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task DirectApiClient_GetCaseRoomStatus_ReturnsNullWhenNoSession()
-    {
-        var (client, _) = CreateClient();
-        var resp = await client.GetCaseRoomStatus(Guid.NewGuid());
-        resp.Content.Should().BeNull();
+        if (!EqualityComparer<T>.Default.Equals(field, value))
+        {
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
 }
 ```
 
-> **Note:** Property signings on `SessionUserDto` (e.g., `DisplayName`) must match the existing `SessionUserDto` definition in `iPath.Application.Contracts`. If `SessionUserDto` doesn't have `DisplayName`, fall back to whatever property exists — verify by `grep`-ing for `public.*SessionUserDto` and reading the file. The Refit-side WASM client doesn't need this; only `DirectApiClient`'s call site here uses it.
+- [ ] **Step 2: Create ConversionService.cs**
+  File: `src/VsiConverter/VsiConverter.UI/Services/ConversionService.cs`
 
-- [ ] **Step 4: Run test to verify it passes**
+```csharp
+using System.Collections.ObjectModel;
+using VsiConverter.UI.Models;
+using VsiConverter.UI.ViewModels;
 
-Run: `dotnet test test/iPath.Test.xUnit2/iPath.Test.xUnit2.csproj --filter "FullyQualifiedName~DirectApiClientCaseRoomTests"`
-Expected: PASS. If project-reference issue arises for `iPath.API.Services.CaseRoom`, fix the csproj references first.
+namespace VsiConverter.UI.Services;
 
-- [ ] **Step 5: Commit**
+public class ConversionService
+{
+    private readonly PipelineRunner _runner = new();
+    private readonly SemaphoreSlim _gate = new(1, 1);
+    private CancellationTokenSource? _currentCts;
 
-```bash
-git add src/ui/iPath.Blazor.ServiceLib/ test/iPath.Test.xUnit2/CaseRoom/DirectApiClientCaseRoomTests.cs
-git commit -m "feat(caseroom): add IPathApi Refit methods and DirectApiClient implementations"
+    public ObservableCollection<ConversionItemViewModel> Queue { get; } = new();
+
+    public event Action? QueueChanged;
+
+    public async Task EnqueueAsync(string filePath)
+    {
+        var fileInfo = new FileInfo(filePath);
+        var item = new ConversionItemViewModel
+        {
+            FilePath = filePath,
+            FileName = fileInfo.Name,
+            FileSize = FormatSize(fileInfo.Length),
+            Status = ConversionStatus.Queued
+        };
+
+        var baseName = Path.GetFileNameWithoutExtension(filePath);
+        var companionDir = Path.Combine(Path.GetDirectoryName(filePath)!, $"_{baseName}_");
+        item.CompanionStatus = Directory.Exists(companionDir) ? "Companion found" : "Companion missing";
+
+        Queue.Add(item);
+        QueueChanged?.Invoke();
+
+        _ = ProcessQueueAsync();
+    }
+
+    public async Task EnqueueFolderAsync(string folderPath)
+    {
+        foreach (var file in Directory.GetFiles(folderPath, "*.vsi", SearchOption.AllDirectories))
+        {
+            await EnqueueAsync(file);
+        }
+    }
+
+    public void CancelItem(ConversionItemViewModel item)
+    {
+        if (item.Status is ConversionStatus.Queued or ConversionStatus.Failed)
+        {
+            item.Status = ConversionStatus.Cancelled;
+            item.StatusText = "Cancelled";
+            QueueChanged?.Invoke();
+        }
+        else if (item.Status is ConversionStatus.Converting or ConversionStatus.CheckingCompanion or ConversionStatus.DetectingSeries)
+        {
+            _currentCts?.Cancel();
+        }
+    }
+
+    public void CancelAll()
+    {
+        _currentCts?.Cancel();
+        foreach (var item in Queue)
+        {
+            if (item.Status is ConversionStatus.Queued)
+            {
+                item.Status = ConversionStatus.Cancelled;
+                item.StatusText = "Cancelled";
+            }
+        }
+        QueueChanged?.Invoke();
+    }
+
+    public void ClearCompleted()
+    {
+        for (int i = Queue.Count - 1; i >= 0; i--)
+        {
+            if (Queue[i].Status is ConversionStatus.Completed or ConversionStatus.Cancelled)
+                Queue.RemoveAt(i);
+        }
+        QueueChanged?.Invoke();
+    }
+
+    private async Task ProcessQueueAsync()
+    {
+        if (_gate.CurrentCount == 0) return;
+        await _gate.WaitAsync();
+
+        try
+        {
+            var next = Queue.FirstOrDefault(i => i.Status == ConversionStatus.Queued);
+            if (next is null) return;
+
+            _currentCts = new CancellationTokenSource();
+            var token = _currentCts.Token;
+
+            next.Status = ConversionStatus.Converting;
+            next.StatusText = "Starting...";
+            QueueChanged?.Invoke();
+
+            var startTime = DateTime.UtcNow;
+            var progress = new Progress<ConversionProgress>(p =>
+            {
+                next.Progress = p.Percent;
+                if (p.Detail is not null)
+                    next.StatusText = p.Detail;
+                var elapsed = DateTime.UtcNow - startTime;
+                next.ElapsedText = $"{(int)elapsed.TotalHours:D2}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}";
+            });
+
+            var result = await _runner.RunAsync(next.FilePath, 7, 90, progress, token);
+
+            if (result.Success)
+            {
+                next.Status = ConversionStatus.Completed;
+                next.Progress = 100;
+                next.StatusText = "Completed";
+                next.OutputPath = result.OutputPath;
+                if (result.OutputPath is not null)
+                {
+                    var outFile = new FileInfo(result.OutputPath);
+                    if (outFile.Exists)
+                        next.OutputSize = FormatSize(outFile.Length);
+                }
+            }
+            else
+            {
+                next.Status = ConversionStatus.Failed;
+                next.ErrorText = result.ErrorMessage;
+                next.StatusText = "Failed";
+            }
+
+            QueueChanged?.Invoke();
+        }
+        finally
+        {
+            _gate.Release();
+        }
+
+        // Process next item if any
+        if (Queue.Any(i => i.Status == ConversionStatus.Queued))
+            _ = ProcessQueueAsync();
+    }
+
+    private static string FormatSize(long bytes)
+    {
+        string[] suffixes = ["B", "KB", "MB", "GB"];
+        int i;
+        double size = bytes;
+        for (i = 0; i < suffixes.Length - 1 && size >= 1024; i++)
+            size /= 1024;
+        return $"{size:F1} {suffixes[i]}";
+    }
+}
 ```
 
+- [ ] **Step 3: Verify build**
+  Run: `dotnet build src/VsiConverter/VsiConverter.UI/VsiConverter.UI.csproj`
+  Expected: Build succeeds with 0 warnings, 0 errors
+
+- [ ] **Step 4: Commit**
+  ```bash
+  git add src/VsiConverter/
+  git commit -m "feat: add ConversionItemViewModel and ConversionService"
+  ```

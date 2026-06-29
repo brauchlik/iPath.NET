@@ -151,7 +151,7 @@ public class ServiceRequestViewModel(IPathApi api,
     }
 
 
-    public async Task LoadNode(Guid id, bool forceReload = true)
+    public async Task LoadNode(Guid id, bool forceReload = true, bool loadGroup = true)
     {
         if (!forceReload && SelectedRequest is not null && SelectedRequest.Id == id)
         {
@@ -168,7 +168,7 @@ public class ServiceRequestViewModel(IPathApi api,
             SelectedRequest = respN.Content;
 
             // load Group & Community
-            if (SelectedRequest.GroupId.HasValue && (ActiveGroup is null || ActiveGroup.Id != SelectedRequest.GroupId))
+            if (loadGroup && SelectedRequest.GroupId.HasValue && (ActiveGroup is null || ActiveGroup.Id != SelectedRequest.GroupId))
             {
                 var respG = await api.GetGroup(SelectedRequest.GroupId.Value);
                 if (respG.IsSuccessful)

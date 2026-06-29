@@ -1,138 +1,145 @@
-### Task 1: Domain models and sync contracts
+## Task 1: Project Scaffolding
 
 **Files:**
-- Create: `src/core/iPath.Application/Features/CaseRoom/CaseRoomModels.cs`
-- Create: `src/core/iPath.Application/Features/CaseRoom/ICaseRoomSyncService.cs`
-- Test: `test/iPath.Test.xUnit2/CaseRoom/CaseRoomModelsTests.cs`
+- Create: `src/VsiConverter/VsiConverter.sln`
+- Create: `src/VsiConverter/VsiConverter.UI/VsiConverter.UI.csproj`
+- Create: `src/VsiConverter/VsiConverter.UI/Program.cs`
+- Create: `src/VsiConverter/VsiConverter.UI/App.axaml`
+- Create: `src/VsiConverter/VsiConverter.UI/App.axaml.cs`
+- Create: `src/VsiConverter/VsiConverter.UI/MainWindow.axaml`
+- Create: `src/VsiConverter/VsiConverter.UI/MainWindow.axaml.cs`
 
 **Interfaces:**
-- Consumes: nothing
-- Produces:
-  - `ViewportState(double X, double Y, double Zoom)`
-  - `Participant(Guid UserId, string DisplayName, DateTimeOffset JoinedAt)`
-  - `SyncPayload(Guid? DocumentId, ViewportState? Viewport)`
-  - `CaseRoomSnapshot(Guid RequestId, Guid? ActiveDocumentId, ViewportState? Viewport, Participant[] Participants)`
-  - `CaseRoomStatus(bool IsActive, int ParticipantCount, string[] ParticipantNames)`
-  - `CaseRoomSyncEvent(Guid RequestId, Guid UserId, string DisplayName, SyncPayload Payload, DateTimeOffset Timestamp)`
-  - `ICaseRoomSyncService` with `JoinAsync/LeaveAsync/SyncAsync` returning `Task`/`Task<CaseRoomSnapshot>`
-  - `ICaseRoomSyncReceiver` with `IDisposable Subscribe(Guid requestId, Action<CaseRoomSyncEvent> handler)`
+- Consumes: nothing (first task)
+- Produces: buildable Avalonia project with empty window titled "VSI → DZI Converter"
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Create VsiConverter.sln**
+  Use `dotnet new sln` then `dotnet sln add`.
 
-Create `test/iPath.Test.xUnit2/CaseRoom/CaseRoomModelsTests.cs`:
+- [ ] **Step 2: Create VsiConverter.UI.csproj**
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.999-cibuild0045423-beta" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.999-cibuild0045423-beta" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.999-cibuild0045423-beta" />
+  </ItemGroup>
+</Project>
+```
+
+- [ ] **Step 3: Create Program.cs**
 
 ```csharp
-using iPath.Application.Features.CaseRoom;
-using FluentAssertions;
+using Avalonia;
+using System;
 
-namespace iPath.Test.xUnit2.CaseRoom;
+namespace VsiConverter.UI;
 
-public class CaseRoomModelsTests
+class Program
 {
-    [Fact]
-    public void ViewportState_ConstructsWithXYZ()
+    [STAThread]
+    static void Main(string[] args)
     {
-        var v = new ViewportState(1.5, 2.5, 3.5);
-        v.X.Should().Be(1.5);
-        v.Y.Should().Be(2.5);
-        v.Zoom.Should().Be(3.5);
+        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
-    [Fact]
-    public void SyncPayload_AllowsDocumentOnly()
+    static AppBuilder BuildAvaloniaApp()
     {
-        var p = new SyncPayload(DocumentId: Guid.NewGuid(), Viewport: null);
-        p.DocumentId.Should().NotBeNull();
-        p.Viewport.Should().BeNull();
-    }
-
-    [Fact]
-    public void SyncPayload_AllowsViewportOnly()
-    {
-        var p = new SyncPayload(DocumentId: null, Viewport: new ViewportState(1, 2, 3));
-        p.DocumentId.Should().BeNull();
-        p.Viewport.Should().NotBeNull();
-    }
-
-    [Fact]
-    public void CaseRoomSyncEvent_HasRequestIdUserIdAndPayload()
-    {
-        var requestId = Guid.NewGuid();
-        var userId = Guid.NewGuid();
-        var payload = new SyncPayload(null, new ViewportState(0.5, 0.5, 1.0));
-        var evt = new CaseRoomSyncEvent(requestId, userId, "Alice", payload, DateTimeOffset.UtcNow);
-
-        evt.RequestId.Should().Be(requestId);
-        evt.UserId.Should().Be(userId);
-        evt.DisplayName.Should().Be("Alice");
-        evt.Payload.Viewport!.Zoom.Should().Be(1.0);
+        return AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .WithInterFont()
+            .LogToTrace();
     }
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [ ] **Step 4: Create App.axaml**
 
-Run: `dotnet test test/iPath.Test.xUnit2/iPath.Test.xUnit2.csproj --filter "FullyQualifiedName~CaseRoomModelsTests"`
-Expected: Build failure — namespace `iPath.Application.Features.CaseRoom` does not exist.
-
-- [ ] **Step 3: Create the models file**
-
-Create `src/core/iPath.Application/Features/CaseRoom/CaseRoomModels.cs`:
-
-```csharp
-namespace iPath.Application.Features.CaseRoom;
-
-public record ViewportState(double X, double Y, double Zoom);
-
-public record Participant(Guid UserId, string DisplayName, DateTimeOffset JoinedAt);
-
-public record SyncPayload(Guid? DocumentId, ViewportState? Viewport);
-
-public record CaseRoomSnapshot(
-    Guid RequestId,
-    Guid? ActiveDocumentId,
-    ViewportState? Viewport,
-    Participant[] Participants);
-
-public record CaseRoomStatus(bool IsActive, int ParticipantCount, string[] ParticipantNames);
-
-public record CaseRoomSyncEvent(
-    Guid RequestId,
-    Guid UserId,
-    string DisplayName,
-    SyncPayload Payload,
-    DateTimeOffset Timestamp);
+```xml
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="VsiConverter.UI.App">
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+</Application>
 ```
 
-- [ ] **Step 4: Create the sync service interfaces**
-
-Create `src/core/iPath.Application/Features/CaseRoom/ICaseRoomSyncService.cs`:
+- [ ] **Step 5: Create App.axaml.cs**
 
 ```csharp
-namespace iPath.Application.Features.CaseRoom;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
 
-public interface ICaseRoomSyncService : IAsyncDisposable
-{
-    Task<CaseRoomSnapshot> JoinAsync(Guid requestId, CancellationToken ct = default);
-    Task LeaveAsync(Guid requestId, CancellationToken ct = default);
-    Task SyncAsync(Guid requestId, SyncPayload payload, CancellationToken ct = default);
-}
+namespace VsiConverter.UI;
 
-public interface ICaseRoomSyncReceiver
+public partial class App : Application
 {
-    IDisposable Subscribe(Guid requestId, Action<CaseRoomSyncEvent> handler);
+    public override void Initialize()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
+
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow = new MainWindow();
+        }
+        base.OnFrameworkInitializationCompleted();
+    }
 }
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [ ] **Step 6: Create MainWindow.axaml**
 
-Run: `dotnet test test/iPath.Test.xUnit2/iPath.Test.xUnit2.csproj --filter "FullyQualifiedName~CaseRoomModelsTests"`
-Expected: PASS (all 4 tests).
+```xml
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="VsiConverter.UI.MainWindow"
+        Title="VSI → DZI Converter"
+        Width="950" Height="650"
+        AllowDrop="True">
+  <TextBlock Text="VSI → DZI Converter" 
+             HorizontalAlignment="Center" 
+             VerticalAlignment="Center"
+             FontSize="24" />
+</Window>
+```
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Create MainWindow.axaml.cs**
+
+```csharp
+using Avalonia.Controls;
+
+namespace VsiConverter.UI;
+
+public partial class MainWindow : Window
+{
+    public MainWindow()
+    {
+        InitializeComponent();
+    }
+}
+```
+
+- [ ] **Step 8: Verify build succeeds**
+
+Run: `dotnet build src/VsiConverter/VsiConverter.UI/VsiConverter.UI.csproj`
+
+- [ ] **Step 9: Commit**
 
 ```bash
-git add src/core/iPath.Application/Features/CaseRoom/ test/iPath.Test.xUnit2/CaseRoom/
-git commit -m "feat(caseroom): add domain models and sync service contracts"
+git add src/VsiConverter/
+git commit -m "feat: scaffold VsiConverter Avalonia project"
 ```
-

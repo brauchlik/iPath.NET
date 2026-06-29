@@ -1,297 +1,226 @@
-### Task 3: `ICaseRoomSessionStore` in-memory implementation
+## Task 3: ToolchainManager
 
 **Files:**
-- Create: `src/infrastructure/iPath.API/Services/CaseRoom/ICaseRoomSessionStore.cs`
-- Create: `src/infrastructure/iPath.API/Services/CaseRoom/CaseRoomSessionStore.cs`
-- Test: `test/iPath.Test.xUnit2/CaseRoom/CaseRoomSessionStoreTests.cs`
+- Create: `src/VsiConverter/VsiConverter.UI/Services/ToolchainManager.cs`
 
 **Interfaces:**
-- Consumes: `CaseRoomModels` (Task 1); `INotificationEventBus` (existing); `ISseConnectionManager` (existing)
-- Produces: `ICaseRoomSessionStore` with `JoinAsync/LeaveAsync/SyncAsync/GetStatusAsync` + `Guid? GetActiveDocumentId(Guid requestId)`
+- Consumes: Task 1 (project scaffolding), Task 2 (no direct dependency, but models established)
+- Produces: `ToolchainManager` static class with:
+  - `static string GetStorageDirectory()` — returns platform-specific app data path
+  - `static Task<ToolchainStatus> DetectAllAsync()` — checks java, bfconvert, vips
+  - `static string? FindTool(string name)` — checks storage dir then PATH
+  - `static Task DownloadToolAsync(string toolName, IProgress<double>, CancellationToken)` — downloads + extracts
 
-- [ ] **Step 1: Write the failing tests**
-
-Create `test/iPath.Test.xUnit2/CaseRoom/CaseRoomSessionStoreTests.cs`:
-
+`ToolchainStatus` class:
 ```csharp
-using iPath.API.Services.Notifications;
-using iPath.API.Services.CaseRoom;
-using iPath.Application.Features.CaseRoom;
-using iPath.Application.Features.Notifications;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
-using FluentAssertions;
-
-namespace iPath.Test.xUnit2.CaseRoom;
-
-public class CaseRoomSessionStoreTests
+public class ToolchainStatus
 {
-    private static CaseRoomSessionStore CreateStore()
-    {
-        var services = new ServiceCollection().BuildServiceProvider();
-        var sseMgr = Substitute.For<ISseConnectionManager>();
-        var bus = new NotificationEventBus();
-        var logger = new LoggerFactory().CreateLogger<CaseRoomSessionStore>();
-        return new CaseRoomSessionStore(sseMgr, bus, logger);
-    }
-
-    [Fact]
-    public async Task Join_FirstUser_CreatesSessionWithOneParticipant()
-    {
-        var store = CreateStore();
-        var requestId = Guid.NewGuid();
-        var userId = Guid.NewGuid();
-
-        var snapshot = await store.JoinAsync(requestId, userId, "Alice", default);
-
-        snapshot.RequestId.Should().Be(requestId);
-        snapshot.Participants.Should().ContainSingle(p => p.UserId == userId);
-        snapshot.ActiveDocumentId.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task Join_SecondUser_AddsParticipant()
-    {
-        var store = CreateStore();
-        var requestId = Guid.NewGuid();
-
-        await store.JoinAsync(requestId, Guid.NewGuid(), "Alice", default);
-        var snapshot = await store.JoinAsync(requestId, Guid.NewGuid(), "Bob", default);
-
-        snapshot.Participants.Should().HaveCount(2);
-    }
-
-    [Fact]
-    public async Task Join_IsIdempotent_ForSameUser()
-    {
-        var store = CreateStore();
-        var requestId = Guid.NewGuid();
-        var userId = Guid.NewGuid();
-
-        await store.JoinAsync(requestId, userId, "Alice", default);
-        var snapshot = await store.JoinAsync(requestId, userId, "Alice", default);
-
-        snapshot.Participants.Should().ContainSingle();
-    }
-
-    [Fact]
-    public async Task Sync_UpdatesViewport()
-    {
-        var store = CreateStore();
-        var requestId = Guid.NewGuid();
-        var userId = Guid.NewGuid();
-        await store.JoinAsync(requestId, userId, "Alice", default);
-
-        await store.SyncAsync(requestId, userId,
-            new SyncPayload(null, new ViewportState(0.5, 0.5, 2.0)), default);
-
-        var status = await store.GetStatusAsync(requestId, default);
-        status!.IsActive.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task Sync_UpdatesActiveDocument()
-    {
-        var store = CreateStore();
-        var requestId = Guid.NewGuid();
-        var userId = Guid.NewGuid();
-        await store.JoinAsync(requestId, userId, "Alice", default);
-
-        var docId = Guid.NewGuid();
-        await store.SyncAsync(requestId, userId, new SyncPayload(docId, null), default);
-
-        var snapshot = await store.JoinAsync(requestId, Guid.NewGuid(), "Bob", default);
-        snapshot.ActiveDocumentId.Should().Be(docId);
-    }
-
-    [Fact]
-    public async Task Leave_LastUser_SchedulesTeardown()
-    {
-        var store = CreateStore();
-        var requestId = Guid.NewGuid();
-        var userId = Guid.NewGuid();
-        await store.JoinAsync(requestId, userId, "Alice", default);
-
-        await store.LeaveAsync(requestId, userId, default);
-
-        var status = await store.GetStatusAsync(requestId, default);
-        // Session may still exist briefly due to teardown grace, but should not crash
-        status.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task GetStatus_ReturnsNull_WhenNoSession()
-    {
-        var store = CreateStore();
-        var status = await store.GetStatusAsync(Guid.NewGuid(), default);
-        status.Should().BeNull();
-    }
+    public bool JavaFound { get; set; }
+    public string? JavaVersion { get; set; }
+    public bool BfconvertFound { get; set; }
+    public string? BfconvertPath { get; set; }
+    public bool VipsFound { get; set; }
+    public string? VipsPath { get; set; }
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [ ] **Step 1: Create ToolchainManager.cs**
+  File: `src/VsiConverter/VsiConverter.UI/Services/ToolchainManager.cs`
 
-Run: `dotnet test test/iPath.Test.xUnit2/iPath.Test.xUnit2.csproj --filter "FullyQualifiedName~CaseRoomSessionStoreTests"`
-Expected: Compile failure — `ICaseRoomSessionStore` and `CaseRoomSessionStore` don't exist.
-
-- [ ] **Step 3: Create the store interface**
-
-Create `src/infrastructure/iPath.API/Services/CaseRoom/ICaseRoomSessionStore.cs`:
+Full implementation:
 
 ```csharp
-using iPath.Application.Features.CaseRoom;
+using System.Diagnostics;
+using System.IO.Compression;
+using System.Net.Http;
+using System.Runtime.InteropServices;
 
-namespace iPath.API.Services.CaseRoom;
+namespace VsiConverter.UI.Services;
 
-public interface ICaseRoomSessionStore
+public class ToolchainStatus
 {
-    Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid userId, string displayName, CancellationToken ct);
-    Task LeaveAsync(Guid requestId, Guid userId, CancellationToken ct);
-    Task SyncAsync(Guid requestId, Guid userId, SyncPayload payload, CancellationToken ct);
-    Task<CaseRoomStatus?> GetStatusAsync(Guid requestId, CancellationToken ct);
+    public bool JavaFound { get; set; }
+    public string? JavaVersion { get; set; }
+    public bool BfconvertFound { get; set; }
+    public string? BfconvertPath { get; set; }
+    public bool VipsFound { get; set; }
+    public string? VipsPath { get; set; }
 }
-```
 
-- [ ] **Step 4: Create the store implementation**
-
-Create `src/infrastructure/iPath.API/Services/CaseRoom/CaseRoomSessionStore.cs`:
-
-```csharp
-using System.Collections.Concurrent;
-using iPath.Application.Features.CaseRoom;
-using iPath.Application.Features.Notifications;
-using iPath.API.Services.Notifications;
-using Microsoft.Extensions.Logging;
-
-namespace iPath.API.Services.CaseRoom;
-
-public class CaseRoomSessionStore(
-    ISseConnectionManager sseManager,
-    INotificationEventBus eventBus,
-    ILogger<CaseRoomSessionStore> logger) : ICaseRoomSessionStore
+public static class ToolchainManager
 {
-    private static readonly TimeSpan TeardownGrace = TimeSpan.FromSeconds(30);
+    private static readonly HttpClient _http = new() { Timeout = TimeSpan.FromMinutes(5) };
 
-    private readonly ConcurrentDictionary<Guid, SessionEntry> _sessions = new();
-
-    public Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid userId, string displayName, CancellationToken ct)
+    public static string GetStorageDirectory()
     {
-        var entry = _sessions.GetOrAdd(requestId, rid => new SessionEntry
+        var baseDir = RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library", "Application Support", "VsiConverter", "bin")
+            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VsiConverter", "bin");
+        Directory.CreateDirectory(baseDir);
+        return baseDir;
+    }
+
+    public static async Task<ToolchainStatus> DetectAllAsync()
+    {
+        var status = new ToolchainStatus();
+
+        var javaResult = await RunDetectionAsync("java", "-version");
+        status.JavaFound = javaResult.Found;
+        status.JavaVersion = javaResult.Version;
+
+        var bfconvertPath = FindTool("bfconvert");
+        if (bfconvertPath is not null)
         {
-            Session = new CaseRoomSessionData
+            var bfResult = await RunDetectionAsync(bfconvertPath, "-version");
+            status.BfconvertFound = bfResult.Found;
+            status.BfconvertPath = bfconvertPath;
+        }
+
+        var vipsPath = FindTool("vips");
+        if (vipsPath is not null)
+        {
+            var vipsResult = await RunDetectionAsync(vipsPath, "--version");
+            status.VipsFound = vipsResult.Found;
+            status.VipsPath = vipsPath;
+        }
+
+        return status;
+    }
+
+    public static string? FindTool(string name)
+    {
+        var storageDir = GetStorageDirectory();
+        var exeName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"{name}.exe" : name;
+        var storagePath = Path.Combine(storageDir, exeName);
+        if (File.Exists(storagePath)) return storagePath;
+
+        // For bfconvert, also check for .jar variant
+        if (name == "bfconvert")
+        {
+            var jarPath = Path.Combine(storageDir, "bfconvert.jar");
+            if (File.Exists(jarPath)) return jarPath;
+        }
+
+        // Check PATH
+        var pathEnv = Environment.GetEnvironmentVariable("PATH") ?? "";
+        foreach (var dir in pathEnv.Split(Path.PathSeparator))
+        {
+            var dirTrimmed = dir.Trim();
+            if (string.IsNullOrEmpty(dirTrimmed)) continue;
+            var fullPath = Path.Combine(dirTrimmed, exeName);
+            if (File.Exists(fullPath)) return fullPath;
+        }
+
+        return null;
+    }
+
+    private static async Task<(bool Found, string? Version)> RunDetectionAsync(string command, string args)
+    {
+        try
+        {
+            var psi = new ProcessStartInfo(command, args)
             {
-                RequestId = rid,
-                CreatedAt = DateTimeOffset.UtcNow,
-                CreatedBy = userId
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using var process = Process.Start(psi);
+            if (process is null) return (false, null);
+
+            var output = await process.StandardError.ReadToEndAsync();
+            var output2 = await process.StandardOutput.ReadToEndAsync();
+            await process.WaitForExitAsync();
+            if (process.ExitCode != 0) return (false, null);
+
+            var combined = (output + output2).Trim();
+            var version = combined.Split('\n', '\r')[0];
+            return (true, version);
+        }
+        catch
+        {
+            return (false, null);
+        }
+    }
+
+    public static async Task DownloadToolAsync(string toolName, IProgress<double> progress, CancellationToken ct)
+    {
+        var storageDir = GetStorageDirectory();
+
+        switch (toolName)
+        {
+            case "bfconvert":
+            {
+                var zipPath = Path.Combine(Path.GetTempPath(), "bftools.zip");
+                var url = "https://github.com/ome/bio-formats/releases/download/v7.3.0/bftools.zip";
+                await DownloadFileAsync(url, zipPath, progress, ct);
+                ZipFile.ExtractToDirectory(zipPath, storageDir, overwriteFiles: true);
+                File.Delete(zipPath);
+                break;
             }
-        });
-
-        // Cancel any pending teardown (user rejoined within grace window)
-        entry.TeardownCts?.Cancel();
-        entry.TeardownCts = null;
-
-        entry.Session.Participants.TryAdd(userId, new Participant(userId, displayName, DateTimeOffset.UtcNow));
-
-        return Task.FromResult(BuildSnapshot(entry.Session));
-    }
-
-    public async Task LeaveAsync(Guid requestId, Guid userId, CancellationToken ct)
-    {
-        if (!_sessions.TryGetValue(requestId, out var entry)) return;
-        entry.Session.Participants.Remove(userId, out _);
-
-        if (entry.Session.Participants.Count == 0)
-        {
-            // Schedule teardown after grace period (tolerates page refresh)
-            var cts = new CancellationTokenSource(TeardownGrace);
-            entry.TeardownCts = cts;
-            _ = Task.Delay(TeardownGrace, cts.Token).ContinueWith(_ =>
+            case "vips":
             {
-                if (entry.Session.Participants.Count == 0)
-                    _sessions.TryRemove(requestId, out _);
-            }, TaskScheduler.Default);
+                var zipPath = Path.Combine(Path.GetTempPath(), "vips.zip");
+                string url;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    url = "https://github.com/libvips/libvips/releases/download/v8.15.2/vips-dev-w64-web-8.15.2.zip";
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    throw new PlatformNotSupportedException("On macOS, install vips via: brew install vips");
+                }
+                else
+                {
+                    throw new PlatformNotSupportedException("Unsupported platform");
+                }
+                await DownloadFileAsync(url, zipPath, progress, ct);
+                ZipFile.ExtractToDirectory(zipPath, storageDir, overwriteFiles: true);
+                // vips zip contains versioned subdirectory; move contents up
+                var vipsDir = Directory.GetDirectories(storageDir, "vips-dev-*").FirstOrDefault();
+                if (vipsDir is not null)
+                {
+                    foreach (var f in Directory.GetFiles(vipsDir))
+                        File.Move(f, Path.Combine(storageDir, Path.GetFileName(f)), overwrite: true);
+                    foreach (var d in Directory.GetDirectories(vipsDir))
+                        Directory.Move(d, Path.Combine(storageDir, Path.GetFileName(d)));
+                    Directory.Delete(vipsDir);
+                }
+                File.Delete(zipPath);
+                break;
+            }
+            default:
+                throw new ArgumentException($"Unknown tool: {toolName}");
         }
-
-        await Task.CompletedTask;
     }
 
-    public async Task SyncAsync(Guid requestId, Guid userId, SyncPayload payload, CancellationToken ct)
+    private static async Task DownloadFileAsync(string url, string destPath, IProgress<double> progress, CancellationToken ct)
     {
-        if (!_sessions.TryGetValue(requestId, out var entry)) return;
-
-        if (payload.DocumentId.HasValue && entry.Session.ActiveDocumentId != payload.DocumentId)
+        using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
+        response.EnsureSuccessStatusCode();
+        var totalBytes = response.Content.Headers.ContentLength ?? -1;
+        await using var contentStream = await response.Content.ReadAsStreamAsync(ct);
+        await using var fileStream = File.Create(destPath);
+        var buffer = new byte[8192];
+        long bytesRead = 0;
+        int read;
+        while ((read = await contentStream.ReadAsync(buffer, ct)) > 0)
         {
-            entry.Session.ActiveDocumentId = payload.DocumentId;
+            await fileStream.WriteAsync(buffer.AsMemory(0, read), ct);
+            bytesRead += read;
+            if (totalBytes > 0)
+                progress.Report((double)bytesRead / totalBytes);
         }
-        if (payload.Viewport is not null)
-        {
-            entry.Session.CurrentViewport = payload.Viewport with { };
-        }
-
-        // Broadcast to other participants only
-        var displayName = entry.Session.Participants.TryGetValue(userId, out var p)
-            ? p.DisplayName : "Unknown";
-        var evt = new CaseRoomSyncEvent(requestId, userId, displayName, payload, DateTimeOffset.UtcNow);
-
-        // Broadcast through BOTH channels — each only reaches clients connected through it
-        foreach (var participantId in entry.Session.Participants.Keys)
-        {
-            if (participantId == userId) continue;
-            await sseManager.SendToUserAsync(participantId, "caseroom-sync", evt);
-        }
-        eventBus.PublishCaseRoomSync(evt);
-
-        logger.LogDebug("CaseRoom {RequestId} sync from {UserId}: {Kind}",
-            requestId, userId, payload.DocumentId.HasValue ? "document" : "viewport");
-    }
-
-    public Task<CaseRoomStatus?> GetStatusAsync(Guid requestId, CancellationToken ct)
-    {
-        if (!_sessions.TryGetValue(requestId, out var entry) || entry.Session.Participants.Count == 0)
-            return Task.FromResult<CaseRoomStatus?>(null);
-
-        return Task.FromResult<CaseRoomStatus?>(new CaseRoomStatus(
-            IsActive: true,
-            ParticipantCount: entry.Session.Participants.Count,
-            ParticipantNames: entry.Session.Participants.Values.Select(p => p.DisplayName).ToArray()
-        ));
-    }
-
-    private static CaseRoomSnapshot BuildSnapshot(CaseRoomSessionData session) => new(
-        session.RequestId,
-        session.ActiveDocumentId,
-        session.CurrentViewport,
-        session.Participants.Values.ToArray()
-    );
-
-    private sealed class SessionEntry
-    {
-        public required CaseRoomSessionData Session { get; init; }
-        public CancellationTokenSource? TeardownCts { get; set; }
-    }
-
-    private sealed class CaseRoomSessionData
-    {
-        public Guid RequestId { get; init; }
-        public Guid? ActiveDocumentId { get; set; }
-        public ViewportState? CurrentViewport { get; set; }
-        public DateTimeOffset CreatedAt { get; init; }
-        public Guid CreatedBy { get; init; }
-        public ConcurrentDictionary<Guid, Participant> Participants { get; } = new();
     }
 }
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [ ] **Step 2: Verify build**
+  Run: `dotnet build src/VsiConverter/VsiConverter.UI/VsiConverter.UI.csproj`
+  Expected: Build succeeds with 0 warnings, 0 errors
 
-Run: `dotnet test test/iPath.Test.xUnit2/iPath.Test.xUnit2.csproj --filter "FullyQualifiedName~CaseRoomSessionStoreTests"`
-Expected: PASS (7 tests).
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add src/infrastructure/iPath.API/Services/CaseRoom/ test/iPath.Test.xUnit2/CaseRoom/CaseRoomSessionStoreTests.cs
-git commit -m "feat(caseroom): implement in-memory CaseRoomSessionStore with SSE+EventBus broadcast"
-```
-
+- [ ] **Step 3: Commit**
+  ```bash
+  git add src/VsiConverter/
+  git commit -m "feat: add ToolchainManager for detecting and downloading tools"
+  ```

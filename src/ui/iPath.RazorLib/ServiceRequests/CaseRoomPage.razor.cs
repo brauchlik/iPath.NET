@@ -41,6 +41,8 @@ public partial class CaseRoomPage
     private bool _isApplyingRemote;
     private bool _initialized;
     private bool _isGuest;
+    private bool _isController;
+    private Guid? _controllerSessionId;
 
     internal ViewportState? CurrentViewport { get; set; }
     internal bool SseConnected { get; set; } = true;
@@ -54,14 +56,14 @@ public partial class CaseRoomPage
             _initialized = true;
             _isGuest = !AppState.IsAuthenticated;
 
-            await vm.LoadNode(RequestId);
+            await vm.LoadNode(RequestId, loadGroup: false);
 
             _module = await JS.InvokeAsync<IJSObjectReference>(
                 "import", "./_content/iPath.Blazor.Componenents/js/ipath-caseroom.js");
 
             _dotNetRef = DotNetObjectReference.Create(this);
 
-            CaseRoomSnapshot snapshot;
+            CaseRoomSnapshot? snapshot = null;
             try
             {
                 snapshot = await SyncService.JoinAsync(RequestId, _sessionId, token);
@@ -74,15 +76,22 @@ public partial class CaseRoomPage
                 return;
             }
 
+            if (snapshot is null)
+            {
+                Logger.LogWarning("JoinCaseRoom returned null snapshot");
+                Snackbar.Add("Could not join presentation.", Severity.Error);
+                NavigationManager.NavigateTo($"/Account/Login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}", forceLoad: true);
+                return;
+            }
+
             Participants = snapshot.Participants.ToList();
+            _controllerSessionId = snapshot.ControllingSessionId;
+            _isController = _controllerSessionId == _sessionId;
             StateHasChanged();
 
             _syncSub = SyncReceiver.Subscribe(RequestId, OnSyncReceived);
 
-            if (!_isGuest)
-            {
-                Sse.ConnectionError += OnSseError;
-            }
+            Sse.ConnectionError += OnSseError;
 
             if (snapshot.Viewport is not null)
                 CurrentViewport = snapshot.Viewport;
@@ -101,6 +110,9 @@ public partial class CaseRoomPage
             {
                 await _module.InvokeVoidAsync("initOsd", "osd-caseroom", null, _dotNetRef, snapshot.Viewport);
             }
+
+            if (_module is not null)
+                await _module.InvokeVoidAsync("setMouseNavEnabled", _isController);
 
             _pingCts = new CancellationTokenSource();
             _ = StartHeartbeatAsync(_pingCts.Token);
@@ -124,7 +136,7 @@ public partial class CaseRoomPage
     [JSInvokable]
     public async Task OnViewportChanged(double x, double y, double zoom)
     {
-        if (_isApplyingRemote || _isGuest) return;
+        if (_isApplyingRemote) return;
         CurrentViewport = new ViewportState(x, y, zoom);
         Logger.LogInformation("Viewport changed: X={X:F4}, Y={Y:F4}, Zoom={Zoom:F4}", x, y, zoom);
         await SyncService.SyncAsync(RequestId, new SyncPayload(null, CurrentViewport, SessionId: _sessionId));
@@ -135,7 +147,7 @@ public partial class CaseRoomPage
     {
         _ = InvokeAsync(async () =>
         {
-            if (evt.Payload.SessionId == _sessionId) return;
+            if (evt.Payload.Action != "ControllerChanged" && evt.Payload.SessionId == _sessionId) return;
 
             if (evt.Payload.Action == "HostLeft" && _isGuest)
             {
@@ -147,11 +159,21 @@ public partial class CaseRoomPage
 
             _isApplyingRemote = true;
 
-            if (evt.Payload.Action == "Join" || evt.Payload.Action == "Leave" || evt.Payload.Action == "HostLeft")
+            if (evt.Payload.Action == "Join" || evt.Payload.Action == "Leave" || evt.Payload.Action == "HostLeft" || evt.Payload.Action == "ControllerChanged")
             {
                 if (evt.Payload.Participants is not null)
                 {
                     Participants = evt.Payload.Participants.ToList();
+                }
+
+                if (evt.Payload.ControllingSessionId != _controllerSessionId || evt.Payload.Action == "ControllerChanged")
+                {
+                    _controllerSessionId = evt.Payload.ControllingSessionId;
+                    _isController = _controllerSessionId == _sessionId;
+                    if (_module is not null)
+                        await _module.InvokeVoidAsync("setMouseNavEnabled", _isController);
+                    Logger.LogInformation("Control state changed: IsController={IsController}, ControllerSessionId={ControllerId}",
+                        _isController, _controllerSessionId);
                 }
             }
 
@@ -212,6 +234,16 @@ public partial class CaseRoomPage
             await _module.InvokeVoidAsync("openTileSource", GetTileSourceUrl(vm.SelectedDocument));
     }
 
+    private async Task TakeControl()
+    {
+        await SyncService.SyncAsync(RequestId, new SyncPayload(null, null, _sessionId, "TakeControl"));
+    }
+
+    private async Task ReleaseControl()
+    {
+        await SyncService.SyncAsync(RequestId, new SyncPayload(null, null, _sessionId, "ReleaseControl"));
+    }
+
     private async Task ExitRoom()
     {
         vm.SelectDocument(null);
@@ -255,10 +287,7 @@ public partial class CaseRoomPage
 
     protected override async ValueTask OnDisposedAsync()
     {
-        if (!_isGuest)
-        {
-            Sse.ConnectionError -= OnSseError;
-        }
+        Sse.ConnectionError -= OnSseError;
         _syncSub?.Dispose();
         _pingCts?.Cancel();
         _pingCts?.Dispose();

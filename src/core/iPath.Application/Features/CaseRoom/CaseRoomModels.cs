@@ -12,13 +12,15 @@ public record SyncPayload(
     ViewportState? Viewport,
     Guid? SessionId = null,
     string? Action = null,
-    Participant[]? Participants = null);
+    Participant[]? Participants = null,
+    Guid? ControllingSessionId = null);
 
 public record CaseRoomSnapshot(
     Guid RequestId,
     Guid? ActiveDocumentId,
     ViewportState? Viewport,
-    Participant[] Participants);
+    Participant[] Participants,
+    Guid? ControllingSessionId = null);
 
 public record CaseRoomStatus(bool IsActive, int ParticipantCount, string[] ParticipantNames);
 

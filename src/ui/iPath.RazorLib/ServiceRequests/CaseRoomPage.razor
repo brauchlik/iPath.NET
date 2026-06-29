@@ -14,27 +14,51 @@
 
     <div class="d-flex flex-column align-center justify-center py-1">
         <div class="d-flex justify-center gap-4 align-center">
-            @if (!_isGuest)
-            {
-                <div class="d-flex align-center gap-2">
-                    <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleLeft" Size="Size.Large" OnClick="GotoPrevious" />
-                    <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleRight" Size="Size.Large" OnClick="GotoNext" />
+            <div class="d-flex align-center gap-2">
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleLeft" Size="Size.Large" OnClick="GotoPrevious" />
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleRight" Size="Size.Large" OnClick="GotoNext" />
+                @if (!_isGuest)
+                {
                     <MudIconButton Icon="@Icons.Material.Filled.Share" Size="Size.Large" OnClick="ShareRoom" Title="Copy Share Link" />
-                </div>
-            }
+                }
+            </div>
 
             <div class="d-flex align-center gap-2">
+                @{
+                    var controller = Participants.FirstOrDefault(p => p.SessionId == _controllerSessionId);
+                    if (_isController)
+                    {
+                        <MudChip T="string" Color="Color.Primary" Size="Size.Small" Variant="Variant.Filled">
+                            You are controlling
+                        </MudChip>
+                        <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="ReleaseControl" Color="Color.Secondary" Style="color: white; border-color: rgba(255,255,255,0.5);">
+                            Release
+                        </MudButton>
+                    }
+                    else if (controller is not null)
+                    {
+                        <MudChip T="string" Color="Color.Warning" Size="Size.Small" Variant="Variant.Filled">
+                            @controller.DisplayName controls
+                        </MudChip>
+                        <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="TakeControl" Color="Color.Primary" Style="color: white; border-color: rgba(255,255,255,0.5);">
+                            Take Control
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="TakeControl" Color="Color.Primary" Style="color: white; border-color: rgba(255,255,255,0.5);">
+                            Take Control
+                        </MudButton>
+                    }
+                }
                 <MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Filled">
                     @Participants.Count viewing
                 </MudChip>
-                @if (!_isGuest)
-                {
-                    <div title="@(SseConnected ? "SSE connected" : "SSE disconnected")"
-                         style="display: flex; align-items: center; gap: 2px; font-size: 10px; font-family: monospace; color: rgba(255,255,255,0.5);">
-                        <span style="color: @(SseConnected ? "lime" : "red")">@(SseConnected ? "\u25cf" : "\u25cb")</span>
-                        sse
-                    </div>
-                }
+                <div title="@(SseConnected ? "SSE connected" : "SSE disconnected")"
+                     style="display: flex; align-items: center; gap: 2px; font-size: 10px; font-family: monospace; color: rgba(255,255,255,0.5);">
+                    <span style="color: @(SseConnected ? "lime" : "red")">@(SseConnected ? "\u25cf" : "\u25cb")</span>
+                    sse
+                </div>
                 <MudIconButton Icon="@Icons.Material.Filled.CloseFullscreen" Size="Size.Large" OnClick="@ExitRoom" />
             </div>
         </div>

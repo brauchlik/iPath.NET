@@ -31,7 +31,7 @@ export function initOsd(divId, tileSourceUrl, dotNetReference, initialViewport) 
             viewer.viewport.panTo({ x: initialViewport.x, y: initialViewport.y }, true);
             viewer.viewport.zoomTo(initialViewport.zoom, null, true);
         }
-        setTimeout(() => { isApplyingRemote = false; }, 200);
+        requestAnimationFrame(() => { isApplyingRemote = false; });
     });
 
     viewer.addHandler('open-failed', (event) => {
@@ -55,15 +55,18 @@ export function openTileSource(url) {
             viewer.open({ type: 'image', url: url, buildPyramid: false });
         }
     }
+    requestAnimationFrame(() => { isApplyingRemote = false; });
 }
 
 export function setViewport(x, y, zoom) {
     if (!viewer) return;
+    if (throttleTimer) { clearTimeout(throttleTimer); throttleTimer = null; }
     console.debug('[CaseRoom] applying remote viewport: x=%.4f, y=%.4f, zoom=%.4f', x, y, zoom);
     isApplyingRemote = true;
+    viewer.addOnceHandler('animation-finish', () => { isApplyingRemote = false; });
+    setTimeout(() => { isApplyingRemote = false; }, 500);
     viewer.viewport.panTo({ x: x, y: y }, false);
     viewer.viewport.zoomTo(zoom, null, false);
-    setTimeout(() => { isApplyingRemote = false; }, 50);
 }
 
 export function getViewport() {
@@ -78,6 +81,11 @@ export function dispose() {
     if (viewer) { viewer.destroy(); viewer = null; }
     dotNetRef = null;
     isApplyingRemote = false;
+}
+
+export function setMouseNavEnabled(enabled) {
+    if (!viewer) return;
+    viewer.setMouseNavEnabled(enabled);
 }
 
 function onViewportChange() {

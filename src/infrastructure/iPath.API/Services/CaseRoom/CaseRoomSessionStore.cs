@@ -55,11 +55,16 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
             var sessions = entry.Session.UserSessions.GetOrAdd(userId, _ => new HashSet<Guid>());
             lock (sessions) { sessions.Add(sessionId); }
 
+            if (!entry.Session.ControllingSessionId.HasValue)
+            {
+                entry.Session.ControllingSessionId = sessionId;
+            }
+
             snapshot = BuildSnapshot(entry.Session);
 
             userIds = entry.Session.UserSessions.Keys.ToArray();
             var updatedParticipants = entry.Session.Participants.Values.ToArray();
-            var joinPayload = new SyncPayload(null, null, sessionId, "Join", updatedParticipants);
+            var joinPayload = new SyncPayload(null, null, sessionId, "Join", updatedParticipants, entry.Session.ControllingSessionId);
             joinEvt = new CaseRoomSyncEvent(requestId, userId, displayName, joinPayload, DateTimeOffset.UtcNow);
         }
 
@@ -115,8 +120,9 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                         }
                     }
                     entry.Session.ShareTokens.Clear();
+                    entry.Session.ControllingSessionId = null;
 
-                    var kickPayload = new SyncPayload(null, null, sessionId, "HostLeft", entry.Session.Participants.Values.ToArray());
+                    var kickPayload = new SyncPayload(null, null, null, "HostLeft", entry.Session.Participants.Values.ToArray(), null);
                     leaveEvt = new CaseRoomSyncEvent(requestId, Guid.Empty, "System", kickPayload, DateTimeOffset.UtcNow);
                     scheduleTeardown = true;
                     cts = new CancellationTokenSource(TeardownGrace);
@@ -124,16 +130,20 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                 }
                 else
                 {
+                    if (entry.Session.ControllingSessionId == sessionId)
+                        entry.Session.ControllingSessionId = null;
+
                     var updatedParticipants = entry.Session.Participants.Values.ToArray();
                     userIds = entry.Session.UserSessions.Keys.ToArray();
 
                     if (userIds.Length > 0)
                     {
-                        var leavePayload = new SyncPayload(null, null, sessionId, "Leave", updatedParticipants);
+                        var leavePayload = new SyncPayload(null, null, sessionId, "Leave", updatedParticipants, entry.Session.ControllingSessionId);
                         leaveEvt = new CaseRoomSyncEvent(requestId, uid, removedParticipant.DisplayName, leavePayload, DateTimeOffset.UtcNow);
                     }
                     else
                     {
+                        entry.Session.ControllingSessionId = null;
                         scheduleTeardown = true;
                         cts = new CancellationTokenSource(TeardownGrace);
                         entry.TeardownCts = cts;
@@ -178,6 +188,8 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         if (!_sessions.TryGetValue(requestId, out var entry)) return;
 
         string displayName = "Unknown";
+        SyncPayload broadcastPayload;
+
         lock (entry)
         {
             if (entry.Session.Participants.TryGetValue(sessionId, out var p))
@@ -187,17 +199,36 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                 displayName = updatedParticipant.DisplayName;
             }
 
-            if (payload.DocumentId.HasValue && entry.Session.ActiveDocumentId != payload.DocumentId)
+            if (payload.Action == "TakeControl")
             {
-                entry.Session.ActiveDocumentId = payload.DocumentId;
+                entry.Session.ControllingSessionId = sessionId;
+                broadcastPayload = new SyncPayload(null, null, sessionId, "ControllerChanged", null, sessionId);
             }
-            if (payload.Viewport is not null)
+            else if (payload.Action == "ReleaseControl" && entry.Session.ControllingSessionId == sessionId)
             {
-                entry.Session.CurrentViewport = payload.Viewport with { };
+                entry.Session.ControllingSessionId = null;
+                broadcastPayload = new SyncPayload(null, null, sessionId, "ControllerChanged", null, null);
+            }
+            else
+            {
+                if (payload.Viewport is not null)
+                {
+                    if (entry.Session.ControllingSessionId.HasValue && entry.Session.ControllingSessionId != sessionId)
+                        return; // non-controller viewport change — ignore
+
+                    entry.Session.CurrentViewport = payload.Viewport with { };
+                }
+
+                if (payload.DocumentId.HasValue && entry.Session.ActiveDocumentId != payload.DocumentId)
+                {
+                    entry.Session.ActiveDocumentId = payload.DocumentId;
+                }
+
+                broadcastPayload = payload;
             }
         }
 
-        var evt = new CaseRoomSyncEvent(requestId, userId, displayName, payload, DateTimeOffset.UtcNow);
+        var evt = new CaseRoomSyncEvent(requestId, userId, displayName, broadcastPayload, DateTimeOffset.UtcNow);
 
         Guid[] userIds;
         lock (entry)
@@ -221,6 +252,12 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         {
             _logger.LogInformation("CaseRoom {RequestId} document update: Session {SessionId} (user {UserId}) -> Document={DocumentId}",
                 requestId, sessionId, userId, payload.DocumentId.Value);
+        }
+
+        if (payload.Action == "TakeControl" || payload.Action == "ReleaseControl")
+        {
+            _logger.LogInformation("CaseRoom {RequestId} control change: Session {SessionId} (user {UserId}) -> {Action}",
+                requestId, sessionId, userId, payload.Action);
         }
     }
 
@@ -271,13 +308,9 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
             return Task.FromResult(false);
         }
 
-        // Token is valid as long as there is at least one authenticated host
-        var hasHost = entry.Session.Participants.Values.Any(p => !p.IsGuest);
-        if (!hasHost)
-        {
-            _logger.LogWarning("IsShareTokenValidAsync failed: Token '{Token}' is valid, but no active host (presenter) was found in the room. Participants count: {Count}", token, entry.Session.Participants.Count);
-        }
-        return Task.FromResult(hasHost);
+        // Token is valid as long as it exists in the session store.
+        // Host-left cleanup already clears all tokens and kicks guests.
+        return Task.FromResult(true);
     }
 
     private async Task StartCleanupLoopAsync(CancellationToken ct)
@@ -342,16 +375,21 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                                     }
                                 }
                                 entry.Session.ShareTokens.Clear();
+                                entry.Session.ControllingSessionId = null;
 
-                                var kickPayload = new SyncPayload(null, null, default, "HostLeft", entry.Session.Participants.Values.ToArray());
+                                var kickPayload = new SyncPayload(null, null, null, "HostLeft", entry.Session.Participants.Values.ToArray(), null);
                                 leaveEvt = new CaseRoomSyncEvent(requestId, Guid.Empty, "System", kickPayload, DateTimeOffset.UtcNow);
                             }
                             else
                             {
+                                // Clear controller if any timed-out session was the controller
+                                if (toRemove.Any(sid => entry.Session.ControllingSessionId == sid))
+                                    entry.Session.ControllingSessionId = null;
+
                                 var updatedParticipants = entry.Session.Participants.Values.ToArray();
                                 remainingIds = entry.Session.UserSessions.Keys.ToArray();
 
-                                var leavePayload = new SyncPayload(null, null, default, "Leave", updatedParticipants);
+                                var leavePayload = new SyncPayload(null, null, null, "Leave", updatedParticipants, entry.Session.ControllingSessionId);
                                 leaveEvt = new CaseRoomSyncEvent(requestId, Guid.Empty, "System", leavePayload, DateTimeOffset.UtcNow);
                             }
                         }
@@ -390,7 +428,8 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         session.RequestId,
         session.ActiveDocumentId,
         session.CurrentViewport,
-        session.Participants.Values.ToArray()
+        session.Participants.Values.ToArray(),
+        session.ControllingSessionId
     );
 
     public void Dispose()
@@ -411,6 +450,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         public Guid RequestId { get; init; }
         public Guid? ActiveDocumentId { get; set; }
         public ViewportState? CurrentViewport { get; set; }
+        public Guid? ControllingSessionId { get; set; }
         public DateTimeOffset CreatedAt { get; init; }
         public Guid CreatedBy { get; init; }
         public ConcurrentDictionary<Guid, Participant> Participants { get; } = new();

@@ -8732,6 +8732,13 @@
             "items": {
               "$ref": "#/components/schemas/Participant"
             }
+          },
+          "controllingSessionId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },

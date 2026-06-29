@@ -169,6 +169,7 @@ public partial class CaseRoomPage
 
     private async Task ExitRoom()
     {
+        vm.SelectDocument(null);
         await vm.GoUpRequestPage();
     }
 

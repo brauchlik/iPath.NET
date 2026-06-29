@@ -30,26 +30,28 @@ public static class ToolchainManager
 
     public static async Task<ToolchainStatus> DetectAllAsync()
     {
+        var settings = SettingsStore.Load();
         var status = new ToolchainStatus();
 
-        var javaResult = await RunDetectionAsync("java", "-version");
+        var javaPath = settings.JavaPath ?? "java";
+        var javaResult = await RunDetectionAsync(javaPath, "-version");
         status.JavaFound = javaResult.Found;
         status.JavaVersion = javaResult.Version;
 
-        var bfconvertPath = FindTool("bfconvert");
+        var bfconvertPath = settings.BfconvertPath ?? FindTool("bfconvert");
         if (bfconvertPath is not null)
         {
             var bfResult = await RunDetectionAsync(bfconvertPath, "-version");
             status.BfconvertFound = bfResult.Found;
-            status.BfconvertPath = bfconvertPath;
+            status.BfconvertPath = bfResult.Found ? bfconvertPath : null;
         }
 
-        var vipsPath = FindTool("vips");
+        var vipsPath = settings.VipsPath ?? FindTool("vips");
         if (vipsPath is not null)
         {
             var vipsResult = await RunDetectionAsync(vipsPath, "--version");
             status.VipsFound = vipsResult.Found;
-            status.VipsPath = vipsPath;
+            status.VipsPath = vipsResult.Found ? vipsPath : null;
         }
 
         return status;

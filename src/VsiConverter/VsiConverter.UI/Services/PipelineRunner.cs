@@ -14,8 +14,9 @@ public class PipelineRunner
 
     public PipelineRunner()
     {
-        _bfconvertPath = ToolchainManager.FindTool("bfconvert") ?? "bfconvert";
-        _vipsPath = ToolchainManager.FindTool("vips") ?? "vips";
+        var settings = SettingsStore.Load();
+        _bfconvertPath = settings.BfconvertPath ?? ToolchainManager.FindTool("bfconvert") ?? "bfconvert";
+        _vipsPath = settings.VipsPath ?? ToolchainManager.FindTool("vips") ?? "vips";
     }
 
     public async Task<ConversionResult> RunAsync(

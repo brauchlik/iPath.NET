@@ -13,7 +13,8 @@ public static partial class SeriesDetector
     {
         var results = new List<AvailableSeries>();
 
-        var bfconvertPath = ToolchainManager.FindTool("bfconvert");
+        var settings = SettingsStore.Load();
+        var bfconvertPath = settings.BfconvertPath ?? ToolchainManager.FindTool("bfconvert");
         if (bfconvertPath is null)
             return results;
 

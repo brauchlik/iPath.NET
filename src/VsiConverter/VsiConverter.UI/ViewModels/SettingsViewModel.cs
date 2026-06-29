@@ -71,6 +71,19 @@ public class SettingsViewModel : INotifyPropertyChanged
         }
     }
 
+    public async Task SetToolPathAsync(string toolName, string path)
+    {
+        var settings = SettingsStore.Load();
+        switch (toolName)
+        {
+            case "java": settings.JavaPath = path; break;
+            case "bfconvert": settings.BfconvertPath = path; break;
+            case "vips": settings.VipsPath = path; break;
+        }
+        SettingsStore.Save(settings);
+        await CheckToolsAsync();
+    }
+
     public async Task DownloadToolAsync(string toolName)
     {
         StatusText = $"Downloading {toolName}...";

@@ -18,11 +18,26 @@
     <TextBlock Text="Toolchain" FontWeight="Bold" Margin="0,8,0,0" />
     
     <Border BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4" Padding="8">
-      <StackPanel Spacing="4">
+      <StackPanel Spacing="6">
         <TextBlock Text="{Binding StatusText}" Foreground="Gray" />
-        <TextBlock>Java: <Run Text="{Binding JavaVersion}" /></TextBlock>
-        <TextBlock>bfconvert: <Run Text="{Binding BfconvertPath}" /></TextBlock>
-        <TextBlock>vips: <Run Text="{Binding VipsPath}" /></TextBlock>
+
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <TextBlock Text="Java:" Width="75" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="{Binding JavaVersion}" VerticalAlignment="Center" />
+          <Button Grid.Column="2" x:Name="BtnBrowseJava" Content="Browse" Width="70" />
+        </Grid>
+
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <TextBlock Text="bfconvert:" Width="75" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="{Binding BfconvertPath}" VerticalAlignment="Center" />
+          <Button Grid.Column="2" x:Name="BtnBrowseBfconvert" Content="Browse" Width="70" />
+        </Grid>
+
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <TextBlock Text="vips:" Width="75" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="{Binding VipsPath}" VerticalAlignment="Center" />
+          <Button Grid.Column="2" x:Name="BtnBrowseVips" Content="Browse" Width="70" />
+        </Grid>
       </StackPanel>
     </Border>
 

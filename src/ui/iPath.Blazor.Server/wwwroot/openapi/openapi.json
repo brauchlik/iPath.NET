@@ -1992,6 +1992,46 @@
         }
       }
     },
+    "/api/v1/requests/adjacent": {
+      "post": {
+        "tags": [
+          "Service Requests"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetAdjacentServiceRequestIdQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": [
+                        "null",
+                        "string"
+                      ],
+                      "format": "uuid"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/requests/updates": {
       "get": {
         "tags": [
@@ -5568,6 +5608,31 @@
           }
         }
       },
+      "GetAdjacentServiceRequestIdQuery": {
+        "required": [
+          "currentId",
+          "direction",
+          "query"
+        ],
+        "type": "object",
+        "properties": {
+          "currentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "direction": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "query": {
+            "$ref": "#/components/schemas/GetServiceRequestsQueryBase"
+          }
+        }
+      },
       "GetCommunityListQuery": {
         "type": "object",
         "properties": {
@@ -5971,6 +6036,71 @@
           "includeDetails": {
             "type": "boolean"
           },
+          "groupId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "communityId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "requestFilter": {
+            "$ref": "#/components/schemas/eRequestFilter"
+          },
+          "searchString": {
+            "type": "string"
+          },
+          "sorting": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "filter": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 0
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 10
+          }
+        }
+      },
+      "GetServiceRequestsQueryBase": {
+        "required": [
+          "requestFilter"
+        ],
+        "type": "object",
+        "properties": {
           "groupId": {
             "type": [
               "null",

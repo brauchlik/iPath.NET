@@ -24,6 +24,7 @@ public class GetServiceRequestByIdQueryHandler(
             .Include(n => n.Annotations.Where(d => request.inclDeletedData || !d.DeletedOn.HasValue))
                 .ThenInclude(a => a.Owner)
             .Include(n => n.UploadFolders)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(n => n.Id == request.Id, cancellationToken);
 
         Guard.Against.NotFound(request.Id, node);

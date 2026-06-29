@@ -232,15 +232,7 @@ public class ServiceRequestViewModel(IPathApi api,
 
 
     #region "-- Navigation --"
-    public GetServiceRequestListQuery LastQuery
-    {
-        get;
-        set
-        {
-            field = value;
-            IdList = null;
-        }
-    }
+    public GetServiceRequestListQuery LastQuery { get; set; }
 
     public string NavUrl
     {
@@ -260,25 +252,6 @@ public class ServiceRequestViewModel(IPathApi api,
             }
             return "groups";
         }
-    }
-    public List<Guid>? IdList { get; set; } = null;
-
-    public async ValueTask<bool> LoadIdList()
-    {
-        if (IdList is null && LastQuery is not null)
-        {
-            var cmd = GetServiceRequestIdListQuery.From(LastQuery);
-            var resp = await api.GetRequestIdList(cmd);
-            if (resp.IsSuccessful)
-            {
-                IdList = resp.Content.ToList();
-            }
-            else
-            {
-                IdList = new List<Guid>();
-            }
-        }
-        return !IdList.IsEmpty();
     }
 
 
@@ -324,15 +297,14 @@ public class ServiceRequestViewModel(IPathApi api,
 
         if (IsRootNodeSelected)
         {
-            if (await LoadIdList())
+            if (LastQuery is not null)
             {
-                var idx = IdList.IndexOf(SelectedRequest.Id);
-                if (idx < IdList.Count() - 1)
+                var cmd = new GetAdjacentServiceRequestIdQuery(SelectedRequest.Id, 1, LastQuery);
+                var resp = await api.GetAdjacentRequestId(cmd);
+                if (resp.IsSuccessful && resp.Content.HasValue)
                 {
-                    // there is one more in list => select
-                    var nextId = IdList[idx + 1];
                     ClearData();
-                    nm.NavigateTo($"request/{nextId}");
+                    nm.NavigateTo($"request/{resp.Content.Value}");
                     return;
                 }
             }
@@ -363,16 +335,14 @@ public class ServiceRequestViewModel(IPathApi api,
 
         if (IsRootNodeSelected)
         {
-            // next in list => to be done
-            if (await LoadIdList())
+            if (LastQuery is not null)
             {
-                var idx = IdList.IndexOf(SelectedRequest.Id);
-                if (idx > 0)
+                var cmd = new GetAdjacentServiceRequestIdQuery(SelectedRequest.Id, -1, LastQuery);
+                var resp = await api.GetAdjacentRequestId(cmd);
+                if (resp.IsSuccessful && resp.Content.HasValue)
                 {
-                    // there is one more in list => select
-                    var prevId = IdList[idx - 1];
                     ClearData();
-                    nm.NavigateTo($"request/{prevId}");
+                    nm.NavigateTo($"request/{resp.Content.Value}");
                     return;
                 }
             }

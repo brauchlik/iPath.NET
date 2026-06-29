@@ -173,6 +173,9 @@ public interface IPathApi
     [Post("/api/v1/requests/idlist")]
     Task<IApiResponse<IReadOnlyList<Guid>>> GetRequestIdList(GetServiceRequestIdListQuery query);
 
+    [Post("/api/v1/requests/adjacent")]
+    Task<IApiResponse<Guid?>> GetAdjacentRequestId(GetAdjacentServiceRequestIdQuery query);
+
     [Post("/api/v1/requests/create")]
     Task<IApiResponse<ServiceRequestDto>> CreateRequest(CreateServiceRequestCommand query);
 

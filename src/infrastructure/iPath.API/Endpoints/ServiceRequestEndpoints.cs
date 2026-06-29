@@ -31,6 +31,11 @@ public static class ServiceRequestEndpoints
             .Produces<IReadOnlyList<Guid>>()
             .RequireAuthorization();
 
+        grp.MapPost("adjacent", async (GetAdjacentServiceRequestIdQuery request, [FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(request, ct))
+            .Produces<Guid?>()
+            .RequireAuthorization();
+
 
         grp.MapGet("updates", async ([FromServices] IMediator mediator, CancellationToken ct)
             => await mediator.Send(new GetServiceRequestUpdatesQuery(), ct))

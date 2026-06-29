@@ -307,6 +307,11 @@ public class DirectApiClient(
         return Respond(await mediator.Send(query, default));
     }
 
+    public async Task<IApiResponse<Guid?>> GetAdjacentRequestId(GetAdjacentServiceRequestIdQuery query)
+    {
+        return Respond(await mediator.Send(query, default));
+    }
+
     public async Task<IApiResponse<ServiceRequestDto>> CreateRequest(CreateServiceRequestCommand query)
     {
         return Respond(await mediator.Send(query, default));

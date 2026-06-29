@@ -243,6 +243,12 @@ public class DirectApiClient(
         return RespondOk();
     }
 
+    public async Task<IApiResponse> DestroyGroup(Guid id)
+    {
+        await groupService.DestroyGroupAsync(new DestroyGroupCommand(id));
+        return RespondOk();
+    }
+
     public async Task<IApiResponse> DeleteGroupDrafts(Guid id)
     {
         await groupService.DeleteGroupDraftsAsync(id);

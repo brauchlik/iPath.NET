@@ -32,6 +32,9 @@ public class GroupService(iPathDbContext db, IUserSession sess, IMediator mediat
         Guard.Against.NotFound(GroupId, group);
 
         logger.LogInformation("Group '{group}' loaded by User '{user}'", group.Name, sess.Username);
+
+        group.Settings.AiSettings ??= new();
+
         return group;
     }
 
@@ -229,6 +232,83 @@ public class GroupService(iPathDbContext db, IUserSession sess, IMediator mediat
         await mediator.Publish(new GroupCacheClearedEvent(group.Id), ct);
     }
 
+
+    public async Task DestroyGroupAsync(DestroyGroupCommand cmd, CancellationToken ct = default)
+    {
+        sess.AssertInRole("Admin");
+        var groupId = cmd.Id;
+
+        Guard.Against.NotFound(groupId, await db.Groups.AnyAsync(g => g.Id == groupId, ct));
+
+        // Delete in FK-safe reverse order — SQLite ignores OnDelete(Cascade)
+
+        // 1. TaskAssignment — NoAction on ServiceRequest FK, must be explicit
+        await db.Set<TaskAssignment>()
+            .Where(ta => ta.ServiceRequest!.GroupId == groupId)
+            .ExecuteDeleteAsync(ct);
+
+        // 2. Dependent entities referencing ServiceRequest (reverse FK order)
+        await db.Annotations
+            .Where(a => a.ServiceRequest!.GroupId == groupId)
+            .ExecuteDeleteAsync(ct);
+
+        await db.Documents
+            .Where(d => d.ServiceRequest!.GroupId == groupId)
+            .ExecuteDeleteAsync(ct);
+
+        await db.Set<Notification>()
+            .Where(n => n.ServiceRequest!.GroupId == groupId)
+            .ExecuteDeleteAsync(ct);
+
+        await db.Set<ServiceRequestUploadFolder>()
+            .Where(f => f.ServiceRequest!.GroupId == groupId)
+            .ExecuteDeleteAsync(ct);
+
+        await db.Set<QuestionnaireResponseEntity>()
+            .Where(qr => qr.ServiceRequest!.GroupId == groupId)
+            .ExecuteDeleteAsync(ct);
+
+        await db.Set<ServiceRequestLastVisit>()
+            .Where(lv => db.ServiceRequests.IgnoreQueryFilters()
+                .Where(sr => sr.GroupId == groupId)
+                .Select(sr => sr.Id)
+                .Contains(lv.ServiceRequestId))
+            .ExecuteDeleteAsync(ct);
+
+        // 3. ServiceRequestImport — no FK constraint, just cleanup
+        await db.Set<ServiceRequestImport>()
+            .Where(sri => db.ServiceRequests.IgnoreQueryFilters()
+                .Where(sr => sr.GroupId == groupId)
+                .Select(sr => sr.Id)
+                .Contains(sri.ServiceRequestId))
+            .ExecuteDeleteAsync(ct);
+
+        // 4. ServiceRequests
+        await db.ServiceRequests
+            .IgnoreQueryFilters()
+            .Where(sr => sr.GroupId == groupId)
+            .ExecuteDeleteAsync(ct);
+
+        // 5. Group-level children
+        await db.Set<QuestionnaireForGroup>()
+            .Where(q => q.GroupId == groupId)
+            .ExecuteDeleteAsync(ct);
+
+        await db.Set<GroupMember>()
+            .Where(gm => gm.GroupId == groupId)
+            .ExecuteDeleteAsync(ct);
+
+        await db.Set<CommunityGroup>()
+            .Where(cg => cg.GroupId == groupId)
+            .ExecuteDeleteAsync(ct);
+
+        // 6. The group itself
+        await db.Groups
+            .Where(g => g.Id == groupId)
+            .ExecuteDeleteAsync(ct);
+
+        logger.LogInformation("Group {GroupId} permanently deleted by {User}", groupId, sess.Username);
+    }
 
     public async Task DeleteGroupDraftsAsync(Guid groupId, CancellationToken ct = default)
     {

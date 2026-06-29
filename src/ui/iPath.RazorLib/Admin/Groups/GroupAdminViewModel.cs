@@ -1,4 +1,4 @@
-﻿using iPath.Application.Contracts;
+using iPath.Application.Contracts;
 using iPath.Blazor.Componenents.Admin.Users;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -238,7 +238,7 @@ public class GroupAdminViewModel(IPathApi api,
     {
         var cmd = new UpdateGroupCommand
         {
-            Id = editModel.Id.Value,
+            Id = editModel.Id!.Value,
             Name = editModel.Name,
             OwnerId = editModel.Owner?.Id,
             CommunityId = editModel.Community?.Id,
@@ -256,12 +256,69 @@ public class GroupAdminViewModel(IPathApi api,
     }
 
 
-    public async Task Delete()
+
+
+
+    public async Task<bool> Delete(bool DeleteFomrDatabase = false)
     {
-        if (SelectedItem != null)
+        if (SelectedItem is null) return false;
+
+        var warning = DeleteFomrDatabase
+            ? T["Are you sure you want to permanently delete group {0} and ALL its data (service requests, documents, members, ...)? This cannot be undone!", SelectedItem.Name]
+            : T["Are you sure you want to deactivate group {0}?", SelectedItem.Name];
+
+        var res = await dialog.ShowMessageBoxAsync(
+            T["Warning"], warning,
+            yesText: T["Yes"], cancelText: T["Cancel"]);
+
+        if (res is null) return false;
+
+        return await Delete(SelectedGroup.Id, DeleteFomrDatabase);
+    }
+
+    public async Task<bool> Delete(GroupDto model, bool DeleteFomrDatabase = false)
+    {
+        if (model is null) return false;
+
+        var warning = DeleteFomrDatabase
+            ? T["Are you sure you want to permanently delete group {0} and ALL its data (service requests, documents, members, ...)? This cannot be undone!", model.Name]
+            : T["Are you sure you want to deactivate group {0}?", model.Name];
+
+        var res = await dialog.ShowMessageBoxAsync(
+            T["Warning"], warning,
+            yesText: T["Yes"], cancelText: T["Cancel"]);
+
+        if (res is null) return false;
+
+        return await Delete(model.Id, DeleteFomrDatabase);
+    }
+
+
+    private async Task<bool> Delete(Guid groupId, bool DeleteFomrDatabase = false)
+    { 
+        if (DeleteFomrDatabase)
         {
-            snackbar.AddWarning("not implemented yet");
+            var resp = await api.DestroyGroup(groupId);
+            if (!resp.IsSuccessful)
+            {
+                snackbar.AddError(resp.ErrorMessage);
+                return false;
+            }
         }
+        else
+        {
+            var resp = await api.DeleteGroup(groupId);
+            if (!resp.IsSuccessful)
+            {
+                snackbar.AddError(resp.ErrorMessage);
+                return false;
+            }
+        }
+
+        DeleteGroupListCache();
+        if (grid is not null) await grid.ReloadServerData();
+        if (table is not null) await table.ReloadServerData();
+        return true;
     }
 
 

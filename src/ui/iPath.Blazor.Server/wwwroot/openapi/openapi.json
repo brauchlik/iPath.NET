@@ -1843,6 +1843,29 @@
         }
       }
     },
+    "/api/v1/groups/{id}/destroy": {
+      "delete": {
+        "tags": [
+          "Groups"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/requests/{id}": {
       "get": {
         "tags": [
@@ -6631,9 +6654,6 @@
               "string"
             ],
             "format": "int32"
-          },
-          "aiSettings": {
-            "$ref": "#/components/schemas/AiConfig"
           }
         }
       },

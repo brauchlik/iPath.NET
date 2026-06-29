@@ -1,10 +1,10 @@
-﻿@namespace iPath.Blazor.Componenents.Groups
+@namespace iPath.Blazor.Componenents.Groups
 @inject IStringLocalizer T
 
 
 @inject GroupListViewModel vm
 
-<MudList T="ServiceRequestListDto">
+<MudList T="GroupListDto">
     @foreach (var d in data.Items)
     {
         <MudListItem Value="d" Class="px-2 py-0 ma-0" OnClick="@(() => vm.GotoGroup(d))">
@@ -20,17 +20,34 @@
     }
 </MudList>
 
+@if (TotalPages > 1)
+{
+    <MudStack Row Justify="Justify.Center" Class="my-4">
+        <MudPagination Count="@TotalPages" Selected="@CurrentPage" SelectedChanged="OnPageChanged" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" />
+    </MudStack>
+}
 
-    @code{
+
+@code {
     [Parameter, EditorRequired]
     public bool ShowLegend { get; set; }
 
     TableData<GroupListDto> data = new() { Items = [] };
+    
+    private const int PageSize = 25;
+    private int CurrentPage { get; set; } = 1;
+    private int TotalPages => (int)Math.Ceiling((double)data.TotalItems / PageSize);
 
     protected async Task LoadData()
     {
-        var state = new TableState { Page = 0, PageSize = 25 };
+        var state = new TableState { Page = CurrentPage - 1, PageSize = PageSize };
         data = await vm.GetTableAsync(state, default);
+    }
+
+    private async Task OnPageChanged(int newPage)
+    {
+        CurrentPage = newPage;
+        await LoadData();
     }
 
     protected override async Task OnInitializedAsync()

@@ -4,17 +4,18 @@
 @inject IStringLocalizer T
 @inject NavigationManager nm
 
-@if (EditModel != null)
+
+@if (Model is not null)
 {
     <MudTextField Label=@T["Name"] @bind-Value="EditModel.Name" Variant="@Variant.Outlined" Margin="Margin.Dense" />
     <MudGrid>
         <MudItem xs="12" sm="6">
             <OwnerLookup Label=@T["Group Owner"] Class="mt-4" @bind-Value="EditModel.Owner"
-                         Variant="Variant.Outlined" Margin="Margin.Dense" />
+                            Variant="Variant.Outlined" Margin="Margin.Dense" />
         </MudItem>
         <MudItem xs="12" sm="6">
             <CommunityLookup Label=@T["Community"] Class="mt-4" @bind-Value="EditModel.Community"
-                             Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly="@IsReadonly" />
+                                Variant="Variant.Outlined" Margin="Margin.Dense" ReadOnly="@IsReadonly" />
         </MudItem>
     </MudGrid>
 
@@ -23,8 +24,11 @@
     <MudStack Row Class="mt-10" Spacing="2">
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save">Save</MudButton>
         <MudButton Variant="Variant.Filled">Cancel</MudButton>
+        <MudSpacer />
+        <MudButton Variant="Variant.Filled" Color="Color.Warning" StartIcon="@Icons.Material.Filled.Delete" OnClick="Delete">Delete</MudButton>
     </MudStack>
 }
+
 
 @code {
     [Parameter, EditorRequired]
@@ -62,5 +66,14 @@
     {
         var res = await vm.SaveEditModel(EditModel);
         nm.NavigateTo("admin/groups");
+    }
+
+    async Task Delete()
+    {
+        var res = await vm.Delete(Model, true);
+        if (res)
+        {
+            nm.NavigateTo("admin/groups");
+        }
     }
 }

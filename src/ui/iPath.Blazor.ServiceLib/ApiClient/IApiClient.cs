@@ -130,6 +130,9 @@ public interface IPathApi
     [Delete("/api/v1/groups/{id}")]
     Task<IApiResponse> DeleteGroup(Guid id);
 
+    [Delete("/api/v1/groups/{id}/destroy")]
+    Task<IApiResponse> DestroyGroup(Guid id);
+
     [Delete("/api/v1/groups/drafts/{id}")]
     Task<IApiResponse> DeleteGroupDrafts(Guid id);
 

@@ -1,4 +1,4 @@
-﻿@namespace iPath.Blazor.Componenents.ServiceRequests
+@namespace iPath.Blazor.Componenents.ServiceRequests
 @inject IStringLocalizer T
 
 <MudList T="ServiceRequestListDto">
@@ -17,12 +17,18 @@
     }
 </MudList>
 
+@if (TotalPages > 1)
+{
+    <MudStack Row Justify="Justify.Center" Class="my-4">
+        <MudPagination Count="@TotalPages" Selected="@CurrentPage" SelectedChanged="OnPageChanged" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" />
+    </MudStack>
+}
 
 
 @inject ServiceRequestListViewModel vm
 @inject GroupViewModel gvm
 
-    @code {
+@code {
     [Parameter]
     public Guid? GroupId
     {
@@ -39,14 +45,24 @@
 
 
     TableData<ServiceRequestListDto> data = new() { Items = [] };
+    
+    private const int PageSize = 25;
+    private int CurrentPage { get; set; } = 1;
+    private int TotalPages => (int)Math.Ceiling((double)data.TotalItems / PageSize);
 
     protected async Task LoadData()
     {
         // do not use any search string in mobile view as there is not yet any input box for search
         vm.SearchString = string.Empty;
 
-        var state = new TableState { Page = 0, PageSize = 25 };
+        var state = new TableState { Page = CurrentPage - 1, PageSize = PageSize };
         data = await vm.GetServiceRequestListAsync(state, default);
+    }
+
+    private async Task OnPageChanged(int newPage)
+    {
+        CurrentPage = newPage;
+        await LoadData();
     }
 
     protected override async Task OnInitializedAsync()

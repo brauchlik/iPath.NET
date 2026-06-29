@@ -1,82 +1,85 @@
 ﻿@namespace iPath.Blazor.Componenents.Groups
 @inject IStringLocalizer T
 
-<MudForm Model="Model" Spacing="@Spacing">
-    <MudTextField Label=@T["Purpose"] @bind-Value="Model.Purpose" Variant="@Variant"
-                  Lines="4" Margin="Margin.Dense" ShrinkLabel="true" />
+@if (Model is not null)
+{
+    <MudForm Model="Model" Spacing="@Spacing">
+        <MudTextField Label=@T["Purpose"] @bind-Value="Model.Purpose" Variant="@Variant"
+                    Lines="4" Margin="Margin.Dense" ShrinkLabel="true" />
 
-    <MudText Typo="Typo.h6" Class="mt-4">@T["Annotations"]</MudText>
+        <MudText Typo="Typo.h6" Class="mt-4">@T["Annotations"]</MudText>
 
-    <MudGrid Spacing="0">
-        <MudItem xs="12" sm="6">
-            <MudSwitch Label=@T["Hide annotations"] @bind-Value="Model.AnnotationsHide" Color="Color.Info" />
-        </MudItem>
-        <MudItem xs="12" sm="6">
-            <MudSwitch Label=@T["Annotations with morphology code"] @bind-Value="Model.AnnotationHasMoprhoogy" Color="Color.Info" />
-        </MudItem>
-    </MudGrid>
+        <MudGrid Spacing="0">
+            <MudItem xs="12" sm="6">
+                <MudSwitch Label=@T["Hide annotations"] @bind-Value="Model.AnnotationsHide" Color="Color.Info" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSwitch Label=@T["Annotations with morphology code"] @bind-Value="Model.AnnotationHasMoprhoogy" Color="Color.Info" />
+            </MudItem>
+        </MudGrid>
 
 
-    <MudText Typo="Typo.h6" Class="mt-4">@T["Case display"]</MudText>
+        <MudText Typo="Typo.h6" Class="mt-4">@T["Case display"]</MudText>
 
-    <MudSwitch Label=@T["Allow HTML in case description"] @bind-Value="Model.DescriptionAllowHtml" Color="Color.Info" />
+        <MudSwitch Label=@T["Allow HTML in case description"] @bind-Value="Model.DescriptionAllowHtml" Color="Color.Info" />
 
-    <MudTextField Label=@T["Template for case description"] @bind-Value="Model.DescriptionTemplate"
-                  Variant="@Variant" Lines="3" Margin="Margin.Dense" ShrinkLabel="true" />
+        <MudTextField Label=@T["Template for case description"] @bind-Value="Model.DescriptionTemplate"
+                    Variant="@Variant" Lines="3" Margin="Margin.Dense" ShrinkLabel="true" />
 
-    <MudGrid Spacing="0">
-        <MudItem xs="12" sm="6">
-            <MudSwitch Label=@T["Case title active"] @bind-Value="Model.UseCaseTitleField" Color="Color.Info" />
-        </MudItem>
-        <MudItem xs="12" sm="6">
-            <MudSwitch Label=@T["Case sub-title active"] @bind-Value="Model.UseCaseSubTitleField" Color="Color.Info" />
-        </MudItem>
-        <MudItem xs="12" sm="6">
-            <MudSwitch Label=@T["Show provisional diagnosis"] @bind-Value="Model.ShowProvisionalDiagnosis" Color="Color.Info" />
-        </MudItem>
-        <MudItem xs="12" sm="6">
-        </MudItem>
+        <MudGrid Spacing="0">
+            <MudItem xs="12" sm="6">
+                <MudSwitch Label=@T["Case title active"] @bind-Value="Model.UseCaseTitleField" Color="Color.Info" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSwitch Label=@T["Case sub-title active"] @bind-Value="Model.UseCaseSubTitleField" Color="Color.Info" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSwitch Label=@T["Show provisional diagnosis"] @bind-Value="Model.ShowProvisionalDiagnosis" Color="Color.Info" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+            </MudItem>
 
-        <MudItem xs="12" sm="6">
-            <MudSwitch Label=@T["Body Site input active"] @bind-Value="Model.DescriptionWithBodySite" Color="Color.Info" />
-        </MudItem>
-        <MudItem xs="12" sm="6">
-            <MudSwitch Label=@T["Use case description wizzard"] @bind-Value="Model.UseDescriptionWizzard" Color="Color.Info" />
-        </MudItem>
-    </MudGrid>
+            <MudItem xs="12" sm="6">
+                <MudSwitch Label=@T["Body Site input active"] @bind-Value="Model.DescriptionWithBodySite" Color="Color.Info" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSwitch Label=@T["Use case description wizzard"] @bind-Value="Model.UseDescriptionWizzard" Color="Color.Info" />
+            </MudItem>
+        </MudGrid>
 
-    <MudSwitch Label=@T["Case type active"] @bind-Value="Model.UseCaseTypeField" Color="Color.Info" />
-    @if (@Model.UseCaseTypeField)
-    {
-        <MudTextField Label=@T["Case types"] @bind-Value="CaseTypeList" @bind-Value:after="ReadCaseTypes"
-                      Lines="6" Variant="@Variant" Margin="Margin.Dense" ShrinkLabel="true" />
-    }
-
-    <MudText Typo="Typo.h6" Class="mt-4">@T["Task Assignments"]</MudText>
-
-    <MudSelect Label=@T["Assignment strategy"] @bind-Value="Model.TaskAssignmentStrategy" Variant="@Variant">
-        @foreach (var s in Enum.GetValues<eTaskAssignmentStrategy>())
+        <MudSwitch Label=@T["Case type active"] @bind-Value="Model.UseCaseTypeField" Color="Color.Info" />
+        @if (@Model.UseCaseTypeField)
         {
-            <MudSelectItem Value="s">@s.ToString()</MudSelectItem>
+            <MudTextField Label=@T["Case types"] @bind-Value="CaseTypeList" @bind-Value:after="ReadCaseTypes"
+                        Lines="6" Variant="@Variant" Margin="Margin.Dense" ShrinkLabel="true" />
         }
-    </MudSelect>
 
-    @if (Model.TaskAssignmentStrategy == eTaskAssignmentStrategy.AutoAssign || Model.TaskAssignmentStrategy == eTaskAssignmentStrategy.SelfOrModerated)
-    {
-        <MudTextField Label=@T["Auto-assign timeout (hours)"] @bind-Value="Model.AutoAssignTimeoutHours"
-                      Variant="@Variant" Type="@InputType.Number" Margin="Margin.Dense" ShrinkLabel="true" />
-    }
+        <MudText Typo="Typo.h6" Class="mt-4">@T["Task Assignments"]</MudText>
 
-    <MudText Typo="Typo.h6" Class="mt-4">@T["AI Extraction"]</MudText>
+        <MudSelect Label=@T["Assignment strategy"] @bind-Value="Model.TaskAssignmentStrategy" Variant="@Variant">
+            @foreach (var s in Enum.GetValues<eTaskAssignmentStrategy>())
+            {
+                <MudSelectItem Value="s">@s.ToString()</MudSelectItem>
+            }
+        </MudSelect>
 
-    <MudSwitch Label=@T["Enable AI extraction for this group"] @bind-Value="Model.AiSettings.IsEnabled" Color="Color.Info" />
-    @if (Model.AiSettings.IsEnabled)
-    {
-        <MudTextField Label=@T["Preferred AI model"] @bind-Value="Model.AiSettings.PreferredModelId"
-                      Variant="@Variant" Margin="Margin.Dense" ShrinkLabel="true" />
-    }
+        @if (Model.TaskAssignmentStrategy == eTaskAssignmentStrategy.AutoAssign || Model.TaskAssignmentStrategy == eTaskAssignmentStrategy.SelfOrModerated)
+        {
+            <MudTextField Label=@T["Auto-assign timeout (hours)"] @bind-Value="Model.AutoAssignTimeoutHours"
+                        Variant="@Variant" Type="@InputType.Number" Margin="Margin.Dense" ShrinkLabel="true" />
+        }
 
-</MudForm>
+        <MudText Typo="Typo.h6" Class="mt-4">@T["AI Extraction"]</MudText>
+
+        <MudSwitch Label=@T["Enable AI extraction for this group"] @bind-Value="Model.AiSettings.IsEnabled" Color="Color.Info" />
+        @if (Model.AiSettings.IsEnabled)
+        {
+            <MudTextField Label=@T["Preferred AI model"] @bind-Value="Model.AiSettings.PreferredModelId"
+                        Variant="@Variant" Margin="Margin.Dense" ShrinkLabel="true" />
+        }
+
+    </MudForm>
+}
 
 @code {
     [Parameter]
@@ -93,11 +96,13 @@
 
     protected override void OnParametersSet()
     {
-        CaseTypeList = string.Join(Environment.NewLine, Model.CaseTypes);
+        if (Model is not null)
+            CaseTypeList = string.Join(Environment.NewLine, Model.CaseTypes);
     }
 
     public void ReadCaseTypes()
     {
-        Model.CaseTypes = CaseTypeList.Split("\n").Select(x => x.Trim()).ToList();
+        if (Model is not null)
+            Model.CaseTypes = CaseTypeList.Split("\n").Select(x => x.Trim()).ToList();
     }
 }

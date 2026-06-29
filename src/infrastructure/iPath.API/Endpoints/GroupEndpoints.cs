@@ -51,6 +51,10 @@ public static class GroupEndpoints
             => await srv.DeleteGroupDraftsAsync(id, ct))
             .RequireAuthorization("Admin");
 
+        grp.MapDelete("{id}/destroy", async (Guid id, [FromServices] IGroupService srv, CancellationToken ct)
+            => await srv.DestroyGroupAsync(new DestroyGroupCommand(id), ct))
+            .RequireAuthorization("Admin");
+
         return route;
     }
 }

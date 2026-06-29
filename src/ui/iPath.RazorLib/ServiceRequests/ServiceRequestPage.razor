@@ -16,7 +16,6 @@
     <TaskPrompt ServiceRequestId="@vm.SelectedRequest.Id" Class="mb-5" />
 }
 
-
 <ServiceRequestHeader />
 
 @if (vm.SelectedRequest is null)
@@ -67,9 +66,9 @@ else
 
     private async Task LoadDataAsync()
     {
-        await Task.Yield();
+        StateHasChanged();
         await vm.LoadNode(Guid.Parse(id), false);
-        await InvokeAsync(StateHasChanged);
+        StateHasChanged();
         await vm.MarkAsVisited();
     }
 

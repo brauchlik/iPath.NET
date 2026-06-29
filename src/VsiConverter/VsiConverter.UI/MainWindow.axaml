@@ -1,0 +1,10 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="VsiConverter.UI.MainWindow"
+        Title="VSI → DZI Converter"
+        Width="950" Height="650">
+  <TextBlock Text="VSI → DZI Converter"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center"
+             FontSize="24" />
+</Window>

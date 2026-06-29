@@ -1,4 +1,4 @@
-﻿using iPath.Application.Features.Documents;
+using iPath.Application.Features.Documents;
 using iPath.Domain.Config;
 using Microsoft.Extensions.DependencyInjection;
 using Size = System.Drawing.Size;
@@ -56,7 +56,7 @@ public static class DocumentExtensions
         public string WsiUrl => $"/api/v1/google/proxy/{document.Id}";
 
         public string BinarayDataUrl => string.IsNullOrWhiteSpace(document.File?.PublicUrl) ?
-            $"/files/{document.Id}" :
+            $"/api/v1/documents/files/{document.Id}" :
             document.File.PublicUrl;
 
         public string PreviewFileUrl

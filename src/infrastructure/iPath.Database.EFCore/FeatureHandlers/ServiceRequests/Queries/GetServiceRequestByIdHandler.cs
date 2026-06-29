@@ -1,4 +1,4 @@
-﻿using iPath.Application.Contracts;
+using iPath.Application.Contracts;
 using iPath.Application.Features.Annotations;
 using iPath.Application.Features.Documents;
 
@@ -10,7 +10,8 @@ public class GetServiceRequestByIdQueryHandler(
     IUserSession sess,
     IThumbnailQueue thumbnailQueue,
     IEnumerable<IConversionPlugin> conversionPlugins,
-    ILogger<GetServiceRequestByIdQueryHandler> logger)
+    ILogger<GetServiceRequestByIdQueryHandler> logger,
+    Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<GetServiceRequestByIdQuery, Task<ServiceRequestDto>>
 {
     public async Task<ServiceRequestDto> Handle(GetServiceRequestByIdQuery request, CancellationToken cancellationToken)
@@ -28,8 +29,10 @@ public class GetServiceRequestByIdQueryHandler(
         Guard.Against.NotFound(request.Id, node);
         Guard.Against.Null(node.GroupId);
 
+        var isGuestAuthorized = httpContextAccessor.HttpContext?.User?.HasClaim("AuthorizedRequestId", node.Id.ToString()) == true;
+
         // if not publicly visible, check group
-        if (!sess.IsAdmin)
+        if (!sess.IsAdmin && !isGuestAuthorized)
         {
             if (node.Visibility != eNodeVisibility.Public)
             {

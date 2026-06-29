@@ -1,4 +1,5 @@
 using iPath.API;
+using iPath.API.Middleware;
 using iPath.Application.Localization;
 using iPath.Blazor.Server.Components;
 using iPath.Blazor.Server.Components.Account;
@@ -20,7 +21,6 @@ using Serilog.Exceptions.Core;
 using Serilog.Exceptions.Destructurers;
 using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 using Serilog.Exceptions.Refit.Destructurers;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -201,6 +201,7 @@ foreach (var culture in supportedCultures)
     await srvLoc.LoadTranslationData(culture);
 }
 
+app.UseMiddleware<CaseRoomTokenAuthMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -246,106 +247,7 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 
-// Serve files from external storage folder at request path /files
-// - Uses configured LocalDataPath from iPathConfig (used elsewhere by LocalStorageService).
-// - Falls back to no-op and logs a warning if folder is not configured or missing.
-var externalFilesPath = opts.Value?.TempDataPath;
-if (!string.IsNullOrWhiteSpace(externalFilesPath))
-{
-    try
-    {
-        if (Directory.Exists(externalFilesPath))
-        {
-            var provider = new PhysicalFileProvider(Path.GetFullPath(externalFilesPath));
-            var contentTypeProvider = new FileExtensionContentTypeProvider();
-            // contentTypeProvider.Mappings[".svs"] = "application/octet-stream";
-            // Optionally: add unknown mappings or overrides here, e.g. contentTypeProvider.Mappings[".bin"] = "application/octet-stream";
-
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = provider,
-                RequestPath = "/files",
-                ContentTypeProvider = contentTypeProvider,
-                ServeUnknownFileTypes = true, // allow binary files with unknown extensions
-                /*
-                OnPrepareResponse = ctx =>
-                {
-                    ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
-                    ctx.Context.Response.Headers.Append("Pragma", "no-cache");
-                    ctx.Context.Response.Headers.Append("Expires", "0");
-                }
-                */
-            });
-
-            // Fallback for missing WSI files under /files path (unzip on demand)
-            app.Use(async (context, next) =>
-            {
-                var path = context.Request.Path.Value;
-                if (path != null && path.StartsWith("/files/", StringComparison.OrdinalIgnoreCase))
-                {
-                    var parts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
-                    if (parts.Length > 1)
-                    {
-                        var target = parts[1];
-                        Guid? docId = null;
-                        if (target.EndsWith(".dzi", StringComparison.OrdinalIgnoreCase) && Guid.TryParse(target[..^4], out var id1))
-                        {
-                            docId = id1;
-                        }
-                        else if (target.EndsWith("_files", StringComparison.OrdinalIgnoreCase) && Guid.TryParse(target[..^6], out var id2))
-                        {
-                            docId = id2;
-                        }
-
-                        if (docId.HasValue)
-                        {
-                            var mediator = context.RequestServices.GetRequiredService<DispatchR.IMediator>();
-                            var res = await mediator.Send(new iPath.Application.Features.GetDocumentFileQuery(docId.Value), context.RequestAborted);
-                            if (res != null && !res.NotFound && !res.AccessDenied && res.TempFile != null)
-                            {
-                                var filename = res.Info?.Filename;
-                                var isZip = filename?.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) == true
-                                            || filename?.EndsWith(".dzi", StringComparison.OrdinalIgnoreCase) == true
-                                            || filename?.EndsWith(".vsi", StringComparison.OrdinalIgnoreCase) == true;
-                                if (isZip && File.Exists(res.TempFile))
-                                {
-                                    try
-                                    {
-                                        System.IO.Compression.ZipFile.ExtractToDirectory(res.TempFile, externalFilesPath, overwriteFiles: true);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-                                        logger.LogError(ex, "Failed to unzip cache file {Path} to {Temp}", res.TempFile, externalFilesPath);
-                                    }
-                                }
-                                
-                                context.Response.Redirect(context.Request.Path + context.Request.QueryString);
-                                return;
-                            }
-                        }
-                    }
-                }
-                await next(context);
-            });
-        }
-        else
-        {
-            var logger = app.Services.GetRequiredService<ILogger<Program>>();
-            logger.LogWarning("Configured TempDataPath '{path}' does not exist; /files will not be available.", externalFilesPath);
-        }
-    }
-    catch (Exception ex)
-    {
-        var logger = app.Services.GetRequiredService<ILogger<Program>>();
-        logger.LogWarning(ex, "Failed to configure static file serving for '{path}'", externalFilesPath);
-    }
-}
-else
-{
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogWarning("TempDataPath is not configured; /files will not be available.");
-}
+// Files serving migrated to secure endpoint in DocumentEndpoints.cs
 
 
 // app.UseHttpsRedirection();

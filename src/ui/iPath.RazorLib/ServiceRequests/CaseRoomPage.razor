@@ -1,7 +1,5 @@
 @page "/request/{id}/caseroom"
 
-@attribute [Authorize]
-
 @using MudBlazor.Services
 @using iPath.Application.Features.ServiceRequests
 @using iPath.Blazor.Componenents.Layouts
@@ -12,33 +10,43 @@
 @inject IJSRuntime JS
 @inject IOptions<iPathClientConfig> opts
 
-<MudSwipeArea Style="height: 100%; width: 100%; background-color: black;"
-              OnSwipeEnd="OnSwipeHandler">
+<div style="height: 100%; width: 100%; background-color: black;">
 
-    <div class="d-flex justify-center flex-grow-1 gap-4 align-center py-1">
-        <div class="d-flex align-center gap-2">
-            <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleLeft" Size="Size.Large" OnClick="GotoPrevious" />
-            <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleRight" Size="Size.Large" OnClick="GotoNext" />
+    <div class="d-flex flex-column align-center justify-center py-1">
+        <div class="d-flex justify-center gap-4 align-center">
+            @if (!_isGuest)
+            {
+                <div class="d-flex align-center gap-2">
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleLeft" Size="Size.Large" OnClick="GotoPrevious" />
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowCircleRight" Size="Size.Large" OnClick="GotoNext" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Share" Size="Size.Large" OnClick="ShareRoom" Title="Copy Share Link" />
+                </div>
+            }
+
+            <div class="d-flex align-center gap-2">
+                <MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Filled">
+                    @Participants.Count viewing
+                </MudChip>
+                @if (!_isGuest)
+                {
+                    <div title="@(SseConnected ? "SSE connected" : "SSE disconnected")"
+                         style="display: flex; align-items: center; gap: 2px; font-size: 10px; font-family: monospace; color: rgba(255,255,255,0.5);">
+                        <span style="color: @(SseConnected ? "lime" : "red")">@(SseConnected ? "\u25cf" : "\u25cb")</span>
+                        sse
+                    </div>
+                }
+                <MudIconButton Icon="@Icons.Material.Filled.CloseFullscreen" Size="Size.Large" OnClick="@ExitRoom" />
+            </div>
         </div>
 
         @if (vm.SelectedDocument?.File?.Filename is not null)
         {
-            <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px; font-family: sans-serif; font-weight: 500;">
-                @vm.SelectedDocument.File.Filename
-            </span>
-        }
-
-        <div class="d-flex align-center gap-2">
-            <MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Filled">
-                @Participants.Count viewing
-            </MudChip>
-            <div title="@(SseConnected ? "SSE connected" : "SSE disconnected")"
-                 style="display: flex; align-items: center; gap: 2px; font-size: 10px; font-family: monospace; color: rgba(255,255,255,0.5);">
-                <span style="color: @(SseConnected ? "lime" : "red")">@(SseConnected ? "\u25cf" : "\u25cb")</span>
-                sse
+            <div class="mt-1">
+                <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px; font-family: sans-serif; font-weight: 500;">
+                    @vm.SelectedDocument.File.Filename
+                </span>
             </div>
-            <MudIconButton Icon="@Icons.Material.Filled.CloseFullscreen" Size="Size.Large" OnClick="@ExitRoom" />
-        </div>
+        }
     </div>
 
     <MudPaper Class="ipath_image slideshow" Style="background-color: black;" Elevation="0">
@@ -52,7 +60,7 @@
             </div>
         }
     </MudPaper>
-</MudSwipeArea>
+</div>
 
 @code {
     [Parameter] public string id { get; set; }

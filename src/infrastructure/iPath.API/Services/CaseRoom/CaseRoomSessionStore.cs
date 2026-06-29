@@ -28,7 +28,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         _ = StartCleanupLoopAsync(_cleanupCts.Token);
     }
 
-    public async Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid sessionId, Guid userId, string displayName, CancellationToken ct)
+    public async Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid sessionId, Guid userId, string displayName, bool isGuest = false, CancellationToken ct = default)
     {
         var entry = _sessions.GetOrAdd(requestId, rid => new SessionEntry
         {
@@ -49,7 +49,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
             entry.TeardownCts?.Cancel();
             entry.TeardownCts = null;
 
-            var participant = new Participant(sessionId, userId, displayName, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+            var participant = new Participant(sessionId, userId, displayName, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, isGuest);
             entry.Session.Participants[sessionId] = participant;
 
             var sessions = entry.Session.UserSessions.GetOrAdd(userId, _ => new HashSet<Guid>());
@@ -96,29 +96,64 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                         entry.Session.UserSessions.TryRemove(uid, out _);
                 }
 
-                var updatedParticipants = entry.Session.Participants.Values.ToArray();
-                userIds = entry.Session.UserSessions.Keys.ToArray();
+                // Check if any hosts remain
+                var hasHosts = entry.Session.Participants.Values.Any(p => !p.IsGuest);
+                if (!hasHosts)
+                {
+                    // Kick remaining guests
+                    var guestSessionIds = entry.Session.Participants.Values.Where(p => p.IsGuest).Select(p => p.SessionId).ToList();
+                    foreach (var gsid in guestSessionIds)
+                    {
+                        if (entry.Session.Participants.Remove(gsid, out var gRemoved))
+                        {
+                            if (entry.Session.UserSessions.TryGetValue(gRemoved.UserId, out var gSessions))
+                            {
+                                lock (gSessions) { gSessions.Remove(gsid); }
+                                if (gSessions.Count == 0)
+                                    entry.Session.UserSessions.TryRemove(gRemoved.UserId, out _);
+                            }
+                        }
+                    }
+                    entry.Session.ShareTokens.Clear();
 
-                if (userIds.Length > 0)
-                {
-                    var leavePayload = new SyncPayload(null, null, sessionId, "Leave", updatedParticipants);
-                    leaveEvt = new CaseRoomSyncEvent(requestId, uid, removedParticipant.DisplayName, leavePayload, DateTimeOffset.UtcNow);
-                }
-                else
-                {
+                    var kickPayload = new SyncPayload(null, null, sessionId, "HostLeft", entry.Session.Participants.Values.ToArray());
+                    leaveEvt = new CaseRoomSyncEvent(requestId, Guid.Empty, "System", kickPayload, DateTimeOffset.UtcNow);
                     scheduleTeardown = true;
                     cts = new CancellationTokenSource(TeardownGrace);
                     entry.TeardownCts = cts;
                 }
+                else
+                {
+                    var updatedParticipants = entry.Session.Participants.Values.ToArray();
+                    userIds = entry.Session.UserSessions.Keys.ToArray();
+
+                    if (userIds.Length > 0)
+                    {
+                        var leavePayload = new SyncPayload(null, null, sessionId, "Leave", updatedParticipants);
+                        leaveEvt = new CaseRoomSyncEvent(requestId, uid, removedParticipant.DisplayName, leavePayload, DateTimeOffset.UtcNow);
+                    }
+                    else
+                    {
+                        scheduleTeardown = true;
+                        cts = new CancellationTokenSource(TeardownGrace);
+                        entry.TeardownCts = cts;
+                    }
+                }
             }
         }
 
-        if (leaveEvt is not null && userIds is not null)
+        if (leaveEvt is not null)
         {
-            foreach (var uid in userIds)
+            if (userIds is not null)
             {
-                await _sseManager.SendToUserAsync(uid, "caseroom-sync", leaveEvt);
+                foreach (var uid in userIds)
+                {
+                    if (uid != Guid.Empty)
+                        await _sseManager.SendToUserAsync(uid, "caseroom-sync", leaveEvt);
+                }
             }
+            // Notify guest connections (registered under Guid.Empty); no-op if none
+            await _sseManager.SendToUserAsync(Guid.Empty, "caseroom-sync", leaveEvt);
             _eventBus.PublishCaseRoomSync(leaveEvt);
         }
 
@@ -205,6 +240,46 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         }
     }
 
+    public Task<string> CreateShareTokenAsync(Guid requestId, CancellationToken ct)
+    {
+        var entry = _sessions.GetOrAdd(requestId, rid => new SessionEntry
+        {
+            Session = new CaseRoomSessionData
+            {
+                RequestId = rid,
+                CreatedAt = DateTimeOffset.UtcNow,
+                CreatedBy = Guid.Empty
+            }
+        });
+
+        var token = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(16));
+        entry.Session.ShareTokens[token] = 0;
+        return Task.FromResult(token);
+    }
+
+    public Task<bool> IsShareTokenValidAsync(Guid requestId, string token, CancellationToken ct)
+    {
+        if (!_sessions.TryGetValue(requestId, out var entry))
+        {
+            _logger.LogWarning("IsShareTokenValidAsync failed: No active session found for requestId {RequestId}", requestId);
+            return Task.FromResult(false);
+        }
+
+        if (!entry.Session.ShareTokens.ContainsKey(token))
+        {
+            _logger.LogWarning("IsShareTokenValidAsync failed: Session found, but token '{Token}' is not in ShareTokens list. Valid tokens count: {Count}", token, entry.Session.ShareTokens.Count);
+            return Task.FromResult(false);
+        }
+
+        // Token is valid as long as there is at least one authenticated host
+        var hasHost = entry.Session.Participants.Values.Any(p => !p.IsGuest);
+        if (!hasHost)
+        {
+            _logger.LogWarning("IsShareTokenValidAsync failed: Token '{Token}' is valid, but no active host (presenter) was found in the room. Participants count: {Count}", token, entry.Session.Participants.Count);
+        }
+        return Task.FromResult(hasHost);
+    }
+
     private async Task StartCleanupLoopAsync(CancellationToken ct)
     {
         try
@@ -248,11 +323,37 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                                 }
                             }
 
-                            var updatedParticipants = entry.Session.Participants.Values.ToArray();
-                            remainingIds = entry.Session.UserSessions.Keys.ToArray();
+                            // Check if any hosts remain
+                            var hasHosts = entry.Session.Participants.Values.Any(p => !p.IsGuest);
+                            if (!hasHosts && entry.Session.Participants.Count > 0)
+                            {
+                                // Kick remaining guests
+                                var guestSessionIds = entry.Session.Participants.Values.Where(p => p.IsGuest).Select(p => p.SessionId).ToList();
+                                foreach (var gsid in guestSessionIds)
+                                {
+                                    if (entry.Session.Participants.Remove(gsid, out var gRemoved))
+                                    {
+                                        if (entry.Session.UserSessions.TryGetValue(gRemoved.UserId, out var gSessions))
+                                        {
+                                            lock (gSessions) { gSessions.Remove(gsid); }
+                                            if (gSessions.Count == 0)
+                                                entry.Session.UserSessions.TryRemove(gRemoved.UserId, out _);
+                                        }
+                                    }
+                                }
+                                entry.Session.ShareTokens.Clear();
 
-                            var leavePayload = new SyncPayload(null, null, default, "Leave", updatedParticipants);
-                            leaveEvt = new CaseRoomSyncEvent(requestId, Guid.Empty, "System", leavePayload, DateTimeOffset.UtcNow);
+                                var kickPayload = new SyncPayload(null, null, default, "HostLeft", entry.Session.Participants.Values.ToArray());
+                                leaveEvt = new CaseRoomSyncEvent(requestId, Guid.Empty, "System", kickPayload, DateTimeOffset.UtcNow);
+                            }
+                            else
+                            {
+                                var updatedParticipants = entry.Session.Participants.Values.ToArray();
+                                remainingIds = entry.Session.UserSessions.Keys.ToArray();
+
+                                var leavePayload = new SyncPayload(null, null, default, "Leave", updatedParticipants);
+                                leaveEvt = new CaseRoomSyncEvent(requestId, Guid.Empty, "System", leavePayload, DateTimeOffset.UtcNow);
+                            }
                         }
 
                         if (entry.Session.Participants.Count == 0 && entry.TeardownCts == null)
@@ -262,12 +363,17 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                         }
                     }
 
-                    if (leaveEvt is not null && remainingIds is not null)
+                    if (leaveEvt is not null)
                     {
-                        foreach (var uid in remainingIds)
+                        if (remainingIds is not null)
                         {
-                            await _sseManager.SendToUserAsync(uid, "caseroom-sync", leaveEvt);
+                            foreach (var uid in remainingIds)
+                            {
+                                if (uid != Guid.Empty)
+                                    await _sseManager.SendToUserAsync(uid, "caseroom-sync", leaveEvt);
+                            }
                         }
+                        await _sseManager.SendToUserAsync(Guid.Empty, "caseroom-sync", leaveEvt);
                         _eventBus.PublishCaseRoomSync(leaveEvt);
                     }
                 }
@@ -309,5 +415,6 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         public Guid CreatedBy { get; init; }
         public ConcurrentDictionary<Guid, Participant> Participants { get; } = new();
         public ConcurrentDictionary<Guid, HashSet<Guid>> UserSessions { get; } = new();
+        public ConcurrentDictionary<string, byte> ShareTokens { get; } = new(StringComparer.OrdinalIgnoreCase);
     }
 }

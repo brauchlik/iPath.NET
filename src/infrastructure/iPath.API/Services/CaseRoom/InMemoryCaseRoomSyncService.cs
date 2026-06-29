@@ -18,17 +18,41 @@ public class InMemoryCaseRoomSyncService : ICaseRoomSyncService
         _userSession = userSession;
     }
 
-    public Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid sessionId, CancellationToken ct = default)
+    public async Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid sessionId, string? token = null, CancellationToken ct = default)
     {
+        bool isGuest = false;
+        Guid userId;
+        string username;
+
         if (_userSession.User is null)
-            throw new InvalidOperationException("User not authenticated");
+        {
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new InvalidOperationException("User not authenticated and no guest token provided.");
+            }
+
+            var isTokenValid = await _store.IsShareTokenValidAsync(requestId, token, ct);
+            if (!isTokenValid)
+            {
+                throw new InvalidOperationException("Invalid guest token or session has no active host.");
+            }
+
+            isGuest = true;
+            userId = Guid.Empty;
+            username = "Guest";
+        }
+        else
+        {
+            userId = _userSession.User.Id;
+            username = _userSession.User.Username ?? "User";
+        }
+
         _joinedSessions.Add((requestId, sessionId));
-        return _store.JoinAsync(requestId, sessionId, _userSession.User.Id, _userSession.User.Username, ct);
+        return await _store.JoinAsync(requestId, sessionId, userId, username, isGuest, ct);
     }
 
     public Task LeaveAsync(Guid requestId, Guid sessionId, CancellationToken ct = default)
     {
-        if (_userSession.User is null) return Task.CompletedTask;
         return _store.LeaveAsync(requestId, sessionId, ct);
     }
 
@@ -36,6 +60,13 @@ public class InMemoryCaseRoomSyncService : ICaseRoomSyncService
     {
         if (_userSession.User is null) return Task.CompletedTask;
         return _store.SyncAsync(requestId, payload.SessionId ?? Guid.Empty, _userSession.User.Id, payload, ct);
+    }
+
+    public Task<string> CreateShareTokenAsync(Guid requestId, CancellationToken ct = default)
+    {
+        if (_userSession.User is null)
+            throw new InvalidOperationException("User not authenticated");
+        return _store.CreateShareTokenAsync(requestId, ct);
     }
 
     public async ValueTask DisposeAsync()

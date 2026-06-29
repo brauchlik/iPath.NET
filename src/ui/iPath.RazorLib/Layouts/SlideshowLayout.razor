@@ -1,4 +1,5 @@
 @inherits LayoutComponentBase
+@inject IJSRuntime JS
 
 <MudThemeProvider IsDarkMode="true" />
 <MudSnackbarProvider />
@@ -21,3 +22,19 @@
     </MudMainContent>
 </MudLayout>
 
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("eval", "var el = document.getElementById('loading-screen'); if (el) { el.remove(); }");
+            }
+            catch
+            {
+                // Ignore exceptions on prerendering
+            }
+        }
+    }
+}

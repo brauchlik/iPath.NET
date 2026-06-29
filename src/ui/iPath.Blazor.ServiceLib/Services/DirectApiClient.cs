@@ -897,12 +897,43 @@ public class DirectApiClient(
 
     // -- CaseRoom --
 
-    public async Task<IApiResponse<CaseRoomSnapshot>> JoinCaseRoom(Guid requestId, SessionRequest body)
+    public async Task<IApiResponse<CaseRoomSnapshot>> JoinCaseRoom(Guid requestId, SessionRequest body, string? token = null)
+    {
+        if (caseRoomStore is null)
+            return RespondError<CaseRoomSnapshot>();
+
+        bool isGuest = false;
+        Guid userId = Guid.Empty;
+        string username = "Guest";
+
+        if (userSession.User is null)
+        {
+            if (string.IsNullOrEmpty(token) || !await caseRoomStore.IsShareTokenValidAsync(requestId, token, default))
+                return RespondError<CaseRoomSnapshot>();
+
+            isGuest = true;
+        }
+        else if (userSession.User.roles?.Contains("CaseRoomGuest") == true)
+        {
+            isGuest = true;
+        }
+        else
+        {
+            userId = userSession.User.Id;
+            username = userSession.User.Username;
+        }
+
+        var snap = await caseRoomStore.JoinAsync(requestId, body.SessionId, userId, username, isGuest, default);
+        return Respond(snap);
+    }
+
+    public async Task<IApiResponse<ShareTokenResponse>> CreateShareToken(Guid requestId)
     {
         if (caseRoomStore is null || userSession.User is null)
-            return RespondError<CaseRoomSnapshot>();
-        var snap = await caseRoomStore.JoinAsync(requestId, body.SessionId, userSession.User.Id, userSession.User.Username, default);
-        return Respond(snap);
+            return RespondError<ShareTokenResponse>();
+
+        var token = await caseRoomStore.CreateShareTokenAsync(requestId, default);
+        return Respond(new ShareTokenResponse(token));
     }
 
     public async Task<IApiResponse> LeaveCaseRoom(Guid requestId, SessionRequest body)

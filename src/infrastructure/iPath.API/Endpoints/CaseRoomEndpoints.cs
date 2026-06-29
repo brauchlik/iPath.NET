@@ -6,19 +6,36 @@ public static class CaseRoomEndpoints
 {
     public static IEndpointRouteBuilder MapCaseRoomApi(this IEndpointRouteBuilder route)
     {
-        var group = route.MapGroup("caseroom").RequireAuthorization();
+        var group = route.MapGroup("caseroom");
 
         group.MapPost("{requestId:guid}/join", async (
             Guid requestId,
             SessionRequest body,
             [FromServices] ICaseRoomSessionStore store,
             [FromServices] IUserSession sess,
+            [FromQuery] string? token,
             CancellationToken ct) =>
         {
-            if (sess.User is null || !sess.User.IsAuthenticated)
-                return Results.Unauthorized();
+            bool isGuest = false;
+            Guid userId;
+            string username;
 
-            var snapshot = await store.JoinAsync(requestId, body.SessionId, sess.User.Id, sess.User.Username, ct);
+            if (sess.User is null || !sess.User.IsAuthenticated)
+            {
+                if (string.IsNullOrEmpty(token) || !await store.IsShareTokenValidAsync(requestId, token, ct))
+                    return Results.Unauthorized();
+
+                isGuest = true;
+                userId = Guid.Empty;
+                username = "Guest";
+            }
+            else
+            {
+                userId = sess.User.Id;
+                username = sess.User.Username;
+            }
+
+            var snapshot = await store.JoinAsync(requestId, body.SessionId, userId, username, isGuest, ct);
             return Results.Ok(snapshot);
         });
 
@@ -26,12 +43,8 @@ public static class CaseRoomEndpoints
             Guid requestId,
             SessionRequest body,
             [FromServices] ICaseRoomSessionStore store,
-            [FromServices] IUserSession sess,
             CancellationToken ct) =>
         {
-            if (sess.User is null || !sess.User.IsAuthenticated)
-                return Results.Unauthorized();
-
             await store.LeaveAsync(requestId, body.SessionId, ct);
             return Results.NoContent();
         });
@@ -51,7 +64,7 @@ public static class CaseRoomEndpoints
 
             await store.SyncAsync(requestId, payload.SessionId ?? Guid.Empty, sess.User.Id, payload, ct);
             return Results.NoContent();
-        });
+        }).RequireAuthorization();
 
         group.MapGet("{requestId:guid}", async (
             Guid requestId,
@@ -61,6 +74,19 @@ public static class CaseRoomEndpoints
             var status = await store.GetStatusAsync(requestId, ct);
             return status is null ? Results.NotFound() : Results.Ok(status);
         });
+
+        group.MapPost("{requestId:guid}/share-token", async (
+            Guid requestId,
+            [FromServices] ICaseRoomSessionStore store,
+            [FromServices] IUserSession sess,
+            CancellationToken ct) =>
+        {
+            if (sess.User is null || !sess.User.IsAuthenticated)
+                return Results.Unauthorized();
+
+            var token = await store.CreateShareTokenAsync(requestId, ct);
+            return Results.Ok(new { token });
+        }).RequireAuthorization();
 
         return route;
     }

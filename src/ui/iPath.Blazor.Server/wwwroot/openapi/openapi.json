@@ -2479,6 +2479,31 @@
         }
       }
     },
+    "/api/v1/documents/files/{filepath}": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "filepath",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
     "/api/v1/documents/upload/{requestId}": {
       "post": {
         "tags": [
@@ -3662,6 +3687,13 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -3749,6 +3781,29 @@
     },
     "/api/v1/caseroom/{requestId}": {
       "get": {
+        "tags": [
+          "iPath.Blazor.Server"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/caseroom/{requestId}/share-token": {
+      "post": {
         "tags": [
           "iPath.Blazor.Server"
         ],
@@ -7561,6 +7616,10 @@
           "lastSeenAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "isGuest": {
+            "type": "boolean",
+            "default": false
           }
         }
       },

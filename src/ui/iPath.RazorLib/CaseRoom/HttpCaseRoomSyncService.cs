@@ -5,14 +5,17 @@ namespace iPath.Blazor.Componenents.CaseRoom;
 
 public class HttpCaseRoomSyncService(IPathApi api) : ICaseRoomSyncService
 {
-    public Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid sessionId, CancellationToken ct = default)
-        => api.JoinCaseRoom(requestId, new SessionRequest(sessionId)).ContinueWith(t => t.Result.Content!, ct);
+    public Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid sessionId, string? token = null, CancellationToken ct = default)
+        => api.JoinCaseRoom(requestId, new SessionRequest(sessionId), token).ContinueWith(t => t.Result.Content!, ct);
 
     public Task LeaveAsync(Guid requestId, Guid sessionId, CancellationToken ct = default)
         => api.LeaveCaseRoom(requestId, new SessionRequest(sessionId));
 
     public Task SyncAsync(Guid requestId, SyncPayload payload, CancellationToken ct = default)
         => api.SyncCaseRoom(requestId, payload);
+
+    public Task<string> CreateShareTokenAsync(Guid requestId, CancellationToken ct = default)
+        => api.CreateShareToken(requestId).ContinueWith(t => t.Result.Content!.Token, ct);
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 }

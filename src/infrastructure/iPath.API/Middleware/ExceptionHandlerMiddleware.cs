@@ -1,4 +1,4 @@
-﻿using Ardalis.GuardClauses;
+using Ardalis.GuardClauses;
 using iPath.Application.Exceptions;
 using System.Net;
 using System.Text.Json;
@@ -22,6 +22,10 @@ public class ExceptionHandlerMiddleware
         }
         catch (Exception ex)
         {
+            if (context.Response.HasStarted)
+            {
+                throw;
+            }
             await ConvertException(context, ex);
         }
     }

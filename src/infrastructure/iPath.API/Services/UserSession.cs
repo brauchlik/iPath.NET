@@ -1,4 +1,4 @@
-﻿using iPath.Application.Features.Users;
+using iPath.Application.Features.Users;
 using iPath.EF.Core.Database;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,19 +26,33 @@ public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemory
                     // no http context => Server Side Worker
                     _user = SessionUserDto.Server;
                 }
-                else if (ctx.User.Identity.IsAuthenticated)
+                else if (ctx.User.Identity?.IsAuthenticated == true)
                 {
-                    if (Guid.TryParse(ctx?.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value, out var userid))
+                    if (Guid.TryParse(ctx.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value, out var userid))
                     {
-
                         var cachekey = userid.ToString();
-                        if (!cache.TryGetValue(cachekey, out _user))
+                        if (!cache.TryGetValue(cachekey, out var cachedUser))
                         {
-                            _user = LoadUser(userid).Result;
+                            cachedUser = LoadUser(userid).Result;
 
                             var opts = new MemoryCacheEntryOptions()
                                 .SetSlidingExpiration(TimeSpan.FromMinutes(5));
-                            cache.Set(cachekey, _user, opts);
+                            cache.Set(cachekey, cachedUser, opts);
+                        }
+                        _user = (SessionUserDto?)cachedUser;
+                    }
+
+                    if (ctx.User.IsInRole("CaseRoomGuest"))
+                    {
+                        if (_user is null)
+                        {
+                            _user = new SessionUserDto(Guid.Empty, "Guest", "", "", ["CaseRoomGuest"], [], []);
+                        }
+                        else if (!_user.roles.Contains("CaseRoomGuest"))
+                        {
+                            var newRoles = _user.roles.ToList();
+                            newRoles.Add("CaseRoomGuest");
+                            _user = _user with { roles = newRoles.ToArray() };
                         }
                     }
                 }

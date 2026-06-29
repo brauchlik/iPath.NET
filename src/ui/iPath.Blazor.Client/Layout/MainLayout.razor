@@ -29,8 +29,11 @@
         <MudHidden Breakpoint="Breakpoint.Xs">
             <AuthorizeView>
                 <Authorized>
-                    <NotificationBell />
-                    <IPathAvatar />
+                    @if (!context.User.IsInRole("CaseRoomGuest"))
+                    {
+                        <NotificationBell />
+                        <IPathAvatar />
+                    }
                 </Authorized>
             </AuthorizeView>
         </MudHidden>

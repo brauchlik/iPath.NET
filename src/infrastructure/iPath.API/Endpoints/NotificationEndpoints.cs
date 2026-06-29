@@ -18,7 +18,7 @@ public static class NotificationEndpoints
             HttpContext ctx,
             CancellationToken ct) =>
         {
-            if (sess.User is null || !sess.User.IsAuthenticated)
+            if (sess.User is null || (!sess.User.IsAuthenticated && !ctx.User.IsInRole("CaseRoomGuest")))
                 return Results.Unauthorized();
 
             ctx.Response.Headers.ContentType = "text/event-stream";

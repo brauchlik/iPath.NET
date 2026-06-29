@@ -27,7 +27,21 @@
 
             var userId = AppState.User?.Id ?? Guid.Empty;
             var baseUrl = Nav.BaseUri.TrimEnd('/');
-            await Sse.ConnectAsync($"{baseUrl}/api/v1/events/stream", userId);
+            var streamUrl = $"{baseUrl}/api/v1/events/stream";
+
+            var match = System.Text.RegularExpressions.Regex.Match(Nav.Uri, @"/request/([a-f0-9\-]{36})/caseroom", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (match.Success && Guid.TryParse(match.Groups[1].Value, out var reqId))
+            {
+                streamUrl += $"?requestId={reqId}";
+                var uri = new Uri(Nav.Uri);
+                var tokenMatch = System.Text.RegularExpressions.Regex.Match(uri.Query, @"[\?&]token=([^&]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                if (tokenMatch.Success)
+                {
+                    streamUrl += $"&token={tokenMatch.Groups[1].Value}";
+                }
+            }
+
+            await Sse.ConnectAsync(streamUrl, userId);
         }
     }
 

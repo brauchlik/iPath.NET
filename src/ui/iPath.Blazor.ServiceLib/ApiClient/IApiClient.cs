@@ -469,7 +469,7 @@ public interface IPathApi
 
     #region "-- CaseRoom --"
     [Post("/api/v1/caseroom/{requestId}/join")]
-    Task<IApiResponse<CaseRoomSnapshot>> JoinCaseRoom(Guid requestId, [Body] SessionRequest body);
+    Task<IApiResponse<CaseRoomSnapshot>> JoinCaseRoom(Guid requestId, [Body] SessionRequest body, [Query] string? token = null);
 
     [Post("/api/v1/caseroom/{requestId}/leave")]
     Task<IApiResponse> LeaveCaseRoom(Guid requestId, [Body] SessionRequest body);
@@ -479,5 +479,10 @@ public interface IPathApi
 
     [Get("/api/v1/caseroom/{requestId}")]
     Task<IApiResponse<CaseRoomStatus?>> GetCaseRoomStatus(Guid requestId);
+
+    [Post("/api/v1/caseroom/{requestId}/share-token")]
+    Task<IApiResponse<ShareTokenResponse>> CreateShareToken(Guid requestId);
     #endregion
 }
+
+public record ShareTokenResponse(string Token);

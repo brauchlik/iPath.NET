@@ -22,6 +22,16 @@ public partial class CaseRoomPage
     [Inject]
     private SseClientService Sse { get; set; } = null!;
 
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = null!;
+
+    [Inject]
+    private ISnackbar Snackbar { get; set; } = null!;
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? token { get; set; }
+
     private Guid RequestId => Guid.Parse(id);
     private IJSObjectReference? _module;
     private DotNetObjectReference<CaseRoomPage>? _dotNetRef;
@@ -30,6 +40,7 @@ public partial class CaseRoomPage
     private Guid _sessionId = Guid.NewGuid();
     private bool _isApplyingRemote;
     private bool _initialized;
+    private bool _isGuest;
 
     internal ViewportState? CurrentViewport { get; set; }
     internal bool SseConnected { get; set; } = true;
@@ -41,6 +52,8 @@ public partial class CaseRoomPage
         if (firstRender && !_initialized)
         {
             _initialized = true;
+            _isGuest = !AppState.IsAuthenticated;
+
             await vm.LoadNode(RequestId);
 
             _module = await JS.InvokeAsync<IJSObjectReference>(
@@ -48,12 +61,28 @@ public partial class CaseRoomPage
 
             _dotNetRef = DotNetObjectReference.Create(this);
 
-            var snapshot = await SyncService.JoinAsync(RequestId, _sessionId);
+            CaseRoomSnapshot snapshot;
+            try
+            {
+                snapshot = await SyncService.JoinAsync(RequestId, _sessionId, token);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to join CaseRoom");
+                Snackbar.Add("Could not join presentation. Redirecting to login...", Severity.Error);
+                NavigationManager.NavigateTo($"/Account/Login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}", forceLoad: true);
+                return;
+            }
+
             Participants = snapshot.Participants.ToList();
             StateHasChanged();
 
             _syncSub = SyncReceiver.Subscribe(RequestId, OnSyncReceived);
-            Sse.ConnectionError += OnSseError;
+
+            if (!_isGuest)
+            {
+                Sse.ConnectionError += OnSseError;
+            }
 
             if (snapshot.Viewport is not null)
                 CurrentViewport = snapshot.Viewport;
@@ -95,7 +124,7 @@ public partial class CaseRoomPage
     [JSInvokable]
     public async Task OnViewportChanged(double x, double y, double zoom)
     {
-        if (_isApplyingRemote) return;
+        if (_isApplyingRemote || _isGuest) return;
         CurrentViewport = new ViewportState(x, y, zoom);
         Logger.LogInformation("Viewport changed: X={X:F4}, Y={Y:F4}, Zoom={Zoom:F4}", x, y, zoom);
         await SyncService.SyncAsync(RequestId, new SyncPayload(null, CurrentViewport, SessionId: _sessionId));
@@ -108,9 +137,17 @@ public partial class CaseRoomPage
         {
             if (evt.Payload.SessionId == _sessionId) return;
 
+            if (evt.Payload.Action == "HostLeft" && _isGuest)
+            {
+                Logger.LogInformation("Host left the session. Redirecting guest...");
+                Snackbar.Add("The presenter has left the session. Closing CaseRoom.", Severity.Warning);
+                NavigationManager.NavigateTo($"/Account/Login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}", forceLoad: true);
+                return;
+            }
+
             _isApplyingRemote = true;
 
-            if (evt.Payload.Action == "Join" || evt.Payload.Action == "Leave")
+            if (evt.Payload.Action == "Join" || evt.Payload.Action == "Leave" || evt.Payload.Action == "HostLeft")
             {
                 if (evt.Payload.Participants is not null)
                 {
@@ -151,12 +188,20 @@ public partial class CaseRoomPage
         await BroadcastDocumentChange();
     }
 
-    private async Task OnSwipeHandler(SwipeEventArgs args)
+    private async Task ShareRoom()
     {
-        if (args.SwipeDirection == SwipeDirection.RightToLeft)
-            await GotoNext();
-        else if (args.SwipeDirection == SwipeDirection.LeftToRight)
-            await GotoPrevious();
+        try
+        {
+            var tokenString = await SyncService.CreateShareTokenAsync(RequestId, default);
+            var shareUrl = NavigationManager.ToAbsoluteUri($"/request/{id}/caseroom?token={tokenString}").ToString();
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", shareUrl);
+            Snackbar.Add("Share link copied to clipboard!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to create share link");
+            Snackbar.Add("Failed to create share link.", Severity.Error);
+        }
     }
 
     private async Task BroadcastDocumentChange()
@@ -170,15 +215,32 @@ public partial class CaseRoomPage
     private async Task ExitRoom()
     {
         vm.SelectDocument(null);
-        await vm.GoUpRequestPage();
+        if (_isGuest)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("eval", "document.cookie = 'CaseRoomGuestToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to clear guest cookie");
+            }
+            NavigationManager.NavigateTo("/Account/Login", forceLoad: true);
+        }
+        else
+        {
+            await vm.GoUpRequestPage();
+        }
     }
 
     private string GetTileSourceUrl(DocumentDto? doc)
     {
         if (doc is null) return string.Empty;
-        return doc.IsWSI
-            ? $"/files/{doc.Id}.dzi"
-            : $"/files/{doc.Id}";
+        var baseUrl = doc.IsWSI
+            ? $"/api/v1/documents/files/{doc.Id}.dzi"
+            : $"/api/v1/documents/files/{doc.Id}";
+
+        return string.IsNullOrEmpty(token) ? baseUrl : $"{baseUrl}?token={token}";
     }
 
     private void OnSseError(object? sender, EventArgs e)
@@ -193,7 +255,10 @@ public partial class CaseRoomPage
 
     protected override async ValueTask OnDisposedAsync()
     {
-        Sse.ConnectionError -= OnSseError;
+        if (!_isGuest)
+        {
+            Sse.ConnectionError -= OnSseError;
+        }
         _syncSub?.Dispose();
         _pingCts?.Cancel();
         _pingCts?.Dispose();

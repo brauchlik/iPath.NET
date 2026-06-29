@@ -1,4 +1,4 @@
-﻿using iPath.Domain.Config;
+using iPath.Domain.Config;
 using Microsoft.Extensions.Options;
 
 namespace iPath.EF.Core.FeatureHandlers.Documents.Queries;
@@ -7,7 +7,8 @@ namespace iPath.EF.Core.FeatureHandlers.Documents.Queries;
 public class GetDocumentFileHandler(iPathDbContext db,
     IRemoteStorageService srvStorage, 
     IUserSession sess,
-    IOptions<iPathConfig> opts)
+    IOptions<iPathConfig> opts,
+    Microsoft.AspNetCore.Http.IHttpContextAccessor httpContextAccessor)
     : IRequestHandler<GetDocumentFileQuery, Task<FetchFileResponse>>
 {
     public async Task<FetchFileResponse> Handle(GetDocumentFileQuery request, CancellationToken cancellationToken)
@@ -19,10 +20,15 @@ public class GetDocumentFileHandler(iPathDbContext db,
 
         Guard.Against.NotFound(request.documentId, document);
 
+        var isGuestAuthorized = httpContextAccessor.HttpContext?.User?.HasClaim("AuthorizedRequestId", document.ServiceRequest.Id.ToString()) == true;
+
         // TODO: implement authentication 
         try
         {
-            sess.AssertInGroup(document.ServiceRequest.GroupId);
+            if (!isGuestAuthorized)
+            {
+                sess.AssertInGroup(document.ServiceRequest.GroupId);
+            }
         }
         catch (NotAllowedException ex)
         {

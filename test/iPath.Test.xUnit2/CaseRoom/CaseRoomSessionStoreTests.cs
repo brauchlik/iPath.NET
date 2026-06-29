@@ -114,4 +114,65 @@ public class CaseRoomSessionStoreTests
         var status = await store.GetStatusAsync(Guid.NewGuid(), default);
         status.Should().BeNull();
     }
+
+    [Fact]
+    public async Task CreateShareToken_AndValidate_SucceedsOnlyWhenHostIsPresent()
+    {
+        var store = CreateStore();
+        var requestId = Guid.NewGuid();
+
+        // Generate token
+        var token = await store.CreateShareTokenAsync(requestId, default);
+        token.Should().NotBeNullOrEmpty();
+
+        // Validating with no host present should fail
+        var isValidNoHost = await store.IsShareTokenValidAsync(requestId, token, default);
+        isValidNoHost.Should().BeFalse();
+
+        // Join a host
+        await store.JoinAsync(requestId, Guid.NewGuid(), Guid.NewGuid(), "Host User", isGuest: false, default);
+
+        // Validating with host present should succeed
+        var isValidWithHost = await store.IsShareTokenValidAsync(requestId, token, default);
+        isValidWithHost.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task JoinAsync_WithGuestFlag_CorrectlyMarksParticipant()
+    {
+        var store = CreateStore();
+        var requestId = Guid.NewGuid();
+        var sessionId = Guid.NewGuid();
+
+        var snapshot = await store.JoinAsync(requestId, sessionId, Guid.Empty, "Guest User", isGuest: true, default);
+        var guest = snapshot.Participants.Should().ContainSingle(p => p.SessionId == sessionId).Subject;
+        guest.IsGuest.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task LeaveAsync_LastHostLeaves_KicksGuestsAndClearsTokens()
+    {
+        var store = CreateStore();
+        var requestId = Guid.NewGuid();
+        var hostSessionId = Guid.NewGuid();
+        var guestSessionId = Guid.NewGuid();
+
+        // Share token
+        var token = await store.CreateShareTokenAsync(requestId, default);
+
+        // Join host and guest
+        await store.JoinAsync(requestId, hostSessionId, Guid.NewGuid(), "Host User", isGuest: false, default);
+        await store.JoinAsync(requestId, guestSessionId, Guid.Empty, "Guest User", isGuest: true, default);
+
+        // Leave host
+        await store.LeaveAsync(requestId, hostSessionId, default);
+
+        // Verify guest is evicted and token is invalidated
+        var status = await store.GetStatusAsync(requestId, default);
+        status.Should().NotBeNull();
+        status!.ParticipantCount.Should().Be(0); // Guest kicked
+
+        var isTokenValid = await store.IsShareTokenValidAsync(requestId, token, default);
+        isTokenValid.Should().BeFalse(); // Token cleared
+    }
 }

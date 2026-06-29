@@ -47,10 +47,13 @@ export function initOsd(divId, tileSourceUrl, dotNetReference, initialViewport) 
 export function openTileSource(url) {
     if (!viewer) return;
     isApplyingRemote = true;
-    if (url && url.toLowerCase().endsWith('.dzi')) {
-        viewer.open(url);
-    } else {
-        viewer.open({ type: 'image', url: url, buildPyramid: false });
+    if (url) {
+        const cleanUrl = url.split('?')[0];
+        if (cleanUrl.toLowerCase().endsWith('.dzi')) {
+            viewer.open(url);
+        } else {
+            viewer.open({ type: 'image', url: url, buildPyramid: false });
+        }
     }
 }
 

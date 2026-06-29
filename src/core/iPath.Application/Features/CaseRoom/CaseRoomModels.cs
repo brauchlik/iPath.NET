@@ -5,7 +5,7 @@ public record ViewportState(double X, double Y, double Zoom)
     public bool IsValid() => double.IsFinite(X) && double.IsFinite(Y) && double.IsFinite(Zoom) && Zoom > 0;
 }
 
-public record Participant(Guid SessionId, Guid UserId, string DisplayName, DateTimeOffset JoinedAt, DateTimeOffset LastSeenAt);
+public record Participant(Guid SessionId, Guid UserId, string DisplayName, DateTimeOffset JoinedAt, DateTimeOffset LastSeenAt, bool IsGuest = false);
 
 public record SyncPayload(
     Guid? DocumentId,

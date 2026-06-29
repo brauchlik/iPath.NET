@@ -1,10 +1,58 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:VsiConverter.UI.ViewModels"
+        xmlns:conv="clr-namespace:VsiConverter.UI.Converters"
+        xmlns:views="clr-namespace:VsiConverter.UI.Views"
         x:Class="VsiConverter.UI.MainWindow"
+        x:DataType="vm:MainViewModel"
         Title="VSI → DZI Converter"
         Width="950" Height="650">
-  <TextBlock Text="VSI → DZI Converter"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center"
-             FontSize="24" />
+
+  <Window.Resources>
+    <conv:StatusToColorConverter x:Key="StatusToColor" />
+  </Window.Resources>
+
+  <Window.DataTemplates>
+    <DataTemplate DataType="{x:Type vm:ConversionItemViewModel}">
+      <Border Margin="4" Padding="8" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4">
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+          <TextBlock Text="{Binding FileName}" FontWeight="Bold" />
+          <TextBlock Text="{Binding FileSize}" Grid.Column="1" Foreground="Gray" />
+
+          <ProgressBar Grid.Row="1" Grid.ColumnSpan="2"
+                       Value="{Binding Progress}" 
+                       Minimum="0" Maximum="100"
+                       Height="18" Margin="0,4" />
+
+          <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="12">
+            <TextBlock Text="{Binding CompanionStatus}" Foreground="Gray" FontSize="11" />
+            <TextBlock Text="{Binding StatusText}" FontSize="11" />
+            <TextBlock Text="{Binding ElapsedText}" Foreground="Gray" FontSize="11" />
+            <TextBlock Text="{Binding OutputSize}" Foreground="Green" FontSize="11" />
+          </StackPanel>
+        </Grid>
+      </Border>
+    </DataTemplate>
+  </Window.DataTemplates>
+
+  <Grid RowDefinitions="Auto,*,Auto">
+    <!-- Toolbar -->
+    <StackPanel Orientation="Horizontal" Margin="8" Spacing="8">
+      <Button x:Name="BtnAddFiles" Content="+ Add Files" />
+      <Button x:Name="BtnAddFolder" Content="+ Add Folder" />
+      <Button x:Name="BtnClearDone" Content="Clear Done" />
+      <Button x:Name="BtnCancelAll" Content="Cancel All" />
+      <Button x:Name="BtnSettings" Content="⚙" Width="32" />
+    </StackPanel>
+
+    <!-- File list -->
+    <ListBox Grid.Row="1" 
+             ItemsSource="{Binding Queue}"
+             BorderThickness="0" />
+
+    <!-- Status bar -->
+    <Border Grid.Row="2" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="8,4">
+      <TextBlock Text="{Binding StatsText}" />
+    </Border>
+  </Grid>
 </Window>

@@ -1,0 +1,16 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="VsiConverter.UI.Views.AboutDialog"
+        Title="About"
+        Width="350" Height="200"
+        WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="16" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+    <TextBlock Text="VSI → DZI Converter" FontSize="18" FontWeight="Bold" />
+    <TextBlock Text="Version 1.0.0" Foreground="Gray" />
+    <TextBlock TextWrapping="Wrap" TextAlignment="Center">
+      Converts Olympus .vsi whole-slide images to .dzi.zip archives 
+      for use with iPath.NET.
+    </TextBlock>
+    <Button x:Name="BtnOk" Content="OK" HorizontalAlignment="Center" Width="80" Margin="0,8,0,0" />
+  </StackPanel>
+</Window>

@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:VsiConverter.UI.ViewModels"
+        x:Class="VsiConverter.UI.Views.SettingsDialog"
+        x:DataType="vm:SettingsViewModel"
+        Title="Settings"
+        Width="500" Height="400"
+        WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="16" Spacing="12">
+    <TextBlock Text="Compression Quality" FontWeight="Bold" />
+    <Grid ColumnDefinitions="*,Auto">
+      <Slider Minimum="50" Maximum="100" TickFrequency="5"
+              Value="{Binding CompressionQuality}" />
+      <TextBlock Grid.Column="1" Text="{Binding CompressionQuality, StringFormat='{}{0}%'}"
+                 Width="40" TextAlignment="Center" />
+    </Grid>
+
+    <TextBlock Text="Toolchain" FontWeight="Bold" Margin="0,8,0,0" />
+    
+    <Border BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4" Padding="8">
+      <StackPanel Spacing="4">
+        <TextBlock Text="{Binding StatusText}" Foreground="Gray" />
+        <TextBlock>Java: <Run Text="{Binding JavaVersion}" /></TextBlock>
+        <TextBlock>bfconvert: <Run Text="{Binding BfconvertPath}" /></TextBlock>
+        <TextBlock>vips: <Run Text="{Binding VipsPath}" /></TextBlock>
+      </StackPanel>
+    </Border>
+
+    <StackPanel Orientation="Horizontal" Spacing="8">
+      <Button x:Name="BtnCheck" Content="Check Tools" />
+      <Button x:Name="BtnDownloadBf" Content="Download bfconvert" />
+      <Button x:Name="BtnDownloadVips" Content="Download vips" />
+    </StackPanel>
+
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,16,0,0">
+      <Button x:Name="BtnClose" Content="Close" />
+    </StackPanel>
+  </StackPanel>
+</Window>

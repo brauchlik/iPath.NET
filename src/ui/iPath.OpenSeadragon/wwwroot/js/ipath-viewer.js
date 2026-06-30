@@ -14,7 +14,6 @@ export function initOsd(divId, tileSourceUrl, dotNetReference, initialViewport) 
         minZoomImageRatio: 1,
         prefixUrl: "_content/iPath.OpenSeadragon/images/",
         crossOriginPolicy: "CorsPolicy",
-        showNavigationControl: false,
     });
 
     viewer.addHandler('open', () => {

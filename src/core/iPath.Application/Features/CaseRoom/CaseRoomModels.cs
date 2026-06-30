@@ -16,19 +16,23 @@ public record SyncPayload(
     string? Action = null,
     Participant[]? Participants = null,
     Guid? ControllingSessionId = null,
-    PointerState? Pointer = null);
+    PointerState? Pointer = null,
+    bool? IsWSI = null,
+    string? Filename = null);
 
 public record CaseRoomSnapshot(
     Guid RequestId,
-    Guid? ActiveDocumentId,
+    Guid ActiveDocumentId,
     ViewportState? Viewport,
     Participant[] Participants,
     Guid? ControllingSessionId = null,
-    PointerState? Pointer = null);
+    PointerState? Pointer = null,
+    bool? ActiveDocumentIsWSI = null,
+    string? ActiveDocumentFilename = null);
 
 public record CaseRoomStatus(bool IsActive, int ParticipantCount, string[] ParticipantNames);
 
-public record SessionRequest(Guid SessionId);
+public record SessionRequest(Guid SessionId, Guid? InitialDocumentId = null, bool? InitialIsWSI = null, string? InitialFilename = null);
 
 public record CaseRoomSyncEvent(
     Guid RequestId,

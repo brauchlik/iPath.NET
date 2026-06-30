@@ -939,16 +939,16 @@ public class DirectApiClient(
             username = userSession.User.Username;
         }
 
-        var snap = await caseRoomStore.JoinAsync(requestId, body.SessionId, userId, username, isGuest, default);
+        var snap = await caseRoomStore.JoinAsync(requestId, body.SessionId, userId, username, isGuest, body.InitialDocumentId, body.InitialIsWSI, body.InitialFilename, default);
         return Respond(snap);
     }
 
-    public async Task<IApiResponse<ShareTokenResponse>> CreateShareToken(Guid requestId)
+    public async Task<IApiResponse<ShareTokenResponse>> CreateShareToken(Guid requestId, SessionRequest body)
     {
         if (caseRoomStore is null || userSession.User is null)
             return RespondError<ShareTokenResponse>();
 
-        var token = await caseRoomStore.CreateShareTokenAsync(requestId, default);
+        var token = await caseRoomStore.CreateShareTokenAsync(requestId, body.InitialDocumentId, body.InitialIsWSI, body.InitialFilename, default);
         return Respond(new ShareTokenResponse(token));
     }
 

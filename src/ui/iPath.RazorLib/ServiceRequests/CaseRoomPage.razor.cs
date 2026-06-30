@@ -46,6 +46,10 @@ public partial class CaseRoomPage
     private bool _pointerToolActive;
     private System.Threading.CancellationTokenSource? _pointerHideCts;
 
+    private Guid? _activeDocumentId;
+    private bool? _activeDocumentIsWSI;
+    internal string? _activeFilename;
+
     internal ViewportState? CurrentViewport { get; set; }
     internal bool SseConnected { get; set; } = true;
 
@@ -58,7 +62,10 @@ public partial class CaseRoomPage
             _initialized = true;
             _isGuest = !AppState.IsAuthenticated;
 
-            await vm.LoadNode(RequestId, loadGroup: false);
+            if (!_isGuest)
+            {
+                await vm.LoadNode(RequestId, loadGroup: false);
+            }
 
             _module = await JS.InvokeAsync<IJSObjectReference>(
                 "import", "./_content/iPath.Blazor.Componenents/js/ipath-caseroom.js");
@@ -68,7 +75,21 @@ public partial class CaseRoomPage
             CaseRoomSnapshot? snapshot = null;
             try
             {
-                snapshot = await SyncService.JoinAsync(RequestId, _sessionId, token);
+                Guid? initDocId = null;
+                bool? initIsWSI = null;
+                string? initFilename = null;
+                
+                if (!_isGuest)
+                {
+                    initDocId = vm.SelectedDocument?.Id ?? vm.SelectedRequest?.Documents.FirstOrDefault(n => n.IsSlide)?.Id;
+                    if (initDocId.HasValue)
+                    {
+                        var doc = vm.SelectedRequest?.Documents.FirstOrDefault(d => d.Id == initDocId.Value);
+                        initIsWSI = doc?.IsWSI;
+                        initFilename = doc?.File?.Filename;
+                    }
+                }
+                snapshot = await SyncService.JoinAsync(RequestId, _sessionId, token, initDocId, initIsWSI, initFilename);
             }
             catch (Exception ex)
             {
@@ -98,14 +119,28 @@ public partial class CaseRoomPage
             if (snapshot.Viewport is not null)
                 CurrentViewport = snapshot.Viewport;
 
-            var docId = snapshot.ActiveDocumentId ??
-                        vm.SelectedRequest?.Documents.FirstOrDefault(n => n.IsSlide)?.Id;
+            _activeDocumentId = snapshot.ActiveDocumentId;
+            if (_activeDocumentId == Guid.Empty)
+                _activeDocumentId = vm.SelectedRequest?.Documents.FirstOrDefault(n => n.IsSlide)?.Id;
+            _activeDocumentIsWSI = snapshot.ActiveDocumentIsWSI;
+            _activeFilename = snapshot.ActiveDocumentFilename;
 
-            if (docId.HasValue)
+            if (_activeDocumentId.HasValue)
             {
-                vm.SelectDocument(docId.Value);
-                var doc = vm.SelectedDocument;
-                var url = GetTileSourceUrl(doc);
+                if (!_isGuest)
+                {
+                    vm.SelectDocument(_activeDocumentId.Value);
+                    _activeDocumentIsWSI = vm.SelectedDocument?.IsWSI ?? _activeDocumentIsWSI;
+                    _activeFilename = vm.SelectedDocument?.File?.Filename ?? _activeFilename;
+                    
+                    if (snapshot.ActiveDocumentId == Guid.Empty && vm.SelectedDocument is not null)
+                    {
+                        _ = SyncService.SyncAsync(RequestId, new SyncPayload(
+                            vm.SelectedDocument.Id, null, SessionId: _sessionId, 
+                            IsWSI: vm.SelectedDocument.IsWSI, Filename: vm.SelectedDocument.File?.Filename));
+                    }
+                }
+                var url = GetTileSourceUrl(_activeDocumentId, _activeDocumentIsWSI);
                 await _module.InvokeVoidAsync("initOsd", "osd-caseroom", url, _dotNetRef, snapshot.Viewport);
             }
             else
@@ -218,8 +253,18 @@ public partial class CaseRoomPage
 
             if (evt.Payload.DocumentId.HasValue && _module is not null)
             {
-                vm.SelectDocument(evt.Payload.DocumentId.Value);
-                var url = GetTileSourceUrl(vm.SelectedDocument);
+                _activeDocumentId = evt.Payload.DocumentId.Value;
+                _activeDocumentIsWSI = evt.Payload.IsWSI;
+                _activeFilename = evt.Payload.Filename;
+                
+                if (!_isGuest)
+                {
+                    vm.SelectDocument(_activeDocumentId.Value);
+                    _activeDocumentIsWSI = vm.SelectedDocument?.IsWSI ?? _activeDocumentIsWSI;
+                    _activeFilename = vm.SelectedDocument?.File?.Filename ?? _activeFilename;
+                }
+                
+                var url = GetTileSourceUrl(_activeDocumentId, _activeDocumentIsWSI);
                 await _module.InvokeVoidAsync("openTileSource", url);
             }
 
@@ -266,7 +311,7 @@ public partial class CaseRoomPage
     {
         try
         {
-            var tokenString = await SyncService.CreateShareTokenAsync(RequestId, default);
+            var tokenString = await SyncService.CreateShareTokenAsync(RequestId, _activeDocumentId, _activeDocumentIsWSI, _activeFilename);
             var shareUrl = NavigationManager.ToAbsoluteUri($"/request/{id}/caseroom?token={tokenString}").ToString();
             await JS.InvokeVoidAsync("navigator.clipboard.writeText", shareUrl);
             Snackbar.Add("Share link copied to clipboard!", Severity.Success);
@@ -281,9 +326,13 @@ public partial class CaseRoomPage
     private async Task BroadcastDocumentChange()
     {
         if (vm.SelectedDocument is null) return;
-        await SyncService.SyncAsync(RequestId, new SyncPayload(vm.SelectedDocument.Id, null, SessionId: _sessionId));
+        _activeDocumentId = vm.SelectedDocument.Id;
+        _activeDocumentIsWSI = vm.SelectedDocument.IsWSI;
+        _activeFilename = vm.SelectedDocument.File?.Filename;
+        
+        await SyncService.SyncAsync(RequestId, new SyncPayload(vm.SelectedDocument.Id, null, SessionId: _sessionId, IsWSI: vm.SelectedDocument.IsWSI, Filename: vm.SelectedDocument.File?.Filename));
         if (_module is not null)
-            await _module.InvokeVoidAsync("openTileSource", GetTileSourceUrl(vm.SelectedDocument));
+            await _module.InvokeVoidAsync("openTileSource", GetTileSourceUrl(_activeDocumentId, _activeDocumentIsWSI));
     }
 
     private async Task TakeControl()
@@ -383,12 +432,12 @@ public partial class CaseRoomPage
         }
     }
 
-    private string GetTileSourceUrl(DocumentDto? doc)
+    private string GetTileSourceUrl(Guid? docId, bool? isWSI)
     {
-        if (doc is null) return string.Empty;
-        var baseUrl = doc.IsWSI
-            ? $"/api/v1/documents/files/{doc.Id}.dzi"
-            : $"/api/v1/documents/files/{doc.Id}";
+        if (docId is null) return string.Empty;
+        var baseUrl = isWSI == true
+            ? $"/api/v1/documents/files/{docId}.dzi"
+            : $"/api/v1/documents/files/{docId}";
 
         return string.IsNullOrEmpty(token) ? baseUrl : $"{baseUrl}?token={token}";
     }

@@ -28,7 +28,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         _ = StartCleanupLoopAsync(_cleanupCts.Token);
     }
 
-    public async Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid sessionId, Guid userId, string displayName, bool isGuest = false, CancellationToken ct = default)
+    public async Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid sessionId, Guid userId, string displayName, bool isGuest = false, Guid? initialDocumentId = null, bool? initialIsWSI = null, string? initialFilename = null, CancellationToken ct = default)
     {
         var entry = _sessions.GetOrAdd(requestId, rid => new SessionEntry
         {
@@ -36,7 +36,10 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
             {
                 RequestId = rid,
                 CreatedAt = DateTimeOffset.UtcNow,
-                CreatedBy = userId
+                CreatedBy = userId,
+                ActiveDocumentId = initialDocumentId ?? Guid.Empty,
+                ActiveDocumentIsWSI = initialIsWSI,
+                ActiveDocumentFilename = initialFilename
             }
         });
 
@@ -222,7 +225,9 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 
                 if (payload.DocumentId.HasValue && entry.Session.ActiveDocumentId != payload.DocumentId)
                 {
-                    entry.Session.ActiveDocumentId = payload.DocumentId;
+                    entry.Session.ActiveDocumentId = payload.DocumentId.Value;
+                    entry.Session.ActiveDocumentIsWSI = payload.IsWSI;
+                    entry.Session.ActiveDocumentFilename = payload.Filename;
                 }
 
                 if (payload.Pointer is not null)
@@ -286,7 +291,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         }
     }
 
-    public Task<string> CreateShareTokenAsync(Guid requestId, CancellationToken ct)
+    public Task<string> CreateShareTokenAsync(Guid requestId, Guid? initialDocumentId = null, bool? initialIsWSI = null, string? initialFilename = null, CancellationToken ct = default)
     {
         var entry = _sessions.GetOrAdd(requestId, rid => new SessionEntry
         {
@@ -294,7 +299,10 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
             {
                 RequestId = rid,
                 CreatedAt = DateTimeOffset.UtcNow,
-                CreatedBy = Guid.Empty
+                CreatedBy = Guid.Empty,
+                ActiveDocumentId = initialDocumentId ?? Guid.Empty,
+                ActiveDocumentIsWSI = initialIsWSI,
+                ActiveDocumentFilename = initialFilename
             }
         });
 
@@ -439,7 +447,9 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         session.CurrentViewport,
         session.Participants.Values.ToArray(),
         session.ControllingSessionId,
-        session.CurrentPointer
+        session.CurrentPointer,
+        session.ActiveDocumentIsWSI,
+        session.ActiveDocumentFilename
     );
 
     public void Dispose()
@@ -458,7 +468,9 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
     private sealed class CaseRoomSessionData
     {
         public Guid RequestId { get; init; }
-        public Guid? ActiveDocumentId { get; set; }
+        public Guid ActiveDocumentId { get; set; }
+        public bool? ActiveDocumentIsWSI { get; set; }
+        public string? ActiveDocumentFilename { get; set; }
         public ViewportState? CurrentViewport { get; set; }
         public Guid? ControllingSessionId { get; set; }
         public PointerState? CurrentPointer { get; set; }

@@ -35,7 +35,7 @@ public static class CaseRoomEndpoints
                 username = sess.User.Username;
             }
 
-            var snapshot = await store.JoinAsync(requestId, body.SessionId, userId, username, isGuest, ct);
+            var snapshot = await store.JoinAsync(requestId, body.SessionId, userId, username, isGuest, body.InitialDocumentId, body.InitialIsWSI, body.InitialFilename, ct);
             return Results.Ok(snapshot);
         });
 
@@ -78,6 +78,7 @@ public static class CaseRoomEndpoints
 
         group.MapPost("{requestId:guid}/share-token", async (
             Guid requestId,
+            SessionRequest body,
             [FromServices] ICaseRoomSessionStore store,
             [FromServices] IUserSession sess,
             CancellationToken ct) =>
@@ -85,7 +86,7 @@ public static class CaseRoomEndpoints
             if (sess.User is null || !sess.User.IsAuthenticated)
                 return Results.Unauthorized();
 
-            var token = await store.CreateShareTokenAsync(requestId, ct);
+            var token = await store.CreateShareTokenAsync(requestId, body.InitialDocumentId, body.InitialIsWSI, body.InitialFilename, ct);
             return Results.Ok(new { token });
         }).RequireAuthorization();
 

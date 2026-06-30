@@ -3047,50 +3047,6 @@
         }
       }
     },
-    "/api/v1/google/proxy/{docId}": {
-      "get": {
-        "tags": [
-          "Google"
-        ],
-        "parameters": [
-          {
-            "name": "docId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/v1/google/proxy_direct/{docId}": {
-      "get": {
-        "tags": [
-          "Google"
-        ],
-        "parameters": [
-          {
-            "name": "docId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/v1/admin/email-import/mailboxes": {
       "get": {
         "tags": [
@@ -3911,6 +3867,16 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -8802,6 +8768,25 @@
           "sessionId": {
             "type": "string",
             "format": "uuid"
+          },
+          "initialDocumentId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "initialIsWSI": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "initialFilename": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -9050,6 +9035,18 @@
               {
                 "$ref": "#/components/schemas/PointerState"
               }
+            ]
+          },
+          "isWSI": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
+          "filename": {
+            "type": [
+              "null",
+              "string"
             ]
           }
         }
@@ -10546,9 +10543,6 @@
     },
     {
       "name": "Web Content"
-    },
-    {
-      "name": "Google"
     },
     {
       "name": "Email Import"

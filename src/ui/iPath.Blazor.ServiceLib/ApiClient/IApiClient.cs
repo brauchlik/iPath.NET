@@ -490,7 +490,7 @@ public interface IPathApi
     Task<IApiResponse<CaseRoomStatus?>> GetCaseRoomStatus(Guid requestId);
 
     [Post("/api/v1/caseroom/{requestId}/share-token")]
-    Task<IApiResponse<ShareTokenResponse>> CreateShareToken(Guid requestId);
+    Task<IApiResponse<ShareTokenResponse>> CreateShareToken(Guid requestId, [Body] SessionRequest body);
     #endregion
 }
 

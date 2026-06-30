@@ -18,7 +18,7 @@ public class InMemoryCaseRoomSyncService : ICaseRoomSyncService
         _userSession = userSession;
     }
 
-    public async Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid sessionId, string? token = null, CancellationToken ct = default)
+    public async Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid sessionId, string? token = null, Guid? initialDocumentId = null, bool? initialIsWSI = null, string? initialFilename = null, CancellationToken ct = default)
     {
         bool isGuest = false;
         Guid userId;
@@ -48,7 +48,7 @@ public class InMemoryCaseRoomSyncService : ICaseRoomSyncService
         }
 
         _joinedSessions.Add((requestId, sessionId));
-        return await _store.JoinAsync(requestId, sessionId, userId, username, isGuest, ct);
+        return await _store.JoinAsync(requestId, sessionId, userId, username, isGuest, initialDocumentId, initialIsWSI, initialFilename, ct);
     }
 
     public Task LeaveAsync(Guid requestId, Guid sessionId, CancellationToken ct = default)
@@ -62,11 +62,11 @@ public class InMemoryCaseRoomSyncService : ICaseRoomSyncService
         return _store.SyncAsync(requestId, payload.SessionId ?? Guid.Empty, _userSession.User.Id, payload, ct);
     }
 
-    public Task<string> CreateShareTokenAsync(Guid requestId, CancellationToken ct = default)
+    public Task<string> CreateShareTokenAsync(Guid requestId, Guid? initialDocumentId = null, bool? initialIsWSI = null, string? initialFilename = null, CancellationToken ct = default)
     {
         if (_userSession.User is null)
             throw new InvalidOperationException("User not authenticated");
-        return _store.CreateShareTokenAsync(requestId, ct);
+        return _store.CreateShareTokenAsync(requestId, initialDocumentId, initialIsWSI, initialFilename, ct);
     }
 
     public async ValueTask DisposeAsync()

@@ -72,11 +72,11 @@
             </div>
         </div>
 
-        @if (vm.SelectedDocument?.File?.Filename is not null)
+        @if (!string.IsNullOrEmpty(_activeFilename))
         {
             <div class="mt-1">
                 <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px; font-family: sans-serif; font-weight: 500;">
-                    @vm.SelectedDocument.File.Filename
+                    @_activeFilename
                 </span>
             </div>
         }

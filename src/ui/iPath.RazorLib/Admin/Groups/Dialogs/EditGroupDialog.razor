@@ -13,7 +13,9 @@
         <MudForm Model="@Model" @ref="frm" Spacing="2" Style="min-width: 800px;">
             <MudTextField @bind-Value="@Model.Name" Label="Name" Required="true" Variant="Variant.Outlined" />
             <OwnerLookup Label="Group Owner" Class="mt-4" @bind-Value="Model.Owner" Variant="Variant.Outlined" />
-            <GroupSettingsForm Model="@Model.Settings" Variant="Variant.Outlined" />
+            <GroupSettingsForm Model="@Model.Settings" Variant="Variant.Outlined"
+                               CommunityTopographyValueSet="@Model.CommunityTopographyValueSet"
+                               CommunityMorphologyValueSet="@Model.CommunityMorphologyValueSet" />
         </MudForm>
         @if (!string.IsNullOrEmpty(ErrorMessage))
         {

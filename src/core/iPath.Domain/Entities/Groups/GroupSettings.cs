@@ -31,6 +31,9 @@ public class GroupSettings
 
     public ICollection<eAnnotationType> AllowedAnnotationTypes { get; set; } = [ eAnnotationType.Comment, eAnnotationType.FinalAssesment, eAnnotationType.FollowUp ];
 
+    public string? TopographyValueSet { get; set; }
+    public string? MorphologyValueSet { get; set; }
+
 
     public StorageInfo? Storage { get; set; }
 

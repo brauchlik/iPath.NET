@@ -2865,6 +2865,18 @@
         }
       }
     },
+    "/api/v1/fhir/valuesets": {
+      "get": {
+        "tags": [
+          "Fhir"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/fhir/{resource}/{id}": {
       "get": {
         "tags": [
@@ -6999,6 +7011,18 @@
             "items": {
               "$ref": "#/components/schemas/eAnnotationType"
             }
+          },
+          "topographyValueSet": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "morphologyValueSet": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "storage": {
             "oneOf": [

@@ -33,4 +33,15 @@ public class FileFhirDataLoader(IOptions<iPathConfig> opts) : IFhirDataLoader
         }
         return null;
     }
+
+    public Task<IEnumerable<string>> ListAvailableValueSetIdsAsync(CancellationToken ct = default)
+    {
+        var dir = Path.Combine(opts.Value.FhirResourceFilePath, "ValueSet");
+        if (!Directory.Exists(dir))
+            return Task.FromResult(Enumerable.Empty<string>());
+
+        var ids = Directory.EnumerateFiles(dir, "*.json")
+            .Select(f => Path.GetFileNameWithoutExtension(f));
+        return Task.FromResult(ids);
+    }
 }

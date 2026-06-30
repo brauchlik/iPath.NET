@@ -14,6 +14,16 @@ public static class FhirEndpoints
 
 
 
+        fhir.MapGet("valuesets", (IOptions<iPathConfig> opts) =>
+        {
+            var dir = System.IO.Path.Combine(opts.Value.FhirResourceFilePath, "ValueSet");
+            if (!System.IO.Directory.Exists(dir))
+                return Results.Ok(Array.Empty<string>());
+            var files = System.IO.Directory.EnumerateFiles(dir, "*.json")
+                .Select(f => System.IO.Path.GetFileNameWithoutExtension(f));
+            return Results.Ok(files);
+        });
+
         fhir.MapGet("{resource}/{id}", async (string resource, string id, IOptions<iPathConfig> opts, IMediator mediator) =>
         {
             var dir = opts.Value.FhirResourceFilePath;

@@ -30,8 +30,15 @@ public static class GroupExtensions
 
         public bool CaseTypeActive => dto?.Settings is not null && dto.Settings.UseCaseTypeField;
 
-        public string TopographyValueSet => string.IsNullOrEmpty(dto?.Community?.Settings?.TopographyValueSet) ? "icdo-topo" : dto.Community.Settings.TopographyValueSet;
-        public string MorphologyValueSet => string.IsNullOrEmpty(dto?.Community?.Settings?.MorphologyValueSet) ? "icdo-morpho" : dto.Community.Settings.MorphologyValueSet;
+        public string TopographyValueSet =>
+            !string.IsNullOrEmpty(dto?.Settings?.TopographyValueSet) ? dto.Settings.TopographyValueSet
+            : !string.IsNullOrEmpty(dto?.Community?.Settings?.TopographyValueSet) ? dto.Community.Settings.TopographyValueSet
+            : "icdo-topo";
+
+        public string MorphologyValueSet =>
+            !string.IsNullOrEmpty(dto?.Settings?.MorphologyValueSet) ? dto.Settings.MorphologyValueSet
+            : !string.IsNullOrEmpty(dto?.Community?.Settings?.MorphologyValueSet) ? dto.Community.Settings.MorphologyValueSet
+            : "icdo-morpho";
 
     }
 }

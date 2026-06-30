@@ -1,5 +1,6 @@
 ﻿@namespace iPath.Blazor.Componenents.Groups
 @inject IStringLocalizer T
+@inject iPath.Application.Fhir.IFhirDataLoader FhirLoader
 
 @if (Model is not null)
 {
@@ -78,6 +79,25 @@
                         Variant="@Variant" Margin="Margin.Dense" ShrinkLabel="true" />
         }
 
+        <MudText Typo="Typo.h6" Class="mt-4">@T["Coding ValueSets"]</MudText>
+
+        <MudGrid Spacing="2">
+            <MudItem xs="12" sm="6">
+                <MudAutocomplete Label=@T["Topography ValueSet (override)"]
+                                 @bind-Value="Model.TopographyValueSet"
+                                 SearchFunc="SearchValueSets"
+                                 HelperText="@TopographyHelper"
+                                 Variant="@Variant" Margin="Margin.Dense" ShrinkLabel="true" Clearable="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudAutocomplete Label=@T["Morphology ValueSet (override)"]
+                                 @bind-Value="Model.MorphologyValueSet"
+                                 SearchFunc="SearchValueSets"
+                                 HelperText="@MorphologyHelper"
+                                 Variant="@Variant" Margin="Margin.Dense" ShrinkLabel="true" Clearable="true" />
+            </MudItem>
+        </MudGrid>
+
     </MudForm>
 }
 
@@ -91,8 +111,34 @@
     [Parameter]
     public int Spacing { get; set; }
 
+    [Parameter]
+    public string? CommunityTopographyValueSet { get; set; }
+
+    [Parameter]
+    public string? CommunityMorphologyValueSet { get; set; }
+
 
     private string CaseTypeList = "";
+
+    private string TopographyHelper
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(Model?.TopographyValueSet))
+                return $"Override: {Model.TopographyValueSet} (community default: {CommunityTopographyValueSet ?? "icdo-topo"})";
+            return $"Community default: {CommunityTopographyValueSet ?? "icdo-topo"}";
+        }
+    }
+
+    private string MorphologyHelper
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(Model?.MorphologyValueSet))
+                return $"Override: {Model.MorphologyValueSet} (community default: {CommunityMorphologyValueSet ?? "icdo-morpho"})";
+            return $"Community default: {CommunityMorphologyValueSet ?? "icdo-morpho"}";
+        }
+    }
 
     protected override void OnParametersSet()
     {
@@ -104,5 +150,13 @@
     {
         if (Model is not null)
             Model.CaseTypes = CaseTypeList.Split("\n").Select(x => x.Trim()).ToList();
+    }
+
+    private async Task<IEnumerable<string>> SearchValueSets(string search, CancellationToken ct)
+    {
+        var all = await FhirLoader.ListAvailableValueSetIdsAsync(ct);
+        if (string.IsNullOrEmpty(search))
+            return all;
+        return all.Where(v => v.Contains(search, StringComparison.OrdinalIgnoreCase));
     }
 }

@@ -4,6 +4,7 @@ using iPath.Application.Fhir;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.IO.Pipelines;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace iPath.Blazor.ServiceLib.Fhir;
@@ -69,5 +70,23 @@ public class HttpFhirDataLoader : IFhirDataLoader
             _logger.LogError(ex, ex.Message);
         }
         return null;
+    }
+
+    public async Task<IEnumerable<string>> ListAvailableValueSetIdsAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            using var http = _fct.CreateClient("Fhir");
+            var resp = await http.GetAsync("valuesets", ct);
+            if (resp.IsSuccessStatusCode)
+            {
+                return await resp.Content.ReadFromJsonAsync<IEnumerable<string>>() ?? [];
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to list ValueSets");
+        }
+        return [];
     }
 }

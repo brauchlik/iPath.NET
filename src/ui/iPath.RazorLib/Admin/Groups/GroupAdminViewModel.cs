@@ -219,6 +219,16 @@ public class GroupAdminViewModel(IPathApi api,
                 Community = SelectedGroup.Community,
             };
 
+            if (SelectedGroup.Community is not null)
+            {
+                var resp = await api.GetCommunity(SelectedGroup.Community.Id);
+                if (snackbar.CheckSuccess(resp) && resp.Content?.Settings is not null)
+                {
+                    m.CommunityTopographyValueSet = resp.Content.Settings.TopographyValueSet;
+                    m.CommunityMorphologyValueSet = resp.Content.Settings.MorphologyValueSet;
+                }
+            }
+
             var p = new DialogParameters<EditGroupDialog> { { x => x.Model, m } };
             DialogOptions opts = new() { MaxWidth = MaxWidth.Medium, FullWidth = false, NoHeader = false };
             var dlg = await dialog.ShowAsync<EditGroupDialog>(T["Edit group"], options: opts, parameters: p);

@@ -11,4 +11,6 @@ public class GroupEditModel
     public GroupSettings Settings { get; set; } = new();
     public OwnerDto? Owner { get; set; }
     public CommunityListDto? Community { get; set; }
+    public string? CommunityTopographyValueSet { get; set; }
+    public string? CommunityMorphologyValueSet { get; set; }
 }

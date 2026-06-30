@@ -1,0 +1,656 @@
+{
+  "resourceType": "ValueSet",
+  "id": "icdo-topography-3-2-de",
+  "meta": {
+    "profile": [
+      "http://hl7.org/fhir/StructureDefinition/shareablevalueset"
+    ]
+  },
+  "language": "en",
+  "url": "https://terminologien.bfarm.de/fhir/ValueSet/icdo-topography",
+  "version": "3.2",
+  "name": "ICDO_Topography",
+  "title": "ICD-O-3 Topographische Schlüsselnummern",
+  "status": "active",
+  "experimental": false,
+  "date": "2021-01-29",
+  "publisher": "BfArM",
+  "contact": [
+    {
+      "telecom": [
+        {
+          "system": "email",
+          "value": "klassi@bfarm.de"
+        },
+        {
+          "system": "url",
+          "value": "https://www.bfarm.de"
+        }
+      ]
+    }
+  ],
+  "description": "Die Internationale Klassifikation der Krankheiten für die Onkologie, Dritte Ausgabe (ICD-O-3) Zweite Revision 2019 ist die amtliche Klassifikation zur Verschlüsselung von Tumorerkrankungen, die vorrangig in Krebsregistern in Deutschland verwendet wird. Die ICD-O-3 ist eine duale Klassifikation. Sie enthält einen Schlüssel für die Lokalisation und einen Schlüssel für die Histologie einer Neubildung. Der Lokalisationskode beschreibt den Sitz der Neubildung und verwendet in der Regel dieselben drei- und vierstelligen Schlüsselnummern, die in der ICD-10 für die bösartigen Neubildungen benutzt werden. Dies führt zu einer größeren Genauigkeit bei der Kodierung der Lokalisation benigner Tumoren, als sie in der ICD-10 erreicht wird. Der morphologische Kode beschreibt den Zelltyp der Neubildung und ihr biologisches Verhalten. Er charakterisiert sozusagen die Neubildung selbst. ValueSet mit allen topographischen Schlüsselnummern der ICD-O-3",
+  "copyright": "Copyright WHO, BfArM - Die Erstellung erfolgt unter Verwendung der maschinenlesbaren Fassung des Bundesinstituts für Arzneimittel und Medizinprodukte (BfArM). ICD-O-3-Kodes, -Begriffe und -Texte © Bundesinstitut für Arzneimittel und Medizinprodukte (BfArM), übersetzt von der International classification of diseases for oncology, 3rd edition – ICD-O-3, herausgegeben durch die Weltgesundheitsorganisation. Die ICD-O-3 muss so genutzt werden, wie in der Klassifikation und in den einführenden Kapiteln und in den Anhängen zur ICD-O-3 beschrieben.",
+  "compose": {
+    "include": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "filter": [
+          {
+            "property": "concept",
+            "op": "descendent-of",
+            "value": "T"
+          },
+          {
+            "property": "classKind",
+            "op": "=",
+            "value": "category"
+          }
+        ]
+      }
+    ]
+  },
+  "expansion": {
+    "identifier": "urn:uuid:06c783e6-6bbf-47ab-a553-33a926c270a8",
+    "timestamp": "2025-07-30",
+    "total": 98,
+    "offset": 0,
+    "parameter": [
+      {
+        "name": "displayLanguage",
+        "valueString": "en"
+      }
+    ],
+    "contains": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40",
+        "display": "BONES, JOINTS AND ARTICULAR CARTILAGE OF LIMBS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40-C41",
+        "display": "Bone and articular cartilage"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40.0",
+        "display": "Bone of shoulder"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.0.300",
+        "display": "Scapula"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.0.302",
+        "display": "Humerus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.0.303",
+        "display": "Radius"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.0.304",
+        "display": "Ulna"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.0.309",
+        "display": "Arm bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.0.398",
+        "display": "Bones of the shoulder"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.0.399",
+        "display": "Shoulder girdle"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.0.700",
+        "display": "Shoulder joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.0.701",
+        "display": "Acromioclavicular joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.0.702",
+        "display": "Elbow joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40.1",
+        "display": "Hand joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.1.310",
+        "display": "Metacarpal bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.1.311",
+        "display": "Finger bones"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.1.369",
+        "display": "Carpal bones"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.1.703",
+        "display": "Wrist joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40.2",
+        "display": "Long bones of lower extremities and associated joints"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.2.470",
+        "display": "Femur"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.2.471",
+        "display": "Patella"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.2.472",
+        "display": "Tibia"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.2.473",
+        "display": "Fibula"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.2.870",
+        "display": "Knee joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40.3",
+        "display": "Ankle joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.3.410",
+        "display": "1. Metatarsal bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.3.411",
+        "display": "Phalanx of foot"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.3.419",
+        "display": "Metatarsal bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.3.420",
+        "display": "2. Metatarsal bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.3.430",
+        "display": "3. Metatarsal bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.3.440",
+        "display": "4. Metatarsal bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.3.450",
+        "display": "5. Metatarsal bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.3.460",
+        "display": "Talus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.3.461",
+        "display": "Calcaneus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.3.469",
+        "display": "Tarsal bones Fusswurzelknochen"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C40.3.871",
+        "display": "Ankle joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40.8",
+        "display": "Overlapping lesion of bones, joints and articular cartilage of limbs"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C40.9",
+        "display": "Articular cartilage of limb, NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41",
+        "display": "BONES, JOINTS AND ARTICULAR CARTILAGE OF OTHER AND UNSPECIFIED SITES"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.0",
+        "display": "Hyoid bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.0.100",
+        "display": "Occipital bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.0.101",
+        "display": "Sphenoid/Clivus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.0.102",
+        "display": "Temporal bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.0.106",
+        "display": "Frontal bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.0.107",
+        "display": "Parietal bone"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.0.109",
+        "display": "Calvarium"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.0.119",
+        "display": "Nose NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.0.120",
+        "display": "Maxillary sinus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.0.122",
+        "display": "Orbit"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.0.129",
+        "display": "Maxilla"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.0.199",
+        "display": "Facial bones"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.1",
+        "display": "Mandible"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.1.149",
+        "display": "Mandible"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.2",
+        "display": "Spine"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.201",
+        "display": "Atlas"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.202",
+        "display": "Axix"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.203",
+        "display": "3. cervical vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.204",
+        "display": "4. cervical vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.205",
+        "display": "5.cervical vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.206",
+        "display": "6.cervical vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.207",
+        "display": "7.cervical vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.209",
+        "display": "Cervical vertebra NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.211",
+        "display": "1.thoracic vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.212",
+        "display": "2.thoracic vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.213",
+        "display": "3.thoracic vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.214",
+        "display": "4.thoracic vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.215",
+        "display": "5.thoracic vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.216",
+        "display": "6.thoracic vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.217",
+        "display": "7.thoracic vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.218",
+        "display": "8.thoracic vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.219",
+        "display": "9.thoracic vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.220",
+        "display": "10.thoracic vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.221",
+        "display": "11.thoracic vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.222",
+        "display": "12.thoracic vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.229",
+        "display": "Thoracic vertebra NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.231",
+        "display": "1.lumbar vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.232",
+        "display": "2.lumbar vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.233",
+        "display": "3.lumbar vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.234",
+        "display": "4.lumbar vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.235",
+        "display": "5.lumbar vertebra"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.2.239",
+        "display": "Lumbar vertebra NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.3",
+        "display": "Rib, sternum, clavicle and associated joints"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.3.301",
+        "display": "Clavicula"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.3.370",
+        "display": "Sternum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.3.371",
+        "display": "Ribs"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.3.679",
+        "display": "Costovertebral joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.3.789",
+        "display": "Sternocostal joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.4",
+        "display": "Coccyx"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.4.400",
+        "display": "Ilium"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.4.401",
+        "display": "Acetabulum"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.4.402",
+        "display": "Pubic superior ramus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.4.403",
+        "display": "Pubic inferior ramus"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.4.404",
+        "display": "Ischium"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.4.409",
+        "display": "Pelvis NOS"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.4.801",
+        "display": "Hip joint"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2.ipath",
+        "code": "C41.4.802",
+        "display": "Symphysis pubis"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.8",
+        "display": "Overlapping lesion of bones, joints and articular cartilage"
+      },
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/icd-o-3",
+        "version": "3.2",
+        "code": "C41.9",
+        "display": "Articular cartilage, NOS"
+      }
+    ]
+  }
+}

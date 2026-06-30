@@ -5,6 +5,7 @@
 @inject CommunityAdminViewModel vm
 @inject IStringLocalizer T
 @inject NavigationManager nm
+@inject iPath.Application.Fhir.IFhirDataLoader FhirLoader
 
 @if (EditModel != null)
 {
@@ -17,16 +18,18 @@
 
     <MudGrid Class="mt-4">
         <MudItem xs="12" sm="6">
-            <MudTextField Label=@T["Topography ValueSet (Body Sites)"]
-                          @bind-Value="EditModel.Settings.TopographyValueSet"
-                          HelperText="icd-o topography codes by default"
-                          Variant="@Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+            <MudAutocomplete Label=@T["Topography ValueSet (Body Sites)"]
+                             @bind-Value="EditModel.Settings.TopographyValueSet"
+                             SearchFunc="SearchValueSets"
+                             HelperText="icd-o topography codes by default"
+                             Variant="@Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudTextField Label=@T["Morphology ValueSet"]
-                          @bind-Value="EditModel.Settings.MorphologyValueSet"
-                          HelperText="icd-o morphology codes by default"
-                          Variant="@Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
+            <MudAutocomplete Label=@T["Morphology ValueSet"]
+                             @bind-Value="EditModel.Settings.MorphologyValueSet"
+                             SearchFunc="SearchValueSets"
+                             HelperText="icd-o morphology codes by default"
+                             Variant="@Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" />
         </MudItem>
     </MudGrid>
 
@@ -66,5 +69,13 @@
         {
             nm.NavigateTo("admin/communities");
         }
+    }
+
+    private async Task<IEnumerable<string>> SearchValueSets(string search, CancellationToken ct)
+    {
+        var all = await FhirLoader.ListAvailableValueSetIdsAsync(ct);
+        if (string.IsNullOrEmpty(search))
+            return all;
+        return all.Where(v => v.Contains(search, StringComparison.OrdinalIgnoreCase));
     }
 }

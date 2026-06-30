@@ -86,11 +86,10 @@ public class CommunityAdminViewModel(IPathApi api,
         else
         {
             var resp = await api.GetCommunity(id.Value);
-            if (resp.IsSuccessful)
+            if (snackbar.CheckSuccess(resp))
             {
                 SelectedCommunity = resp.Content;
             }
-            snackbar.AddError(resp.ErrorMessage);
         }
         return SelectedCommunity;
     }

@@ -38,6 +38,7 @@ public class DirectApiClient(
     ILocalizationDataProvider localization,
     IOptions<iPathClientConfig> config,
     ILogger<DirectApiClient> logger,
+
     ISyncImportRunner? syncRunner = null,
     ISyncJobManager? jobManager = null,
     IAiExtractionQueue? queue = null,
@@ -974,5 +975,33 @@ public class DirectApiClient(
             return Respond<CaseRoomStatus?>(null);
         var status = await caseRoomStore.GetStatusAsync(requestId, default);
         return Respond(status);
+    }
+
+    public async Task<IApiResponse<CacheOverviewDto>> GetCacheOverview()
+    {
+        try
+        {
+            var result = await mediator.Send(new GetCacheOverviewQuery(), default);
+            return Respond(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "GetCacheOverview failed");
+            return RespondError<CacheOverviewDto>();
+        }
+    }
+
+    public async Task<IApiResponse<bool>> EvictCache()
+    {
+        try
+        {
+            var result = await mediator.Send(new EvictCacheCommand(), default);
+            return Respond(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "EvictCache failed");
+            return RespondError<bool>();
+        }
     }
 }

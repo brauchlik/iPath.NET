@@ -3,137 +3,167 @@
 @using iPath.Application.Features.Admin
 @using iPath.Blazor.ServiceLib.ApiClient
 
-<IPathHeader Title="Running Jobs" />
+<IPathHeader Title="System Status" />
 
-<MudText Typo="Typo.h6" Class="mb-4">WSI Conversion Jobs (Last 10)</MudText>
-<MudDataGrid Items="conversionJobs" T="WsiConversionJobDto" Dense="true" Striped="true" Hover="true">
-    <Columns>
-        <PropertyColumn Property="x => x.CreatedOn" Title="Created On" Format="g" />
-        <PropertyColumn Property="x => x.DocumentId" Title="Document ID" />
-        <PropertyColumn Property="x => x.Filename" Title="Filename" />
-        <TemplateColumn Title="Status">
-            <CellTemplate>
-                @switch (context.Item.Status)
-                {
-                    case WsiConversionStatus.Completed:
-                        <MudChip T="string" Color="Color.Success" Size="Size.Small">Completed</MudChip>
-                        break;
-                    case WsiConversionStatus.Failed:
-                        <MudChip T="string" Color="Color.Error" Size="Size.Small">Failed</MudChip>
-                        break;
-                    case WsiConversionStatus.Converting:
-                        <MudChip T="string" Color="Color.Warning" Size="Size.Small">Converting</MudChip>
-                        break;
-                    case WsiConversionStatus.Downloading:
-                        <MudChip T="string" Color="Color.Info" Size="Size.Small">Downloading</MudChip>
-                        break;
-                    default:
-                        <MudChip T="string" Color="Color.Default" Size="Size.Small">@context.Item.Status</MudChip>
-                        break;
-                }
-            </CellTemplate>
-        </TemplateColumn>
-        <PropertyColumn Property="x => x.ErrorMessage" Title="Error Message" />
-        <PropertyColumn Property="x => x.RetryCount" Title="Retries" />
-    </Columns>
-</MudDataGrid>
+<MudTabs Position="Position.Top" Class="mt-4">
+    <MudTabPanel Text="System Status">
+        <MudText Typo="Typo.h6" Class="mb-4 mt-4">WSI Conversion Jobs (Last 10)</MudText>
+        <MudDataGrid Items="conversionJobs" T="WsiConversionJobDto" Dense="true" Striped="true" Hover="true">
+            <Columns>
+                <PropertyColumn Property="x => x.CreatedOn" Title="Created On" Format="g" />
+                <PropertyColumn Property="x => x.DocumentId" Title="Document ID" />
+                <PropertyColumn Property="x => x.Filename" Title="Filename" />
+                <TemplateColumn Title="Status">
+                    <CellTemplate>
+                        @switch (context.Item.Status)
+                        {
+                            case WsiConversionStatus.Completed:
+                                <MudChip T="string" Color="Color.Success" Size="Size.Small">Completed</MudChip>
+                                break;
+                            case WsiConversionStatus.Failed:
+                                <MudChip T="string" Color="Color.Error" Size="Size.Small">Failed</MudChip>
+                                break;
+                            case WsiConversionStatus.Converting:
+                                <MudChip T="string" Color="Color.Warning" Size="Size.Small">Converting</MudChip>
+                                break;
+                            case WsiConversionStatus.Downloading:
+                                <MudChip T="string" Color="Color.Info" Size="Size.Small">Downloading</MudChip>
+                                break;
+                            default:
+                                <MudChip T="string" Color="Color.Default" Size="Size.Small">@context.Item.Status</MudChip>
+                                break;
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Property="x => x.ErrorMessage" Title="Error Message" />
+                <PropertyColumn Property="x => x.RetryCount" Title="Retries" />
+            </Columns>
+        </MudDataGrid>
 
-<MudText Typo="Typo.h6" Class="mb-4 mt-6">Deleted Documents with Files</MudText>
-<MudButton Variant="Variant.Filled" Color="Color.Error" Class="mb-4" Disabled="@(!deletedDocs.Any())" OnClick="HandlePurgeAll">Purge All</MudButton>
-<MudDataGrid Items="deletedDocs" T="PurgeDocumentFileDto" Dense="true" Striped="true" Hover="true">
-    <Columns>
-        <PropertyColumn Property="x => x.Filename" Title="Filename" />
-        <PropertyColumn Property="x => x.DeletedOn" Title="Deleted On" Format="g" />
-        <TemplateColumn Title="Temp File">
-            <CellTemplate>
-                @if (context.Item.HasTempFile)
-                {
-                    <MudChip T="string" Color="Color.Warning" Size="Size.Small">@FormatSize(context.Item.TempFileSize)</MudChip>
-                }
-                else
-                {
-                    <MudText Typo="Typo.body2">-</MudText>
-                }
-            </CellTemplate>
-        </TemplateColumn>
-        <TemplateColumn Title="DZI">
-            <CellTemplate>
-                @if (context.Item.HasDziFolder)
-                {
-                    <MudChip T="string" Color="Color.Warning" Size="Size.Small">@FormatSize(context.Item.DziFolderSize)</MudChip>
-                }
-                else
-                {
-                    <MudText Typo="Typo.body2">-</MudText>
-                }
-            </CellTemplate>
-        </TemplateColumn>
-        <TemplateColumn Title="Staging">
-            <CellTemplate>
-                @if (context.Item.HasStagingDir)
-                {
-                    <MudChip T="string" Color="Color.Warning" Size="Size.Small">@FormatSize(context.Item.StagingDirSize)</MudChip>
-                }
-                else
-                {
-                    <MudText Typo="Typo.body2">-</MudText>
-                }
-            </CellTemplate>
-        </TemplateColumn>
-        <TemplateColumn Title="Action">
-            <CellTemplate>
-                <MudButton Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small"
-                           OnClick="() => HandlePurgeDocument(context.Item.DocumentId)">
-                    Purge
-                </MudButton>
-            </CellTemplate>
-        </TemplateColumn>
-    </Columns>
-</MudDataGrid>
+        <MudText Typo="Typo.h6" Class="mb-4 mt-6">Deleted Documents with Files</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" Class="mb-4" Disabled="@(!deletedDocs.Any())" OnClick="HandlePurgeAll">Purge All</MudButton>
+        <MudDataGrid Items="deletedDocs" T="PurgeDocumentFileDto" Dense="true" Striped="true" Hover="true">
+            <Columns>
+                <PropertyColumn Property="x => x.Filename" Title="Filename" />
+                <PropertyColumn Property="x => x.DeletedOn" Title="Deleted On" Format="g" />
+                <TemplateColumn Title="Temp File">
+                    <CellTemplate>
+                        @if (context.Item.HasTempFile)
+                        {
+                            <MudChip T="string" Color="Color.Warning" Size="Size.Small">@FormatSize(context.Item.TempFileSize)</MudChip>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.body2">-</MudText>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="DZI">
+                    <CellTemplate>
+                        @if (context.Item.HasDziFolder)
+                        {
+                            <MudChip T="string" Color="Color.Warning" Size="Size.Small">@FormatSize(context.Item.DziFolderSize)</MudChip>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.body2">-</MudText>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Staging">
+                    <CellTemplate>
+                        @if (context.Item.HasStagingDir)
+                        {
+                            <MudChip T="string" Color="Color.Warning" Size="Size.Small">@FormatSize(context.Item.StagingDirSize)</MudChip>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.body2">-</MudText>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Action">
+                    <CellTemplate>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small"
+                                   OnClick="() => HandlePurgeDocument(context.Item.DocumentId)">
+                            Purge
+                        </MudButton>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </MudTabPanel>
 
-<MudText Typo="Typo.h6" Class="mb-4 mt-6">Stale Cache Files (No SR Visit in 7 Days)</MudText>
-@if (staleCacheJobs.Any())
-{
-    <MudText Typo="Typo.body2" Class="mb-4">
-        Total: @FormatSize(staleCacheJobs.Sum(x => x.TotalSize)) for @staleCacheJobs.Count files
-    </MudText>
-}
-<MudButton Variant="Variant.Filled" Color="Color.Warning" Class="mb-4" Disabled="@(!staleCacheJobs.Any())" OnClick="HandleCleanCache">Clean Stale Cache</MudButton>
-<MudDataGrid Items="staleCacheJobs" T="StaleCacheFileDto" Dense="true" Striped="true" Hover="true">
-    <Columns>
-        <PropertyColumn Property="x => x.Filename" Title="Filename" />
-        <PropertyColumn Property="x => x.CreatedOn" Title="Created On" Format="g" />
-        <TemplateColumn Title="SR Last Visit">
-            <CellTemplate>
-                @(context.Item.LastSrVisit?.ToString("g") ?? "Never")
-            </CellTemplate>
-        </TemplateColumn>
-        <TemplateColumn Title="Size">
-            <CellTemplate>
-                @FormatSize(context.Item.TotalSize)
-            </CellTemplate>
-        </TemplateColumn>
-        <TemplateColumn Title="DZI">
-            <CellTemplate>
-                @if (context.Item.HasDziFolder)
+    <MudTabPanel Text="Cache Management">
+        @if (_cacheOverview is null)
+        {
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="my-4" />
+        }
+        else
+        {
+            <MudText Typo="Typo.h6" Class="mb-4 mt-4">Cache Overview</MudText>
+
+            <MudPaper Class="pa-4 mb-4" Elevation="0" Outlined="true">
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" md="6">
+                        <MudText Typo="Typo.body2">
+                            <strong>Cache size:</strong> @FormatSize(_cacheOverview.TotalSize) / @FormatSize(_cacheOverview.MaxSize)
+                        </MudText>
+                        <MudProgressLinear Value="@CachePercent()" Color="Color.Primary" Class="my-2" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudText Typo="Typo.body2">
+                            <strong>Entries:</strong> @_cacheOverview.EntryCount
+                            (@_cacheOverview.CheapCount cheap, @_cacheOverview.ExpensiveCount expensive)
+                        </MudText>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudText Typo="Typo.body2">
+                            <strong>Free disk:</strong> @FormatSize(_cacheOverview.FreeDiskBytes)
+                        </MudText>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudText Typo="Typo.body2">
+                            <strong>Temp path:</strong> @_cacheOverview.TempPath
+                        </MudText>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+
+            <MudButton Variant="Variant.Filled" Color="Color.Warning" Class="mb-4"
+                       Disabled="@_isEvicting" OnClick="HandleEvictCache">
+                @if (_isEvicting)
                 {
-                    <MudChip T="string" Color="Color.Warning" Size="Size.Small">@FormatSize(context.Item.DziFolderSize)</MudChip>
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
                 }
-                else
-                {
-                    <MudText Typo="Typo.body2">-</MudText>
-                }
-            </CellTemplate>
-        </TemplateColumn>
-    </Columns>
-</MudDataGrid>
+                Run Eviction Now
+            </MudButton>
+
+            @if (_evictionResult is not null)
+            {
+                <MudAlert Severity="@(_evictionResult.Value ? Severity.Success : Severity.Warning)" Class="mb-4" Dismissible="true">
+                    @if (_evictionResult.Value)
+                    {
+                        <text>Cache eviction completed successfully.</text>
+                    }
+                    else
+                    {
+                        <text>Cache eviction returned false.</text>
+                    }
+                </MudAlert>
+            }
+        }
+    </MudTabPanel>
+</MudTabs>
 
 @inject IPathApi api
 
 @code {
     List<WsiConversionJobDto> conversionJobs = new();
     List<PurgeDocumentFileDto> deletedDocs = new();
-    List<StaleCacheFileDto> staleCacheJobs = new();
+    CacheOverviewDto? _cacheOverview;
+    bool _isEvicting;
+    bool? _evictionResult;
 
     protected override async Task OnInitializedAsync()
     {
@@ -147,13 +177,12 @@
             if (deletedRes.IsSuccessStatusCode && deletedRes.Content != null)
                 deletedDocs = deletedRes.Content;
 
-            var staleRes = await api.GetStaleCacheFiles(daysOld: 7);
-            if (staleRes.IsSuccessStatusCode && staleRes.Content != null)
-                staleCacheJobs = staleRes.Content;
+            var cacheRes = await api.GetCacheOverview();
+            if (cacheRes.IsSuccessStatusCode && cacheRes.Content != null)
+                _cacheOverview = cacheRes.Content;
         }
         catch
         {
-            // Fail silently
         }
     }
 
@@ -176,13 +205,32 @@
         }
     }
 
-    private async Task HandleCleanCache()
+    private async Task HandleEvictCache()
     {
-        var res = await api.CleanStaleCacheFiles(daysOld: 7);
-        if (res.IsSuccessStatusCode)
+        _isEvicting = true;
+        _evictionResult = null;
+        try
         {
-            staleCacheJobs.Clear();
+            var res = await api.EvictCache();
+            _evictionResult = res.IsSuccessStatusCode && res.Content == true;
+            if (_evictionResult == true)
+            {
+                var cacheRes = await api.GetCacheOverview();
+                if (cacheRes.IsSuccessStatusCode && cacheRes.Content != null)
+                    _cacheOverview = cacheRes.Content;
+            }
         }
+        catch
+        {
+            _evictionResult = false;
+        }
+        _isEvicting = false;
+    }
+
+    private double CachePercent()
+    {
+        if (_cacheOverview is null || _cacheOverview.MaxSize <= 0) return 0;
+        return Math.Min(100.0, (double)_cacheOverview.TotalSize / _cacheOverview.MaxSize * 100);
     }
 
     private static string FormatSize(long bytes)

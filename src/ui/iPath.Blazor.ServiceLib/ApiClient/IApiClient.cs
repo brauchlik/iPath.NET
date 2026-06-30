@@ -345,6 +345,12 @@ public interface IPathApi
 
     [Get("/api/v1/admin/documents/{id}/storage")]
     Task<IApiResponse<DocumentStorageInfoDto>> GetDocumentStorageInfo(Guid id);
+
+    [Get("/api/v1/admin/cache")]
+    Task<IApiResponse<CacheOverviewDto>> GetCacheOverview();
+
+    [Post("/api/v1/admin/cache/evict")]
+    Task<IApiResponse<bool>> EvictCache();
     #endregion
 
 

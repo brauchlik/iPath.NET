@@ -1,3 +1,4 @@
+using iPath.API.Services.Cache;
 using iPath.Application.Contracts;
 using iPath.Application.Features.Notifications;
 using iPath.Application.Features.Users;
@@ -333,6 +334,37 @@ public static class AdminEndpoints
             return Results.Ok(deleted);
         })
             .Produces<int>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+        #endregion
+
+
+        #region "-- Cache Management --"
+        route.MapGet("admin/cache", async (ICacheManager cm, IOptions<CacheSettings> cacheOpts, IOptions<iPathConfig> ipathOpts) =>
+        {
+            var stats = await cm.GetStatsAsync();
+            var drive = new DriveInfo(Path.GetPathRoot(ipathOpts.Value.TempDataPath) ?? ".");
+            return Results.Ok(new CacheOverviewDto
+            {
+                TotalSize = stats.TotalSize,
+                MaxSize = cacheOpts.Value.MaxCacheSizeBytes,
+                EntryCount = stats.EntryCount,
+                CheapCount = stats.CheapCount,
+                ExpensiveCount = stats.ExpensiveCount,
+                FreeDiskBytes = drive.AvailableFreeSpace,
+                TempPath = ipathOpts.Value.TempDataPath
+            });
+        })
+            .Produces<CacheOverviewDto>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapPost("admin/cache/evict", async (ICacheManager cm, CancellationToken ct) =>
+        {
+            await cm.RunNormalEvictionAsync(ct);
+            return Results.Ok(true);
+        })
+            .Produces<bool>()
             .WithTags("Admin")
             .RequireAuthorization("Admin");
         #endregion

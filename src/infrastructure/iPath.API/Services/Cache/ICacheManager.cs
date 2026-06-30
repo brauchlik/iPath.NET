@@ -7,7 +7,7 @@ public class CacheResult
     public string? DirectStreamPath { get; init; }
 }
 
-public record CacheStats(long TotalSize, int EntryCount, long CheapCount, long ExpensiveCount);
+public record CacheStats(long TotalSize, int EntryCount, int CheapCount, int ExpensiveCount);
 
 public interface ICacheManager
 {

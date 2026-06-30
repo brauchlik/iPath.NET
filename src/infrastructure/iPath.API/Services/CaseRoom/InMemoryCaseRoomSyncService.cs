@@ -58,8 +58,8 @@ public class InMemoryCaseRoomSyncService : ICaseRoomSyncService
 
     public Task SyncAsync(Guid requestId, SyncPayload payload, CancellationToken ct = default)
     {
-        if (_userSession.User is null) return Task.CompletedTask;
-        return _store.SyncAsync(requestId, payload.SessionId ?? Guid.Empty, _userSession.User.Id, payload, ct);
+        var userId = _userSession.User?.Id ?? Guid.Empty;
+        return _store.SyncAsync(requestId, payload.SessionId ?? Guid.Empty, userId, payload, ct);
     }
 
     public Task<string> CreateShareTokenAsync(Guid requestId, Guid? initialDocumentId = null, bool? initialIsWSI = null, string? initialFilename = null, CancellationToken ct = default)

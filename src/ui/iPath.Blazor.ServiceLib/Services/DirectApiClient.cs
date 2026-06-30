@@ -963,9 +963,10 @@ public class DirectApiClient(
 
     public async Task<IApiResponse> SyncCaseRoom(Guid requestId, SyncPayload payload)
     {
-        if (caseRoomStore is null || userSession.User is null)
+        if (caseRoomStore is null)
             return RespondError();
-        await caseRoomStore.SyncAsync(requestId, payload.SessionId ?? Guid.Empty, userSession.User.Id, payload, default);
+        var userId = userSession.User?.Id ?? Guid.Empty;
+        await caseRoomStore.SyncAsync(requestId, payload.SessionId ?? Guid.Empty, userId, payload, default);
         return RespondOk();
     }
 

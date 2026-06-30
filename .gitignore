@@ -373,3 +373,5 @@ FodyWeavers.xsd
 
 # personal SDD artifacts
 .superpowers/
+/import/fhir/CodeSystem/icdo-v1.json
+/import/fhir/Tumor-Form_AGKT_Skeleton_R4_V1.json

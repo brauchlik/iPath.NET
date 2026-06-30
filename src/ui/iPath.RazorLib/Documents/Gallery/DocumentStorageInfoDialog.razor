@@ -4,40 +4,30 @@
 
 @inject IPathApi api
 
-@if (Model?.File is not null)
-{
-    <MudPaper Class="pa-3 mt-3" Elevation="0" Outlined="true">
-        <div class="d-flex align-center" style="cursor:pointer" @onclick="ToggleExpand">
-            <MudText Typo="Typo.body2" Class="flex-grow-1">
-                <strong>@Model.File.Filename</strong>
-                @if (Model.File.FileSize.HasValue)
-                {
-                    <span class="ml-1 text-secondary">@FormatFileSize(Model.File.FileSize.Value)</span>
-                }
-                <span class="ml-2 mud-chip mud-chip-text mud-chip-color-primary mud-chip-size-small">@(Model.File.Storage?.ProviderName ?? "no storage")</span>
-            </MudText>
-            <MudIcon Icon="@(_expanded ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)" Size="Size.Small" />
-        </div>
-
-        @if (_expanded && _storageInfo is null)
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">Storage Info: @(Model?.File?.Filename ?? "")</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (_loading)
         {
             <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="my-2" />
         }
-
-        @if (_storageInfo is not null)
+        else if (_storageInfo is not null)
         {
             @if (_storageInfo.StorageProviderMismatch == true)
             {
-                <MudAlert Severity="Severity.Warning" Class="mt-2 mb-2" Dismissible="false">
+                <MudAlert Severity="Severity.Warning" Class="mb-4" Dismissible="false">
                     Storage provider mismatch: document is stored on <strong>@_storageInfo.StorageProvider</strong>,
                     but the system is currently using a different storage provider. The file may not be accessible.
                 </MudAlert>
             }
 
-            <MudText Typo="Typo.caption" Class="mt-2 text-secondary">
+            <MudText Typo="Typo.caption">
                 <table class="ipath-debug-table">
                     <tbody>
                         <tr><td class="pr-3">In cache</td><td>@(_storageInfo.IsInCache ? "yes" : "no")</td></tr>
+                        <tr><td class="pr-3">File size</td><td>@FormatFileSize(_storageInfo.FileSize ?? Model?.File?.FileSize ?? 0)</td></tr>
                         <tr><td class="pr-3">MIME type</td><td>@_storageInfo.MimeType</td></tr>
                         @if (_storageInfo.ImageWidth.HasValue)
                         {
@@ -62,25 +52,42 @@
                 </table>
             </MudText>
         }
-    </MudPaper>
-}
+        else if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error">@_error</MudAlert>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@(() => MudDialog.Close())">Close</MudButton>
+    </DialogActions>
+</MudDialog>
 
 @code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
     [Parameter]
     public DocumentDto? Model { get; set; }
 
-    private bool _expanded;
+    private bool _loading = true;
     private DocumentStorageInfoDto? _storageInfo;
+    private string? _error;
 
-    private async Task ToggleExpand()
+    protected override async Task OnInitializedAsync()
     {
-        _expanded = !_expanded;
-        if (_expanded && Model is not null && _storageInfo is null)
+        try
         {
-            var resp = await api.GetDocumentStorageInfo(Model.Id);
-            if (resp.IsSuccessful)
+            var resp = await api.GetDocumentStorageInfo(Model!.Id);
+            if (resp.IsSuccessful && resp.Content is not null)
                 _storageInfo = resp.Content;
+            else
+                _error = "Failed to load storage info.";
         }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        _loading = false;
     }
 
     private static string FormatFileSize(long bytes)

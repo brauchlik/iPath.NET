@@ -351,6 +351,9 @@ public interface IPathApi
 
     [Post("/api/v1/admin/cache/evict")]
     Task<IApiResponse<bool>> EvictCache();
+
+    [Post("/api/v1/admin/cache/sync")]
+    Task<IApiResponse<CacheSyncResult>> SyncCache();
     #endregion
 
 

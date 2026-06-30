@@ -15,15 +15,18 @@ public class WsiConversionWorker : BackgroundService
 {
     private readonly IServiceProvider _sp;
     private readonly WsiConversionConfig _config;
+    private readonly IOptions<iPathConfig> _ipathOpts;
     private readonly ILogger<WsiConversionWorker> _logger;
 
     public WsiConversionWorker(
         IServiceProvider sp,
         IOptions<WsiConversionConfig> config,
+        IOptions<iPathConfig> ipathOpts,
         ILogger<WsiConversionWorker> logger)
     {
         _sp = sp;
         _config = config.Value;
+        _ipathOpts = ipathOpts;
         _logger = logger;
     }
 
@@ -152,7 +155,7 @@ public class WsiConversionWorker : BackgroundService
             {
                 stagingPath = Path.Combine(
                     string.IsNullOrEmpty(_config.StagingPath)
-                        ? Path.GetTempPath()
+                        ? Path.Combine(_ipathOpts.Value.TempDataPath, "conversion")
                         : _config.StagingPath,
                     docId.ToString());
             }

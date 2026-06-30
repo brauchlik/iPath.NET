@@ -1,3 +1,5 @@
+using iPath.Application.Features.Admin;
+
 namespace iPath.API.Services.Cache;
 
 public class CacheResult
@@ -16,4 +18,5 @@ public interface ICacheManager
     Task EvictIfNeededAsync(long incomingSize, CancellationToken ct);
     Task RunNormalEvictionAsync(CancellationToken ct);
     Task<CacheStats> GetStatsAsync();
+    Task<CacheSyncResult> SyncCacheAsync(CancellationToken ct);
 }

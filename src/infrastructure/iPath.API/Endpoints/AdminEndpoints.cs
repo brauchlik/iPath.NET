@@ -367,6 +367,15 @@ public static class AdminEndpoints
             .Produces<bool>()
             .WithTags("Admin")
             .RequireAuthorization("Admin");
+
+        route.MapPost("admin/cache/sync", async (ICacheManager cm, CancellationToken ct) =>
+        {
+            var result = await cm.SyncCacheAsync(ct);
+            return Results.Ok(result);
+        })
+            .Produces<CacheSyncResult>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
         #endregion
 
 

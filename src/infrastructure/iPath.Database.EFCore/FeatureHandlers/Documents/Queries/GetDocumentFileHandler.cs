@@ -46,6 +46,15 @@ public class GetDocumentFileHandler(iPathDbContext db,
         if (!System.IO.File.Exists(fn))
             return new FetchFileResponse(NotFound: true);
 
-        return new FetchFileResponse(TempFile: fn, Info: document.File);
+        string? storagePath = null;
+        if (document.File?.Storage?.ProviderName == "LocalFiles" && !string.IsNullOrEmpty(document.File.Storage.StorageId))
+        {
+            var dir = Path.Combine(opts.Value.LocalDataPath, document.ServiceRequest.GroupId.ToString(), document.ServiceRequest.Id.ToString());
+            storagePath = Path.Combine(dir, document.File.Storage.StorageId);
+            if (!System.IO.File.Exists(storagePath))
+                storagePath = null;
+        }
+
+        return new FetchFileResponse(TempFile: fn, Info: document.File, StorageFilePath: storagePath);
     }
 }

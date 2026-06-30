@@ -1,3 +1,4 @@
+using iPath.Application.Contracts;
 using iPath.Application.Features.Admin;
 using iPath.Domain.Config;
 using Microsoft.Extensions.Options;
@@ -8,7 +9,8 @@ namespace iPath.EF.Core.FeatureHandlers.Admin;
 
 public class GetDocumentStorageInfoHandler(
     iPathDbContext db,
-    IOptions<iPathConfig> opts)
+    IOptions<iPathConfig> opts,
+    IRemoteStorageService srvStorage)
     : IRequestHandler<GetDocumentStorageInfoQuery, Task<DocumentStorageInfoDto?>>
 {
     public async Task<DocumentStorageInfoDto?> Handle(GetDocumentStorageInfoQuery request, CancellationToken ct)
@@ -42,7 +44,8 @@ public class GetDocumentStorageInfoHandler(
             LastStorageExportDate = doc.File.LastStorageExportDate,
             ImageWidth = doc.File.ImageWidth,
             ImageHeight = doc.File.ImageHeight,
-            ConversionStatus = doc.File.ConversionStatus?.ToString()
+            ConversionStatus = doc.File.ConversionStatus?.ToString(),
+            StorageProviderMismatch = doc.File.Storage?.ProviderName != srvStorage.ProviderName
         };
     }
 }

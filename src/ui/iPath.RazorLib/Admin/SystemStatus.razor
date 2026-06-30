@@ -130,14 +130,35 @@
                 </MudGrid>
             </MudPaper>
 
-            <MudButton Variant="Variant.Filled" Color="Color.Warning" Class="mb-4"
-                       Disabled="@_isEvicting" OnClick="HandleEvictCache">
-                @if (_isEvicting)
-                {
-                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
-                }
-                Run Eviction Now
-            </MudButton>
+            <div class="d-flex gap-4 mb-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Warning"
+                           Disabled="@_isEvicting" OnClick="HandleEvictCache">
+                    @if (_isEvicting)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                    }
+                    Run Eviction Now
+                </MudButton>
+
+                <MudButton Variant="Variant.Outlined" Color="Color.Info"
+                           Disabled="@_isSyncing" OnClick="HandleSyncCache">
+                    @if (_isSyncing)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                    }
+                    Sync Cache with Disk
+                </MudButton>
+            </div>
+
+            @if (_syncResult is not null)
+            {
+                <MudAlert Severity="Severity.Info" Class="mb-4" Dismissible="true">
+                    @_syncResult.Details.Count changes:
+                    @_syncResult.EntriesRemoved stale entries removed,
+                    @_syncResult.EntriesCreated entries created for missing files,
+                    @_syncResult.OrphansDeleted orphan files deleted.
+                </MudAlert>
+            }
 
             @if (_evictionResult is not null)
             {
@@ -163,7 +184,9 @@
     List<PurgeDocumentFileDto> deletedDocs = new();
     CacheOverviewDto? _cacheOverview;
     bool _isEvicting;
+    bool _isSyncing;
     bool? _evictionResult;
+    CacheSyncResult? _syncResult;
 
     protected override async Task OnInitializedAsync()
     {
@@ -225,6 +248,27 @@
             _evictionResult = false;
         }
         _isEvicting = false;
+    }
+
+    private async Task HandleSyncCache()
+    {
+        _isSyncing = true;
+        _syncResult = null;
+        try
+        {
+            var res = await api.SyncCache();
+            if (res.IsSuccessStatusCode && res.Content != null)
+            {
+                _syncResult = res.Content;
+                var cacheRes = await api.GetCacheOverview();
+                if (cacheRes.IsSuccessStatusCode && cacheRes.Content != null)
+                    _cacheOverview = cacheRes.Content;
+            }
+        }
+        catch
+        {
+        }
+        _isSyncing = false;
     }
 
     private double CachePercent()

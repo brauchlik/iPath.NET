@@ -1004,4 +1004,18 @@ public class DirectApiClient(
             return RespondError<bool>();
         }
     }
+
+    public async Task<IApiResponse<CacheSyncResult>> SyncCache()
+    {
+        try
+        {
+            var result = await mediator.Send(new SyncCacheCommand(), default);
+            return Respond(result);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "SyncCache failed");
+            return RespondError<CacheSyncResult>();
+        }
+    }
 }

@@ -101,16 +101,30 @@ public static class DocumentEndpoints
                             || filename?.EndsWith(".dzi", StringComparison.OrdinalIgnoreCase) == true
                             || filename?.EndsWith(".vsi", StringComparison.OrdinalIgnoreCase) == true;
 
-                if (isZip && System.IO.File.Exists(res.TempFile))
+                if (isZip)
                 {
-                    try
+                    // Determine source: use storage file path if available (LocalStorage direct access),
+                    // otherwise use the temp cache file (downloaded from GDrive)
+                    var sourceZip = !string.IsNullOrEmpty(res.StorageFilePath) ? res.StorageFilePath : res.TempFile;
+
+                    if (!string.IsNullOrEmpty(sourceZip) && System.IO.File.Exists(sourceZip))
                     {
-                        System.IO.Compression.ZipFile.ExtractToDirectory(res.TempFile, externalFilesPath, overwriteFiles: true);
-                    }
-                    catch (Exception ex)
-                    {
-                        var logger = ctx.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("DocumentEndpoints");
-                        logger.LogError(ex, "Failed to unzip cache file {Path} to {Temp}", res.TempFile, externalFilesPath);
+                        try
+                        {
+                            System.IO.Compression.ZipFile.ExtractToDirectory(sourceZip, externalFilesPath, overwriteFiles: true);
+
+                            // Clean up: delete zip from temp cache after extraction.
+                            // On next request the temp file will be re-downloaded from storage.
+                            if (System.IO.File.Exists(res.TempFile))
+                            {
+                                System.IO.File.Delete(res.TempFile);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            var logger = ctx.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("DocumentEndpoints");
+                            logger.LogError(ex, "Failed to unzip cache file {Path} to {Temp}", sourceZip, externalFilesPath);
+                        }
                     }
                 }
             }

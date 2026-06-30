@@ -37,3 +37,12 @@ public class EvictCacheHandler(ICacheManager cm)
         return true;
     }
 }
+
+public class SyncCacheHandler(ICacheManager cm)
+    : IRequestHandler<SyncCacheCommand, Task<CacheSyncResult>>
+{
+    public async Task<CacheSyncResult> Handle(SyncCacheCommand request, CancellationToken cancellationToken)
+    {
+        return await cm.SyncCacheAsync(cancellationToken);
+    }
+}

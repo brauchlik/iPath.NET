@@ -947,6 +947,25 @@
         }
       }
     },
+    "/api/v1/admin/cache/sync": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CacheSyncResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/events/stream": {
       "get": {
         "tags": [
@@ -4619,6 +4638,41 @@
           }
         }
       },
+      "CacheSyncResult": {
+        "type": "object",
+        "properties": {
+          "entriesRemoved": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "entriesCreated": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "orphansDeleted": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "ChildNodeSortOrderUpdatedEvent": {
         "type": "object",
         "properties": {
@@ -5500,6 +5554,12 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "storageProviderMismatch": {
+            "type": [
+              "null",
+              "boolean"
             ]
           }
         }

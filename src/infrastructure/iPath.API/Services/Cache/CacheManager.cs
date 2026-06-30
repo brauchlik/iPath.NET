@@ -1,3 +1,5 @@
+using System.Text.Json;
+using iPath.Application.Features.Admin;
 using iPath.Domain.Config;
 using iPath.Domain.Entities.Cache;
 using iPath.EF.Core.Database;
@@ -170,6 +172,97 @@ public class CacheManager(
         };
         db.DocumentCacheEntries.Add(entry);
         await db.SaveChangesAsync();
+    }
+
+    public async Task<CacheSyncResult> SyncCacheAsync(CancellationToken ct)
+    {
+        var result = new CacheSyncResult();
+        var tempDir = new DirectoryInfo(ipathOpts.Value.TempDataPath);
+        if (!tempDir.Exists) return result;
+
+        var diskIds = new HashSet<Guid>();
+        var diskMap = new Dictionary<Guid, string>();
+
+        foreach (var fsi in Directory.EnumerateFileSystemEntries(tempDir.FullName))
+        {
+            var name = Path.GetFileName(fsi);
+            var guidStr = name;
+            if (guidStr.EndsWith(".dzi", StringComparison.OrdinalIgnoreCase))
+                guidStr = guidStr[..^4];
+            else if (guidStr.EndsWith("_files", StringComparison.OrdinalIgnoreCase))
+                guidStr = guidStr[..^6];
+
+            if (Guid.TryParse(guidStr, out var docId))
+            {
+                diskIds.Add(docId);
+                diskMap.TryAdd(docId, fsi);
+            }
+        }
+
+        var allEntries = await db.DocumentCacheEntries.ToListAsync(ct);
+        var trackedIds = allEntries.Select(e => e.DocumentId).ToHashSet();
+
+        // 1. DB entries whose file is missing on disk → remove entry
+        foreach (var entry in allEntries)
+        {
+            if (!System.IO.File.Exists(entry.FilePath) && !System.IO.Directory.Exists(entry.FilePath))
+            {
+                db.DocumentCacheEntries.Remove(entry);
+                result.EntriesRemoved++;
+                result.Details.Add($"Removed cache entry for {entry.DocumentId} — file missing on disk");
+            }
+        }
+
+        // 2. Files on disk with no DB entry → create entry or delete orphan
+        foreach (var (docId, path) in diskMap)
+        {
+            if (trackedIds.Contains(docId)) continue;
+
+            DocumentNode? doc = null;
+            try
+            {
+                doc = await db.Documents.AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.Id == docId, ct);
+            }
+            catch (Exception ex) when (ex is JsonException or InvalidOperationException)
+            {
+                logger.LogWarning(ex, "SyncCache: corrupt JSON for document {DocId}, treating as orphan file", docId);
+                TryDeletePath(path);
+                result.OrphansDeleted++;
+                result.Details.Add($"Deleted orphan file {Path.GetFileName(path)} — corrupt JSON in database");
+                continue;
+            }
+
+            if (doc is not null && doc.File is not null)
+            {
+                var fi = new FileInfo(path);
+                var entry = new DocumentCacheEntry
+                {
+                    Id = Guid.CreateVersion7(),
+                    DocumentId = docId,
+                    StorageProvider = doc.File.Storage?.ProviderName ?? "",
+                    FilePath = path,
+                    FileSize = fi.Exists ? fi.Length : 0,
+                    Cost = ClassifyCost(doc),
+                    State = eCacheState.Cached,
+                    LastAccessed = fi.LastAccessTimeUtc,
+                    AccessCount = 1,
+                    CreatedOn = fi.CreationTimeUtc
+                };
+                db.DocumentCacheEntries.Add(entry);
+                result.EntriesCreated++;
+                result.Details.Add($"Created cache entry for {docId} ({doc.File.Filename})");
+            }
+            else
+            {
+                TryDeletePath(path);
+                result.OrphansDeleted++;
+                result.Details.Add($"Deleted orphan file {Path.GetFileName(path)} — no matching document");
+            }
+        }
+
+        await db.SaveChangesAsync(ct);
+        return result;
     }
 
     private static void TryDeletePath(string path)

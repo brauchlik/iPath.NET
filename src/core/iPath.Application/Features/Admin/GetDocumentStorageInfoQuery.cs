@@ -17,4 +17,5 @@ public class DocumentStorageInfoDto
     public int? ImageWidth { get; set; }
     public int? ImageHeight { get; set; }
     public string? ConversionStatus { get; set; }
+    public bool? StorageProviderMismatch { get; set; }
 }

@@ -10,3 +10,11 @@ public class CacheOverviewDto
     public long FreeDiskBytes { get; set; }
     public string? TempPath { get; set; }
 }
+
+public class CacheSyncResult
+{
+    public int EntriesRemoved { get; set; }
+    public int EntriesCreated { get; set; }
+    public int OrphansDeleted { get; set; }
+    public List<string> Details { get; set; } = [];
+}

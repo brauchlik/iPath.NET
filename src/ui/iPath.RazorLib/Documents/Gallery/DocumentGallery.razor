@@ -9,6 +9,7 @@
 @inject ISnackbar snackbar
 @inject IJSRuntime JS
 @inject IHttpClientFactory httpFactory
+@inject IDialogService srvDialog
 @inject IOptions<iPathClientConfig> opts
 
 <MudPaper Class="@Class" Elevation="0">
@@ -18,7 +19,7 @@
         <div class="ipath_image">
             @if (vm.SelectedDocument.IsImage)
             {
-                <img src="@vm.SelectedDocument.PreviewFileUrl" @onclick="@vm.GoNext" />
+                <img src="@vm.SelectedDocument.PreviewFileUrl" @onclick="@vm.GoNext" @key="@vm.SelectedDocument.Id" />
             }
             else if (Wsi && vm.SelectedDocument.IsWSI)
             {
@@ -44,15 +45,15 @@
                 <MudIcon Size="Size.Large" Icon="@vm.SelectedDocument.FileIcon" />
             }
 
-            <div class="mt-2">
-                <strong>@T["Download original"]:</strong>
+            <div class="mt-2 d-flex align-center justify-center">
+                <strong class="mr-1">@T["Download original"]:</strong>
                 <MudLink Target="_blank" Href="@vm.SelectedDocument.PreviewFileUrl">@vm.SelectedDocument.GalleryCaption.ShortenTo(50)</MudLink>
+                @if (vm.IsAdmin)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Info" Size="Size.Small" Color="Color.Info"
+                                   OnClick="@(() => ShowStorageInfoDialog(vm.SelectedDocument!))" />
+                }
             </div>
-
-            @if (vm.IsAdmin)
-            {
-                <FileInfoPanel Model="@vm.SelectedDocument" />
-            }
         </div>
     }
     else
@@ -131,5 +132,12 @@
     public void SignalStateChanged()
     {
         StateHasChanged();
+    }
+
+    private async Task ShowStorageInfoDialog(DocumentDto doc)
+    {
+        var parameters = new DialogParameters { ["Model"] = doc };
+        var dialog = await srvDialog.ShowAsync<DocumentStorageInfoDialog>(T["Storage Info"], parameters);
+        await dialog.Result;
     }
 }

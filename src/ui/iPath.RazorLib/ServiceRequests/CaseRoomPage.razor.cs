@@ -386,7 +386,7 @@ public partial class CaseRoomPage
     [JSInvokable]
     public async Task OnPointerMoved(double x, double y, bool isVisible)
     {
-        if (_isGuest) return;
+        if (!_isController) return;
 
         // Broadcast the pointer placement to all participants
         await SyncService.SyncAsync(RequestId, new SyncPayload(
@@ -400,7 +400,7 @@ public partial class CaseRoomPage
     [JSInvokable]
     public async Task OnPointerHidden()
     {
-        if (_isGuest) return;
+        if (!_isController) return;
         _pointerToolActive = false;
         await SyncService.SyncAsync(RequestId, new SyncPayload(
             DocumentId: null,

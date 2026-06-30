@@ -32,7 +32,7 @@ public class CaseRoomSessionStoreTests
 
         snapshot.RequestId.Should().Be(requestId);
         snapshot.Participants.Should().ContainSingle(p => p.UserId == userId);
-        snapshot.ActiveDocumentId.Should().BeNull();
+        snapshot.ActiveDocumentId.Should().Be(null);
     }
 
     [Fact]

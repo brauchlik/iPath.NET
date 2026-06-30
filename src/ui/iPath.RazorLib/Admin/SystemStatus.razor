@@ -1,5 +1,6 @@
 @page "/admin/system/status"
 
+@using Humanizer
 @using iPath.Application.Features.Admin
 @using iPath.Blazor.ServiceLib.ApiClient
 
@@ -277,11 +278,6 @@
         return Math.Min(100.0, (double)_cacheOverview.TotalSize / _cacheOverview.MaxSize * 100);
     }
 
-    private static string FormatSize(long bytes)
-    {
-        if (bytes < 1024) return $"{bytes} B";
-        if (bytes < 1024 * 1024) return $"{bytes / 1024.0:F1} KB";
-        if (bytes < 1024 * 1024 * 1024) return $"{bytes / (1024.0 * 1024):F1} MB";
-        return $"{bytes / (1024.0 * 1024 * 1024):F2} GB";
-    }
+    private static string FormatSize(long bytes) =>
+        ((long)bytes).Bytes().Humanize("0.0");
 }

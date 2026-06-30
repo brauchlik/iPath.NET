@@ -1,4 +1,5 @@
 @namespace iPath.Blazor.Componenents.Documents
+@using Humanizer
 @using iPath.Application.Features.Admin
 @using iPath.Blazor.ServiceLib.ApiClient
 
@@ -90,14 +91,6 @@
         _loading = false;
     }
 
-    private static string FormatFileSize(long bytes)
-    {
-        return bytes switch
-        {
-            < 1024 => $"{bytes} B",
-            < 1024 * 1024 => $"{bytes / 1024.0:F1} KB",
-            < 1024 * 1024 * 1024 => $"{bytes / (1024.0 * 1024.0):F1} MB",
-            _ => $"{bytes / (1024.0 * 1024.0 * 1024.0):F2} GB"
-        };
-    }
+    private static string FormatFileSize(long bytes) =>
+        ((long)bytes).Bytes().Humanize("0.0");
 }

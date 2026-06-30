@@ -43,6 +43,8 @@ public partial class CaseRoomPage
     private bool _isGuest;
     private bool _isController;
     private Guid? _controllerSessionId;
+    private bool _pointerToolActive;
+    private System.Threading.CancellationTokenSource? _pointerHideCts;
 
     internal ViewportState? CurrentViewport { get; set; }
     internal bool SseConnected { get; set; } = true;
@@ -114,6 +116,20 @@ public partial class CaseRoomPage
             if (_module is not null)
                 await _module.InvokeVoidAsync("setMouseNavEnabled", _isController);
 
+            if (snapshot.Pointer is not null && snapshot.Pointer.IsVisible && _module is not null)
+            {
+                if (_isController)
+                {
+                    _pointerToolActive = true;
+                    await _module.InvokeVoidAsync("setPointerToolActive", true);
+                    await _module.InvokeVoidAsync("showPointer", snapshot.Pointer.X, snapshot.Pointer.Y, true);
+                }
+                else
+                {
+                    await _module.InvokeVoidAsync("showPointer", snapshot.Pointer.X, snapshot.Pointer.Y, false);
+                }
+            }
+
             _pingCts = new CancellationTokenSource();
             _ = StartHeartbeatAsync(_pingCts.Token);
         }
@@ -169,7 +185,30 @@ public partial class CaseRoomPage
                 if (evt.Payload.ControllingSessionId != _controllerSessionId || evt.Payload.Action == "ControllerChanged")
                 {
                     _controllerSessionId = evt.Payload.ControllingSessionId;
+                    var wasController = _isController;
                     _isController = _controllerSessionId == _sessionId;
+
+                    if (_isController)
+                    {
+                        if (evt.Payload.Pointer is not null && evt.Payload.Pointer.IsVisible)
+                        {
+                            _pointerToolActive = true;
+                            if (_module is not null)
+                            {
+                                await _module.InvokeVoidAsync("setPointerToolActive", true);
+                                await _module.InvokeVoidAsync("showPointer", evt.Payload.Pointer.X, evt.Payload.Pointer.Y, true);
+                            }
+                        }
+                    }
+                    else if (wasController && _pointerToolActive)
+                    {
+                        _pointerToolActive = false;
+                        if (_module is not null)
+                        {
+                            await _module.InvokeVoidAsync("setPointerToolActive", false);
+                        }
+                    }
+
                     if (_module is not null)
                         await _module.InvokeVoidAsync("setMouseNavEnabled", _isController);
                     Logger.LogInformation("Control state changed: IsController={IsController}, ControllerSessionId={ControllerId}",
@@ -191,6 +230,19 @@ public partial class CaseRoomPage
                     evt.DisplayName, vp.X, vp.Y, vp.Zoom);
                 CurrentViewport = vp;
                 await _module.InvokeVoidAsync("setViewport", vp.X, vp.Y, vp.Zoom);
+            }
+
+            if (evt.Payload.Pointer is not null && _module is not null)
+            {
+                var ptr = evt.Payload.Pointer;
+                if (ptr.IsVisible)
+                {
+                    await _module.InvokeVoidAsync("showPointer", ptr.X, ptr.Y, _isController);
+                }
+                else
+                {
+                    await _module.InvokeVoidAsync("hidePointer");
+                }
             }
 
             _isApplyingRemote = false;
@@ -241,7 +293,73 @@ public partial class CaseRoomPage
 
     private async Task ReleaseControl()
     {
+        if (_pointerToolActive)
+        {
+            await OnPointerToggleChanged(false);
+        }
         await SyncService.SyncAsync(RequestId, new SyncPayload(null, null, _sessionId, "ReleaseControl"));
+    }
+
+    private async Task OnPointerToggleChanged(bool active)
+    {
+        _pointerToolActive = active;
+        if (_module is not null)
+        {
+            if (active)
+            {
+                // Retrieve current viewport center from JS
+                var center = await _module.InvokeAsync<ViewportState>("getViewportCenter");
+                
+                // Show pointer locally (draggable)
+                await _module.InvokeVoidAsync("showPointer", center.X, center.Y, true);
+                
+                // Broadcast initial pointer placement
+                await SyncService.SyncAsync(RequestId, new SyncPayload(
+                    DocumentId: null,
+                    Viewport: null,
+                    SessionId: _sessionId,
+                    Pointer: new PointerState(center.X, center.Y, IsVisible: true)
+                ));
+            }
+            else
+            {
+                await _module.InvokeVoidAsync("hidePointer");
+                await SyncService.SyncAsync(RequestId, new SyncPayload(
+                    DocumentId: null,
+                    Viewport: null,
+                    SessionId: _sessionId,
+                    Pointer: new PointerState(0, 0, IsVisible: false)
+                ));
+            }
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnPointerMoved(double x, double y, bool isVisible)
+    {
+        if (_isGuest) return;
+
+        // Broadcast the pointer placement to all participants
+        await SyncService.SyncAsync(RequestId, new SyncPayload(
+            DocumentId: null,
+            Viewport: null,
+            SessionId: _sessionId,
+            Pointer: new PointerState(x, y, isVisible)
+        ));
+    }
+
+    [JSInvokable]
+    public async Task OnPointerHidden()
+    {
+        if (_isGuest) return;
+        _pointerToolActive = false;
+        await SyncService.SyncAsync(RequestId, new SyncPayload(
+            DocumentId: null,
+            Viewport: null,
+            SessionId: _sessionId,
+            Pointer: new PointerState(0, 0, IsVisible: false)
+        ));
+        StateHasChanged();
     }
 
     private async Task ExitRoom()
@@ -291,6 +409,8 @@ public partial class CaseRoomPage
         _syncSub?.Dispose();
         _pingCts?.Cancel();
         _pingCts?.Dispose();
+        _pointerHideCts?.Cancel();
+        _pointerHideCts?.Dispose();
         try
         {
             if (_module is not null)

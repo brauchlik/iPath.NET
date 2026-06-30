@@ -1,4 +1,4 @@
-﻿namespace iPath.Application.Contracts;
+namespace iPath.Application.Contracts;
 
 public interface IUserSession
 {
@@ -23,20 +23,24 @@ public static class UserSessionExtensions
         /// <exception cref="NotAllowedException"></exception>
         public void AssertInGroup(Guid? GroupId)
         {
+            if (session.User is null)
+            {
+                throw new NotAllowedException("You must be logged in to access groups");
+            }
             if (!session.IsAdmin)
             {
-                if (!GroupId.HasValue || !session.User.groups.Any(m => m.GroupId == GroupId.Value))
+                if (!GroupId.HasValue || session.User.groups is null || !session.User.groups.Any(m => m.GroupId == GroupId.Value))
                 {
                     throw new NotAllowedException($"You are not allowed to access group {GroupId}");
                 }
             }
         }
 
-        public HashSet<Guid> GroupIds() => !session.IsAuthenticated ? [] : session.User!.groups.Select(m => m.GroupId).ToHashSet();
+        public HashSet<Guid> GroupIds() => !session.IsAuthenticated || session.User?.groups is null ? [] : session.User.groups.Select(m => m.GroupId).ToHashSet();
 
         public void AssertInRole(string Role)
         {
-            if (!session.User.roles.Any(r => r.ToLower() == Role.ToLower()))
+            if (session.User is null || session.User.roles is null || !session.User.roles.Any(r => r.ToLower() == Role.ToLower()))
             {
                 throw new NotAllowedException();
             }

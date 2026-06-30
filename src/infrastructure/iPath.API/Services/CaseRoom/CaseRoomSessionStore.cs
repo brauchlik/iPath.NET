@@ -202,12 +202,13 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
             if (payload.Action == "TakeControl")
             {
                 entry.Session.ControllingSessionId = sessionId;
-                broadcastPayload = new SyncPayload(null, null, sessionId, "ControllerChanged", null, sessionId);
+                broadcastPayload = new SyncPayload(null, null, sessionId, "ControllerChanged", null, sessionId, entry.Session.CurrentPointer);
             }
             else if (payload.Action == "ReleaseControl" && entry.Session.ControllingSessionId == sessionId)
             {
                 entry.Session.ControllingSessionId = null;
-                broadcastPayload = new SyncPayload(null, null, sessionId, "ControllerChanged", null, null);
+                entry.Session.CurrentPointer = null;
+                broadcastPayload = new SyncPayload(null, null, sessionId, "ControllerChanged", null, null, new PointerState(0, 0, false));
             }
             else
             {
@@ -222,6 +223,14 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                 if (payload.DocumentId.HasValue && entry.Session.ActiveDocumentId != payload.DocumentId)
                 {
                     entry.Session.ActiveDocumentId = payload.DocumentId;
+                }
+
+                if (payload.Pointer is not null)
+                {
+                    if (entry.Session.ControllingSessionId.HasValue && entry.Session.ControllingSessionId != sessionId)
+                        return; // non-controller pointer change — ignore
+
+                    entry.Session.CurrentPointer = payload.Pointer;
                 }
 
                 broadcastPayload = payload;
@@ -429,7 +438,8 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         session.ActiveDocumentId,
         session.CurrentViewport,
         session.Participants.Values.ToArray(),
-        session.ControllingSessionId
+        session.ControllingSessionId,
+        session.CurrentPointer
     );
 
     public void Dispose()
@@ -451,6 +461,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         public Guid? ActiveDocumentId { get; set; }
         public ViewportState? CurrentViewport { get; set; }
         public Guid? ControllingSessionId { get; set; }
+        public PointerState? CurrentPointer { get; set; }
         public DateTimeOffset CreatedAt { get; init; }
         public Guid CreatedBy { get; init; }
         public ConcurrentDictionary<Guid, Participant> Participants { get; } = new();

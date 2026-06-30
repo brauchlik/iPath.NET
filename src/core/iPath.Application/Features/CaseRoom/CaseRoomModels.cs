@@ -7,20 +7,24 @@ public record ViewportState(double X, double Y, double Zoom)
 
 public record Participant(Guid SessionId, Guid UserId, string DisplayName, DateTimeOffset JoinedAt, DateTimeOffset LastSeenAt, bool IsGuest = false);
 
+public record PointerState(double X, double Y, bool IsVisible);
+
 public record SyncPayload(
     Guid? DocumentId,
     ViewportState? Viewport,
     Guid? SessionId = null,
     string? Action = null,
     Participant[]? Participants = null,
-    Guid? ControllingSessionId = null);
+    Guid? ControllingSessionId = null,
+    PointerState? Pointer = null);
 
 public record CaseRoomSnapshot(
     Guid RequestId,
     Guid? ActiveDocumentId,
     ViewportState? Viewport,
     Participant[] Participants,
-    Guid? ControllingSessionId = null);
+    Guid? ControllingSessionId = null,
+    PointerState? Pointer = null);
 
 public record CaseRoomStatus(bool IsActive, int ParticipantCount, string[] ParticipantNames);
 

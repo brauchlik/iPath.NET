@@ -31,6 +31,15 @@
                         <MudChip T="string" Color="Color.Primary" Size="Size.Small" Variant="Variant.Filled">
                             You are controlling
                         </MudChip>
+                        <MudToggleIconButton Toggled="_pointerToolActive"
+                                             ToggledChanged="OnPointerToggleChanged"
+                                             Icon="@Icons.Material.Filled.FilterTiltShift"
+                                             ToggledIcon="@Icons.Material.Filled.FilterTiltShift"
+                                             Style="@(_pointerToolActive ? "" : "color: rgba(255,255,255,0.7);")"
+                                             ToggledColor="Color.Error"
+                                             Size="Size.Small"
+                                             Title="Show Pointer Tool"
+                                             ToggledTitle="Hide Pointer Tool" />
                         <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="ReleaseControl" Color="Color.Secondary" Style="color: white; border-color: rgba(255,255,255,0.5);">
                             Release
                         </MudButton>

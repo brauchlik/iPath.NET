@@ -28,12 +28,18 @@ public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemory
                 }
                 else if (ctx.User.Identity?.IsAuthenticated == true)
                 {
-                    if (Guid.TryParse(ctx.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value, out var userid))
+                    Guid? userid = null;
+                    if (Guid.TryParse(ctx.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value, out var parsedId) && parsedId != Guid.Empty)
                     {
-                        var cachekey = userid.ToString();
+                        userid = parsedId;
+                    }
+
+                    if (userid.HasValue)
+                    {
+                        var cachekey = userid.Value.ToString();
                         if (!cache.TryGetValue(cachekey, out var cachedUser))
                         {
-                            cachedUser = LoadUser(userid).Result;
+                            cachedUser = LoadUser(userid.Value).Result;
 
                             var opts = new MemoryCacheEntryOptions()
                                 .SetSlidingExpiration(TimeSpan.FromMinutes(5));
@@ -44,9 +50,9 @@ public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemory
 
                     if (ctx.User.IsInRole("CaseRoomGuest"))
                     {
-                        if (_user is null)
+                        if (_user is null || _user.Id == Guid.Empty)
                         {
-                            _user = new SessionUserDto(Guid.Empty, "Guest", "", "", ["CaseRoomGuest"], [], []);
+                            _user = new SessionUserDto(Guid.Empty, "Guest", "", "", ["CaseRoomGuest"], new Dictionary<Guid, eMemberRole>(), new List<UserGroupMemberDto>());
                         }
                         else if (!_user.roles.Contains("CaseRoomGuest"))
                         {

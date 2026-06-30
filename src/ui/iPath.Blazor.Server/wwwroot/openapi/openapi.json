@@ -7916,6 +7916,35 @@
           }
         }
       },
+      "PointerState": {
+        "required": [
+          "x",
+          "y",
+          "isVisible"
+        ],
+        "type": "object",
+        "properties": {
+          "x": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "y": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "isVisible": {
+            "type": "boolean"
+          }
+        }
+      },
       "ProposeTaskAssignmentCommand": {
         "required": [
           "serviceRequestId",
@@ -9012,6 +9041,16 @@
               "string"
             ],
             "format": "uuid"
+          },
+          "pointer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PointerState"
+              }
+            ]
           }
         }
       },

@@ -272,6 +272,15 @@ public static class AdminEndpoints
             .WithTags("Admin")
             .RequireAuthorization("Admin");
 
+        route.MapGet("admin/documents/{id}/storage", async (Guid id, [FromServices] IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetDocumentStorageInfoQuery(id), ct);
+            return result is null ? Results.NotFound() : Results.Ok(result);
+        })
+            .Produces<DocumentStorageInfoDto>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
         route.MapPost("admin/database/migrate", async (IMediator mediator, CancellationToken ct) =>
         {
             try

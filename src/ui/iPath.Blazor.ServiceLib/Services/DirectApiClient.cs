@@ -557,6 +557,11 @@ public class DirectApiClient(
         return Respond(await mediator.Send(new PurgeDocumentFilesCommand(documentId), default));
     }
 
+    public async Task<IApiResponse<DocumentStorageInfoDto>> GetDocumentStorageInfo(Guid id)
+    {
+        return Respond(await mediator.Send(new GetDocumentStorageInfoQuery(id), default));
+    }
+
     public async Task<IApiResponse<List<StaleCacheFileDto>>> GetStaleCacheFiles(int daysOld = 7)
     {
         return Respond(await mediator.Send(new GetStaleCacheFilesQuery(daysOld), default));

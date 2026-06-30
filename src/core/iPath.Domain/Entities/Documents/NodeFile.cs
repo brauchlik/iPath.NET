@@ -20,6 +20,8 @@ public class NodeFile
 
     public string? PublicUrl { get; set; }
 
+    public long? FileSize { get; set; }
+
     public int? ImageWidth { get; set; }
     public int? ImageHeight { get; set; }
 

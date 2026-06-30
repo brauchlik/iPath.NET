@@ -735,6 +735,36 @@
         }
       }
     },
+    "/api/v1/admin/documents/{id}/storage": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentStorageInfoDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/database/migrate": {
       "post": {
         "tags": [
@@ -5327,6 +5357,90 @@
           }
         }
       },
+      "DocumentStorageInfoDto": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fileSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "mimeType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isInCache": {
+            "type": "boolean"
+          },
+          "storageProvider": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "storageId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "remotePath": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "publicUrl": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastStorageExportDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "imageWidth": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "imageHeight": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "conversionStatus": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "eAnnotationType": {
         "type": "integer"
       },
@@ -7121,6 +7235,15 @@
               "null",
               "string"
             ]
+          },
+          "fileSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
           },
           "imageWidth": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",

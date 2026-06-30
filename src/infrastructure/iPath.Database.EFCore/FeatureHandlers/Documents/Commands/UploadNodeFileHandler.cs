@@ -53,6 +53,7 @@ public class UploadDocumentFileCommandHandler(iPathDbContext db,
         document.File = new()
         {
             Filename = request.filename,
+            FileSize = request.fileSize,
             MimeType = request.contenttype ?? srvMime.GetMimeType(request.filename),
         };
 

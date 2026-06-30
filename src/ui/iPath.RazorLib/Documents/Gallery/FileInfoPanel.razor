@@ -1,0 +1,88 @@
+@namespace iPath.Blazor.Componenents.Documents
+@using iPath.Application.Features.Admin
+@using iPath.Blazor.ServiceLib.ApiClient
+
+@inject IPathApi api
+
+@if (Model?.File is not null)
+{
+    <MudPaper Class="pa-3 mt-3" Elevation="0" Outlined="true">
+        <div class="d-flex align-center" style="cursor:pointer" @onclick="ToggleExpand">
+            <MudText Typo="Typo.body2" Class="flex-grow-1">
+                <strong>@Model.File.Filename</strong>
+                @if (Model.File.FileSize.HasValue)
+                {
+                    <span class="ml-1 text-secondary">@FormatFileSize(Model.File.FileSize.Value)</span>
+                }
+                <span class="ml-2 mud-chip mud-chip-text mud-chip-color-primary mud-chip-size-small">@(Model.File.Storage?.ProviderName ?? "no storage")</span>
+            </MudText>
+            <MudIcon Icon="@(_expanded ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)" Size="Size.Small" />
+        </div>
+
+        @if (_expanded && _storageInfo is null)
+        {
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="my-2" />
+        }
+
+        @if (_storageInfo is not null)
+        {
+            <MudText Typo="Typo.caption" Class="mt-2 text-secondary">
+                <table class="ipath-debug-table">
+                    <tbody>
+                        <tr><td class="pr-3">In cache</td><td>@(_storageInfo.IsInCache ? "yes" : "no")</td></tr>
+                        <tr><td class="pr-3">MIME type</td><td>@_storageInfo.MimeType</td></tr>
+                        @if (_storageInfo.ImageWidth.HasValue)
+                        {
+                            <tr><td class="pr-3">Dimensions</td><td>@_storageInfo.ImageWidth × @_storageInfo.ImageHeight</td></tr>
+                        }
+                        <tr><td class="pr-3">Storage</td><td>@(_storageInfo.StorageProvider ?? "—")</td></tr>
+                        @if (_storageInfo.StorageId is not null)
+                        {
+                            <tr><td class="pr-3">Storage ID</td><td style="word-break:break-all;max-width:300px">@_storageInfo.StorageId</td></tr>
+                        }
+                        @if (_storageInfo.RemotePath is not null)
+                        {
+                            <tr><td class="pr-3">Remote path</td><td style="word-break:break-all;max-width:300px">@_storageInfo.RemotePath</td></tr>
+                        }
+                        <tr><td class="pr-3">Public URL</td><td style="word-break:break-all;max-width:300px">@(_storageInfo.PublicUrl ?? "—")</td></tr>
+                        <tr><td class="pr-3">Last exported</td><td>@(_storageInfo.LastStorageExportDate?.ToString("g") ?? "—")</td></tr>
+                        @if (_storageInfo.ConversionStatus is not null)
+                        {
+                            <tr><td class="pr-3">Conversion</td><td>@_storageInfo.ConversionStatus</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </MudText>
+        }
+    </MudPaper>
+}
+
+@code {
+    [Parameter]
+    public DocumentDto? Model { get; set; }
+
+    private bool _expanded;
+    private DocumentStorageInfoDto? _storageInfo;
+
+    private async Task ToggleExpand()
+    {
+        _expanded = !_expanded;
+        if (_expanded && Model is not null && _storageInfo is null)
+        {
+            var resp = await api.GetDocumentStorageInfo(Model.Id);
+            if (resp.IsSuccessful)
+                _storageInfo = resp.Content;
+        }
+    }
+
+    private static string FormatFileSize(long bytes)
+    {
+        return bytes switch
+        {
+            < 1024 => $"{bytes} B",
+            < 1024 * 1024 => $"{bytes / 1024.0:F1} KB",
+            < 1024 * 1024 * 1024 => $"{bytes / (1024.0 * 1024.0):F1} MB",
+            _ => $"{bytes / (1024.0 * 1024.0 * 1024.0):F2} GB"
+        };
+    }
+}

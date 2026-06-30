@@ -507,3 +507,13 @@
 @keyframes ipath-spin {
     to { transform: rotate(360deg); }
 }
+
+.ipath-debug-table td {
+    vertical-align: top;
+    padding-bottom: 2px;
+}
+
+.ipath-debug-table td:first-child {
+    color: var(--mud-palette-text-secondary);
+    white-space: nowrap;
+}

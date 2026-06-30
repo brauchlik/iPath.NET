@@ -342,6 +342,9 @@ public interface IPathApi
 
     [Post("/api/v1/admin/database/migrate")]
     Task<IApiResponse<DatabaseStatusDto>> ApplyDatabaseMigrations();
+
+    [Get("/api/v1/admin/documents/{id}/storage")]
+    Task<IApiResponse<DocumentStorageInfoDto>> GetDocumentStorageInfo(Guid id);
     #endregion
 
 

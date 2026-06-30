@@ -1,3 +1,4 @@
+using iPath.Domain.Entities.Cache;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -55,6 +56,7 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<CaseEmbedding> CaseEmbeddings { get; set; }
 
     public DbSet<WsiConversionJob> WsiConversionJobs { get; set; }
+    public DbSet<DocumentCacheEntry> DocumentCacheEntries => Set<DocumentCacheEntry>();
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -174,6 +176,16 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
         builder.Entity<EmailImportLog>(b =>
         {
             b.ToTable("email_import_logs");
+        });
+
+        builder.Entity<DocumentCacheEntry>(b =>
+        {
+            b.ToTable("DocumentCacheEntries");
+            b.HasKey(x => x.Id);
+            b.HasIndex(x => x.DocumentId);
+            b.HasIndex(x => x.LastAccessed);
+            b.Property(x => x.StorageProvider).HasMaxLength(50);
+            b.Property(x => x.FilePath).HasMaxLength(500);
         });
     }
 

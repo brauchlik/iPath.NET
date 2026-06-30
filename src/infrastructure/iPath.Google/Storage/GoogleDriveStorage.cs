@@ -35,6 +35,7 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
 
     public const string GoogleDriveName = "GoogleDrive";
     public string ProviderName => GoogleDriveName;
+    public bool CanServeDirectly => false;
 
     private static string _RootStorageName = string.Empty;
     private static bool? _RootExists = null;

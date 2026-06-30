@@ -6,6 +6,7 @@ using iPath.API.Services.Email.Clients;
 using iPath.API.Services.Notifications;
 using iPath.API.Services.Notifications.Processors;
 using iPath.API.Services.Notifications.Publisher;
+using iPath.API.Services.Cache;
 using iPath.API.Services.Storage;
 using iPath.API.Services.Thumbnail;
 using iPath.API.Services.SyncImport;
@@ -62,6 +63,9 @@ public static class APIServicesRegistration
         services.Configure<SystemCleanupConfig>(config.GetSection(SystemCleanupConfig.ConfigName));
         var cleanupCfg = new SystemCleanupConfig();
         config.GetSection(SystemCleanupConfig.ConfigName).Bind(cleanupCfg);
+
+        // Cache settings
+        services.Configure<CacheSettings>(config.GetSection(CacheSettings.ConfigName));
 
         // create root folder if requested
         CreateDataRoot(cfg);
@@ -172,6 +176,7 @@ public static class APIServicesRegistration
 
         // Caching
         services.AddMemoryCache();
+        services.AddScoped<ICacheManager, CacheManager>();
         services.AddScoped<IUserSession, UserSession>();
         services.AddScoped<IAssignmentCandidateService, AssignmentCandidateService>();
 

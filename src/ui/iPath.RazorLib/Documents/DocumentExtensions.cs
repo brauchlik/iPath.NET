@@ -53,30 +53,20 @@ public static class DocumentExtensions
             }
         }
 
-        public string WsiUrl => $"/api/v1/google/proxy/{document.Id}";
-
-        public string BinarayDataUrl => string.IsNullOrWhiteSpace(document.File?.PublicUrl) ?
-            $"/api/v1/documents/files/{document.Id}" :
-            document.File.PublicUrl;
+        public string BinarayDataUrl => $"/api/v1/documents/files/{document.Id}";
 
         public string PreviewFileUrl
         {
             get
             {
-                if (!string.IsNullOrEmpty(document.File?.PublicUrl))
-                {
-                    return document.File.PublicUrl;
-                }
-                else if (!document.ipath2_id.HasValue)
+                if (!document.ipath2_id.HasValue)
                 {
                     return $"/api/v1/documents/{document.Id}/{document.File.Filename}";
                 }
-                else if (document.ipath2_id.HasValue)
+                else
                 {
                     return $"https://www.ipath-network.com/ipath/image/src/{document.ipath2_id}";
                 }
-
-                return "";
             }
         }
 

@@ -2,7 +2,6 @@
 using iPath.API.Endpoints;
 using iPath.API.Middleware;
 using iPath.EF.Core.FeatureHandlers;
-using iPath.Google;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +29,6 @@ public static class MapEndpoints
             .MapTestApi()
             .MapStatisticsApi()
             .MapCmsApi()
-            .MapGoogleProxy()
             .MapEmailImportApi()
             .MapTaskAssignmentEndpoints()
             .MapSyncApi()

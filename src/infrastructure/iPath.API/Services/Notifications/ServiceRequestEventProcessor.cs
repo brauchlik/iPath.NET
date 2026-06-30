@@ -54,7 +54,15 @@ public class ServiceRequestEventProcessor(IServiceRequestEventQueue queue,
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var evt = await queue.DequeueAsync(stoppingToken);
+            ServiceRequestEvent evt;
+            try
+            {
+                evt = await queue.DequeueAsync(stoppingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
             logger.LogTrace("processing event type {0}", evt.GetType().Name);
 
             var processor = scope.ServiceProvider.GetService<IServiceRequestEventProcessor>();

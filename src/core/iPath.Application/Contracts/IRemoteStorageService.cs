@@ -5,6 +5,8 @@ public interface IRemoteStorageService
     string ProviderName { get; }
     string RootStorageName { get; }
 
+    bool CanServeDirectly { get; }
+
     Task<bool> InitStorageAsync();
 
 

@@ -1,3 +1,4 @@
+using iPath.API.Services.Cache;
 using iPath.Application.Features.Admin;
 using iPath.Domain.Config;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +26,7 @@ public class SystemCleanupWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("SystemCleanupWorker started. Configured TimeOfDay: {TimeOfDay}", _config.TimeOfDay);
+        _logger.LogInformation("SystemCleanupWorker started.");
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -62,14 +63,14 @@ public class SystemCleanupWorker : BackgroundService
                         _logger.LogInformation("SystemCleanupWorker: PurgeDeletedDocuments is disabled.");
                     }
 
-                    // 2. Clean stale cache
+                    // 2. CacheManager normal eviction (replaces old stale cache logic)
                     if (_config.CleanStaleCache)
                     {
-                        await RunCleanStaleCacheAsync(mediator, stoppingToken);
+                        await RunCacheEvictionAsync(scope, stoppingToken);
                     }
                     else
                     {
-                        _logger.LogInformation("SystemCleanupWorker: CleanStaleCache is disabled.");
+                        _logger.LogInformation("SystemCleanupWorker: Cache eviction is disabled.");
                     }
 
                     // 3. Clean conversion staging
@@ -162,17 +163,18 @@ public class SystemCleanupWorker : BackgroundService
         }
     }
 
-    private async Task RunCleanStaleCacheAsync(IMediator mediator, CancellationToken ct)
+    private async Task RunCacheEvictionAsync(IServiceScope scope, CancellationToken ct)
     {
-        _logger.LogInformation("SystemCleanupWorker: Cleaning stale cache files older than {Days} days...", _config.StaleCacheDays);
+        _logger.LogInformation("SystemCleanupWorker: Running cache eviction...");
         try
         {
-            var deletedCount = await mediator.Send(new CleanStaleCacheFilesCommand(_config.StaleCacheDays), ct);
-            _logger.LogInformation("SystemCleanupWorker: Cache cleanup complete. Deleted {Count} items.", deletedCount);
+            var cacheManager = scope.ServiceProvider.GetRequiredService<ICacheManager>();
+            await cacheManager.RunNormalEvictionAsync(ct);
+            _logger.LogInformation("SystemCleanupWorker: Cache eviction complete.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "SystemCleanupWorker: Error cleaning stale cache.");
+            _logger.LogError(ex, "SystemCleanupWorker: Error during cache eviction.");
         }
     }
 

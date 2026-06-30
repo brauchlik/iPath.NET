@@ -15,6 +15,7 @@ public class LocalStorageService(IOptions<iPathConfig> opts,
     : IRemoteStorageService
 {
     public string ProviderName => "LocalFiles";
+    public bool CanServeDirectly => true;
     public string RootStorageName => opts.Value.LocalDataPath;
 
     public string StoragePath 

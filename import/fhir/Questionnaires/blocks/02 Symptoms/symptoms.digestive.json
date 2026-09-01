@@ -1,0 +1,167 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "symptoms.digestive",
+  "status": "draft",
+  "title": "Symptoms — Digestive organs (C15-C26)",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "dysphagia",
+      "type": "boolean",
+      "text": "Dysphagia",
+      "code": [ { "system": "http://snomed.info/sct", "code": "40739000", "display": "Dysphagia" } ]
+    },
+    {
+      "linkId": "heartburn",
+      "type": "boolean",
+      "text": "Heartburn",
+      "code": [ { "system": "http://snomed.info/sct", "code": "16331000", "display": "Heartburn" } ]
+    },
+    {
+      "linkId": "painfulswallowing",
+      "type": "boolean",
+      "text": "Painful swallowing",
+      "code": [ { "system": "http://snomed.info/sct", "code": "30233002", "display": "Swallowing painful" } ]
+    },
+    {
+      "linkId": "regurgitation",
+      "type": "boolean",
+      "text": "Regurgitation",
+      "code": [ { "system": "http://snomed.info/sct", "code": "78104003", "display": "Regurgitation of gastric content" } ]
+    },
+    {
+      "linkId": "dyspepsia",
+      "type": "boolean",
+      "text": "Dyspepsia",
+      "code": [ { "system": "http://snomed.info/sct", "code": "162031009", "display": "Indigestion" } ]
+    },
+    {
+      "linkId": "pain.abdominal",
+      "type": "boolean",
+      "text": "Abdominal pain",
+      "code": [ { "system": "http://snomed.info/sct", "code": "21522001", "display": "Abdominal pain" } ],
+      "item": [
+        {
+          "linkId": "pain.abdominal.location",
+          "type": "choice",
+          "text": "Location",
+          "answerOption": [
+            { "valueString": "Upper abdomen (left)" },
+            { "valueString": "Upper abdomen (right)" },
+            { "valueString": "Middle abdomen (left)" },
+            { "valueString": "Middle abdomen (right)" },
+            { "valueString": "Lower abdomen (left)" },
+            { "valueString": "Lower abdomen (right)" }
+          ],
+          "enableWhen": [ { "question": "pain.abdominal", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "pain.abdominal.duration",
+          "type": "quantity",
+          "text": "Duration",
+          "code": [ { "system": "http://snomed.info/sct", "code": "162442009", "display": "Time symptom lasts" } ],
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "a", "display": "years" } }
+          ],
+          "enableWhen": [ { "question": "pain.abdominal", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "flatulence",
+      "type": "boolean",
+      "text": "Flatulence",
+      "code": [ { "system": "http://snomed.info/sct", "code": "249504006", "display": "Passing flatus" } ]
+    },
+    {
+      "linkId": "weightloss",
+      "type": "boolean",
+      "text": "Weight loss",
+      "code": [ { "system": "http://snomed.info/sct", "code": "89362005", "display": "Weight loss" } ],
+      "item": [
+        {
+          "linkId": "weightloss.kg",
+          "type": "quantity",
+          "text": "Amount lost (kg)",
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "kg", "display": "kg" } }
+          ],
+          "enableWhen": [ { "question": "weightloss", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "vomiting",
+      "type": "boolean",
+      "text": "Vomiting",
+      "code": [ { "system": "http://snomed.info/sct", "code": "422400008", "display": "Vomiting" } ],
+      "item": [
+        {
+          "linkId": "vomiting.blood",
+          "type": "boolean",
+          "text": "Vomiting blood",
+          "code": [ { "system": "http://snomed.info/sct", "code": "8765009", "display": "Hematemesis" } ],
+          "enableWhen": [ { "question": "vomiting", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "constipation",
+      "type": "boolean",
+      "text": "Constipation",
+      "code": [ { "system": "http://snomed.info/sct", "code": "14760008", "display": "Constipation" } ]
+    },
+    {
+      "linkId": "diarrhoea",
+      "type": "boolean",
+      "text": "Diarrhoea",
+      "code": [ { "system": "http://snomed.info/sct", "code": "62315008", "display": "Diarrhea" } ]
+    },
+    {
+      "linkId": "stoolchanges",
+      "type": "boolean",
+      "text": "Stool changes",
+      "code": [ { "system": "http://snomed.info/sct", "code": "88111009", "display": "Altered bowel function" } ]
+    },
+    {
+      "linkId": "melaena",
+      "type": "boolean",
+      "text": "Melaena",
+      "code": [ { "system": "http://snomed.info/sct", "code": "2901004", "display": "Melena" } ]
+    },
+    {
+      "linkId": "bloodystool",
+      "type": "boolean",
+      "text": "Bloody stool",
+      "code": [ { "system": "http://snomed.info/sct", "code": "405729008", "display": "Hematochezia" } ]
+    },
+    {
+      "linkId": "fever",
+      "type": "boolean",
+      "text": "Fever",
+      "code": [ { "system": "http://snomed.info/sct", "code": "386661006", "display": "Fever" } ]
+    },
+    {
+      "linkId": "jaundice",
+      "type": "boolean",
+      "text": "Jaundice",
+      "code": [ { "system": "http://snomed.info/sct", "code": "18165001", "display": "Jaundice" } ]
+    },
+    {
+      "linkId": "easybruising",
+      "type": "boolean",
+      "text": "Easy bruising",
+      "code": [ { "system": "http://snomed.info/sct", "code": "424131007", "display": "Easy bruising" } ]
+    },
+    {
+      "linkId": "other",
+      "type": "string",
+      "text": "Other (please specify)"
+    }
+  ]
+}

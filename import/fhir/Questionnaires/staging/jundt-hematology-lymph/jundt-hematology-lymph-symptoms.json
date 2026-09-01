@@ -1,0 +1,869 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "jundt-hematology-lymph-symptoms",
+  "url": "http://ipath.kantonsspital.net/fhir/Questionnaire/jundt-hematology-lymph-symptoms",
+  "version": "1.2",
+  "status": "draft",
+  "title": "Hematology and Lymph nodes",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "lab.blood-count",
+      "type": "group",
+      "text": "Labor",
+      "item": [
+        {
+          "linkId": "lab.blood-count.available",
+          "type": "boolean",
+          "text": "Blood cell count available",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "88308000",
+              "display": "Blood cell count"
+            }
+          ]
+        },
+        {
+          "linkId": "lab.blood-count.erythrocytes",
+          "type": "quantity",
+          "text": "Erythrocytes",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "14089001",
+              "display": "Red blood cell count"
+            },
+            {
+              "system": "http://loinc.org",
+              "code": "789-8",
+              "display": "Erythrocytes [#/volume] in Blood by Automated count"
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*12/L",
+                "display": "10^12/L"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*6/uL",
+                "display": "10^6/µL"
+              }
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "lab.blood-count.available",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "lab.blood-count.granulocytes",
+          "type": "group",
+          "text": "Granulocytes",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "118138007",
+              "display": "Granulocyte count"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "lab.blood-count.available",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ],
+          "item": [
+            {
+              "linkId": "lab.blood-count.granulocytes.neutrophils",
+              "type": "quantity",
+              "text": "Neutrophils",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "30630007",
+                  "display": "Neutrophil count"
+                },
+                {
+                  "system": "http://loinc.org",
+                  "code": "26499-4",
+                  "display": "Neutrophils [#/volume] in Blood"
+                }
+              ],
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "10*9/L",
+                    "display": "10^9/L"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "10*3/uL",
+                    "display": "10^3/µL"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "lab.blood-count.granulocytes.eosinophils",
+              "type": "quantity",
+              "text": "Eosinophils",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "71960002",
+                  "display": "Eosinophil count"
+                },
+                {
+                  "system": "http://loinc.org",
+                  "code": "711-2",
+                  "display": "Eosinophils [#/volume] in Blood by Automated count"
+                }
+              ],
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "10*9/L",
+                    "display": "10^9/L"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "10*3/uL",
+                    "display": "10^3/µL"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "lab.blood-count.granulocytes.basophils",
+              "type": "quantity",
+              "text": "Basophils",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "42351005",
+                  "display": "Basophil count"
+                },
+                {
+                  "system": "http://loinc.org",
+                  "code": "704-7",
+                  "display": "Basophils [#/volume] in Blood by Automated count"
+                }
+              ],
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "10*9/L",
+                    "display": "10^9/L"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "10*3/uL",
+                    "display": "10^3/µL"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "lab.blood-count.monocytes",
+          "type": "quantity",
+          "text": "Monocytes",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "67776007",
+              "display": "Monocyte count"
+            },
+            {
+              "system": "http://loinc.org",
+              "code": "26484-6",
+              "display": "Monocytes [#/volume] in Blood"
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*9/L",
+                "display": "10^9/L"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*3/uL",
+                "display": "10^3/µL"
+              }
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "lab.blood-count.available",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "lab.blood-count.lymphocytes",
+          "type": "quantity",
+          "text": "Lymphocytes",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "74765001",
+              "display": "Lymphocyte count"
+            },
+            {
+              "system": "http://loinc.org",
+              "code": "26474-7",
+              "display": "Lymphocytes [#/volume] in Blood"
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*9/L",
+                "display": "10^9/L"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*3/uL",
+                "display": "10^3/µL"
+              }
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "lab.blood-count.available",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "lab.blood-count.thrombocytes",
+          "type": "quantity",
+          "text": "Thrombocytes",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "61928009",
+              "display": "Platelet count"
+            },
+            {
+              "system": "http://loinc.org",
+              "code": "777-3",
+              "display": "Platelets [#/volume] in Blood by Automated count"
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*9/L",
+                "display": "10^9/L"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*3/uL",
+                "display": "10^3/µL"
+              }
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "lab.blood-count.available",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "sym.general",
+      "type": "group",
+      "text": "General symptoms",
+      "item": [
+        {
+          "linkId": "sym.pain",
+          "type": "boolean",
+          "text": "Pain",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "22253000",
+              "display": "Pain"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "sym.pain.duration",
+              "type": "quantity",
+              "text": "Duration",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "162442009",
+                  "display": "Time symptom lasts"
+                }
+              ],
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "d",
+                    "display": "days"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "wk",
+                    "display": "weeks"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mo",
+                    "display": "months"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "a",
+                    "display": "years"
+                  }
+                }
+              ],
+              "enableWhen": [
+                {
+                  "question": "sym.pain",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "sym.swelling",
+          "type": "boolean",
+          "text": "Swelling",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "65124004",
+              "display": "Swelling"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "sym.swelling.duration",
+              "type": "quantity",
+              "text": "Duration",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "162442009",
+                  "display": "Time symptom lasts"
+                }
+              ],
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "d",
+                    "display": "days"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "wk",
+                    "display": "weeks"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mo",
+                    "display": "months"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "a",
+                    "display": "years"
+                  }
+                }
+              ],
+              "enableWhen": [
+                {
+                  "question": "sym.swelling",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "sym.weightloss",
+          "type": "boolean",
+          "text": "Weight loss",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "89362005",
+              "display": "Weight loss"
+            }
+          ]
+        },
+        {
+          "linkId": "sym.fever",
+          "type": "boolean",
+          "text": "Fever",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "386661006",
+              "display": "Fever"
+            }
+          ]
+        },
+        {
+          "linkId": "sym.breathlessness",
+          "type": "boolean",
+          "text": "Breathlessness",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "267036007",
+              "display": "Dyspnea"
+            }
+          ]
+        },
+        {
+          "linkId": "sym.nightsweat",
+          "type": "boolean",
+          "text": "Night sweat (esp. C77)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "42984000",
+              "display": "Night sweats"
+            }
+          ]
+        },
+        {
+          "linkId": "sym.pallor",
+          "type": "boolean",
+          "text": "Pallor (esp. C42)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "274643008",
+              "display": "Body pale"
+            }
+          ]
+        },
+        {
+          "linkId": "sym.bleedingtendency",
+          "type": "boolean",
+          "text": "Bleeding tendency (esp. C42)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "78596001",
+              "display": "Bleeding diathesis"
+            }
+          ]
+        },
+        {
+          "linkId": "sym.susceptibility",
+          "type": "boolean",
+          "text": "Susceptibility to infection (esp. C42)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "102463001",
+              "display": "Susceptibility to infections"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "sym.other",
+      "type": "boolean",
+      "text": "Other symptoms present",
+      "item": [
+        {
+          "linkId": "sym.nightpain",
+          "type": "boolean",
+          "text": "Night pain (esp. C40)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "36163009",
+              "display": "Night pain"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "sym.other",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "sym.jaundice",
+          "type": "boolean",
+          "text": "Jaundice (esp. C22)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "18165001",
+              "display": "Jaundice"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "sym.other",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "sym.cough",
+          "type": "boolean",
+          "text": "Cough (esp. C34)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "49727002",
+              "display": "Cough"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "sym.other",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ],
+          "item": [
+            {
+              "linkId": "sym.cough.duration",
+              "type": "quantity",
+              "text": "Duration",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "162442009",
+                  "display": "Time symptom lasts"
+                }
+              ],
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "d",
+                    "display": "days"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "wk",
+                    "display": "weeks"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mo",
+                    "display": "months"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "a",
+                    "display": "years"
+                  }
+                }
+              ],
+              "enableWhen": [
+                {
+                  "question": "sym.cough",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "sym.constipation",
+          "type": "boolean",
+          "text": "Constipation (esp. C18)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "14760008",
+              "display": "Constipation"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "sym.other",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "sym.diarrhoea",
+          "type": "boolean",
+          "text": "Diarrhoea (esp. C18)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "62315008",
+              "display": "Diarrhea"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "sym.other",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "sym.melaena",
+          "type": "boolean",
+          "text": "Melaena (esp. C18)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "2901004",
+              "display": "Melena"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "sym.other",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "sym.nippledischarge",
+          "type": "boolean",
+          "text": "Nipple discharge (esp. C50)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "54302000",
+              "display": "Discharge from nipple"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "sym.other",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "sym.uterinebleeding",
+          "type": "boolean",
+          "text": "Uterine bleeding (esp. C53-C55)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "44991000119100",
+              "display": "Abnormal uterine bleeding"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "sym.other",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ],
+          "item": [
+            {
+              "linkId": "sym.uterinebleeding.duration",
+              "type": "quantity",
+              "text": "Duration",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "162442009",
+                  "display": "Time symptom lasts"
+                }
+              ],
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "d",
+                    "display": "days"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "wk",
+                    "display": "weeks"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mo",
+                    "display": "months"
+                  }
+                }
+              ],
+              "enableWhen": [
+                {
+                  "question": "sym.uterinebleeding",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "sym.uterinedischarge",
+          "type": "boolean",
+          "text": "Uterine discharge (esp. C53-C55)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "271939006",
+              "display": "Vaginal discharge"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "sym.other",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "sym.dysuria",
+          "type": "boolean",
+          "text": "Dysuria (esp. C67, C68)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "49650001",
+              "display": "Dysuria"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "sym.other",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "sym.haematuria",
+          "type": "boolean",
+          "text": "Haematuria (esp. C64-C68)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "34436003",
+              "display": "Blood in urine"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "sym.other",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

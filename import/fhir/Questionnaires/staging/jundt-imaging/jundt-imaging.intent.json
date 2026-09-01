@@ -1,0 +1,119 @@
+{
+  "id": "jundt-imaging",
+  "title": "Imaging",
+  "icdOScope": [],
+  "source": "doc/jundt/imaging.md",
+  "status": "intent",
+  "sections": [
+    {
+      "linkId": "imaging.general",
+      "title": "General imaging modalities",
+      "block": "imaging.general",
+      "questions": [
+        {
+          "sourceLine": 4,
+          "text": "Conventional X-rays (2 planes)",
+          "type": "boolean",
+          "required": false,
+          "coding": { "system": "http://snomed.info/sct", "code": "168537006", "display": "Plain X-ray" },
+          "uploads": "Upload images and report"
+        },
+        {
+          "sourceLine": 5,
+          "text": "Sonography",
+          "type": "boolean",
+          "required": false,
+          "coding": { "system": "http://snomed.info/sct", "code": "16310003", "display": "Ultrasonography" },
+          "uploads": "Upload images and report"
+        },
+        {
+          "sourceLine": 6,
+          "text": "CT scan",
+          "type": "boolean",
+          "required": false,
+          "coding": { "system": "http://snomed.info/sct", "code": "77477000", "display": "Computed tomography" },
+          "uploads": "Upload images and report"
+        },
+        {
+          "sourceLine": 7,
+          "text": "MRI",
+          "type": "boolean",
+          "required": false,
+          "coding": { "system": "http://snomed.info/sct", "code": "113091000", "display": "Magnetic resonance imaging" },
+          "uploads": "Upload images and report"
+        },
+        {
+          "sourceLine": 8,
+          "text": "PET CT",
+          "type": "boolean",
+          "required": false,
+          "coding": { "system": "http://snomed.info/sct", "code": "450436003", "display": "Positron emission tomography with computed tomography" },
+          "uploads": "Upload images and report"
+        },
+        {
+          "sourceLine": 9,
+          "text": "PET MRI",
+          "type": "boolean",
+          "required": false,
+          "coding": null,
+          "uploads": "Upload images and report"
+        },
+        {
+          "sourceLine": 10,
+          "text": "PET/CT MRI",
+          "type": "boolean",
+          "required": false,
+          "coding": null,
+          "uploads": "Upload images and report"
+        },
+        {
+          "sourceLine": 11,
+          "text": "Other",
+          "type": "string",
+          "required": false,
+          "coding": null,
+          "uploads": "Upload images and report"
+        }
+      ]
+    },
+    {
+      "linkId": "imaging.jaw",
+      "title": "Special imaging procedures — Jaws",
+      "block": "imaging.jaw",
+      "questions": [
+        {
+          "sourceLine": 14,
+          "text": "Panoramic view",
+          "type": "boolean",
+          "required": false,
+          "coding": { "system": "http://snomed.info/sct", "code": "89846007", "display": "Orthopantogram" },
+          "uploads": "Upload images and report"
+        },
+        {
+          "sourceLine": 15,
+          "text": "Cone-beam computed tomography (CBCT)",
+          "type": "boolean",
+          "required": false,
+          "coding": { "system": "http://snomed.info/sct", "code": "717193008", "display": "Cone beam CT" },
+          "uploads": "Upload images and report"
+        }
+      ]
+    },
+    {
+      "linkId": "imaging.breast",
+      "title": "Special imaging procedures — Breast",
+      "block": "imaging.breast",
+      "questions": [
+        {
+          "sourceLine": 18,
+          "text": "Mammography",
+          "type": "boolean",
+          "required": false,
+          "coding": { "system": "http://snomed.info/sct", "code": "71651007", "display": "Mammography" },
+          "uploads": "Upload images and report"
+        }
+      ]
+    }
+  ],
+  "blocksUsed": ["imaging.general", "imaging.jaw", "imaging.breast"]
+}

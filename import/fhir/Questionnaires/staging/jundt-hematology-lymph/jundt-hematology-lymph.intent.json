@@ -1,0 +1,122 @@
+{
+  "id": "jundt-hematology-lymph",
+  "title": "Hematology and Lymph nodes",
+  "icdOScope": ["C42", "C77"],
+  "source": "doc/jundt/Hematology [C42-C42] and Lymph nodes [C77].md",
+  "status": "intent",
+  "sections": [
+    {
+      "linkId": "lab.blood-count",
+      "title": "Labor",
+      "block": "lab.blood-count",
+      "questions": [
+        {
+          "sourceLine": 4,
+          "text": "Blood cell count available",
+          "type": "boolean",
+          "required": false,
+          "coding": { "system": "http://snomed.info/sct", "code": "88308000", "display": "Blood cell count" }
+        },
+        {
+          "sourceLine": 5,
+          "text": "Erythrocytes",
+          "type": "quantity",
+          "required": false,
+          "units": [
+            { "code": "10*12/L", "display": "10^12/L" },
+            { "code": "10*6/uL", "display": "10^6/µL" }
+          ],
+          "coding": { "system": "http://snomed.info/sct", "code": "14089001", "display": "Red blood cell count" },
+          "loinc": "789-8",
+          "enableWhen": { "question": "lab.blood-count.available", "operator": "=", "answerBoolean": true }
+        },
+        {
+          "sourceLine": 6,
+          "text": "Granulocytes",
+          "type": "group",
+          "required": false,
+          "coding": { "system": "http://snomed.info/sct", "code": "118138007", "display": "Granulocyte count" },
+          "enableWhen": { "question": "lab.blood-count.available", "operator": "=", "answerBoolean": true },
+          "children": [
+            {
+              "sourceLine": 7,
+              "text": "Neutrophils",
+              "type": "quantity",
+              "required": false,
+              "units": [
+                { "code": "10*9/L", "display": "10^9/L" },
+                { "code": "10*3/uL", "display": "10^3/µL" }
+              ],
+              "coding": { "system": "http://snomed.info/sct", "code": "30630007", "display": "Neutrophil count" },
+              "loinc": "26499-4"
+            },
+            {
+              "sourceLine": 8,
+              "text": "Eosinophils",
+              "type": "quantity",
+              "required": false,
+              "units": [
+                { "code": "10*9/L", "display": "10^9/L" },
+                { "code": "10*3/uL", "display": "10^3/µL" }
+              ],
+              "coding": { "system": "http://snomed.info/sct", "code": "71960002", "display": "Eosinophil count" },
+              "loinc": "711-2"
+            },
+            {
+              "sourceLine": 9,
+              "text": "Basophils",
+              "type": "quantity",
+              "required": false,
+              "units": [
+                { "code": "10*9/L", "display": "10^9/L" },
+                { "code": "10*3/uL", "display": "10^3/µL" }
+              ],
+              "coding": { "system": "http://snomed.info/sct", "code": "42351005", "display": "Basophil count" },
+              "loinc": "704-7"
+            }
+          ]
+        },
+        {
+          "sourceLine": 10,
+          "text": "Monocytes",
+          "type": "quantity",
+          "required": false,
+          "units": [
+            { "code": "10*9/L", "display": "10^9/L" },
+            { "code": "10*3/uL", "display": "10^3/µL" }
+          ],
+          "coding": { "system": "http://snomed.info/sct", "code": "67776007", "display": "Monocyte count" },
+          "loinc": "26484-6",
+          "enableWhen": { "question": "lab.blood-count.available", "operator": "=", "answerBoolean": true }
+        },
+        {
+          "sourceLine": 11,
+          "text": "Lymphocytes",
+          "type": "quantity",
+          "required": false,
+          "units": [
+            { "code": "10*9/L", "display": "10^9/L" },
+            { "code": "10*3/uL", "display": "10^3/µL" }
+          ],
+          "coding": { "system": "http://snomed.info/sct", "code": "74765001", "display": "Lymphocyte count" },
+          "loinc": "26474-7",
+          "enableWhen": { "question": "lab.blood-count.available", "operator": "=", "answerBoolean": true }
+        },
+        {
+          "sourceLine": 12,
+          "text": "Thrombocytes",
+          "type": "quantity",
+          "required": false,
+          "units": [
+            { "code": "10*9/L", "display": "10^9/L" },
+            { "code": "10*3/uL", "display": "10^3/µL" }
+          ],
+          "coding": { "system": "http://snomed.info/sct", "code": "61928009", "display": "Platelet count" },
+          "loinc": "777-3",
+          "enableWhen": { "question": "lab.blood-count.available", "operator": "=", "answerBoolean": true }
+        }
+      ]
+    }
+  ],
+  "blocksUsed": ["lab.blood-count"]
+}

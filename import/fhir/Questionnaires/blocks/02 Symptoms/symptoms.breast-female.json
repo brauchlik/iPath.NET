@@ -1,0 +1,385 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "symptoms.breast-female",
+  "status": "draft",
+  "title": "Symptoms — Breast and Female Genital Organs (C50-C58)",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "sec.breast",
+      "type": "group",
+      "text": "Breast Symptoms (C50)",
+      "item": [
+        {
+          "linkId": "breast.lump",
+          "type": "boolean",
+          "text": "Lump",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "274647000",
+              "display": "Breast lump"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "breast.lump.duration",
+              "type": "quantity",
+              "text": "If yes, since when",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "162442009",
+                  "display": "Time symptom lasts"
+                }
+              ],
+              "extension": [
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } }
+              ],
+              "enableWhen": [ { "question": "breast.lump", "operator": "=", "answerBoolean": true } ]
+            },
+            {
+              "linkId": "breast.lump.growingduration",
+              "type": "quantity",
+              "text": "If yes, increasing in size since",
+              "extension": [
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } }
+              ],
+              "enableWhen": [ { "question": "breast.lump", "operator": "=", "answerBoolean": true } ]
+            },
+            {
+              "linkId": "breast.lump.consistency",
+              "type": "choice",
+              "text": "Consistency",
+              "answerOption": [
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "255395000", "display": "Hard" } },
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "255397008", "display": "Smooth" } },
+                { "valueString": "Unknown" }
+              ],
+              "enableWhen": [ { "question": "breast.lump", "operator": "=", "answerBoolean": true } ]
+            },
+            {
+              "linkId": "breast.lump.border",
+              "type": "choice",
+              "text": "Border",
+              "answerOption": [
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "255535002", "display": "Irregular" } },
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "255534003", "display": "Regular" } },
+                { "valueString": "Unknown" }
+              ],
+              "enableWhen": [ { "question": "breast.lump", "operator": "=", "answerBoolean": true } ]
+            }
+          ]
+        },
+        {
+          "linkId": "nippledischarge",
+          "type": "boolean",
+          "text": "Nipple discharge",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "54302000",
+              "display": "Discharge from nipple"
+            }
+          ]
+        },
+        {
+          "linkId": "breast.retraction",
+          "type": "boolean",
+          "text": "Nipple retracted",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "69085004",
+              "display": "Nipple retraction"
+            }
+          ]
+        },
+        {
+          "linkId": "breast.skindiscoloration",
+          "type": "boolean",
+          "text": "Breast-Skin discolored",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "402773007",
+              "display": "Discoloration of skin of breast"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "sec.female.genital",
+      "type": "group",
+      "text": "Female Genital Organs (C51-C58)",
+      "item": [
+        {
+          "linkId": "pregnancy",
+          "type": "boolean",
+          "text": "Pregnancy",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "77386006",
+              "display": "Pregnant"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "pregnancy.week",
+              "type": "integer",
+              "text": "If yes, which week (please specify)",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "1156895004",
+                  "display": "Gestational age"
+                }
+              ],
+              "enableWhen": [ { "question": "pregnancy", "operator": "=", "answerBoolean": true } ]
+            }
+          ]
+        },
+        {
+          "linkId": "pregnancy.previous",
+          "type": "boolean",
+          "text": "Previous pregnancies",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "161732006",
+              "display": "Gravida"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "pregnancy.previous.lastdelivery",
+              "type": "date",
+              "text": "If yes, date of last delivery (dd,mm,yyyy)",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "161714006",
+                  "display": "Date of last delivery"
+                }
+              ],
+              "enableWhen": [ { "question": "pregnancy.previous", "operator": "=", "answerBoolean": true } ]
+            }
+          ]
+        },
+        {
+          "linkId": "menopause",
+          "type": "boolean",
+          "text": "Menopause",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "426979002",
+              "display": "Menopause"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "menopause.postbleeding",
+              "type": "boolean",
+              "text": "If yes: Postmenopausal bleeding",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "289530006",
+                  "display": "Postmenopausal bleeding"
+                }
+              ],
+              "enableWhen": [ { "question": "menopause", "operator": "=", "answerBoolean": true } ]
+            },
+            {
+              "linkId": "menopause.regularcycle",
+              "type": "boolean",
+              "text": "If no: Regular menstrual cycle",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "289947009",
+                  "display": "Regular menstrual cycle"
+                }
+              ],
+              "enableWhen": [ { "question": "menopause", "operator": "=", "answerBoolean": false } ],
+              "item": [
+                {
+                  "linkId": "menopause.irregularities",
+                  "type": "choice",
+                  "repeats": true,
+                  "text": "If no: Irregular periods",
+                  "answerOption": [
+                    { "valueCoding": { "system": "http://snomed.info/sct", "code": "386692008", "display": "Heavy menstrual bleeding / Menorrhagia" } },
+                    { "valueCoding": { "system": "http://snomed.info/sct", "code": "289535001", "display": "Abnormal bleeding / Spotting" } },
+                    { "valueCoding": { "system": "http://snomed.info/sct", "code": "89217008", "display": "Missed periods / Amenorrhea" } },
+                    { "valueCoding": { "system": "http://snomed.info/sct", "code": "266599000", "display": "Painful periods / Dysmenorrhea" } }
+                  ],
+                  "enableWhen": [ { "question": "menopause.regularcycle", "operator": "=", "answerBoolean": false } ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "pain.lowerabdominal",
+          "type": "boolean",
+          "text": "Lower abdominal pain",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "3006004",
+              "display": "Lower abdominal pain"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "pain.lowerabdominal.duration",
+              "type": "quantity",
+              "text": "If yes, since when",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "162442009",
+                  "display": "Time symptom lasts"
+                }
+              ],
+              "extension": [
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } }
+              ],
+              "enableWhen": [ { "question": "pain.lowerabdominal", "operator": "=", "answerBoolean": true } ]
+            },
+            {
+              "linkId": "pain.lowerabdominal.side",
+              "type": "choice",
+              "text": "If yes, what side",
+              "answerOption": [
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "24028007", "display": "Right" } },
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "260528009", "display": "Middle" } },
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "7771000", "display": "Left" } }
+              ],
+              "enableWhen": [ { "question": "pain.lowerabdominal", "operator": "=", "answerBoolean": true } ]
+            }
+          ]
+        },
+        {
+          "linkId": "swelling.lowerabdominal",
+          "type": "boolean",
+          "text": "Lower abdominal persistent swelling",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "285376008",
+              "display": "Lower abdominal swelling"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "swelling.lowerabdominal.duration",
+              "type": "quantity",
+              "text": "If yes, since when",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "162442009",
+                  "display": "Time symptom lasts"
+                }
+              ],
+              "extension": [
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } }
+              ],
+              "enableWhen": [ { "question": "swelling.lowerabdominal", "operator": "=", "answerBoolean": true } ]
+            },
+            {
+              "linkId": "swelling.lowerabdominal.side",
+              "type": "choice",
+              "text": "If yes, what side",
+              "answerOption": [
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "24028007", "display": "Right" } },
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "260528009", "display": "Middle" } },
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "7771000", "display": "Left" } }
+              ],
+              "enableWhen": [ { "question": "swelling.lowerabdominal", "operator": "=", "answerBoolean": true } ]
+            }
+          ]
+        },
+        {
+          "linkId": "vaginalbleeding",
+          "type": "boolean",
+          "text": "Vaginal bleeding",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "249021008",
+              "display": "Vaginal bleeding"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "vaginalbleeding.duration",
+              "type": "quantity",
+              "text": "If yes, since when",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "162442009",
+                  "display": "Time symptom lasts"
+                }
+              ],
+              "extension": [
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } }
+              ],
+              "enableWhen": [ { "question": "vaginalbleeding", "operator": "=", "answerBoolean": true } ]
+            }
+          ]
+        },
+        {
+          "linkId": "vaginaldischarge",
+          "type": "boolean",
+          "text": "Vaginal discharge",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "271939006",
+              "display": "Vaginal discharge"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "vaginaldischarge.duration",
+              "type": "quantity",
+              "text": "If yes, since when",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "162442009",
+                  "display": "Time symptom lasts"
+                }
+              ],
+              "extension": [
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } }
+              ],
+              "enableWhen": [ { "question": "vaginaldischarge", "operator": "=", "answerBoolean": true } ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

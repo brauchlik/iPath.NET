@@ -1,0 +1,298 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "jundt-imaging",
+  "url": "http://ipath.kantonsspital.net/fhir/Questionnaire/jundt-imaging",
+  "status": "draft",
+  "title": "Imaging",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "imaging.general",
+      "type": "group",
+      "text": "General imaging modalities",
+      "item": [
+        {
+          "linkId": "imaging.xray",
+          "type": "boolean",
+          "text": "Conventional X-rays (2 planes)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "168537006",
+              "display": "Plain X-ray"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "imaging.xray.upload",
+              "type": "attachment",
+              "text": "Upload images and report",
+              "enableWhen": [
+                {
+                  "question": "imaging.xray",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "imaging.sonography",
+          "type": "boolean",
+          "text": "Sonography",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "16310003",
+              "display": "Ultrasonography"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "imaging.sonography.upload",
+              "type": "attachment",
+              "text": "Upload images and report",
+              "enableWhen": [
+                {
+                  "question": "imaging.sonography",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "imaging.ct",
+          "type": "boolean",
+          "text": "CT scan",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "77477000",
+              "display": "Computed tomography"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "imaging.ct.upload",
+              "type": "attachment",
+              "text": "Upload images and report",
+              "enableWhen": [
+                {
+                  "question": "imaging.ct",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "imaging.mri",
+          "type": "boolean",
+          "text": "MRI",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "113091000",
+              "display": "Magnetic resonance imaging"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "imaging.mri.upload",
+              "type": "attachment",
+              "text": "Upload images and report",
+              "enableWhen": [
+                {
+                  "question": "imaging.mri",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "imaging.petct",
+          "type": "boolean",
+          "text": "PET CT",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "450436003",
+              "display": "Positron emission tomography with computed tomography"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "imaging.petct.upload",
+              "type": "attachment",
+              "text": "Upload images and report",
+              "enableWhen": [
+                {
+                  "question": "imaging.petct",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "imaging.petmri",
+          "type": "boolean",
+          "text": "PET MRI",
+          "item": [
+            {
+              "linkId": "imaging.petmri.upload",
+              "type": "attachment",
+              "text": "Upload images and report",
+              "enableWhen": [
+                {
+                  "question": "imaging.petmri",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "imaging.petctmri",
+          "type": "boolean",
+          "text": "PET/CT MRI",
+          "item": [
+            {
+              "linkId": "imaging.petctmri.upload",
+              "type": "attachment",
+              "text": "Upload images and report",
+              "enableWhen": [
+                {
+                  "question": "imaging.petctmri",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "imaging.other",
+          "type": "string",
+          "text": "Other",
+          "item": [
+            {
+              "linkId": "imaging.other.upload",
+              "type": "attachment",
+              "text": "Upload images and report",
+              "enableWhen": [
+                {
+                  "question": "imaging.other",
+                  "operator": "exists",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "imaging.jaw",
+      "type": "group",
+      "text": "Special imaging procedures — Jaws",
+      "item": [
+        {
+          "linkId": "imaging.jaw.panoramic",
+          "type": "boolean",
+          "text": "Panoramic view",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "89846007",
+              "display": "Orthopantogram"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "imaging.jaw.panoramic.upload",
+              "type": "attachment",
+              "text": "Upload images and report",
+              "enableWhen": [
+                {
+                  "question": "imaging.jaw.panoramic",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "imaging.jaw.cbct",
+          "type": "boolean",
+          "text": "Cone-beam computed tomography (CBCT)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "717193008",
+              "display": "Cone beam CT"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "imaging.jaw.cbct.upload",
+              "type": "attachment",
+              "text": "Upload images and report",
+              "enableWhen": [
+                {
+                  "question": "imaging.jaw.cbct",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "imaging.breast",
+      "type": "group",
+      "text": "Special imaging procedures — Breast",
+      "item": [
+        {
+          "linkId": "imaging.breast.mammography",
+          "type": "boolean",
+          "text": "Mammography",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "71651007",
+              "display": "Mammography"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "imaging.breast.mammography.upload",
+              "type": "attachment",
+              "text": "Upload images and report",
+              "enableWhen": [
+                {
+                  "question": "imaging.breast.mammography",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

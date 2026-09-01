@@ -1,0 +1,80 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "material",
+  "status": "draft",
+  "title": "Master Material List",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "cytology",
+      "type": "boolean",
+      "text": "Cytology"
+    },
+    {
+      "linkId": "cytology.types",
+      "type": "choice",
+      "repeats": true,
+      "text": "Cytology material",
+      "enableWhen": [
+        {
+          "question": "cytology",
+          "operator": "=",
+          "answerBoolean": true
+        }
+      ],
+      "answerOption": [
+        { "valueString": "Pap smear" },
+        { "valueString": "Smear cytology (eg Bronchus)" },
+        { "valueString": "Sputum" },
+        { "valueString": "Exfoliative cytology" },
+        { "valueString": "Fine needle aspiration" }
+      ]
+    },
+    {
+      "linkId": "cytology.exfoliative",
+      "type": "choice",
+      "repeats": true,
+      "text": "Exfoliative cytology — site",
+      "enableWhen": [
+        {
+          "question": "cytology.types",
+          "operator": "=",
+          "answerString": "Exfoliative cytology"
+        }
+      ],
+      "answerOption": [
+        { "valueString": "Liquor" },
+        { "valueString": "Pleural effusion" },
+        { "valueString": "Ascites" },
+        { "valueString": "Urine" },
+        { "valueString": "Lavage" }
+      ]
+    },
+    {
+      "linkId": "histology",
+      "type": "boolean",
+      "text": "Histology"
+    },
+    {
+      "linkId": "histology.types",
+      "type": "choice",
+      "repeats": true,
+      "text": "Histology material",
+      "enableWhen": [
+        {
+          "question": "histology",
+          "operator": "=",
+          "answerBoolean": true
+        }
+      ],
+      "answerOption": [
+        { "valueString": "Core biopsy" },
+        { "valueString": "Open biopsy" },
+        { "valueString": "Excisional biopsy" },
+        { "valueString": "Resection" }
+      ]
+    }
+  ]
+}

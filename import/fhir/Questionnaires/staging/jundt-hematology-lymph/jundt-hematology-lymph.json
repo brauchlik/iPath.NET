@@ -1,0 +1,326 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "jundt-hematology-lymph",
+  "url": "http://ipath.kantonsspital.net/fhir/Questionnaire/jundt-hematology-lymph",
+  "version": "1.1",
+  "status": "draft",
+  "title": "Hematology and Lymph nodes",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "lab.blood-count",
+      "type": "group",
+      "text": "Labor",
+      "item": [
+        {
+          "linkId": "lab.blood-count.available",
+          "type": "boolean",
+          "text": "Blood cell count available",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "88308000",
+              "display": "Blood cell count"
+            }
+          ]
+        },
+        {
+          "linkId": "lab.blood-count.erythrocytes",
+          "type": "quantity",
+          "text": "Erythrocytes",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "14089001",
+              "display": "Red blood cell count"
+            },
+            {
+              "system": "http://loinc.org",
+              "code": "789-8",
+              "display": "Erythrocytes [#/volume] in Blood by Automated count"
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*12/L",
+                "display": "10^12/L"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*6/uL",
+                "display": "10^6/µL"
+              }
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "lab.blood-count.available",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "lab.blood-count.granulocytes",
+          "type": "group",
+          "text": "Granulocytes",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "118138007",
+              "display": "Granulocyte count"
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "lab.blood-count.available",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ],
+          "item": [
+            {
+              "linkId": "lab.blood-count.granulocytes.neutrophils",
+              "type": "quantity",
+              "text": "Neutrophils",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "30630007",
+                  "display": "Neutrophil count"
+                },
+                {
+                  "system": "http://loinc.org",
+                  "code": "26499-4",
+                  "display": "Neutrophils [#/volume] in Blood"
+                }
+              ],
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "10*9/L",
+                    "display": "10^9/L"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "10*3/uL",
+                    "display": "10^3/µL"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "lab.blood-count.granulocytes.eosinophils",
+              "type": "quantity",
+              "text": "Eosinophils",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "71960002",
+                  "display": "Eosinophil count"
+                },
+                {
+                  "system": "http://loinc.org",
+                  "code": "711-2",
+                  "display": "Eosinophils [#/volume] in Blood by Automated count"
+                }
+              ],
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "10*9/L",
+                    "display": "10^9/L"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "10*3/uL",
+                    "display": "10^3/µL"
+                  }
+                }
+              ]
+            },
+            {
+              "linkId": "lab.blood-count.granulocytes.basophils",
+              "type": "quantity",
+              "text": "Basophils",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "42351005",
+                  "display": "Basophil count"
+                },
+                {
+                  "system": "http://loinc.org",
+                  "code": "704-7",
+                  "display": "Basophils [#/volume] in Blood by Automated count"
+                }
+              ],
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "10*9/L",
+                    "display": "10^9/L"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "10*3/uL",
+                    "display": "10^3/µL"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "lab.blood-count.monocytes",
+          "type": "quantity",
+          "text": "Monocytes",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "67776007",
+              "display": "Monocyte count"
+            },
+            {
+              "system": "http://loinc.org",
+              "code": "26484-6",
+              "display": "Monocytes [#/volume] in Blood"
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*9/L",
+                "display": "10^9/L"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*3/uL",
+                "display": "10^3/µL"
+              }
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "lab.blood-count.available",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "lab.blood-count.lymphocytes",
+          "type": "quantity",
+          "text": "Lymphocytes",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "74765001",
+              "display": "Lymphocyte count"
+            },
+            {
+              "system": "http://loinc.org",
+              "code": "26474-7",
+              "display": "Lymphocytes [#/volume] in Blood"
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*9/L",
+                "display": "10^9/L"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*3/uL",
+                "display": "10^3/µL"
+              }
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "lab.blood-count.available",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        },
+        {
+          "linkId": "lab.blood-count.thrombocytes",
+          "type": "quantity",
+          "text": "Thrombocytes",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "61928009",
+              "display": "Platelet count"
+            },
+            {
+              "system": "http://loinc.org",
+              "code": "777-3",
+              "display": "Platelets [#/volume] in Blood by Automated count"
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*9/L",
+                "display": "10^9/L"
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "10*3/uL",
+                "display": "10^3/µL"
+              }
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "lab.blood-count.available",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

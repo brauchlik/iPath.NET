@@ -1,0 +1,204 @@
+{
+  "version": "1.1",
+  "updated": "2026-09-01",
+  "buildingBlocks": [
+    {
+      "id": "material",
+      "title": "Master Material List",
+      "category": "01 Material",
+      "topography": [],
+      "status": "ready_for_review",
+      "deprecated": false,
+      "sourceOriginal": "doc/jundt/Case Descriptions/01 Material/Material for examination.md",
+      "sourceNotes": "doc/jundt/Case Descriptions/01 Material/Material for examination.notes.md",
+      "sourceFhir": "blocks/01 Material/material.json",
+      "summary": "Master block for Cytology and Histology examination material.",
+      "openQuestions": [
+        "Confirm if exfoliative cytology sub-list should also be multi-select (currently repeats: true).",
+        "Confirm uncoded status of top-level Cytology/Histology gates."
+      ]
+    },
+    {
+      "id": "symptoms",
+      "title": "Master Symptoms List",
+      "category": "02 Symptoms",
+      "topography": [],
+      "status": "ready_for_review",
+      "deprecated": false,
+      "sourceOriginal": "doc/jundt/Case Descriptions/02 Symptoms/Symptoms general.md",
+      "sourceNotes": "doc/jundt/Case Descriptions/02 Symptoms/Symptoms general.notes.md",
+      "sourceFhir": "blocks/02 Symptoms/symptoms.json",
+      "summary": "Master block containing all clinical symptoms across all organ systems with duration selectors and conditional gating.",
+      "openQuestions": [
+        "Confirm duration units (d, wk, mo, a) for Pain, Swelling, Cough, Uterine bleeding.",
+        "Confirm gating of region-specific symptoms behind 'Other symptoms present'."
+      ]
+    },
+    {
+      "id": "symptoms.respiratory",
+      "title": "Symptoms — Respiratory tract (C30-C39)",
+      "category": "02 Symptoms",
+      "topography": ["C30-C39"],
+      "status": "ready_for_review",
+      "deprecated": false,
+      "sourceOriginal": "doc/jundt/Case Descriptions/02 Symptoms/Respiratory tract C30-C39.md",
+      "sourceNotes": "doc/jundt/Case Descriptions/02 Symptoms/Respiratory tract C30-C39.notes.md",
+      "sourceFhir": "blocks/02 Symptoms/symptoms.respiratory.json",
+      "summary": "Specific respiratory symptoms including chronic cough, hemoptysis, expectoration, and smoking history.",
+      "openQuestions": [
+        "Merge Shortness of breath and Dyspnea into one question (synonymous in SNOMED 267036007)?",
+        "Confirm if smoking history duration in years is sufficient or if Pack-Years is needed."
+      ]
+    },
+    {
+      "id": "symptoms.digestive",
+      "title": "Symptoms — Digestive organs (C15-C26)",
+      "category": "02 Symptoms",
+      "topography": ["C15-C26"],
+      "status": "ready_for_review",
+      "deprecated": false,
+      "sourceOriginal": "doc/jundt/Case Descriptions/02 Symptoms/Digestive organs C15-C26.md",
+      "sourceNotes": "doc/jundt/Case Descriptions/02 Symptoms/Digestive organs C15-C26.notes.md",
+      "sourceFhir": "blocks/02 Symptoms/symptoms.digestive.json",
+      "summary": "Digestive symptoms including 6-quadrant abdominal pain grid, nausea, vomiting, bowel habit changes, and jaundice.",
+      "openQuestions": [
+        "Confirm 6-quadrant abdominal pain grid (Upper/Middle/Lower x Left/Right).",
+        "Deduplication of general symptoms (Weight loss, Fever, Jaundice) when used in composite forms."
+      ]
+    },
+    {
+      "id": "symptoms.breast-female",
+      "title": "Symptoms — Breast and Female Genital Organs (C50-C58)",
+      "category": "02 Symptoms",
+      "topography": ["C50", "C51-C58"],
+      "status": "ready_for_review",
+      "deprecated": false,
+      "sourceOriginal": "doc/jundt/Case Descriptions/02 Symptoms/Breast and female genital organs C50-C58.md",
+      "sourceNotes": "doc/jundt/Case Descriptions/02 Symptoms/Breast and female genital organs C50-C58.notes.md",
+      "sourceFhir": "blocks/02 Symptoms/symptoms.breast-female.json",
+      "summary": "Breast lumps, nipple discharge, skin changes, vaginal bleeding/discharge, pelvic pain, menstrual cycle, pregnancy history.",
+      "openQuestions": [
+        "Standardize terminology to 'Vaginal bleeding' and 'Vaginal discharge' across forms?",
+        "Confirm multi-select for menstrual irregularities (Menorrhagia, Spotting, Amenorrhea, Dysmenorrhea).",
+        "Confirm interactive date picker for date of last delivery."
+      ]
+    },
+    {
+      "id": "imaging",
+      "title": "Master Imaging List",
+      "category": "03 Imaging",
+      "topography": [],
+      "status": "ready_for_review",
+      "deprecated": false,
+      "sourceOriginal": "doc/jundt/Case Descriptions/03 Imaging/Imaging (generelly used techniques irrespective of speciality).md",
+      "sourceNotes": "doc/jundt/Case Descriptions/03 Imaging/Imaging (generelly used techniques irrespective of speciality).notes.md",
+      "sourceFhir": "blocks/03 Imaging/imaging.json",
+      "summary": "Master imaging block covering X-ray, Ultrasound, CT, MRI, PET, Bone scan, Mammography, Dental panoramic, CBCT, with conditional file uploads.",
+      "openQuestions": [
+        "Confirm conditional report and DICOM image upload prompts on 'Yes' selection.",
+        "Confirm organ-specific modalities (Mammography for C50, Panoramic/CBCT for C41)."
+      ]
+    },
+    {
+      "id": "lab.blood-count",
+      "title": "Labor — Blood Cell Count",
+      "category": "04 Lab",
+      "topography": ["C42", "C77"],
+      "status": "ready_for_review",
+      "deprecated": false,
+      "sourceOriginal": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].md",
+      "sourceNotes": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].notes.md",
+      "sourceFhir": "blocks/04 Lab/lab.blood-count.json",
+      "summary": "Standard blood cell count with SI default units (10*12/L, 10*9/L) and US alternatives (10*6/uL, 10*3/uL).",
+      "openQuestions": [
+        "Confirm inclusion of Total Granulocyte Count alongside differential sub-counts.",
+        "Confirm dual unit support (absolute counts vs. differential percentages %)."
+      ]
+    },
+    {
+      "id": "lab",
+      "title": "Master Lab List",
+      "category": "04 Lab",
+      "topography": ["C42", "C77"],
+      "status": "ready_for_review",
+      "deprecated": false,
+      "sourceOriginal": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].md",
+      "sourceNotes": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].notes.md",
+      "sourceFhir": "blocks/04 Lab/lab.json",
+      "summary": "Master lab questionnaire with blood count gate and full differential cell series.",
+      "openQuestions": [
+        "Scope of lab values across non-hematologic clinical requests."
+      ]
+    },
+    {
+      "id": "diagnostic",
+      "title": "Master Diagnostic Assessment List",
+      "category": "05 Diagnostic",
+      "topography": [],
+      "status": "ready_for_review",
+      "deprecated": false,
+      "sourceOriginal": "doc/jundt/Diagnostic Assessment/General diagnostic assement fields.md",
+      "sourceNotes": "doc/jundt/Diagnostic Assessment/General diagnostic assement fields.notes.md",
+      "sourceFhir": "blocks/05 Diagnostic/diagnostic.json",
+      "summary": "Post-examination diagnostic report fields: surgical margin status, soft tissue extension, tumor size classes, and tumor depth.",
+      "openQuestions": [
+        "Add explicit choice option for intermediate tumor size: '5 - 10 cm'?",
+        "Clarify applicability of tumor depth (Superficial vs Deep) to bone tumors ('Gilt auch fuer Knochen!')."
+      ]
+    }
+  ],
+  "caseDescriptions": [
+    {
+      "id": "jundt-hematology-lymph",
+      "title": "Hematology and Lymph nodes (Historical Prototype)",
+      "category": "Case Description",
+      "topography": ["C42", "C77"],
+      "status": "superseded",
+      "deprecated": true,
+      "sourceOriginal": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].md",
+      "sourceNotes": "staging/jundt-hematology-lymph/jundt-hematology-lymph.review.md",
+      "sourceFhir": "staging/jundt-hematology-lymph/jundt-hematology-lymph.json",
+      "summary": "Initial prototype for hematology and lymph node cases (superseded by modular building blocks).",
+      "openQuestions": []
+    },
+    {
+      "id": "jundt-imaging",
+      "title": "Imaging (Historical Prototype)",
+      "category": "Case Description",
+      "topography": [],
+      "status": "superseded",
+      "deprecated": true,
+      "sourceOriginal": "doc/jundt/Case Descriptions/03 Imaging/Imaging (generelly used techniques irrespective of speciality).md",
+      "sourceNotes": "staging/jundt-imaging/jundt-imaging.review.md",
+      "sourceFhir": "staging/jundt-imaging/jundt-imaging.json",
+      "summary": "Initial prototype for imaging requests (superseded by block imaging.json).",
+      "openQuestions": []
+    },
+    {
+      "id": "jundt-symptoms",
+      "title": "Symptoms (Historical Prototype)",
+      "category": "Case Description",
+      "topography": [],
+      "status": "superseded",
+      "deprecated": true,
+      "sourceOriginal": "doc/jundt/Case Descriptions/02 Symptoms/Symptoms general.md",
+      "sourceNotes": "staging/jundt-symptoms/jundt-symptoms.snomed.md",
+      "sourceFhir": "staging/jundt-symptoms/jundt-symptoms.json",
+      "summary": "Initial prototype for symptoms (superseded by modular symptoms blocks).",
+      "openQuestions": []
+    },
+    {
+      "id": "jundt-hematology-lymph-symptoms",
+      "title": "Hematology and Lymph nodes — Symptoms (Historical Prototype)",
+      "category": "Case Description",
+      "topography": ["C42", "C77"],
+      "status": "superseded",
+      "deprecated": true,
+      "sourceOriginal": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].md",
+      "sourceNotes": "staging/jundt-hematology-lymph/jundt-hematology-lymph-symptoms.snomed.md",
+      "sourceFhir": "staging/jundt-hematology-lymph/jundt-hematology-lymph-symptoms.json",
+      "summary": "Composite prototype with symptoms and lab values for hematology (superseded by modular blocks).",
+      "openQuestions": []
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "symptoms.respiratory",
+  "status": "draft",
+  "title": "Symptoms — Respiratory tract (C30-C39)",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "chroniccough",
+      "type": "boolean",
+      "text": "Chronic cough (>3 months)",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "68154008",
+          "display": "Chronic cough"
+        }
+      ]
+    },
+    {
+      "linkId": "breathlessness",
+      "type": "boolean",
+      "text": "Shortness of breath / Dyspnea",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "267036007",
+          "display": "Dyspnea"
+        }
+      ]
+    },
+    {
+      "linkId": "hemoptysis",
+      "type": "boolean",
+      "text": "Coughing up blood (Hemoptysis)",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "66857006",
+          "display": "Hemoptysis"
+        }
+      ]
+    },
+    {
+      "linkId": "chestpain.chronic",
+      "type": "boolean",
+      "text": "Chronic chest pain",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "82886004",
+          "display": "Chronic chest pain"
+        }
+      ]
+    },
+    {
+      "linkId": "smoker",
+      "type": "boolean",
+      "text": "Smoker",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "77176002",
+          "display": "Smoker"
+        }
+      ],
+      "item": [
+        {
+          "linkId": "smoker.years",
+          "type": "quantity",
+          "text": "If yes, how long (years)",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "160617001",
+              "display": "Number of years smoked"
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+              "valueCoding": {
+                "system": "http://unitsofmeasure.org",
+                "code": "a",
+                "display": "years"
+              }
+            }
+          ],
+          "enableWhen": [
+            {
+              "question": "smoker",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "expectoration",
+      "type": "boolean",
+      "text": "Expectoration (sputum)",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "284523002",
+          "display": "Sputum production"
+        }
+      ]
+    }
+  ]
+}

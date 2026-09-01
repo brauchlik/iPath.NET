@@ -1,0 +1,155 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "diagnostic",
+  "status": "draft",
+  "title": "Master Diagnostic Assessment List",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "margin.status",
+      "type": "choice",
+      "text": "Margin status (all Tumors)",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "396631000",
+          "display": "Surgical margin status"
+        }
+      ],
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "443930003",
+            "display": "R0 microscopically negative surgical margins"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "443929007",
+            "display": "R1 microscopically positive surgical margins"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "396632007",
+            "display": "R2 macroscopically incomplete with gross residual tumor"
+          }
+        },
+        {
+          "valueString": "No data"
+        }
+      ]
+    },
+    {
+      "linkId": "tumor.size",
+      "type": "choice",
+      "text": "Tumor size",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "371024008",
+          "display": "Tumor size"
+        }
+      ],
+      "answerOption": [
+        { "valueString": "Size < 5cm" },
+        { "valueString": "Size > 10cm" },
+        { "valueString": "Size: no data" }
+      ]
+    },
+    {
+      "linkId": "tumor.depth",
+      "type": "choice",
+      "text": "Tumor depth",
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "371003006",
+            "display": "Superficial (above fascia)"
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "371004000",
+            "display": "Deep (below fascia/intramuscular)"
+          }
+        },
+        { "valueString": "Depth: no data" }
+      ]
+    },
+    {
+      "linkId": "radiation.history",
+      "type": "choice",
+      "text": "Previous radiation therapy to the area now affected",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "416237000",
+          "display": "History of radiation therapy"
+        }
+      ],
+      "answerOption": [
+        { "valueString": "Yes" },
+        { "valueString": "No" },
+        { "valueString": "No data" }
+      ]
+    },
+    {
+      "linkId": "breast.familyhistory",
+      "type": "choice",
+      "text": "Family history of breast or ovarian cancer [esp. Breast C50]",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "416474007",
+          "display": "Family history of malignant neoplasm of breast"
+        }
+      ],
+      "answerOption": [
+        { "valueString": "Yes" },
+        { "valueString": "No" },
+        { "valueString": "Unknown" }
+      ]
+    },
+    {
+      "linkId": "breast.othercancer",
+      "type": "choice",
+      "text": "Other cancers in personal clinical history [esp. Breast C50]",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "161491000",
+          "display": "History of malignant neoplasm"
+        }
+      ],
+      "answerOption": [
+        { "valueString": "Yes" },
+        { "valueString": "No" }
+      ]
+    },
+    {
+      "linkId": "breast.microcalcifications",
+      "type": "choice",
+      "text": "Microcalcifications on imaging [esp. Breast C50]",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "129749004",
+          "display": "Microcalcification of breast"
+        }
+      ],
+      "answerOption": [
+        { "valueString": "Yes" },
+        { "valueString": "No" },
+        { "valueString": "No data" }
+      ]
+    }
+  ]
+}

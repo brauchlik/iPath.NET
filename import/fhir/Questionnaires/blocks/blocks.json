@@ -1,0 +1,94 @@
+{
+  "blocks": [
+    {
+      "id": "material",
+      "title": "Master Material List",
+      "category": "Material",
+      "topography": [],
+      "source": "doc/jundt/Case Descriptions/01 Material/Material for examination.md",
+      "status": "coded",
+      "file": "blocks/01 Material/material.json",
+      "when": "Master block for Cytology and Histology examination material"
+    },
+    {
+      "id": "symptoms",
+      "title": "Master Symptoms List",
+      "category": "Symptoms",
+      "topography": [],
+      "source": "doc/jundt/Case Descriptions/02 Symptoms/*.md",
+      "status": "coded",
+      "file": "blocks/02 Symptoms/symptoms.json",
+      "when": "Master block containing all clinical symptoms across all organ systems"
+    },
+    {
+      "id": "symptoms.digestive",
+      "title": "Symptoms — Digestive organs (C15-C26)",
+      "category": "Symptoms",
+      "topography": ["C15-C26"],
+      "source": "doc/jundt/Case Descriptions/02 Symptoms/Digestive organs C15-C26.md",
+      "status": "coded",
+      "file": "blocks/02 Symptoms/symptoms.digestive.json",
+      "when": "Include for digestive-organ cases (ICD-O C15-C26)"
+    },
+    {
+      "id": "symptoms.respiratory",
+      "title": "Symptoms — Respiratory tract (C30-C39)",
+      "category": "Symptoms",
+      "topography": ["C30-C39"],
+      "source": "doc/jundt/Case Descriptions/02 Symptoms/Respiratory tract C30-C39.md",
+      "status": "coded",
+      "file": "blocks/02 Symptoms/symptoms.respiratory.json",
+      "when": "Include for respiratory/lung cases (ICD-O C30-C39)"
+    },
+    {
+      "id": "symptoms.breast-female",
+      "title": "Symptoms — Breast and Female Genital Organs (C50-C58)",
+      "category": "Symptoms",
+      "topography": ["C50", "C51-C58"],
+      "source": "doc/jundt/Case Descriptions/02 Symptoms/Breast and female genital organs C50-C58.md",
+      "status": "coded",
+      "file": "blocks/02 Symptoms/symptoms.breast-female.json",
+      "when": "Include for breast and gynecologic cases (ICD-O C50-C58)"
+    },
+    {
+      "id": "imaging",
+      "title": "Master Imaging List",
+      "category": "Imaging",
+      "topography": [],
+      "source": "doc/jundt/Case Descriptions/03 Imaging/Imaging (generelly used techniques irrespective of speciality).md",
+      "status": "coded",
+      "file": "blocks/03 Imaging/imaging.json",
+      "when": "Master block containing all general and special imaging modalities"
+    },
+    {
+      "id": "lab.blood-count",
+      "title": "Labor — blood cell count",
+      "category": "Lab",
+      "topography": ["C42", "C77"],
+      "source": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].md",
+      "status": "coded",
+      "file": "blocks/04 Lab/lab.blood-count.json",
+      "when": "Include for hematologic or lymph-node cases (ICD-O C42 / C77)"
+    },
+    {
+      "id": "lab",
+      "title": "Master Lab List",
+      "category": "Lab",
+      "topography": ["C42", "C77"],
+      "source": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].md",
+      "status": "coded",
+      "file": "blocks/04 Lab/lab.json",
+      "when": "Master block for blood cell count and differential lab values"
+    },
+    {
+      "id": "diagnostic",
+      "title": "Master Diagnostic Assessment List",
+      "category": "Diagnostic",
+      "topography": [],
+      "source": "doc/jundt/Diagnostic Assessment/General diagnostic assement fields.md",
+      "status": "coded",
+      "file": "blocks/05 Diagnostic/diagnostic.json",
+      "when": "Master block for post-examination diagnostic report fields"
+    }
+  ]
+}

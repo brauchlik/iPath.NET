@@ -40,6 +40,11 @@ public static class QuesionnaireEndpoints
             => await mediator.Send(cmd, ct))
             .RequireAuthorization("Admin");
 
+
+        qr.MapDelete("{id:guid}", async (Guid id, [FromServices] IMediator mediator, CancellationToken ct)
+            => await mediator.Send(new DeleteQuestionnaireCommand(id), ct))
+            .RequireAuthorization("Admin");
+
         return route;
     }
 }

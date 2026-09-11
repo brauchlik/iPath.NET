@@ -68,7 +68,7 @@ public partial class OsdViewer : IAsyncDisposable
         _isLoading = true;
         _errorMessage = null;
         StateHasChanged();
-        await _module.InvokeVoidAsync("openTileSource", url);
+        await _module.InvokeVoidAsync("openTileSource", _elementId, url);
     }
 
     [JSInvokable]
@@ -102,7 +102,7 @@ public partial class OsdViewer : IAsyncDisposable
         try
         {
             if (_module is not null)
-                await _module.InvokeVoidAsync("dispose");
+                await _module.InvokeVoidAsync("dispose", _elementId);
         }
         catch (JSDisconnectedException) { }
         _dotNetRef?.Dispose();

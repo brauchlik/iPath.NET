@@ -6,6 +6,7 @@ let pointerToolActive = false;
 let pointerElement = null;
 let isDraggingArrow = false;
 let lastPointerSyncTime = 0;
+let escapeHandler = null;
 
 export function initOsd(divId, tileSourceUrl, dotNetReference, initialViewport) {
     dotNetRef = dotNetReference;
@@ -82,11 +83,25 @@ export function getViewport() {
 
 export function dispose() {
     if (throttleTimer) { clearTimeout(throttleTimer); throttleTimer = null; }
-    if (pointerTracker) { pointerTracker.destroy(); pointerTracker = null; }
+
+    if (escapeHandler) {
+        window.removeEventListener('keydown', escapeHandler);
+        escapeHandler = null;
+    }
+
+    if (pointerElement) {
+        if (viewer) viewer.removeOverlay(pointerElement);
+        pointerElement.remove();
+        pointerElement = null;
+    }
+
     if (viewer) { viewer.destroy(); viewer = null; }
+
     dotNetRef = null;
     isApplyingRemote = false;
-    pointerElement = null;
+    pointerToolActive = false;
+    isDraggingArrow = false;
+    lastPointerSyncTime = 0;
 }
 
 export function setMouseNavEnabled(enabled) {
@@ -136,11 +151,9 @@ export function showPointer(x, y, isDraggable) {
             </svg>
         `;
         
-        console.log("[Pointer] Overlay created and listeners being attached.");
 
         // Drag-and-drop pointer event handlers
         pointerElement.addEventListener('pointerdown', (e) => {
-            console.log("[Pointer] pointerdown event fired. isDraggable =", pointerElement.dataset.draggable);
             if (pointerElement.dataset.draggable !== 'true') return;
             e.stopPropagation(); // Stop OSD from panning the slide
             e.preventDefault();
@@ -157,7 +170,6 @@ export function showPointer(x, y, isDraggable) {
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
             
-            console.log("[Pointer] pointermove during drag, clickX =", clickX, "clickY =", clickY);
 
             const viewportPos = viewer.viewport.viewerElementToViewportCoordinates(new OpenSeadragon.Point(clickX, clickY));
             viewer.updateOverlay(pointerElement, viewportPos);
@@ -166,7 +178,6 @@ export function showPointer(x, y, isDraggable) {
         });
 
         pointerElement.addEventListener('pointerup', (e) => {
-            console.log("[Pointer] pointerup event fired.");
             if (!isDraggingArrow) return;
             isDraggingArrow = false;
             pointerElement.releasePointerCapture(e.pointerId);
@@ -178,13 +189,16 @@ export function showPointer(x, y, isDraggable) {
             sendPointerUpdate(clickX, clickY, true);
         });
 
-        // Key listener for manual Escape key clear
-        window.addEventListener('keydown', (e) => {
+        // Key listener for manual Escape key clear. Kept in a module variable so
+        // dispose() can remove it; an anonymous handler here leaked one window
+        // listener per CaseRoom visit.
+        escapeHandler = (e) => {
             if (e.key === 'Escape' && pointerToolActive) {
                 hidePointer();
-                dotNetRef.invokeMethodAsync('OnPointerHidden');
+                dotNetRef?.invokeMethodAsync('OnPointerHidden');
             }
-        });
+        };
+        window.addEventListener('keydown', escapeHandler);
     }
 
     pointerElement.dataset.draggable = isDraggable ? 'true' : 'false';

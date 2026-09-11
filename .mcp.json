@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "mudblazor": {
+      "command": "dnx",
+      "args": ["MudMCP", "--yes", "--", "--stdio"],
+      "env": {
+        "MUDBLAZOR_VERSION": "9.9.0"
+      }
+    }
+  }
+}

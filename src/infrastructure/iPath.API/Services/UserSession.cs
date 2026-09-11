@@ -61,6 +61,12 @@ public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemory
                             _user = _user with { roles = newRoles.ToArray() };
                         }
                     }
+
+                    // An authenticated principal whose NameIdentifier is not a parseable Guid —
+                    // notably a partial/external cookie during the first leg of a login — leaves
+                    // _user unassigned. Callers dereference sess.User.Id unguarded in ~20 places,
+                    // so fall back to Anonymous rather than handing them a null.
+                    _user ??= SessionUserDto.Anonymous;
                 }
             }
             return _user;

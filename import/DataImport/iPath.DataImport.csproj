@@ -62,15 +62,15 @@
 
   <ItemGroup>
     <PackageReference Include="Cyrillic.Convert" Version="4.0.0" />
-    <PackageReference Include="DispatchR.Mediator" Version="2.3.0" />
+    <PackageReference Include="DispatchR.Mediator" Version="2.3.1" />
     <PackageReference Include="EFCore.BulkExtensions.Sqlite" Version="10.0.1" />
     <PackageReference Include="Humanizer.Core" Version="3.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.9" />
-    <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.12" />
+    <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.9" />
   </ItemGroup>
 
   <ItemGroup>

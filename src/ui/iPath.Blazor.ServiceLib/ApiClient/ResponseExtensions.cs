@@ -19,9 +19,14 @@ public static class ResponseExtensions
         if (response is null) return "No response from the server.";
         if (response.IsSuccessful) return string.Empty;
 
-        var problem = Parse(response.Error?.Content);
+        var problem = Parse(response.HasResponseError(out var apiEx) ? apiEx.Content : null);
         if (!string.IsNullOrWhiteSpace(problem?.Detail)) return problem!.Detail!;
         if (!string.IsNullOrWhiteSpace(problem?.Title)) return problem!.Title!;
+
+        // DirectApiClient (Server-interactive render mode) has no ProblemDetails body to parse -
+        // it carries the exception's message via ReasonPhrase instead (see DirectApiResponse).
+        if (!string.IsNullOrWhiteSpace(response.ReasonPhrase) && response.ReasonPhrase != "Error")
+            return response.ReasonPhrase!;
 
         return response.StatusCode switch
         {
@@ -34,7 +39,8 @@ public static class ResponseExtensions
 
     /// <summary>Stable error key for branching or localization lookup, e.g. "not_found".</summary>
     public static string? ErrorCode(this IApiResponse? response)
-        => response is null || response.IsSuccessful ? null : Parse(response.Error?.Content)?.Code;
+        => response is null || response.IsSuccessful ? null
+            : Parse(response.HasResponseError(out var apiEx) ? apiEx.Content : null)?.Code;
 
     public static Result<T> ToResult<T>(this IApiResponse<T>? response) where T : class
     {

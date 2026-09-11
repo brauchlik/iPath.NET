@@ -7,18 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Shared\Coding_v1\**" />
-    <Content Remove="Shared\Coding_v1\**" />
-    <EmbeddedResource Remove="Shared\Coding_v1\**" />
-    <None Remove="Shared\Coding_v1\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Groups\GroupListPage - Copy.razor.cs" />
-  </ItemGroup>
-
-
-  <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>
 
@@ -27,7 +15,6 @@
     <PackageReference Include="Humanizer.Core" Version="3.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.9" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.9" />
     <PackageReference Include="MudBlazor" Version="9.5.0" />
     <PackageReference Include="MudBlazor.Translations" Version="3.3.0" />

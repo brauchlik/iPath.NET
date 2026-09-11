@@ -9,6 +9,7 @@
 @inject IPathApi api
 @inject ISnackbar snackbar
 @inject NavigationManager nm
+@inject IStringLocalizer T
 
 <MudStack Row="true" Spacing="2" Class="mb-4">
     <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
@@ -106,7 +107,7 @@ else
             }
             else
             {
-                snackbar.AddWarning("ServiceRequest not found");
+                snackbar.AddWarning(T["ServiceRequest not found"]);
                 return;
             }
 

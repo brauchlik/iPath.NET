@@ -485,7 +485,7 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public async Task CreateNew()
     {
-        snackbar.AddWarning("not implemented");
+        snackbar.AddWarning(T["not implemented"]);
     }
 
 
@@ -708,11 +708,11 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             if (SelectedRequest is null)
             {
-                snackbar.AddWarning("no service request selected");
+                snackbar.AddWarning(T["no service request selected"]);
             }
             else if (f.Size > opts.Value.MaxFileSizeBytes)
             {
-                snackbar.Add("File is larger then " + opts.Value.MaxFileSize);
+                snackbar.Add(T["File is larger than {0}", opts.Value.MaxFileSize]);
             }
             else
             {
@@ -941,7 +941,7 @@ public class ServiceRequestViewModel(IPathApi api,
     {
         if (!IsModerator && !IsSeesionUser(item.OwnerId))
         {
-            snackbar.AddWarning("not allowed");
+            snackbar.AddWarning(T["not allowed"]);
         }
         else
         {
@@ -1074,7 +1074,7 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             if (!respU.Content.UploadFolderId.HasValue)
             {
-                snackbar.AddWarning("No upload folder has been created for your account yet");
+                snackbar.AddWarning(T["No upload folder has been created for your account yet"]);
             }
             else
             {

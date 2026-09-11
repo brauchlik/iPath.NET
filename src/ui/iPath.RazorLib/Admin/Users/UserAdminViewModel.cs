@@ -294,12 +294,12 @@ public class UserAdminViewModel(IPathApi api,
 
     public async Task AddToCommunity(CommunityListDto group)
     {
-        snackbar.AddWarning("not implemented yet");
+        snackbar.AddWarning(T["not implemented yet"]);
     }
 
     public async Task RemnoveFromCommunity(CommunityListDto group)
     {
-        snackbar.AddWarning("not implemented yet");
+        snackbar.AddWarning(T["not implemented yet"]);
     }
 
     public async Task UpdateCommunityMemberships(UpdateCommunityMembershipCommand cmd)

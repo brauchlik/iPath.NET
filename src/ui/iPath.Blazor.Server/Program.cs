@@ -45,6 +45,9 @@ if (!string.IsNullOrEmpty(builder.Configuration["CONFIG_PATH"]))
         builder.Configuration.AddJsonFile(cfgFile);
     }
 }
+// Re-added after CONFIG_PATH so an explicit env var (e.g. a debug launch profile) always wins,
+// even when the external CONFIG_PATH file sets the same key.
+builder.Configuration.AddEnvironmentVariables();
 
 if (builder.Environment.IsDevelopment())
 {

@@ -21,7 +21,7 @@
         <MudMenu StartIcon="@Icons.Material.Filled.Translate" Label="@locale.ToUpperInvariant()" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="true">
             @foreach (var culture in locOpts.Value.SupportedCultures)
             {
-                <MudMenuItem OnClick='() => SwitchLanguage(culture)'>
+                <MudMenuItem @key="culture" OnClick='() => SwitchLanguage(culture)'>
                     @(locOpts.Value.CultureDisplayNames.TryGetValue(culture, out var displayName) ? displayName : culture.ToUpperInvariant())
                 </MudMenuItem>
             }

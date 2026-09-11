@@ -25,7 +25,7 @@ public partial class WebContentIndex(IPathApi api, ISnackbar snackbar)
 
         if (resp.IsSuccessful) return resp.Content.ToGridData();
 
-        snackbar.AddWarning(resp.ErrorMessage);
+        snackbar.AddWarning(resp.ErrorText());
         return new GridData<WebContentDto>();
     }
 

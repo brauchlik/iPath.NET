@@ -29,7 +29,7 @@ public class GroupViewModel(IPathApi api,
             }
             else
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
             }
         }
     }

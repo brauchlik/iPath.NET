@@ -42,7 +42,7 @@ public class UploadTask(IPathApi api, long MaxFileSize)
             }
             else 
             { 
-                Error = resp.ErrorMessage;
+                Error = resp.ErrorText();
             }
         }
         catch (Exception ex)

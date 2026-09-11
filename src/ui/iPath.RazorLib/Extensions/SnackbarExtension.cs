@@ -1,4 +1,5 @@
-﻿using Refit;
+﻿using iPath.Blazor.ServiceLib.ApiClient;
+using Refit;
 
 namespace iPath.Blazor.Componenents.Extensions;
 
@@ -9,9 +10,11 @@ public static class SnackbarExtension
     public static void AddInfo(this ISnackbar snack, string message) => snack.Add(message, Severity.Info);
 
 
+    // ErrorText() reads the ProblemDetails "detail" the API returns. Refit's own
+    // ErrorMessage is the raw HTTP body, which used to surface as JSON in the snackbar.
     public static void ShowIfError(this ISnackbar snack, IApiResponse resp)
     {
-        if (!resp.IsSuccessful) snack.Add(resp.ErrorMessage, Severity.Error);
+        if (!resp.IsSuccessful) snack.Add(resp.ErrorText(), Severity.Error);
     }
 
     /// <summary>
@@ -30,7 +33,7 @@ public static class SnackbarExtension
         }
         else
         {
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
             return false;
         }
     }

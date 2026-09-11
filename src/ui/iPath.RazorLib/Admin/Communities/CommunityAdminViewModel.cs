@@ -42,7 +42,7 @@ public class CommunityAdminViewModel(IPathApi api,
 
         if (resp.IsSuccessful) return resp.Content.ToGridData();
 
-        snackbar.AddWarning(resp.ErrorMessage);
+        snackbar.AddWarning(resp.ErrorText());
         return new GridData<CommunityListDto>();
     }
 
@@ -116,7 +116,7 @@ public class CommunityAdminViewModel(IPathApi api,
                 {
                     return resp.Content.Items.Select(m => new CommunityMemberModel(dto: m, m.Communityname, m.UserId, m.Username)).ToList();
                 }
-                snackbar.AddWarning(resp.ErrorMessage);
+                snackbar.AddWarning(resp.ErrorText());
             }
             catch(Exception ex)
             {
@@ -132,7 +132,7 @@ public class CommunityAdminViewModel(IPathApi api,
 
         var resp = await api.AssignUserToCommunity(cmd);
         if (!resp.IsSuccessful)
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
 
         OnChange?.Invoke();
     }
@@ -152,7 +152,7 @@ public class CommunityAdminViewModel(IPathApi api,
             var resp = await api.CreateCommunity(cmd);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddWarning(resp.ErrorMessage);
+                snackbar.AddWarning(resp.ErrorText());
             }
             await grid.ReloadServerData();
         }
@@ -188,7 +188,7 @@ public class CommunityAdminViewModel(IPathApi api,
             var resp = await api.UpdateCommunity(cmd);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddWarning(resp.ErrorMessage);
+                snackbar.AddWarning(resp.ErrorText());
             }
             if (grid is not null)
             {
@@ -222,7 +222,7 @@ public class CommunityAdminViewModel(IPathApi api,
                 var resp = await api.CreateGroup(cmd);
                 if (!resp.IsSuccessful)
                 {
-                    snackbar.AddWarning(resp.ErrorMessage);
+                    snackbar.AddWarning(resp.ErrorText());
                 }
                 else
                 {
@@ -245,7 +245,7 @@ public class CommunityAdminViewModel(IPathApi api,
             }
             else
             {
-                snackbar.AddWarning(resp.ErrorMessage);
+                snackbar.AddWarning(resp.ErrorText());
             }
         }
     }
@@ -263,7 +263,7 @@ public class CommunityAdminViewModel(IPathApi api,
             }
             else
             {
-                snackbar.AddWarning(resp.ErrorMessage);
+                snackbar.AddWarning(resp.ErrorText());
             }
         }
     }
@@ -280,7 +280,7 @@ public class CommunityAdminViewModel(IPathApi api,
             var resp = await api.AssignQuestionnaire(cmd);
             if (resp.IsSuccessful) return;
 
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
         }
         catch (Exception ex)
         {

@@ -30,7 +30,7 @@ public partial class UserNotificationGrid(UserAdminViewModel vm, UserViewModel u
             var resp = await api.GetUserNotification(User.Id);
             if( !resp.IsSuccessful )
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
                 return;
             }
 

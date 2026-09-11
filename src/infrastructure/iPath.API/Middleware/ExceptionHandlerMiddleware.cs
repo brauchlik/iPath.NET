@@ -1,71 +1,91 @@
 using Ardalis.GuardClauses;
+using FluentValidation;
 using iPath.Application.Exceptions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using System.Net;
 using System.Text.Json;
 
 namespace iPath.API.Middleware;
 
-public class ExceptionHandlerMiddleware
+/// <summary>
+/// Converts unhandled exceptions on /api/ routes into RFC 9457 ProblemDetails.
+/// Non-API requests are rethrown so the Blazor /Error page handles them.
+/// </summary>
+public class ExceptionHandlerMiddleware(
+    RequestDelegate next,
+    IHostEnvironment env,
+    ILogger<ExceptionHandlerMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-
-    public ExceptionHandlerMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
+    private static readonly JsonSerializerOptions _json = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public async Task Invoke(HttpContext context)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (Exception ex)
         {
-            if (context.Response.HasStarted)
-            {
-                throw;
-            }
-            await ConvertException(context, ex);
+            if (context.Response.HasStarted) throw;
+
+            // Let the Blazor error page own non-API failures.
+            if (!context.Request.Path.StartsWithSegments("/api")) throw;
+
+            await WriteProblemAsync(context, ex);
         }
     }
 
-    private Task ConvertException(HttpContext context, Exception exception)
+    private async Task WriteProblemAsync(HttpContext context, Exception exception)
     {
-        var httpStatusCode = HttpStatusCode.InternalServerError;
+        // AggregateException hides the real cause, and its own Message
+        // ("One or more errors occurred.") is useless to a caller.
+        var ex = exception is AggregateException agg && agg.InnerException is not null
+            ? agg.InnerException
+            : exception;
 
-        context.Response.ContentType = "application/json";
+        var (status, code) = Map(ex);
 
-        var result = string.Empty;
+        if (status >= 500)
+            logger.LogError(ex, "Unhandled exception on {Method} {Path}", context.Request.Method, context.Request.Path);
+        else
+            logger.LogInformation("{Code} on {Method} {Path}: {Message}", code, context.Request.Method, context.Request.Path, ex.Message);
 
-        switch (exception)
+        var problem = new ProblemDetails
         {
-            case ArgumentException argumentException:
-                httpStatusCode = HttpStatusCode.BadRequest;
-                result = JsonSerializer.Serialize(argumentException.Message);
-                break;
+            Status = status,
+            Title = ReasonPhrase(status),
+            // Never surface internal exception text to a caller in production.
+            Detail = status >= 500 && !env.IsDevelopment()
+                ? "An unexpected error occurred."
+                : ex.Message,
+            Instance = context.Request.Path
+        };
+        problem.Extensions["code"] = code;
+        problem.Extensions["traceId"] = context.TraceIdentifier;
 
-            case NotAllowedException notAllowed:
-                httpStatusCode = HttpStatusCode.Forbidden;
-                result = JsonSerializer.Serialize(notAllowed.Message);
-                break;
-
-            case AggregateException:
-                httpStatusCode = exception.InnerException switch {
-                    NotFoundException => HttpStatusCode.NotFound,
-                    _ => HttpStatusCode.BadRequest
-                };
-                break;
-
-            case not null:
-                httpStatusCode = HttpStatusCode.BadRequest;
-                break;
-        }
-
-        context.Response.StatusCode = (int)httpStatusCode;
-
-        if (result == string.Empty) result = JsonSerializer.Serialize(new { error = exception?.Message });
-
-        return context.Response.WriteAsync(result);
+        context.Response.StatusCode = status;
+        context.Response.ContentType = "application/problem+json";
+        await context.Response.WriteAsync(JsonSerializer.Serialize(problem, _json));
     }
+
+    private static (int Status, string Code) Map(Exception ex) => ex switch
+    {
+        NotFoundException => ((int)HttpStatusCode.NotFound, "not_found"),
+        NotAllowedException => ((int)HttpStatusCode.Forbidden, "forbidden"),
+        UnauthorizedAccessException => ((int)HttpStatusCode.Unauthorized, "unauthorized"),
+        ValidationException => ((int)HttpStatusCode.BadRequest, "validation_failed"),
+        ArgumentException => ((int)HttpStatusCode.BadRequest, "invalid_argument"),
+        _ => ((int)HttpStatusCode.InternalServerError, "server_error")
+    };
+
+    private static string ReasonPhrase(int status) => status switch
+    {
+        400 => "Bad Request",
+        401 => "Unauthorized",
+        403 => "Forbidden",
+        404 => "Not Found",
+        409 => "Conflict",
+        _ => "Server Error"
+    };
 }

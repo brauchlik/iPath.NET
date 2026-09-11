@@ -20,7 +20,7 @@ public class GroupListViewModel(IPathApi api, IGroupCache cache, ISnackbar snack
             return resp.Content.ToGridData();
         }
 
-        snackbar.AddError(resp.ErrorMessage);
+        snackbar.AddError(resp.ErrorText());
         return new GridData<GroupListDto>();
     }
 
@@ -36,7 +36,7 @@ public class GroupListViewModel(IPathApi api, IGroupCache cache, ISnackbar snack
             return resp.Content.ToTableData();
         }
 
-        snackbar.AddError(resp.ErrorMessage);
+        snackbar.AddError(resp.ErrorText());
         return new TableData<GroupListDto>();
     }
 
@@ -77,7 +77,7 @@ public class GroupListViewModel(IPathApi api, IGroupCache cache, ISnackbar snack
             }
             else
             {
-                snackbar.AddWarning(resp.ErrorMessage);
+                snackbar.AddWarning(resp.ErrorText());
             }
         }
         return new List<GroupListDto>();

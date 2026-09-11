@@ -48,7 +48,7 @@ public class GroupAdminViewModel(IPathApi api,
 
         if (resp.IsSuccessful) return resp.Content.ToGridData();
 
-        snackbar.AddWarning(resp.ErrorMessage);
+        snackbar.AddWarning(resp.ErrorText());
         return new GridData<GroupListDto>();
     }
 
@@ -62,7 +62,7 @@ public class GroupAdminViewModel(IPathApi api,
 
         if (resp.IsSuccessful) return resp.Content.ToTableData();
 
-        snackbar.AddWarning(resp.ErrorMessage);
+        snackbar.AddWarning(resp.ErrorText());
         return new TableData<GroupListDto>();
     }
 
@@ -163,7 +163,7 @@ public class GroupAdminViewModel(IPathApi api,
                 }
                 else
                 {
-                    snackbar.AddError(resp.ErrorMessage);
+                    snackbar.AddError(resp.ErrorText());
                 }
             }
             catch (Exception ex)
@@ -198,7 +198,7 @@ public class GroupAdminViewModel(IPathApi api,
             var resp = await api.CreateGroup(cmd);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddWarning(resp.ErrorMessage);
+                snackbar.AddWarning(resp.ErrorText());
             }
             if (grid is not null) await grid.ReloadServerData();
             if (table is not null) await table.ReloadServerData();
@@ -257,7 +257,7 @@ public class GroupAdminViewModel(IPathApi api,
         var resp = await api.UpdateGroup(cmd);
         if (!resp.IsSuccessful)
         {
-            snackbar.AddWarning(resp.ErrorMessage);
+            snackbar.AddWarning(resp.ErrorText());
             return false;
         }
 
@@ -311,7 +311,7 @@ public class GroupAdminViewModel(IPathApi api,
             var resp = await api.DestroyGroup(groupId);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
                 return false;
             }
         }
@@ -320,7 +320,7 @@ public class GroupAdminViewModel(IPathApi api,
             var resp = await api.DeleteGroup(groupId);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
                 return false;
             }
         }
@@ -343,7 +343,7 @@ public class GroupAdminViewModel(IPathApi api,
             var resp = await api.AssignGroupToCommunity(cmd);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
             }
         }
     }
@@ -360,7 +360,7 @@ public class GroupAdminViewModel(IPathApi api,
 
             if (resp.IsSuccessful) return resp.Content.ToGridData();
 
-            snackbar.AddWarning(resp.ErrorMessage);
+            snackbar.AddWarning(resp.ErrorText());
         }
         return new GridData<GroupMemberDto>();
     }
@@ -376,7 +376,7 @@ public class GroupAdminViewModel(IPathApi api,
             {
                 return resp.Content.Items.Select(m => new GroupMemberModel(m, SelectedGroup.Id, SelectedGroup.Name)).ToList();
             }
-            snackbar.AddWarning(resp.ErrorMessage);
+            snackbar.AddWarning(resp.ErrorText());
         }
         return new List<GroupMemberModel>();
     }
@@ -390,7 +390,7 @@ public class GroupAdminViewModel(IPathApi api,
             var resp = await api.AssignUserToGroup(cmd);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
             }
             else
             {
@@ -410,7 +410,7 @@ public class GroupAdminViewModel(IPathApi api,
             var cmd = new UpdateGroupMembershipCommand(member.UserId, list);
             var resp = await api.UpdateGroupMemberships(cmd);
             if (!resp.IsSuccessful)
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
         }
     }
 
@@ -426,7 +426,7 @@ public class GroupAdminViewModel(IPathApi api,
 
             var resp = await api.AssignUserToGroup(cmd);
             if (!resp.IsSuccessful)
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
         }
         OnChange?.Invoke();
     }
@@ -453,7 +453,7 @@ public class GroupAdminViewModel(IPathApi api,
             var resp = await api.AssignQuestionnaire(cmd);
             if (resp.IsSuccessful) return;
 
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
         }
         catch (Exception ex)
         {
@@ -475,7 +475,7 @@ public class GroupAdminViewModel(IPathApi api,
                 var resp = await api.AssignQuestionnaire(cmd);
                 if (resp.IsSuccessful) return;
 
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
             }
         }
         catch (Exception ex)

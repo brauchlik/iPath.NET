@@ -43,7 +43,7 @@ public class TaskAssignmentsViewModel(IPathApi api, ISnackbar snackbar, IStringL
         if (resp.IsSuccessful)
             snackbar.Add(T["Task accepted"], Severity.Success);
         else
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
     }
 
     public async Task DeclineTask(Guid id)
@@ -52,7 +52,7 @@ public class TaskAssignmentsViewModel(IPathApi api, ISnackbar snackbar, IStringL
         if (resp.IsSuccessful)
             snackbar.Add(T["Task declined"], Severity.Success);
         else
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
     }
 
     public async Task CompleteTask(Guid id)
@@ -61,7 +61,7 @@ public class TaskAssignmentsViewModel(IPathApi api, ISnackbar snackbar, IStringL
         if (resp.IsSuccessful)
             snackbar.Add(T["Task completed"], Severity.Success);
         else
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
     }
 
     public async Task ReturnTask(Guid id)
@@ -70,7 +70,7 @@ public class TaskAssignmentsViewModel(IPathApi api, ISnackbar snackbar, IStringL
         if (resp.IsSuccessful)
             snackbar.Add(T["Task returned for reassignment"], Severity.Success);
         else
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
     }
 
     public async Task<bool> ProposeTaskAssignment(Guid serviceRequestId, Guid assignedToUserId, eTaskAssignmentMode mode, string? notes = null)
@@ -83,7 +83,7 @@ public class TaskAssignmentsViewModel(IPathApi api, ISnackbar snackbar, IStringL
         var resp = await api.ProposeTaskAssignment(cmd);
         if (resp.IsSuccessful)
             return true;
-        snackbar.AddWarning(resp.ErrorMessage);
+        snackbar.AddWarning(resp.ErrorText());
         return false;
     }
 
@@ -95,7 +95,7 @@ public class TaskAssignmentsViewModel(IPathApi api, ISnackbar snackbar, IStringL
             snackbar.Add(T["Task cancelled"], Severity.Success);
             return true;
         }
-        snackbar.AddError(resp.ErrorMessage);
+        snackbar.AddError(resp.ErrorText());
         return false;
     }
 
@@ -108,7 +108,7 @@ public class TaskAssignmentsViewModel(IPathApi api, ISnackbar snackbar, IStringL
             snackbar.AddInfo(T["A Follow-Up Task has been created."]);
             return true;
         }
-        snackbar.AddWarning(resp.ErrorMessage);
+        snackbar.AddWarning(resp.ErrorText());
         return false;
     }
 

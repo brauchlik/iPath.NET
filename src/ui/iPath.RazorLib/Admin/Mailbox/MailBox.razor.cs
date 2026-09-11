@@ -52,7 +52,7 @@ public partial class MailBox(IPathApi api, ISnackbar snackbar, IDialogService dl
             }
             else
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
             }
         }
     }

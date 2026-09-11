@@ -49,7 +49,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
         var query = state.BuildQuery(new GetQuestionnaireListQuery { AllVersions = ShowInactive });
         var resp = await api.GetQuestionnnaires(query);
         if (resp.IsSuccessful) return resp.Content.ToGridData();
-        snackbar.AddError(resp.ErrorMessage);
+        snackbar.AddError(resp.ErrorText());
         return new GridData<QuestionnaireListDto>();
     }
 
@@ -68,7 +68,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
             }
             else
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
             }
         }
     }

@@ -46,7 +46,7 @@ public class UserAdminViewModel(IPathApi api,
 
         if (resp.IsSuccessful) return resp.Content.ToGridData();
 
-        snackbar.AddWarning(resp.ErrorMessage);
+        snackbar.AddWarning(resp.ErrorText());
         return new GridData<UserListDto>();
     }
 
@@ -60,7 +60,7 @@ public class UserAdminViewModel(IPathApi api,
 
         if (resp.IsSuccessful) return resp.Content.ToTableData();
 
-        snackbar.AddWarning(resp.ErrorMessage);
+        snackbar.AddWarning(resp.ErrorText());
         return new TableData<UserListDto>();
     }
 
@@ -112,7 +112,7 @@ public class UserAdminViewModel(IPathApi api,
             var resp = await query;
             if (!resp.IsSuccessful)
             {
-                snackbar.AddWarning(resp.ErrorMessage);
+                snackbar.AddWarning(resp.ErrorText());
             }
             else
             {
@@ -150,8 +150,8 @@ public class UserAdminViewModel(IPathApi api,
                 }
                 else
                 {
-                    logger.LogError("Error in GetRoles", resp.ErrorMessage);
-                    snackbar.AddError(resp.ErrorMessage);
+                    logger.LogError("Error in GetRoles", resp.ErrorText());
+                    snackbar.AddError(resp.ErrorText());
                 }
             }
             return roles;
@@ -182,7 +182,7 @@ public class UserAdminViewModel(IPathApi api,
             var resp = await api.CreateUser(cmd);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddWarning(resp.ErrorMessage);
+                snackbar.AddWarning(resp.ErrorText());
             }
             await ReloadServerData();
         }
@@ -217,7 +217,7 @@ public class UserAdminViewModel(IPathApi api,
                 return true;
             }
 
-            snackbar.AddError(res.ErrorMessage);
+            snackbar.AddError(res.ErrorText());
         }
         catch (Exception ex)
         {
@@ -248,7 +248,7 @@ public class UserAdminViewModel(IPathApi api,
             }
             return resp.Content;
         }
-        return Result.Fail(resp.ErrorMessage);
+        return Result.Fail(resp.ErrorText());
     }
 
 
@@ -285,7 +285,7 @@ public class UserAdminViewModel(IPathApi api,
                 }
                 else
                 {
-                    snackbar.AddError(resp.ErrorMessage);
+                    snackbar.AddError(resp.ErrorText());
                 }
             }
         }

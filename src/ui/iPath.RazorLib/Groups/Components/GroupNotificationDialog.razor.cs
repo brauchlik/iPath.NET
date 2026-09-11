@@ -91,7 +91,7 @@ public partial class GroupNotificationDialog : ComponentBase
         }
         else
         {
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
         }
     }
 

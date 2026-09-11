@@ -178,7 +178,7 @@ public class ServiceRequestViewModel(IPathApi api,
         }
         else
         {
-            snackbar.AddWarning(respN.ErrorMessage);
+            snackbar.AddWarning(respN.ErrorText());
             nm.NavigateTo("/");
         }
         OnLoadingFinished?.Invoke();
@@ -443,7 +443,7 @@ public class ServiceRequestViewModel(IPathApi api,
             var resp = await api.UpdateDocumentsSortOrder(cmd);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddWarning(resp.ErrorMessage);
+                snackbar.AddWarning(resp.ErrorText());
             }
         }
     }
@@ -459,7 +459,7 @@ public class ServiceRequestViewModel(IPathApi api,
         var grpResp = await api.GetGroup(GroupId);
         if (!grpResp.IsSuccessful)
         {
-            snackbar.AddError(grpResp.ErrorMessage);
+            snackbar.AddError(grpResp.ErrorText());
             return;
         }
         ActiveGroup = grpResp.Content;
@@ -477,7 +477,7 @@ public class ServiceRequestViewModel(IPathApi api,
         }
         else
         {
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
         }
     }
 
@@ -515,7 +515,7 @@ public class ServiceRequestViewModel(IPathApi api,
                 }
                 else
                 {
-                    snackbar.AddError(resp.ErrorMessage);
+                    snackbar.AddError(resp.ErrorText());
                 }
             }
         }
@@ -569,7 +569,7 @@ public class ServiceRequestViewModel(IPathApi api,
                 }
                 else
                 {
-                    errors.Add(resp.ErrorMessage);
+                    errors.Add(resp.ErrorText());
                 }
             }
         }
@@ -622,7 +622,7 @@ public class ServiceRequestViewModel(IPathApi api,
             var resp = await api.UpdateRequest(cmd);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
                 return;
             }
             NotifyStateChanged();
@@ -649,7 +649,7 @@ public class ServiceRequestViewModel(IPathApi api,
             var resp = await api.UpdateRequest(cmd);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
             }
             NotifyStateChanged();
         }
@@ -686,7 +686,7 @@ public class ServiceRequestViewModel(IPathApi api,
                 }
                 else
                 {
-                    snackbar.AddError(resp.ErrorMessage);
+                    snackbar.AddError(resp.ErrorText());
                 }
             }
             else

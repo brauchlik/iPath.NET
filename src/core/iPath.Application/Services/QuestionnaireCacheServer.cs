@@ -7,14 +7,14 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace iPath.Blazor.ServiceLib.Services;
+namespace iPath.Application.Services;
 
 public class QuestionnaireCacheServer(IMemoryCache cache, IMediator mediator, ILogger<QuestionnaireCacheServer> logger)
 {
     public void ClearCache(string Id, int? Version = null)
     {
-        var chachekey = GetKey(Id, Version);
-        cache.Remove(chachekey);
+        var cacheKey = GetKey(Id, Version);
+        cache.Remove(cacheKey);
     }
 
     string GetKey(String Id, int? Version = null) => $"qr_{Id}" + (Version.HasValue ? $"_{Version}" : "");
@@ -23,9 +23,9 @@ public class QuestionnaireCacheServer(IMemoryCache cache, IMediator mediator, IL
     {
         if (string.IsNullOrEmpty(Id)) return null;
 
-        var chachekey = GetKey(Id, Version);
+        var cacheKey = GetKey(Id, Version);
 
-        if (!cache.TryGetValue(cache, out Questionnaire? q))
+        if (!cache.TryGetValue(cacheKey, out Questionnaire? q))
         {
             try
             {
@@ -38,7 +38,7 @@ public class QuestionnaireCacheServer(IMemoryCache cache, IMediator mediator, IL
                     q = JsonSerializer.Deserialize<Questionnaire>(entity.Resource, options);
 
                     var opts = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(60));
-                    cache.Set(chachekey, q, opts);
+                    cache.Set(cacheKey, q, opts);
                 }
                 else
                 {

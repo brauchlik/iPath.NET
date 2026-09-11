@@ -6,6 +6,7 @@ using iPath.Blazor.Server.Components.Account;
 using iPath.Domain.Config;
 using iPath.RazorLib;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
@@ -118,6 +119,16 @@ var baseAddress = clcfg.BaseAddress ?? "http://localhost:5000/";
 await builder.Services.AddRazorLibServices(baseAddress, false);
 
 builder.Services.AddAntiforgery();
+
+// Persist the DataProtection key ring so auth cookies and antiforgery tokens
+// survive a restart, and decrypt across replicas. In-memory (the default) signs
+// every user out on every deploy.
+if (!string.IsNullOrEmpty(cfg.DataRoot))
+{
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(cfg.DataRoot, "keys")))
+        .SetApplicationName("ipath");
+}
 
 
 // reverse Proxy

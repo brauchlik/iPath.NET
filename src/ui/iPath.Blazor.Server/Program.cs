@@ -71,6 +71,10 @@ builder.Services.AddMudServices();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
+        // The 32 KB default kills the circuit when a large payload comes back from JS —
+        // LForms getData() returns a full QuestionnaireResponse, which real pathology
+        // forms exceed, so saving failed mid-form on production cases but never on dev.
+        .AddHubOptions(o => o.MaximumReceiveMessageSize = 512 * 1024)
     .AddInteractiveWebAssemblyComponents()
     .AddAuthenticationStateSerialization();
 
@@ -160,6 +164,19 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+// Must run before anything that reads the scheme, host or client IP. It previously sat
+// after UseAuthentication and CaseRoomTokenAuthMiddleware, so behind a TLS-terminating
+// proxy Request.IsHttps was false and the guest token cookie was written without Secure.
+// XForwardedHost is needed for correct absolute URLs, most visibly external-login redirects.
+// Only honoured for proxies matching KnownProxies/KnownNetworks — set iPathConfig:ReverseProxyAddresse.
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor
+                     | ForwardedHeaders.XForwardedProto
+                     | ForwardedHeaders.XForwardedHost
+});
+
 app.UseHttpLogging();
 var opts = app.Services.GetRequiredService<IOptions<iPathConfig>>();
 
@@ -215,12 +232,6 @@ foreach (var culture in supportedCultures)
 app.UseMiddleware<CaseRoomTokenAuthMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Header forwarding for Reverse Proxy Integration
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
 
 // Health Checks, etc (Aspire)
 app.MapDefaultEndpoints();

@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using iPath.Application.Features.CaseRoom;
 using iPath.Application.Features.Notifications;
 using iPath.API.Services.Notifications;
@@ -34,6 +34,18 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         _ = StartCleanupLoopAsync(_cleanupCts.Token);
     }
 
+    /// <summary>
+    /// Fan-out addresses for a room's participants. Members are addressed by user id; guests by
+    /// (room, session), because every guest carries the same synthetic Guid.Empty principal and
+    /// addressing them by user id put all of them — across all rooms — in one bucket.
+    /// Distinct(), so a member with several sessions is still written to once.
+    /// </summary>
+    private static string[] ChannelsFor(Guid requestId, IEnumerable<Participant> participants) =>
+        participants
+            .Select(p => p.IsGuest ? SseChannel.Guest(requestId, p.SessionId) : SseChannel.User(p.UserId))
+            .Distinct()
+            .ToArray();
+
     public async Task<CaseRoomSnapshot> JoinAsync(Guid requestId, Guid sessionId, Guid userId, string displayName, bool isGuest = false, Guid? initialDocumentId = null, bool? initialIsWSI = null, string? initialFilename = null, CancellationToken ct = default)
     {
         var entry = _sessions.GetOrAdd(requestId, rid => new SessionEntry
@@ -51,7 +63,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 
         CaseRoomSnapshot snapshot;
         CaseRoomSyncEvent joinEvt;
-        Guid[] userIds;
+        string[] channels;
 
         lock (entry)
         {
@@ -71,15 +83,15 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 
             snapshot = BuildSnapshot(entry.Session);
 
-            userIds = entry.Session.UserSessions.Keys.ToArray();
             var updatedParticipants = entry.Session.Participants.Values.ToArray();
+            channels = ChannelsFor(requestId, updatedParticipants);
             var joinPayload = new SyncPayload(null, null, sessionId, "Join", updatedParticipants, entry.Session.ControllingSessionId);
             joinEvt = new CaseRoomSyncEvent(requestId, userId, displayName, joinPayload, DateTimeOffset.UtcNow);
         }
 
-        foreach (var uid in userIds)
+        foreach (var channel in channels)
         {
-            await _sseManager.SendToUserAsync(uid, "caseroom-sync", joinEvt);
+            await _sseManager.SendToChannelAsync(channel, "caseroom-sync", joinEvt);
         }
         _eventBus.PublishCaseRoomSync(joinEvt);
 
@@ -94,7 +106,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         if (!_sessions.TryGetValue(requestId, out var entry)) return;
 
         CaseRoomSyncEvent? leaveEvt = null;
-        Guid[]? userIds = null;
+        string[]? channels = null;
         bool scheduleTeardown = false;
         CancellationTokenSource? cts = null;
 
@@ -114,6 +126,10 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                 var hasHosts = entry.Session.Participants.Values.Any(p => !p.IsGuest);
                 if (!hasHosts)
                 {
+                    // Capture the guests' channels before removing them — they are the audience
+                    // for the HostLeft kick, and once removed there is nobody left to address.
+                    channels = ChannelsFor(requestId, entry.Session.Participants.Values.Where(p => p.IsGuest));
+
                     // Kick remaining guests
                     var guestSessionIds = entry.Session.Participants.Values.Where(p => p.IsGuest).Select(p => p.SessionId).ToList();
                     foreach (var gsid in guestSessionIds)
@@ -143,9 +159,9 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                         entry.Session.ControllingSessionId = null;
 
                     var updatedParticipants = entry.Session.Participants.Values.ToArray();
-                    userIds = entry.Session.UserSessions.Keys.ToArray();
+                    channels = ChannelsFor(requestId, updatedParticipants);
 
-                    if (userIds.Length > 0)
+                    if (channels.Length > 0)
                     {
                         var leavePayload = new SyncPayload(null, null, sessionId, "Leave", updatedParticipants, entry.Session.ControllingSessionId);
                         leaveEvt = new CaseRoomSyncEvent(requestId, uid, removedParticipant.DisplayName, leavePayload, DateTimeOffset.UtcNow);
@@ -163,16 +179,13 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 
         if (leaveEvt is not null)
         {
-            if (userIds is not null)
+            if (channels is not null)
             {
-                foreach (var uid in userIds)
+                foreach (var channel in channels)
                 {
-                    if (uid != Guid.Empty)
-                        await _sseManager.SendToUserAsync(uid, "caseroom-sync", leaveEvt);
+                    await _sseManager.SendToChannelAsync(channel, "caseroom-sync", leaveEvt);
                 }
             }
-            // Notify guest connections (registered under Guid.Empty); no-op if none
-            await _sseManager.SendToUserAsync(Guid.Empty, "caseroom-sync", leaveEvt);
             _eventBus.PublishCaseRoomSync(leaveEvt);
         }
 
@@ -250,15 +263,15 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 
         var evt = new CaseRoomSyncEvent(requestId, userId, displayName, broadcastPayload, DateTimeOffset.UtcNow);
 
-        Guid[] userIds;
+        string[] syncChannels;
         lock (entry)
         {
-            userIds = entry.Session.UserSessions.Keys.ToArray();
+            syncChannels = ChannelsFor(requestId, entry.Session.Participants.Values);
         }
 
-        foreach (var uid in userIds)
+        foreach (var channel in syncChannels)
         {
-            await _sseManager.SendToUserAsync(uid, "caseroom-sync", evt);
+            await _sseManager.SendToChannelAsync(channel, "caseroom-sync", evt);
         }
         _eventBus.PublishCaseRoomSync(evt);
 
@@ -364,7 +377,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                     var entry = kvp.Value;
                     List<Guid> toRemove = new();
                     CaseRoomSyncEvent? leaveEvt = null;
-                    Guid[]? remainingIds = null;
+                    string[]? remainingChannels = null;
 
                     lock (entry)
                     {
@@ -396,6 +409,10 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                             var hasHosts = entry.Session.Participants.Values.Any(p => !p.IsGuest);
                             if (!hasHosts && entry.Session.Participants.Count > 0)
                             {
+                                // Capture the guests' channels before removing them — they are
+                                // the audience for the HostLeft kick.
+                                remainingChannels = ChannelsFor(requestId, entry.Session.Participants.Values.Where(p => p.IsGuest));
+
                                 // Kick remaining guests
                                 var guestSessionIds = entry.Session.Participants.Values.Where(p => p.IsGuest).Select(p => p.SessionId).ToList();
                                 foreach (var gsid in guestSessionIds)
@@ -423,7 +440,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
                                     entry.Session.ControllingSessionId = null;
 
                                 var updatedParticipants = entry.Session.Participants.Values.ToArray();
-                                remainingIds = entry.Session.UserSessions.Keys.ToArray();
+                                remainingChannels = ChannelsFor(requestId, updatedParticipants);
 
                                 var leavePayload = new SyncPayload(null, null, null, "Leave", updatedParticipants, entry.Session.ControllingSessionId);
                                 leaveEvt = new CaseRoomSyncEvent(requestId, Guid.Empty, "System", leavePayload, DateTimeOffset.UtcNow);
@@ -439,15 +456,13 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 
                     if (leaveEvt is not null)
                     {
-                        if (remainingIds is not null)
+                        if (remainingChannels is not null)
                         {
-                            foreach (var uid in remainingIds)
+                            foreach (var channel in remainingChannels)
                             {
-                                if (uid != Guid.Empty)
-                                    await _sseManager.SendToUserAsync(uid, "caseroom-sync", leaveEvt);
+                                await _sseManager.SendToChannelAsync(channel, "caseroom-sync", leaveEvt);
                             }
                         }
-                        await _sseManager.SendToUserAsync(Guid.Empty, "caseroom-sync", leaveEvt);
                         _eventBus.PublishCaseRoomSync(leaveEvt);
                     }
                 }

@@ -10,9 +10,22 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace iPath.API.Services.Notifications;
 
+/// <summary>
+/// Fan-out addresses. Connections are bucketed by an opaque string rather than a user id so
+/// that CaseRoom guests — who all share the synthetic principal <see cref="Guid.Empty"/> —
+/// get one bucket each instead of landing in a single shared one.
+/// </summary>
+public static class SseChannel
+{
+    public static string User(Guid userId) => $"user:{userId}";
+
+    public static string Guest(Guid requestId, Guid sessionId) => $"guest:{requestId}:{sessionId}";
+}
+
 public interface ISseConnectionManager
 {
-    Task AddConnectionAsync(Guid userId, HttpResponse response, CancellationToken ct);
+    Task AddConnectionAsync(string channel, HttpResponse response, CancellationToken ct);
+    Task SendToChannelAsync(string channel, string eventType, object payload, string? id = null);
     Task SendToUserAsync(Guid userId, string eventType, object payload, string? id = null);
     Task SendToGroupMembersAsync(Guid groupId, string eventType, object payload, string? id = null);
     Task BroadcastAsync(string eventType, object payload, string? id = null);
@@ -22,17 +35,17 @@ public class SseConnectionManager(IServiceProvider services, ILogger<SseConnecti
     : ISseConnectionManager
 {
     private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-    private readonly ConcurrentDictionary<Guid, List<SseConnection>> _connections = new();
+    private readonly ConcurrentDictionary<string, List<SseConnection>> _connections = new();
     private PeriodicTimer? _keepAliveTimer;
     private CancellationTokenSource? _keepAliveCts;
 
-    public async Task AddConnectionAsync(Guid userId, HttpResponse response, CancellationToken ct)
+    public async Task AddConnectionAsync(string channel, HttpResponse response, CancellationToken ct)
     {
         var connectionId = Guid.NewGuid();
-        var channel = Channel.CreateUnbounded<SseMessage>();
-        var connection = new SseConnection(connectionId, channel);
+        var messages = Channel.CreateUnbounded<SseMessage>();
+        var connection = new SseConnection(connectionId, messages);
 
-        _connections.AddOrUpdate(userId,
+        _connections.AddOrUpdate(channel,
             _ => [connection],
             (_, list) => { list.Add(connection); return list; });
 
@@ -41,24 +54,24 @@ public class SseConnectionManager(IServiceProvider services, ILogger<SseConnecti
 
         try
         {
-            await foreach (var message in channel.Reader.ReadAllAsync(ct))
+            await foreach (var message in messages.Reader.ReadAllAsync(ct))
             {
                 await WriteMessageAsync(response, message, ct);
             }
         }
         catch (OperationCanceledException)
         {
-            logger.LogDebug("SSE connection {ConnectionId} for user {UserId} cancelled", connectionId, userId);
+            logger.LogDebug("SSE connection {ConnectionId} on channel {Channel} cancelled", connectionId, channel);
         }
         finally
         {
-            RemoveConnection(userId, connectionId);
+            RemoveConnection(channel, connectionId);
         }
     }
 
-    public async Task SendToUserAsync(Guid userId, string eventType, object payload, string? id = null)
+    public async Task SendToChannelAsync(string channel, string eventType, object payload, string? id = null)
     {
-        if (!_connections.TryGetValue(userId, out var connections)) return;
+        if (!_connections.TryGetValue(channel, out var connections)) return;
 
         var data = JsonSerializer.Serialize(payload, _jsonOptions);
         var message = new SseMessage(eventType, data, id);
@@ -68,6 +81,9 @@ public class SseConnectionManager(IServiceProvider services, ILogger<SseConnecti
             catch (ChannelClosedException) { /* connection closing */ }
         }
     }
+
+    public Task SendToUserAsync(Guid userId, string eventType, object payload, string? id = null)
+        => SendToChannelAsync(SseChannel.User(userId), eventType, payload, id);
 
     public async Task SendToGroupMembersAsync(Guid groupId, string eventType, object payload, string? id = null)
     {
@@ -85,7 +101,7 @@ public class SseConnectionManager(IServiceProvider services, ILogger<SseConnecti
         var message = new SseMessage(eventType, data, id);
         foreach (var userId in userIds)
         {
-            if (!_connections.TryGetValue(userId, out var connections)) continue;
+            if (!_connections.TryGetValue(SseChannel.User(userId), out var connections)) continue;
             foreach (var conn in connections.ToList())
             {
                 try { await conn.Channel.Writer.WriteAsync(message); }
@@ -108,10 +124,10 @@ public class SseConnectionManager(IServiceProvider services, ILogger<SseConnecti
         }
     }
 
-    private void RemoveConnection(Guid userId, Guid connectionId)
+    private void RemoveConnection(string channel, Guid connectionId)
     {
         SseConnection? toClose = null;
-        _connections.AddOrUpdate(userId,
+        _connections.AddOrUpdate(channel,
             _ => [],
             (_, list) =>
             {
@@ -122,8 +138,8 @@ public class SseConnectionManager(IServiceProvider services, ILogger<SseConnecti
 
         toClose?.Channel.Writer.Complete();
 
-        if (_connections.TryGetValue(userId, out var remaining) && remaining.Count == 0)
-            _connections.TryRemove(userId, out _);
+        if (_connections.TryGetValue(channel, out var remaining) && remaining.Count == 0)
+            _connections.TryRemove(channel, out _);
 
         if (_connections.Count == 0)
             StopKeepAlive();

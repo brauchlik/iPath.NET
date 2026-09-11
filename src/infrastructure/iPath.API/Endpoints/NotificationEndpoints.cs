@@ -24,6 +24,30 @@ public static class NotificationEndpoints
             if (sess.User is null || (!sess.User.IsAuthenticated && !ctx.User.IsInRole("CaseRoomGuest")))
                 return Results.Unauthorized();
 
+            // Members are addressed by user id. Guests all share the synthetic principal
+            // Guid.Empty, so addressing them that way put every guest in the system into one
+            // fan-out bucket and leaked each CaseRoom's sync events to guests in other rooms.
+            // They are addressed by (room, browser session) instead; a guest that cannot supply
+            // both is refused rather than silently falling back to the shared bucket.
+            string channel;
+            if (sess.User.IsAuthenticated)
+            {
+                channel = SseChannel.User(sess.User.Id);
+            }
+            else
+            {
+                if (!Guid.TryParse(ctx.Request.Query["requestId"].FirstOrDefault(), out var guestRequestId)
+                    || !Guid.TryParse(ctx.Request.Query["sessionId"].FirstOrDefault(), out var guestSessionId))
+                    return Results.BadRequest("requestId and sessionId are required for guest connections");
+
+                // The guest principal is only issued for the room named in the token, but the
+                // query string is client-supplied — bind the channel to the authorised room.
+                if (!ctx.User.HasClaim("AuthorizedRequestId", guestRequestId.ToString()))
+                    return Results.Unauthorized();
+
+                channel = SseChannel.Guest(guestRequestId, guestSessionId);
+            }
+
             ctx.Response.Headers.ContentType = "text/event-stream";
             ctx.Response.Headers.CacheControl = "no-cache";
             ctx.Response.Headers.Connection = "keep-alive";
@@ -87,7 +111,7 @@ public static class NotificationEndpoints
                 }
             }
 
-            await mgr.AddConnectionAsync(sess.User.Id, ctx.Response, ct);
+            await mgr.AddConnectionAsync(channel, ctx.Response, ct);
             return Results.Empty;
         })
         .WithTags("Notifications");

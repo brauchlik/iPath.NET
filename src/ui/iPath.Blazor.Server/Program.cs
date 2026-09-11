@@ -35,7 +35,10 @@ if (builder.Environment.IsDevelopment())
 }
 if (!string.IsNullOrEmpty(builder.Configuration["CONFIG_PATH"]))
 {
-    var cfgFile = System.IO.Path.Combine(builder.Configuration["CONFIG_PATH"]!, "appsettings.json");
+    // Resolve to an absolute path: File.Exists below uses the process working directory as
+    // base, but AddJsonFile resolves relative paths against the build output directory instead
+    // — without this, a relative CONFIG_PATH silently fails to load once File.Exists passes.
+    var cfgFile = System.IO.Path.GetFullPath(System.IO.Path.Combine(builder.Configuration["CONFIG_PATH"]!, "appsettings.json"));
     Console.WriteLine("Loading Configuration from {0}", cfgFile);
     if (System.IO.File.Exists(cfgFile))
     {

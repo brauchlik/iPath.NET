@@ -16,6 +16,11 @@
 # ipath_data folder
 ipath_data/
 
+# e2e test database (regenerated fresh on every Playwright run)
+test/e2e/.data/
+test/e2e/playwright-report/
+test/e2e/test-results/
+
 # Mono auto generated files
 mono_crash.*
 

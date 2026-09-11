@@ -34,6 +34,17 @@
       "dotnetRunMessages": false,
       "applicationUrl": "https://localhost:5000/"
     },
+    "e2e": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CONFIG_PATH": "../../../test/e2e/config"
+      },
+      "dotnetRunMessages": false,
+      "applicationUrl": "http://localhost:5050/",
+      "useSSL": false
+    },
     "Container (Dockerfile)": {
       "commandName": "Docker",
       "launchBrowser": true,

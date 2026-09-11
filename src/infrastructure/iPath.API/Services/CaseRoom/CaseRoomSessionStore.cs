@@ -10,6 +10,12 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
 {
     private static readonly TimeSpan TeardownGrace = TimeSpan.FromSeconds(30);
 
+    /// <summary>
+    /// Backstop lifetime for a guest share link. Host-left cleanup already clears tokens;
+    /// this bounds a link that leaks after a room has been left open.
+    /// </summary>
+    private static readonly TimeSpan ShareTokenTtl = TimeSpan.FromHours(8);
+
     private readonly ISseConnectionManager _sseManager;
     private readonly INotificationEventBus _eventBus;
     private readonly ILogger<CaseRoomSessionStore> _logger;
@@ -307,7 +313,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         });
 
         var token = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(16));
-        entry.Session.ShareTokens[token] = 0;
+        entry.Session.ShareTokens[token] = DateTimeOffset.UtcNow;
         return Task.FromResult(token);
     }
 
@@ -319,14 +325,27 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
             return Task.FromResult(false);
         }
 
-        if (!entry.Session.ShareTokens.ContainsKey(token))
+        if (!entry.Session.ShareTokens.TryGetValue(token, out var issuedAt))
         {
             _logger.LogWarning("IsShareTokenValidAsync failed: Session found, but token '{Token}' is not in ShareTokens list. Valid tokens count: {Count}", token, entry.Session.ShareTokens.Count);
             return Task.FromResult(false);
         }
 
-        // Token is valid as long as it exists in the session store.
-        // Host-left cleanup already clears all tokens and kicks guests.
+        if (DateTimeOffset.UtcNow - issuedAt > ShareTokenTtl)
+        {
+            entry.Session.ShareTokens.TryRemove(token, out _);
+            _logger.LogWarning("IsShareTokenValidAsync failed: token for {RequestId} expired (issued {IssuedAt})", requestId, issuedAt);
+            return Task.FromResult(false);
+        }
+
+        // A guest link only grants access while a real participant is hosting the room.
+        // Without this, a token issued against an empty session lets a guest in alone.
+        if (!entry.Session.Participants.Values.Any(p => !p.IsGuest))
+        {
+            _logger.LogWarning("IsShareTokenValidAsync failed: no host present in room {RequestId}", requestId);
+            return Task.FromResult(false);
+        }
+
         return Task.FromResult(true);
     }
 
@@ -478,6 +497,7 @@ public class CaseRoomSessionStore : ICaseRoomSessionStore, IDisposable
         public Guid CreatedBy { get; init; }
         public ConcurrentDictionary<Guid, Participant> Participants { get; } = new();
         public ConcurrentDictionary<Guid, HashSet<Guid>> UserSessions { get; } = new();
-        public ConcurrentDictionary<string, byte> ShareTokens { get; } = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>Share token -> time it was issued, so tokens can expire.</summary>
+        public ConcurrentDictionary<string, DateTimeOffset> ShareTokens { get; } = new(StringComparer.OrdinalIgnoreCase);
     }
 }

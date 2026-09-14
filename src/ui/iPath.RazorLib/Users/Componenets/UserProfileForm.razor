@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Forms
 @using iPath.Application.Features.ServiceRequests
+@using iPath.Blazor.Componenents.Layouts
 @namespace iPath.Blazor.Componenents.Users
 
 @inject IStringLocalizer T
@@ -28,6 +29,7 @@
             <MudSwitch Label=@T["Is Consultant"] For="(() => Model.IsConsultant)" @bind-Value="Model.IsConsultant" Color="Color.Success" />
             <MudText Class="ml-8"><strong>@T["Body Sites"]: </strong> @Model.SpecialisationBodySite?.ConceptCodesString</MudText>
             <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="ShowBodySiteDialog" />
+            <LanguageSelect Class="ml-8" @bind-Value="Model.DefaultLanguage" Label="@T["Language"]" />
         </MudStack>
 
 

@@ -10472,6 +10472,13 @@
               }
             ]
           },
+          "defaultLanguage": {
+            "maxLength": 10,
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "contactDetails": {
             "$ref": "#/components/schemas/ContactDetails"
           },

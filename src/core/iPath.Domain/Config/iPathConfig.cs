@@ -23,6 +23,14 @@ public class iPathConfig
     public bool ExportNodeJson { get; set; }
 
     public string ReverseProxyAddresse { get; set; }
+
+    /// <summary>
+    /// Filesystem path where ASP.NET Core DataProtection keys are persisted.
+    /// When unset, keys fall back to an in-memory store, which invalidates
+    /// all user sessions (cookies, antiforgery tokens) on every restart.
+    /// Recommended: a directory under the app data root, e.g. /opt/ipath/keys.
+    /// </summary>
+    public string? DataProtectionKeysPath { get; set; }
 }
 
 

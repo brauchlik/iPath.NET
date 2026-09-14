@@ -133,11 +133,43 @@ builder.Services.AddAntiforgery();
 // Persist the DataProtection key ring so auth cookies and antiforgery tokens
 // survive a restart, and decrypt across replicas. In-memory (the default) signs
 // every user out on every deploy.
-if (!string.IsNullOrEmpty(cfg.DataRoot))
+//
+// Resolution order:
+//   1. cfg.DataProtectionKeysPath (preferred — explicit, deploy-agnostic)
+//   2. cfg.DataRoot + "/keys" (legacy, kept for back-compat)
+//   3. in-memory fallback (logs a loud warning so ops sees the silent-logout bug)
+//
+// Note: keys are NOT auto-pruned. Each key is ~500 bytes and the framework
+// rotates them every 90 days, so disk usage stays negligible (a few KB).
+// Microsoft explicitly recommends against automatic deletion because it can
+// permanently invalidate cookies still in flight.
+var dpKeysPath = !string.IsNullOrWhiteSpace(cfg.DataProtectionKeysPath)
+    ? cfg.DataProtectionKeysPath
+    : (!string.IsNullOrEmpty(cfg.DataRoot) ? Path.Combine(cfg.DataRoot, "keys") : null);
+
+var dpBuilder = builder.Services.AddDataProtection().SetApplicationName("ipath");
+
+if (!string.IsNullOrWhiteSpace(dpKeysPath))
 {
-    builder.Services.AddDataProtection()
-        .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(cfg.DataRoot, "keys")))
-        .SetApplicationName("ipath");
+    try
+    {
+        Directory.CreateDirectory(dpKeysPath);
+        dpBuilder.PersistKeysToFileSystem(new DirectoryInfo(dpKeysPath));
+    }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine(
+            $"WARNING: failed to configure DataProtection key persistence at '{dpKeysPath}': {ex.Message}. "
+            + "Falling back to in-memory key store (sessions will be lost on restart).");
+    }
+}
+else
+{
+    Console.Error.WriteLine(
+        "WARNING: iPathConfig:DataProtectionKeysPath is not set and DataRoot is empty. "
+        + "DataProtection keys will be stored in memory, which invalidates all user sessions "
+        + "(cookies, antiforgery tokens) on every restart. Set iPathConfig:DataProtectionKeysPath "
+        + "(e.g. /opt/ipath/keys) to persist.");
 }
 
 

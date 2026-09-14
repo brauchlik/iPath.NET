@@ -1,0 +1,472 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "jundt-case-digestive",
+  "url": "http://ipath.kantonsspital.net/fhir/Questionnaire/jundt-case-digestive",
+  "status": "draft",
+  "title": "Case Description — Digestive Organs",
+  "subjectType": ["Patient"],
+  "item": [
+    {
+      "linkId": "mat",
+      "type": "group",
+      "text": "Material",
+      "item": [
+        {
+          "linkId": "mat.cytology",
+          "type": "boolean",
+          "text": "Cytology"
+        },
+        {
+          "linkId": "mat.cytology.types",
+          "type": "choice",
+          "repeats": true,
+          "text": "Cytology material",
+          "enableWhen": [
+            { "question": "mat.cytology", "operator": "=", "answerBoolean": true }
+          ],
+          "answerOption": [
+            { "valueString": "Pap smear" },
+            { "valueString": "Smear cytology (eg Bronchus)" },
+            { "valueString": "Sputum" },
+            { "valueString": "Exfoliative cytology" },
+            { "valueString": "Fine needle aspiration" }
+          ]
+        },
+        {
+          "linkId": "mat.cytology.exfoliative",
+          "type": "choice",
+          "repeats": true,
+          "text": "Exfoliative cytology — site",
+          "enableWhen": [
+            { "question": "mat.cytology.types", "operator": "=", "answerString": "Exfoliative cytology" }
+          ],
+          "answerOption": [
+            { "valueString": "Liquor" },
+            { "valueString": "Pleural effusion" },
+            { "valueString": "Ascites" },
+            { "valueString": "Urine" },
+            { "valueString": "Lavage" }
+          ]
+        },
+        {
+          "linkId": "mat.histology",
+          "type": "boolean",
+          "text": "Histology"
+        },
+        {
+          "linkId": "mat.histology.types",
+          "type": "choice",
+          "repeats": true,
+          "text": "Histology material",
+          "enableWhen": [
+            { "question": "mat.histology", "operator": "=", "answerBoolean": true }
+          ],
+          "answerOption": [
+            { "valueString": "Core biopsy" },
+            { "valueString": "Open biopsy" },
+            { "valueString": "Excisional biopsy" },
+            { "valueString": "Resection" }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "sym",
+      "type": "group",
+      "text": "Symptoms",
+      "item": [
+        {
+          "linkId": "sym.dysphagia",
+          "type": "boolean",
+          "text": "Dysphagia",
+          "code": [ { "system": "http://snomed.info/sct", "code": "40739000", "display": "Dysphagia" } ]
+        },
+        {
+          "linkId": "sym.heartburn",
+          "type": "boolean",
+          "text": "Heartburn",
+          "code": [ { "system": "http://snomed.info/sct", "code": "16331000", "display": "Heartburn" } ]
+        },
+        {
+          "linkId": "sym.painfulswallowing",
+          "type": "boolean",
+          "text": "Painful swallowing",
+          "code": [ { "system": "http://snomed.info/sct", "code": "30233002", "display": "Swallowing painful" } ]
+        },
+        {
+          "linkId": "sym.regurgitation",
+          "type": "boolean",
+          "text": "Regurgitation",
+          "code": [ { "system": "http://snomed.info/sct", "code": "78104003", "display": "Regurgitation of gastric content" } ]
+        },
+        {
+          "linkId": "sym.dyspepsia",
+          "type": "boolean",
+          "text": "Dyspepsia",
+          "code": [ { "system": "http://snomed.info/sct", "code": "162031009", "display": "Indigestion" } ]
+        },
+        {
+          "linkId": "sym.pain.abdominal",
+          "type": "boolean",
+          "text": "Abdominal pain",
+          "code": [ { "system": "http://snomed.info/sct", "code": "21522001", "display": "Abdominal pain" } ],
+          "item": [
+            {
+              "linkId": "sym.pain.abdominal.location",
+              "type": "choice",
+              "text": "Location",
+              "answerOption": [
+                { "valueString": "Upper abdomen (left)" },
+                { "valueString": "Upper abdomen (right)" },
+                { "valueString": "Middle abdomen (left)" },
+                { "valueString": "Middle abdomen (right)" },
+                { "valueString": "Lower abdomen (left)" },
+                { "valueString": "Lower abdomen (right)" }
+              ],
+              "enableWhen": [ { "question": "sym.pain.abdominal", "operator": "=", "answerBoolean": true } ]
+            },
+            {
+              "linkId": "sym.pain.abdominal.duration",
+              "type": "quantity",
+              "text": "Duration",
+              "code": [ { "system": "http://snomed.info/sct", "code": "162442009", "display": "Time symptom lasts" } ],
+              "extension": [
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "a", "display": "years" } }
+              ],
+              "enableWhen": [ { "question": "sym.pain.abdominal", "operator": "=", "answerBoolean": true } ]
+            }
+          ]
+        },
+        {
+          "linkId": "sym.flatulence",
+          "type": "boolean",
+          "text": "Flatulence",
+          "code": [ { "system": "http://snomed.info/sct", "code": "249504006", "display": "Passing flatus" } ]
+        },
+        {
+          "linkId": "sym.weightloss",
+          "type": "boolean",
+          "text": "Weight loss",
+          "code": [ { "system": "http://snomed.info/sct", "code": "89362005", "display": "Weight loss" } ],
+          "item": [
+            {
+              "linkId": "sym.weightloss.kg",
+              "type": "quantity",
+              "text": "Amount lost (kg)",
+              "extension": [
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "kg", "display": "kg" } }
+              ],
+              "enableWhen": [ { "question": "sym.weightloss", "operator": "=", "answerBoolean": true } ]
+            }
+          ]
+        },
+        {
+          "linkId": "sym.vomiting",
+          "type": "boolean",
+          "text": "Vomiting",
+          "code": [ { "system": "http://snomed.info/sct", "code": "422400008", "display": "Vomiting" } ],
+          "item": [
+            {
+              "linkId": "sym.vomiting.blood",
+              "type": "boolean",
+              "text": "Vomiting blood",
+              "code": [ { "system": "http://snomed.info/sct", "code": "8765009", "display": "Hematemesis" } ],
+              "enableWhen": [ { "question": "sym.vomiting", "operator": "=", "answerBoolean": true } ]
+            }
+          ]
+        },
+        {
+          "linkId": "sym.constipation",
+          "type": "boolean",
+          "text": "Constipation",
+          "code": [ { "system": "http://snomed.info/sct", "code": "14760008", "display": "Constipation" } ]
+        },
+        {
+          "linkId": "sym.diarrhoea",
+          "type": "boolean",
+          "text": "Diarrhoea",
+          "code": [ { "system": "http://snomed.info/sct", "code": "62315008", "display": "Diarrhea" } ]
+        },
+        {
+          "linkId": "sym.stoolchanges",
+          "type": "boolean",
+          "text": "Stool changes",
+          "code": [ { "system": "http://snomed.info/sct", "code": "88111009", "display": "Altered bowel function" } ]
+        },
+        {
+          "linkId": "sym.melaena",
+          "type": "boolean",
+          "text": "Melaena",
+          "code": [ { "system": "http://snomed.info/sct", "code": "2901004", "display": "Melena" } ]
+        },
+        {
+          "linkId": "sym.bloodystool",
+          "type": "boolean",
+          "text": "Bloody stool",
+          "code": [ { "system": "http://snomed.info/sct", "code": "405729008", "display": "Hematochezia" } ]
+        },
+        {
+          "linkId": "sym.fever",
+          "type": "boolean",
+          "text": "Fever",
+          "code": [ { "system": "http://snomed.info/sct", "code": "386661006", "display": "Fever" } ]
+        },
+        {
+          "linkId": "sym.jaundice",
+          "type": "boolean",
+          "text": "Jaundice",
+          "code": [ { "system": "http://snomed.info/sct", "code": "18165001", "display": "Jaundice" } ]
+        },
+        {
+          "linkId": "sym.easybruising",
+          "type": "boolean",
+          "text": "Easy bruising",
+          "code": [ { "system": "http://snomed.info/sct", "code": "424131007", "display": "Easy bruising" } ]
+        },
+        {
+          "linkId": "sym.other",
+          "type": "string",
+          "text": "Other (please specify)"
+        }
+      ]
+    },
+    {
+      "linkId": "sym.other",
+      "type": "group",
+      "text": "Other Symptoms",
+      "item": [
+        {
+          "linkId": "sym.other.present",
+          "type": "boolean",
+          "text": "Other symptoms present?"
+        },
+        {
+          "linkId": "sym.other.pain",
+          "type": "boolean",
+          "text": "Pain (non-abdominal)",
+          "code": [ { "system": "http://snomed.info/sct", "code": "22253000", "display": "Pain" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ],
+          "item": [
+            {
+              "linkId": "sym.other.pain.duration",
+              "type": "quantity",
+              "text": "Duration",
+              "code": [ { "system": "http://snomed.info/sct", "code": "162442009", "display": "Time symptom lasts" } ],
+              "extension": [
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } },
+                { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "a", "display": "years" } }
+              ],
+              "enableWhen": [ { "question": "sym.other.pain", "operator": "=", "answerBoolean": true } ]
+            }
+          ]
+        },
+        {
+          "linkId": "sym.other.swelling",
+          "type": "boolean",
+          "text": "Swelling",
+          "code": [ { "system": "http://snomed.info/sct", "code": "65124004", "display": "Swelling" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.nightsweat",
+          "type": "boolean",
+          "text": "Night sweat",
+          "code": [ { "system": "http://snomed.info/sct", "code": "42984000", "display": "Night sweats" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.pallor",
+          "type": "boolean",
+          "text": "Pallor",
+          "code": [ { "system": "http://snomed.info/sct", "code": "274643008", "display": "Body pale" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.bleedingtendency",
+          "type": "boolean",
+          "text": "Bleeding tendency",
+          "code": [ { "system": "http://snomed.info/sct", "code": "78596001", "display": "Bleeding diathesis" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.susceptibility",
+          "type": "boolean",
+          "text": "Susceptibility to infection",
+          "code": [ { "system": "http://snomed.info/sct", "code": "102463001", "display": "Susceptibility to infections" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.cough",
+          "type": "boolean",
+          "text": "Cough",
+          "code": [ { "system": "http://snomed.info/sct", "code": "49727002", "display": "Cough" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.chroniccough",
+          "type": "boolean",
+          "text": "Chronic cough (>3 months)",
+          "code": [ { "system": "http://snomed.info/sct", "code": "68154008", "display": "Chronic cough" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.breathlessness",
+          "type": "boolean",
+          "text": "Breathlessness / Shortness of breath",
+          "code": [ { "system": "http://snomed.info/sct", "code": "267036007", "display": "Dyspnea" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.hemoptysis",
+          "type": "boolean",
+          "text": "Coughing up blood / Hemoptysis",
+          "code": [ { "system": "http://snomed.info/sct", "code": "66857006", "display": "Hemoptysis" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.chestpain",
+          "type": "boolean",
+          "text": "Chronic chest pain",
+          "code": [ { "system": "http://snomed.info/sct", "code": "82886004", "display": "Chronic chest pain" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.smoker",
+          "type": "boolean",
+          "text": "Smoker",
+          "code": [ { "system": "http://snomed.info/sct", "code": "77176002", "display": "Smoker" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.expectoration",
+          "type": "boolean",
+          "text": "Expectoration / Sputum",
+          "code": [ { "system": "http://snomed.info/sct", "code": "284523002", "display": "Sputum production" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.nippledischarge",
+          "type": "boolean",
+          "text": "Nipple discharge",
+          "code": [ { "system": "http://snomed.info/sct", "code": "54302000", "display": "Discharge from nipple" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.breast.retraction",
+          "type": "boolean",
+          "text": "Nipple retracted",
+          "code": [ { "system": "http://snomed.info/sct", "code": "69085004", "display": "Nipple retraction" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.breast.skindiscoloration",
+          "type": "boolean",
+          "text": "Breast-skin discolored",
+          "code": [ { "system": "http://snomed.info/sct", "code": "402773007", "display": "Discoloration of skin of breast" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.vaginalbleeding",
+          "type": "boolean",
+          "text": "Vaginal / Uterine bleeding",
+          "code": [ { "system": "http://snomed.info/sct", "code": "249021008", "display": "Vaginal bleeding" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.vaginaldischarge",
+          "type": "boolean",
+          "text": "Vaginal / Uterine discharge",
+          "code": [ { "system": "http://snomed.info/sct", "code": "271939006", "display": "Vaginal discharge" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.dysuria",
+          "type": "boolean",
+          "text": "Dysuria",
+          "code": [ { "system": "http://snomed.info/sct", "code": "49650001", "display": "Dysuria" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.haematuria",
+          "type": "boolean",
+          "text": "Haematuria",
+          "code": [ { "system": "http://snomed.info/sct", "code": "34436003", "display": "Blood in urine" } ],
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "sym.other.text",
+          "type": "string",
+          "text": "Other (please specify)",
+          "enableWhen": [ { "question": "sym.other.present", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "img",
+      "type": "group",
+      "text": "Imaging",
+      "item": [
+        {
+          "linkId": "img.xray",
+          "type": "boolean",
+          "text": "Conventional X-rays (2 planes)",
+          "code": [
+            { "system": "http://snomed.info/sct", "code": "168537006", "display": "Plain X-ray" }
+          ]
+        },
+        {
+          "linkId": "img.sonography",
+          "type": "boolean",
+          "text": "Sonography",
+          "code": [
+            { "system": "http://snomed.info/sct", "code": "16310003", "display": "Ultrasonography" }
+          ]
+        },
+        {
+          "linkId": "img.ct",
+          "type": "boolean",
+          "text": "CT scan",
+          "code": [
+            { "system": "http://snomed.info/sct", "code": "77477000", "display": "Computed tomography" }
+          ]
+        },
+        {
+          "linkId": "img.mri",
+          "type": "boolean",
+          "text": "MRI",
+          "code": [
+            { "system": "http://snomed.info/sct", "code": "113091000", "display": "Magnetic resonance imaging" }
+          ]
+        },
+        {
+          "linkId": "img.petct",
+          "type": "boolean",
+          "text": "PET CT",
+          "code": [
+            { "system": "http://snomed.info/sct", "code": "450436003", "display": "Positron emission tomography with computed tomography" }
+          ]
+        },
+        {
+          "linkId": "img.petmri",
+          "type": "boolean",
+          "text": "PET MRI"
+        },
+        {
+          "linkId": "img.petctmri",
+          "type": "boolean",
+          "text": "PET/CT MRI"
+        },
+        {
+          "linkId": "img.other",
+          "type": "string",
+          "text": "Other imaging (please specify)"
+        }
+      ]
+    }
+  ]
+}

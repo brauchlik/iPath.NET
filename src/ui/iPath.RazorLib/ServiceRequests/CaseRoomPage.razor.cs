@@ -37,7 +37,10 @@ public partial class CaseRoomPage
     private DotNetObjectReference<CaseRoomPage>? _dotNetRef;
     private IDisposable? _syncSub;
     private CancellationTokenSource? _pingCts;
-    private Guid _sessionId = Guid.NewGuid();
+    // Shared with the SSE stream URL (SseConnectionHost): the server buckets a guest's fan-out
+    // by (room, session), so joining the room under a different id than the stream was opened
+    // with would leave the guest receiving nothing.
+    private Guid _sessionId => AppState.ClientSessionId;
     private bool _isApplyingRemote;
     private bool _initialized;
     private bool _isGuest;

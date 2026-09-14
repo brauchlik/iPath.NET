@@ -1,0 +1,122 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "imaging",
+  "status": "draft",
+  "title": "Master Imaging List",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "xray",
+      "type": "boolean",
+      "text": "Conventional X-rays (2 planes)",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "168537006",
+          "display": "Plain X-ray"
+        }
+      ]
+    },
+    {
+      "linkId": "sonography",
+      "type": "boolean",
+      "text": "Sonography",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "16310003",
+          "display": "Ultrasonography"
+        }
+      ]
+    },
+    {
+      "linkId": "ct",
+      "type": "boolean",
+      "text": "CT scan",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "77477000",
+          "display": "Computed tomography"
+        }
+      ]
+    },
+    {
+      "linkId": "mri",
+      "type": "boolean",
+      "text": "MRI",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "113091000",
+          "display": "Magnetic resonance imaging"
+        }
+      ]
+    },
+    {
+      "linkId": "petct",
+      "type": "boolean",
+      "text": "PET CT",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "450436003",
+          "display": "Positron emission tomography with computed tomography"
+        }
+      ]
+    },
+    {
+      "linkId": "petmri",
+      "type": "boolean",
+      "text": "PET MRI"
+    },
+    {
+      "linkId": "petctmri",
+      "type": "boolean",
+      "text": "PET/CT MRI"
+    },
+    {
+      "linkId": "panoramic",
+      "type": "boolean",
+      "text": "Panoramic view / Orthopantogram [esp. Jaws C41.0, C41.1]",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "89846007",
+          "display": "Orthopantogram"
+        }
+      ]
+    },
+    {
+      "linkId": "cbct",
+      "type": "boolean",
+      "text": "Cone-beam computed tomography / CBCT [esp. Jaws C41.0, C41.1]",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "717193008",
+          "display": "Cone beam CT"
+        }
+      ]
+    },
+    {
+      "linkId": "mammography",
+      "type": "boolean",
+      "text": "Mammography [esp. Breast C50]",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "71651007",
+          "display": "Mammography"
+        }
+      ]
+    },
+    {
+      "linkId": "imaging.other",
+      "type": "string",
+      "text": "Other imaging (please specify)"
+    }
+  ]
+}

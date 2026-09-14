@@ -73,7 +73,7 @@ public class CommunityViewModel(IPathApi api,
             }
             else
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
             }
         }
         return SelectedCommunity;
@@ -93,7 +93,7 @@ public class CommunityViewModel(IPathApi api,
                 return resp.Content.ToTableData();
             }
 
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
         }
         return new TableData<GroupListDto>();
     }

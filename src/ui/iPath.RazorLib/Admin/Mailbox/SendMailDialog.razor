@@ -44,7 +44,7 @@
             if (resp.IsSuccessful)
                 MudDialog.Close(resp.Content);
 
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
         }
     }
 }

@@ -23,6 +23,14 @@ public class AppState : IUserSession, IDisposable
     public SessionUserDto? User => _user;
     public bool IsAuthenticated => _user is not null && _user.Id != Guid.Empty;
 
+    /// <summary>
+    /// Identifies this browser session for the lifetime of the app load (per circuit under
+    /// Server, per app load under WASM). Guests all share the Guid.Empty principal, so this is
+    /// what separates one guest's SSE fan-out — and CaseRoom participation — from another's.
+    /// The SSE stream URL and the CaseRoom session must use the same value.
+    /// </summary>
+    public Guid ClientSessionId { get; } = Guid.NewGuid();
+
     public void NotifyStateChanged() => OnChange?.Invoke();
 
     /// <summary>

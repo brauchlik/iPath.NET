@@ -73,7 +73,9 @@ public static class UserSessionExtensions
 
         public bool CanEditNode(ServiceRequestDto? node)
         {
-            if (session.User is null || node is null )
+            // IsAuthenticated, not just non-null: an anonymous session has Id == Guid.Empty and
+            // would otherwise match a node whose OwnerId is also empty.
+            if (!session.IsAuthenticated || node is null)
                 return false;
 
             if (session.IsAdmin)

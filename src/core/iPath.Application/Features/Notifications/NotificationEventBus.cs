@@ -15,7 +15,9 @@ public interface INotificationEventBus
     IDisposable SubscribeSystemEvents(Action<SystemEventHint> handler);
 
     void PublishCaseRoomSync(CaseRoomSyncEvent evt);
-    IDisposable SubscribeCaseRoomSync(Action<CaseRoomSyncEvent> handler);
+
+    /// <summary>Subscribe to one room. Events for other rooms are never delivered.</summary>
+    IDisposable SubscribeCaseRoomSync(Guid requestId, Action<CaseRoomSyncEvent> handler);
 }
 
 public class NotificationEventBus : INotificationEventBus
@@ -23,7 +25,7 @@ public class NotificationEventBus : INotificationEventBus
     private readonly ConcurrentDictionary<Guid, List<Action<NotificationDto>>> _notificationSubs = new();
     private readonly ConcurrentDictionary<Guid, Action<DomainEventSummary>> _domainSubs = new();
     private readonly ConcurrentDictionary<Guid, Action<SystemEventHint>> _systemSubs = new();
-    private readonly ConcurrentDictionary<Guid, Action<CaseRoomSyncEvent>> _caseRoomSubs = new();
+    private readonly ConcurrentDictionary<Guid, (Guid RequestId, Action<CaseRoomSyncEvent> Handler)> _caseRoomSubs = new();
 
     public void PublishNotification(Guid userId, NotificationDto dto)
     {
@@ -76,16 +78,21 @@ public class NotificationEventBus : INotificationEventBus
         return new Unsubscriber(() => _systemSubs.TryRemove(key, out _));
     }
 
+    // Filtered here rather than in each subscriber: a room's sync payload carries display
+    // names, participant lists and filenames, and delivering it to every circuit relied on
+    // the receiver discarding it.
     public void PublishCaseRoomSync(CaseRoomSyncEvent evt)
     {
-        foreach (var h in _caseRoomSubs.Values.ToArray())
-            h(evt);
+        foreach (var (requestId, handler) in _caseRoomSubs.Values.ToArray())
+        {
+            if (requestId == evt.RequestId) handler(evt);
+        }
     }
 
-    public IDisposable SubscribeCaseRoomSync(Action<CaseRoomSyncEvent> handler)
+    public IDisposable SubscribeCaseRoomSync(Guid requestId, Action<CaseRoomSyncEvent> handler)
     {
         var key = Guid.NewGuid();
-        _caseRoomSubs[key] = handler;
+        _caseRoomSubs[key] = (requestId, handler);
         return new Unsubscriber(() => _caseRoomSubs.TryRemove(key, out _));
     }
 }

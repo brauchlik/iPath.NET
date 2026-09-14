@@ -15,13 +15,7 @@ public class lhcformsJsInterop : IAsyncDisposable
     public async ValueTask<string> GetDataAsync(string componentId)
     {
         var module = await moduleTask.Value;
-        return await module.InvokeAsync<string>("getData", componentId, options);
-    }
-
-    public async ValueTask<bool> CheckValidity(string componentId)
-    {
-        var module = await moduleTask.Value;
-        return await module.InvokeAsync<bool>("checkValidity", componentId);
+        return await module.InvokeAsync<string>("getData", componentId, null);
     }
 
     public async ValueTask LoadDataAsync(string questionnaireJson, string responseJson, string componentId, bool asReadonly)
@@ -38,14 +32,4 @@ public class lhcformsJsInterop : IAsyncDisposable
             await module.DisposeAsync();
         }
     }
-
-    private static string? options = null!;
-
-    private static string? options_x =
-        """
-        {
-            "fhirVersion": "R4",
-            "prepopulate": false
-        }
-        """;
 }

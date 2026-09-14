@@ -21,7 +21,7 @@ using iPath.Application.Features.Questionnaires;
 using iPath.Application.Features.TaskAssignments;
 using iPath.EF.Core.FeatureHandlers.TaskAssignments.Services;
 using iPath.Application.Localization;
-using iPath.Blazor.ServiceLib.Services;
+using iPath.Application.Services;
 using iPath.Google;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Configuration;

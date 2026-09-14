@@ -44,15 +44,23 @@
         await interop.DisposeAsync();
     }
 
+    // What is currently mounted, so an unrelated re-render does not tear the widget down.
+    private string? _loadedQuestionnaire;
+    private string? _loadedResponse;
+    private bool _rendered;
+
     protected override async Task OnParametersSetAsync()
     {
-        await LoadFormAsync();
+        // Before the first render the mount div does not exist yet; OnAfterRenderAsync
+        // does the initial load.
+        if (_rendered) await LoadFormAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            _rendered = true;
             await OnAfterRendered.InvokeAsync();
             await LoadFormAsync();
         }
@@ -60,10 +68,13 @@
 
     public async Task LoadFormAsync()
     {
-        if (!string.IsNullOrEmpty(Questionnaire))
-        {
-            await LoadFormAsync(Questionnaire, QuestionnaireResponse);
-        }
+        if (string.IsNullOrEmpty(Questionnaire)) return;
+
+        // Remounting resets the widget and discards whatever the user has typed, so only
+        // do it when the content actually changed.
+        if (Questionnaire == _loadedQuestionnaire && QuestionnaireResponse == _loadedResponse) return;
+
+        await LoadFormAsync(Questionnaire, QuestionnaireResponse);
     }
 
 
@@ -71,12 +82,18 @@
     {
         try
         {
+            ErrorMessage = null;
             await interop.LoadDataAsync(questionnaire, questionnaireResponse, id, ReadOnly);
+            _loadedQuestionnaire = questionnaire;
+            _loadedResponse = questionnaireResponse;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
+            // Leave the tracking fields unset so a later attempt retries rather than
+            // assuming the widget is mounted.
             ErrorMessage = ex.Message;
-        }   
+            StateHasChanged();
+        }
     }
 
     public async Task<string?> GetDataAsync()

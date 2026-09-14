@@ -32,7 +32,10 @@
             var match = System.Text.RegularExpressions.Regex.Match(Nav.Uri, @"/request/([a-f0-9\-]{36})/caseroom", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             if (match.Success && Guid.TryParse(match.Groups[1].Value, out var reqId))
             {
-                streamUrl += $"?requestId={reqId}";
+                // sessionId separates one guest's fan-out bucket from another's — guests all
+                // share the Guid.Empty principal, so the server cannot tell them apart without
+                // it. Must be the same value CaseRoomPage joins the room with.
+                streamUrl += $"?requestId={reqId}&sessionId={AppState.ClientSessionId}";
                 var uri = new Uri(Nav.Uri);
                 var tokenMatch = System.Text.RegularExpressions.Regex.Match(uri.Query, @"[\?&]token=([^&]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 if (tokenMatch.Success)

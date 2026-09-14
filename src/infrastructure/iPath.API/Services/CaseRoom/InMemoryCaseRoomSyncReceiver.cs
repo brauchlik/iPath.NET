@@ -6,11 +6,5 @@ namespace iPath.API.Services.CaseRoom;
 public sealed class InMemoryCaseRoomSyncReceiver(INotificationEventBus bus) : ICaseRoomSyncReceiver
 {
     public IDisposable Subscribe(Guid requestId, Action<CaseRoomSyncEvent> handler)
-    {
-        void filtered(CaseRoomSyncEvent e)
-        {
-            if (e.RequestId == requestId) handler(e);
-        }
-        return bus.SubscribeCaseRoomSync(filtered);
-    }
+        => bus.SubscribeCaseRoomSync(requestId, handler);
 }

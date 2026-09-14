@@ -6,6 +6,7 @@ using iPath.Blazor.Server.Components.Account;
 using iPath.Domain.Config;
 using iPath.RazorLib;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
@@ -34,13 +35,19 @@ if (builder.Environment.IsDevelopment())
 }
 if (!string.IsNullOrEmpty(builder.Configuration["CONFIG_PATH"]))
 {
-    var cfgFile = System.IO.Path.Combine(builder.Configuration["CONFIG_PATH"]!, "appsettings.json");
+    // Resolve to an absolute path: File.Exists below uses the process working directory as
+    // base, but AddJsonFile resolves relative paths against the build output directory instead
+    // — without this, a relative CONFIG_PATH silently fails to load once File.Exists passes.
+    var cfgFile = System.IO.Path.GetFullPath(System.IO.Path.Combine(builder.Configuration["CONFIG_PATH"]!, "appsettings.json"));
     Console.WriteLine("Loading Configuration from {0}", cfgFile);
     if (System.IO.File.Exists(cfgFile))
     {
         builder.Configuration.AddJsonFile(cfgFile);
     }
 }
+// Re-added after CONFIG_PATH so an explicit env var (e.g. a debug launch profile) always wins,
+// even when the external CONFIG_PATH file sets the same key.
+builder.Configuration.AddEnvironmentVariables();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -70,6 +77,10 @@ builder.Services.AddMudServices();
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
+        // The 32 KB default kills the circuit when a large payload comes back from JS —
+        // LForms getData() returns a full QuestionnaireResponse, which real pathology
+        // forms exceed, so saving failed mid-form on production cases but never on dev.
+        .AddHubOptions(o => o.MaximumReceiveMessageSize = 512 * 1024)
     .AddInteractiveWebAssemblyComponents()
     .AddAuthenticationStateSerialization();
 
@@ -119,6 +130,16 @@ await builder.Services.AddRazorLibServices(baseAddress, false);
 
 builder.Services.AddAntiforgery();
 
+// Persist the DataProtection key ring so auth cookies and antiforgery tokens
+// survive a restart, and decrypt across replicas. In-memory (the default) signs
+// every user out on every deploy.
+if (!string.IsNullOrEmpty(cfg.DataRoot))
+{
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(cfg.DataRoot, "keys")))
+        .SetApplicationName("ipath");
+}
+
 
 // reverse Proxy
 if (!string.IsNullOrEmpty(cfg.ReverseProxyAddresse) && IPAddress.TryParse(cfg.ReverseProxyAddresse, out var proxyIP))
@@ -149,6 +170,19 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+// Must run before anything that reads the scheme, host or client IP. It previously sat
+// after UseAuthentication and CaseRoomTokenAuthMiddleware, so behind a TLS-terminating
+// proxy Request.IsHttps was false and the guest token cookie was written without Secure.
+// XForwardedHost is needed for correct absolute URLs, most visibly external-login redirects.
+// Only honoured for proxies matching KnownProxies/KnownNetworks — set iPathConfig:ReverseProxyAddresse.
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor
+                     | ForwardedHeaders.XForwardedProto
+                     | ForwardedHeaders.XForwardedHost
+});
+
 app.UseHttpLogging();
 var opts = app.Services.GetRequiredService<IOptions<iPathConfig>>();
 
@@ -204,12 +238,6 @@ foreach (var culture in supportedCultures)
 app.UseMiddleware<CaseRoomTokenAuthMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Header forwarding for Reverse Proxy Integration
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
 
 // Health Checks, etc (Aspire)
 app.MapDefaultEndpoints();

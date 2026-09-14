@@ -6,26 +6,22 @@ namespace iPath.Test.xUnit2.CaseRoom;
 
 public class CaseRoomEventBusTests
 {
+    private static CaseRoomSyncEvent Evt(Guid requestId, string displayName) =>
+        new(requestId, Guid.NewGuid(), displayName,
+            new SyncPayload(null, new ViewportState(0.1, 0.2, 0.3)), DateTimeOffset.UtcNow);
+
     [Fact]
-    public void SubscribeCaseRoomSync_ReceivesPublishedEvents()
+    public void SubscribeCaseRoomSync_ReceivesOnlyItsOwnRoom()
     {
         var bus = new NotificationEventBus();
         var requestId = Guid.NewGuid();
-        var userId = Guid.NewGuid();
         var received = new List<CaseRoomSyncEvent>();
 
-        var sub = bus.SubscribeCaseRoomSync(evt =>
-        {
-            if (evt.RequestId == requestId) received.Add(evt);
-        });
+        // Deliberately unfiltered: the bus must not deliver other rooms' events at all.
+        var sub = bus.SubscribeCaseRoomSync(requestId, received.Add);
 
-        var evt1 = new CaseRoomSyncEvent(requestId, userId, "Alice",
-            new SyncPayload(null, new ViewportState(0.1, 0.2, 0.3)), DateTimeOffset.UtcNow);
-        var evt2 = new CaseRoomSyncEvent(Guid.NewGuid(), userId, "Bob",
-            new SyncPayload(null, new ViewportState(1, 1, 1)), DateTimeOffset.UtcNow);
-
-        bus.PublishCaseRoomSync(evt1);
-        bus.PublishCaseRoomSync(evt2);
+        bus.PublishCaseRoomSync(Evt(requestId, "Alice"));
+        bus.PublishCaseRoomSync(Evt(Guid.NewGuid(), "Bob"));
 
         received.Should().ContainSingle();
         received[0].DisplayName.Should().Be("Alice");
@@ -33,17 +29,34 @@ public class CaseRoomEventBusTests
     }
 
     [Fact]
+    public void Subscribers_OfDifferentRooms_DoNotSeeEachOther()
+    {
+        var bus = new NotificationEventBus();
+        var roomA = Guid.NewGuid();
+        var roomB = Guid.NewGuid();
+        var a = new List<CaseRoomSyncEvent>();
+        var b = new List<CaseRoomSyncEvent>();
+
+        using var subA = bus.SubscribeCaseRoomSync(roomA, a.Add);
+        using var subB = bus.SubscribeCaseRoomSync(roomB, b.Add);
+
+        bus.PublishCaseRoomSync(Evt(roomA, "Alice"));
+
+        a.Should().ContainSingle().Which.DisplayName.Should().Be("Alice");
+        b.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Unsubscribe_StopsReceivingEvents()
     {
         var bus = new NotificationEventBus();
+        var requestId = Guid.NewGuid();
         var received = new List<CaseRoomSyncEvent>();
 
-        var sub = bus.SubscribeCaseRoomSync(received.Add);
+        var sub = bus.SubscribeCaseRoomSync(requestId, received.Add);
         sub.Dispose();
 
-        bus.PublishCaseRoomSync(new CaseRoomSyncEvent(
-            Guid.NewGuid(), Guid.NewGuid(), "X",
-            new SyncPayload(null, null), DateTimeOffset.UtcNow));
+        bus.PublishCaseRoomSync(Evt(requestId, "X"));
 
         received.Should().BeEmpty();
     }

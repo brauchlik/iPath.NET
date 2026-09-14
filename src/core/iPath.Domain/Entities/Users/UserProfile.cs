@@ -36,6 +36,10 @@ public class UserProfile
     public ConceptFilter? SpecialisationBodySite {  get; set; }
 
 
+    [MaxLength(10)]
+    public string? DefaultLanguage { get; set; }
+
+
 
     // [JsonPropertyName("contact")]
     public ContactDetails ContactDetails { get; set; } = new();

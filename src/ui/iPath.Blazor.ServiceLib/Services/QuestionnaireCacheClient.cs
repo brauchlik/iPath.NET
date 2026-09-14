@@ -14,7 +14,7 @@ public class QuestionnaireCacheClient(IMemoryCache cache, IPathApi api, ILogger<
 
         var cachekey = $"qr_{Id}" + (Version.HasValue ? $"_{Version}" : "");
 
-        if (!cache.TryGetValue(cache, out QuestionnaireEntity? q))
+        if (!cache.TryGetValue(cachekey, out QuestionnaireEntity? q))
         {
             logger.LogInformation("loading questionnaire {0}", Id);
 

@@ -9,6 +9,12 @@ public class iPathConfig
     public bool DbSeedingActive { get; set; }
     public bool DbAutoMigrate { get; set; }
 
+    /// <summary>
+    /// When set, DbSeeder uses this instead of generating a random Admin password.
+    /// Only ever set by the e2e test config — leave unset everywhere else.
+    /// </summary>
+    public string? FixedAdminPassword { get; set; }
+
     public string DataRoot { get; set; } = string.Empty;
     public string TempDataPath { get; set; } = string.Empty;
     public string LocalDataPath { get; set; } = string.Empty;

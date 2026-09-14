@@ -89,7 +89,7 @@ public class UserViewModel(IPathApi api,
     {
         var res = await api.GetUser(id);
         if (res.IsSuccessful) return res.Content;
-        snackbar.AddWarning(res.ErrorMessage);
+        snackbar.AddWarning(res.ErrorText());
         return null;
     }
 
@@ -105,7 +105,7 @@ public class UserViewModel(IPathApi api,
         var resp = await api.UpdateProfile(new UpdateUserProfileCommand(userId, profile));
         if (!resp.IsSuccessful)
         {
-            snackbar.AddWarning(resp.ErrorMessage);
+            snackbar.AddWarning(resp.ErrorText());
         }
         else if (showSuccess) 
         { 

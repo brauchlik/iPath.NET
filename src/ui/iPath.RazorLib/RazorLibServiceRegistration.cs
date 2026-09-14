@@ -43,7 +43,10 @@ public static class RazorLibServiceRegistration
                 ContentSerializer = new SystemTextJsonContentSerializer(jsonOptions)
             };
 
-            services.AddRefitClient<IPathApi>(refitSetting)
+            // Refit 15+ requires the *Generated variant to use the compile-time source-generated
+            // implementation (IPathApi.g.cs) instead of building a runtime IL-emitted proxy, which
+            // WASM can no longer do - AddRefitClient alone throws on the very first resolve.
+            services.AddRefitGeneratedClient<IPathApi>(refitSetting)
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri(baseAddress));
         }
         else

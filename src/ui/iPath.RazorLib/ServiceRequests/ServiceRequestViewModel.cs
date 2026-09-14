@@ -178,7 +178,7 @@ public class ServiceRequestViewModel(IPathApi api,
         }
         else
         {
-            snackbar.AddWarning(respN.ErrorMessage);
+            snackbar.AddWarning(respN.ErrorText());
             nm.NavigateTo("/");
         }
         OnLoadingFinished?.Invoke();
@@ -443,7 +443,7 @@ public class ServiceRequestViewModel(IPathApi api,
             var resp = await api.UpdateDocumentsSortOrder(cmd);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddWarning(resp.ErrorMessage);
+                snackbar.AddWarning(resp.ErrorText());
             }
         }
     }
@@ -459,7 +459,7 @@ public class ServiceRequestViewModel(IPathApi api,
         var grpResp = await api.GetGroup(GroupId);
         if (!grpResp.IsSuccessful)
         {
-            snackbar.AddError(grpResp.ErrorMessage);
+            snackbar.AddError(grpResp.ErrorText());
             return;
         }
         ActiveGroup = grpResp.Content;
@@ -477,7 +477,7 @@ public class ServiceRequestViewModel(IPathApi api,
         }
         else
         {
-            snackbar.AddError(resp.ErrorMessage);
+            snackbar.AddError(resp.ErrorText());
         }
     }
 
@@ -485,7 +485,7 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public async Task CreateNew()
     {
-        snackbar.AddWarning("not implemented");
+        snackbar.AddWarning(T["not implemented"]);
     }
 
 
@@ -515,7 +515,7 @@ public class ServiceRequestViewModel(IPathApi api,
                 }
                 else
                 {
-                    snackbar.AddError(resp.ErrorMessage);
+                    snackbar.AddError(resp.ErrorText());
                 }
             }
         }
@@ -569,7 +569,7 @@ public class ServiceRequestViewModel(IPathApi api,
                 }
                 else
                 {
-                    errors.Add(resp.ErrorMessage);
+                    errors.Add(resp.ErrorText());
                 }
             }
         }
@@ -622,7 +622,7 @@ public class ServiceRequestViewModel(IPathApi api,
             var resp = await api.UpdateRequest(cmd);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
                 return;
             }
             NotifyStateChanged();
@@ -649,7 +649,7 @@ public class ServiceRequestViewModel(IPathApi api,
             var resp = await api.UpdateRequest(cmd);
             if (!resp.IsSuccessful)
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
             }
             NotifyStateChanged();
         }
@@ -686,7 +686,7 @@ public class ServiceRequestViewModel(IPathApi api,
                 }
                 else
                 {
-                    snackbar.AddError(resp.ErrorMessage);
+                    snackbar.AddError(resp.ErrorText());
                 }
             }
             else
@@ -708,11 +708,11 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             if (SelectedRequest is null)
             {
-                snackbar.AddWarning("no service request selected");
+                snackbar.AddWarning(T["no service request selected"]);
             }
             else if (f.Size > opts.Value.MaxFileSizeBytes)
             {
-                snackbar.Add("File is larger then " + opts.Value.MaxFileSize);
+                snackbar.Add(T["File is larger than {0}", opts.Value.MaxFileSize]);
             }
             else
             {
@@ -941,7 +941,7 @@ public class ServiceRequestViewModel(IPathApi api,
     {
         if (!IsModerator && !IsSeesionUser(item.OwnerId))
         {
-            snackbar.AddWarning("not allowed");
+            snackbar.AddWarning(T["not allowed"]);
         }
         else
         {
@@ -1074,7 +1074,7 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             if (!respU.Content.UploadFolderId.HasValue)
             {
-                snackbar.AddWarning("No upload folder has been created for your account yet");
+                snackbar.AddWarning(T["No upload folder has been created for your account yet"]);
             }
             else
             {

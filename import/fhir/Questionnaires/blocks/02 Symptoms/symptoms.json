@@ -1,0 +1,560 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "symptoms",
+  "status": "draft",
+  "title": "Master Symptoms List",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "pain",
+      "type": "boolean",
+      "text": "Pain",
+      "code": [ { "system": "http://snomed.info/sct", "code": "22253000", "display": "Pain" } ],
+      "item": [
+        {
+          "linkId": "pain.duration",
+          "type": "quantity",
+          "text": "Duration",
+          "code": [ { "system": "http://snomed.info/sct", "code": "162442009", "display": "Time symptom lasts" } ],
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "a", "display": "years" } }
+          ],
+          "enableWhen": [ { "question": "pain", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "nightpain",
+      "type": "boolean",
+      "text": "Night pain (esp. C40)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "36163009", "display": "Night pain" } ]
+    },
+    {
+      "linkId": "swelling",
+      "type": "boolean",
+      "text": "Swelling",
+      "code": [ { "system": "http://snomed.info/sct", "code": "65124004", "display": "Swelling" } ],
+      "item": [
+        {
+          "linkId": "swelling.duration",
+          "type": "quantity",
+          "text": "Duration",
+          "code": [ { "system": "http://snomed.info/sct", "code": "162442009", "display": "Time symptom lasts" } ],
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "a", "display": "years" } }
+          ],
+          "enableWhen": [ { "question": "swelling", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "nightsweat",
+      "type": "boolean",
+      "text": "Night sweat (esp. C77)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "42984000", "display": "Night sweats" } ]
+    },
+    {
+      "linkId": "weightloss",
+      "type": "boolean",
+      "text": "Weight loss",
+      "code": [ { "system": "http://snomed.info/sct", "code": "89362005", "display": "Weight loss" } ],
+      "item": [
+        {
+          "linkId": "weightloss.kg",
+          "type": "quantity",
+          "text": "Amount lost (kg)",
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "kg", "display": "kg" } }
+          ],
+          "enableWhen": [ { "question": "weightloss", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "fever",
+      "type": "boolean",
+      "text": "Fever",
+      "code": [ { "system": "http://snomed.info/sct", "code": "386661006", "display": "Fever" } ]
+    },
+    {
+      "linkId": "pallor",
+      "type": "boolean",
+      "text": "Pallor (esp. C42)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "274643008", "display": "Body pale" } ]
+    },
+    {
+      "linkId": "bleedingtendency",
+      "type": "boolean",
+      "text": "Bleeding tendency (esp. C42)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "78596001", "display": "Bleeding diathesis" } ]
+    },
+    {
+      "linkId": "susceptibility",
+      "type": "boolean",
+      "text": "Susceptibility to infection (esp. C42)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "102463001", "display": "Susceptibility to infections" } ]
+    },
+    {
+      "linkId": "jaundice",
+      "type": "boolean",
+      "text": "Jaundice",
+      "code": [ { "system": "http://snomed.info/sct", "code": "18165001", "display": "Jaundice" } ]
+    },
+    {
+      "linkId": "cough",
+      "type": "boolean",
+      "text": "Cough (esp. C34)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "49727002", "display": "Cough" } ],
+      "item": [
+        {
+          "linkId": "cough.duration",
+          "type": "quantity",
+          "text": "Duration",
+          "code": [ { "system": "http://snomed.info/sct", "code": "162442009", "display": "Time symptom lasts" } ],
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "a", "display": "years" } }
+          ],
+          "enableWhen": [ { "question": "cough", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "chroniccough",
+      "type": "boolean",
+      "text": "Chronic cough (>3 months) [esp. C30-C39]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "68154008", "display": "Chronic cough" } ]
+    },
+    {
+      "linkId": "breathlessness",
+      "type": "boolean",
+      "text": "Breathlessness / Shortness of breath",
+      "code": [ { "system": "http://snomed.info/sct", "code": "267036007", "display": "Dyspnea" } ]
+    },
+    {
+      "linkId": "hemoptysis",
+      "type": "boolean",
+      "text": "Coughing up blood / Hemoptysis [esp. C30-C39]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "66857006", "display": "Hemoptysis" } ]
+    },
+    {
+      "linkId": "chestpain.chronic",
+      "type": "boolean",
+      "text": "Chronic chest pain [esp. C30-C39]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "82886004", "display": "Chronic chest pain" } ]
+    },
+    {
+      "linkId": "smoker",
+      "type": "boolean",
+      "text": "Smoker [esp. C30-C39]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "77176002", "display": "Smoker" } ],
+      "item": [
+        {
+          "linkId": "smoker.years",
+          "type": "quantity",
+          "text": "How long (years)",
+          "code": [ { "system": "http://snomed.info/sct", "code": "160617001", "display": "Number of years smoked" } ],
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "a", "display": "years" } }
+          ],
+          "enableWhen": [ { "question": "smoker", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "expectoration",
+      "type": "boolean",
+      "text": "Expectoration / Sputum [esp. C30-C39]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "284523002", "display": "Sputum production" } ]
+    },
+    {
+      "linkId": "dysphagia",
+      "type": "boolean",
+      "text": "Dysphagia (esp. C15-C26)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "40739000", "display": "Dysphagia" } ]
+    },
+    {
+      "linkId": "heartburn",
+      "type": "boolean",
+      "text": "Heartburn (esp. C15-C26)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "16331000", "display": "Heartburn" } ]
+    },
+    {
+      "linkId": "painfulswallowing",
+      "type": "boolean",
+      "text": "Painful swallowing / Odynophagia (esp. C15-C26)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "30233002", "display": "Swallowing painful" } ]
+    },
+    {
+      "linkId": "regurgitation",
+      "type": "boolean",
+      "text": "Regurgitation (esp. C15-C26)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "78104003", "display": "Regurgitation of gastric content" } ]
+    },
+    {
+      "linkId": "dyspepsia",
+      "type": "boolean",
+      "text": "Dyspepsia (esp. C15-C26)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "162031009", "display": "Indigestion" } ]
+    },
+    {
+      "linkId": "pain.abdominal",
+      "type": "boolean",
+      "text": "Abdominal pain (esp. C15-C26)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "21522001", "display": "Abdominal pain" } ],
+      "item": [
+        {
+          "linkId": "pain.abdominal.location",
+          "type": "choice",
+          "text": "Location",
+          "answerOption": [
+            { "valueString": "Upper abdomen (left)" },
+            { "valueString": "Upper abdomen (right)" },
+            { "valueString": "Middle abdomen (left)" },
+            { "valueString": "Middle abdomen (right)" },
+            { "valueString": "Lower abdomen (left)" },
+            { "valueString": "Lower abdomen (right)" }
+          ],
+          "enableWhen": [ { "question": "pain.abdominal", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "pain.abdominal.duration",
+          "type": "quantity",
+          "text": "Duration",
+          "code": [ { "system": "http://snomed.info/sct", "code": "162442009", "display": "Time symptom lasts" } ],
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "a", "display": "years" } }
+          ],
+          "enableWhen": [ { "question": "pain.abdominal", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "flatulence",
+      "type": "boolean",
+      "text": "Flatulence (esp. C15-C26)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "249504006", "display": "Passing flatus" } ]
+    },
+    {
+      "linkId": "vomiting",
+      "type": "boolean",
+      "text": "Vomiting (esp. C15-C26)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "422400008", "display": "Vomiting" } ],
+      "item": [
+        {
+          "linkId": "vomiting.blood",
+          "type": "boolean",
+          "text": "Vomiting blood / Hematemesis",
+          "code": [ { "system": "http://snomed.info/sct", "code": "8765009", "display": "Hematemesis" } ],
+          "enableWhen": [ { "question": "vomiting", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "constipation",
+      "type": "boolean",
+      "text": "Constipation",
+      "code": [ { "system": "http://snomed.info/sct", "code": "14760008", "display": "Constipation" } ]
+    },
+    {
+      "linkId": "diarrhoea",
+      "type": "boolean",
+      "text": "Diarrhoea",
+      "code": [ { "system": "http://snomed.info/sct", "code": "62315008", "display": "Diarrhea" } ]
+    },
+    {
+      "linkId": "stoolchanges",
+      "type": "boolean",
+      "text": "Stool changes (esp. C15-C26)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "88111009", "display": "Altered bowel function" } ]
+    },
+    {
+      "linkId": "melaena",
+      "type": "boolean",
+      "text": "Melaena",
+      "code": [ { "system": "http://snomed.info/sct", "code": "2901004", "display": "Melena" } ]
+    },
+    {
+      "linkId": "bloodystool",
+      "type": "boolean",
+      "text": "Bloody stool / Hematochezia (esp. C15-C26)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "405729008", "display": "Hematochezia" } ]
+    },
+    {
+      "linkId": "breast.lump",
+      "type": "boolean",
+      "text": "Breast lump [esp. C50]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "274647000", "display": "Breast lump" } ],
+      "item": [
+        {
+          "linkId": "breast.lump.duration",
+          "type": "quantity",
+          "text": "Present since",
+          "code": [ { "system": "http://snomed.info/sct", "code": "162442009", "display": "Time symptom lasts" } ],
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } }
+          ],
+          "enableWhen": [ { "question": "breast.lump", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "breast.lump.growingduration",
+          "type": "quantity",
+          "text": "Increasing in size since",
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } }
+          ],
+          "enableWhen": [ { "question": "breast.lump", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "breast.lump.consistency",
+          "type": "choice",
+          "text": "Consistency",
+          "answerOption": [
+            { "valueCoding": { "system": "http://snomed.info/sct", "code": "255395000", "display": "Hard" } },
+            { "valueCoding": { "system": "http://snomed.info/sct", "code": "255397008", "display": "Smooth" } },
+            { "valueString": "Unknown" }
+          ],
+          "enableWhen": [ { "question": "breast.lump", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "breast.lump.border",
+          "type": "choice",
+          "text": "Border",
+          "answerOption": [
+            { "valueCoding": { "system": "http://snomed.info/sct", "code": "255535002", "display": "Irregular" } },
+            { "valueCoding": { "system": "http://snomed.info/sct", "code": "255534003", "display": "Regular" } },
+            { "valueString": "Unknown" }
+          ],
+          "enableWhen": [ { "question": "breast.lump", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "nippledischarge",
+      "type": "boolean",
+      "text": "Nipple discharge (esp. C50)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "54302000", "display": "Discharge from nipple" } ]
+    },
+    {
+      "linkId": "breast.retraction",
+      "type": "boolean",
+      "text": "Nipple retracted [esp. C50]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "69085004", "display": "Nipple retraction" } ]
+    },
+    {
+      "linkId": "breast.skindiscoloration",
+      "type": "boolean",
+      "text": "Breast-skin discolored [esp. C50]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "402773007", "display": "Discoloration of skin of breast" } ]
+    },
+    {
+      "linkId": "pregnancy",
+      "type": "boolean",
+      "text": "Pregnancy [esp. C51-C58]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "77386006", "display": "Pregnant" } ],
+      "item": [
+        {
+          "linkId": "pregnancy.week",
+          "type": "integer",
+          "text": "Gestational week (1-42)",
+          "code": [ { "system": "http://snomed.info/sct", "code": "1156895004", "display": "Gestational age" } ],
+          "enableWhen": [ { "question": "pregnancy", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "pregnancy.previous",
+      "type": "boolean",
+      "text": "Previous pregnancies [esp. C51-C58]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "161732006", "display": "Gravida" } ],
+      "item": [
+        {
+          "linkId": "pregnancy.previous.lastdelivery",
+          "type": "date",
+          "text": "Date of last delivery",
+          "code": [ { "system": "http://snomed.info/sct", "code": "161714006", "display": "Date of last delivery" } ],
+          "enableWhen": [ { "question": "pregnancy.previous", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "menopause",
+      "type": "boolean",
+      "text": "Menopause [esp. C51-C58]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "426979002", "display": "Menopause" } ],
+      "item": [
+        {
+          "linkId": "menopause.postbleeding",
+          "type": "boolean",
+          "text": "Postmenopausal bleeding",
+          "code": [ { "system": "http://snomed.info/sct", "code": "289530006", "display": "Postmenopausal bleeding" } ],
+          "enableWhen": [ { "question": "menopause", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "menopause.regularcycle",
+          "type": "boolean",
+          "text": "Regular menstrual cycle",
+          "code": [ { "system": "http://snomed.info/sct", "code": "289947009", "display": "Regular menstrual cycle" } ],
+          "enableWhen": [ { "question": "menopause", "operator": "=", "answerBoolean": false } ],
+          "item": [
+            {
+              "linkId": "menopause.irregularities",
+              "type": "choice",
+              "repeats": true,
+              "text": "Menstrual irregularities",
+              "answerOption": [
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "386692008", "display": "Heavy menstrual bleeding / Menorrhagia" } },
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "289535001", "display": "Abnormal bleeding / Spotting" } },
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "89217008", "display": "Missed periods / Amenorrhea" } },
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "266599000", "display": "Painful periods / Dysmenorrhea" } }
+              ],
+              "enableWhen": [ { "question": "menopause.regularcycle", "operator": "=", "answerBoolean": false } ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "pain.lowerabdominal",
+      "type": "boolean",
+      "text": "Lower abdominal pain [esp. C51-C58]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "3006004", "display": "Lower abdominal pain" } ],
+      "item": [
+        {
+          "linkId": "pain.lowerabdominal.duration",
+          "type": "quantity",
+          "text": "Duration",
+          "code": [ { "system": "http://snomed.info/sct", "code": "162442009", "display": "Time symptom lasts" } ],
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } }
+          ],
+          "enableWhen": [ { "question": "pain.lowerabdominal", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "pain.lowerabdominal.side",
+          "type": "choice",
+          "text": "Side",
+          "answerOption": [
+            { "valueCoding": { "system": "http://snomed.info/sct", "code": "24028007", "display": "Right" } },
+            { "valueCoding": { "system": "http://snomed.info/sct", "code": "260528009", "display": "Middle" } },
+            { "valueCoding": { "system": "http://snomed.info/sct", "code": "7771000", "display": "Left" } }
+          ],
+          "enableWhen": [ { "question": "pain.lowerabdominal", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "swelling.lowerabdominal",
+      "type": "boolean",
+      "text": "Lower abdominal persistent swelling [esp. C51-C58]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "285376008", "display": "Lower abdominal swelling" } ],
+      "item": [
+        {
+          "linkId": "swelling.lowerabdominal.duration",
+          "type": "quantity",
+          "text": "Duration",
+          "code": [ { "system": "http://snomed.info/sct", "code": "162442009", "display": "Time symptom lasts" } ],
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } }
+          ],
+          "enableWhen": [ { "question": "swelling.lowerabdominal", "operator": "=", "answerBoolean": true } ]
+        },
+        {
+          "linkId": "swelling.lowerabdominal.side",
+          "type": "choice",
+          "text": "Side",
+          "answerOption": [
+            { "valueCoding": { "system": "http://snomed.info/sct", "code": "24028007", "display": "Right" } },
+            { "valueCoding": { "system": "http://snomed.info/sct", "code": "260528009", "display": "Middle" } },
+            { "valueCoding": { "system": "http://snomed.info/sct", "code": "7771000", "display": "Left" } }
+          ],
+          "enableWhen": [ { "question": "swelling.lowerabdominal", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "vaginalbleeding",
+      "type": "boolean",
+      "text": "Vaginal / Uterine bleeding [esp. C51-C58]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "249021008", "display": "Vaginal bleeding" } ],
+      "item": [
+        {
+          "linkId": "vaginalbleeding.duration",
+          "type": "quantity",
+          "text": "Duration",
+          "code": [ { "system": "http://snomed.info/sct", "code": "162442009", "display": "Time symptom lasts" } ],
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } }
+          ],
+          "enableWhen": [ { "question": "vaginalbleeding", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "vaginaldischarge",
+      "type": "boolean",
+      "text": "Vaginal / Uterine discharge [esp. C51-C58]",
+      "code": [ { "system": "http://snomed.info/sct", "code": "271939006", "display": "Vaginal discharge" } ],
+      "item": [
+        {
+          "linkId": "vaginaldischarge.duration",
+          "type": "quantity",
+          "text": "Duration",
+          "code": [ { "system": "http://snomed.info/sct", "code": "162442009", "display": "Time symptom lasts" } ],
+          "extension": [
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "d", "display": "days" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "wk", "display": "weeks" } },
+            { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption", "valueCoding": { "system": "http://unitsofmeasure.org", "code": "mo", "display": "months" } }
+          ],
+          "enableWhen": [ { "question": "vaginaldischarge", "operator": "=", "answerBoolean": true } ]
+        }
+      ]
+    },
+    {
+      "linkId": "dysuria",
+      "type": "boolean",
+      "text": "Dysuria (esp. C67, C68)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "49650001", "display": "Dysuria" } ]
+    },
+    {
+      "linkId": "haematuria",
+      "type": "boolean",
+      "text": "Haematuria (esp. C64-C68)",
+      "code": [ { "system": "http://snomed.info/sct", "code": "34436003", "display": "Blood in urine" } ]
+    },
+    {
+      "linkId": "easybruising",
+      "type": "boolean",
+      "text": "Easy bruising",
+      "code": [ { "system": "http://snomed.info/sct", "code": "424131007", "display": "Easy bruising" } ]
+    },
+    {
+      "linkId": "symptoms.other",
+      "type": "string",
+      "text": "Other symptoms (please specify)"
+    }
+  ]
+}

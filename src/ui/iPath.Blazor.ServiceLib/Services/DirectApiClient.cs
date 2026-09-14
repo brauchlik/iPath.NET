@@ -674,6 +674,22 @@ public class DirectApiClient(
         return RespondOk();
     }
 
+    public async Task<IApiResponse<Guid>> DeleteQuestionnaire(Guid id)
+    {
+        // Unlike the HTTP/Refit path (translated by ExceptionHandlerMiddleware), a direct in-process
+        // mediator.Send lets the handler's exception propagate straight into the Blazor circuit - catch it
+        // here so a predictable failure (e.g. still assigned to a group) becomes a normal error response
+        // instead of crashing the page.
+        try
+        {
+            return Respond(await mediator.Send(new DeleteQuestionnaireCommand(id), default));
+        }
+        catch (Exception ex)
+        {
+            return RespondError<Guid>(ex);
+        }
+    }
+
 
     // -- CMS --
 

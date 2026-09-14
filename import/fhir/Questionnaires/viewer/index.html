@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPath.NET — FHIR Questionnaire Review Studio</title>
+  
+  <!-- Material Icons for LHC-Forms widgets -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <!-- Local LHC Forms Stylesheet -->
+  <link href="lforms/styles.css" rel="stylesheet">
+  
+  <!-- Studio Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <span class="brand-logo">🔬</span>
+        <div>
+          <h1>iPath.NET Questionnaire Review</h1>
+          <p class="subtitle">Interactive FHIR R4 Review Studio & Discussion Workspace</p>
+        </div>
+      </div>
+      
+      <div class="header-controls">
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="Search forms, symptoms, codes..." aria-label="Search">
+        </div>
+        <label class="toggle-control" title="Show older superseded/deprecated prototypes">
+          <input type="checkbox" id="toggle-deprecated">
+          <span>Show Deprecated</span>
+        </label>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="app-body">
+      <!-- Sidebar Navigation -->
+      <aside class="app-sidebar">
+        <div class="sidebar-header">
+          <span class="sidebar-title">Questionnaires & Blocks</span>
+          <span class="badge count-badge" id="item-count">0</span>
+        </div>
+        <nav class="sidebar-nav" id="sidebar-list">
+          <!-- Populated dynamically via viewer.js -->
+        </nav>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="app-main">
+        <!-- Item Overview Card -->
+        <section class="item-header-card" id="item-header-card">
+          <div class="item-meta-top">
+            <div class="item-title-group">
+              <h2 id="item-title">Select a Questionnaire</h2>
+              <code class="item-id-pill" id="item-id">—</code>
+            </div>
+            <div class="item-badges" id="item-badges">
+              <!-- Topography / Status Badges -->
+            </div>
+          </div>
+          <p class="item-summary" id="item-summary"></p>
+          
+          <!-- Open Questions / Inconsistencies Alert Box -->
+          <div class="open-questions-alert" id="open-questions-box" style="display: none;">
+            <div class="alert-header">
+              <span class="alert-icon">💡</span>
+              <strong>Discussion Points for Pathologist Review:</strong>
+            </div>
+            <ul id="open-questions-list"></ul>
+          </div>
+        </section>
+
+        <!-- View Tabs -->
+        <div class="tabs-bar">
+          <button class="tab-btn active" data-tab="tab-form">
+            <span class="tab-icon">🖥️</span> Interactive Form
+          </button>
+          <button class="tab-btn" data-tab="tab-notes">
+            <span class="tab-icon">📝</span> Working Notes
+          </button>
+          <button class="tab-btn" data-tab="tab-original">
+            <span class="tab-icon">📄</span> Pathologist Original
+          </button>
+          <button class="tab-btn" data-tab="tab-fhir">
+            <span class="tab-icon">🔧</span> FHIR R4 JSON
+          </button>
+        </div>
+
+        <!-- Tab Content Panes -->
+        <div class="tab-panes">
+          <!-- Pane 1: Live LHC Form -->
+          <div class="tab-pane active" id="tab-form">
+            <div class="pane-toolbar">
+              <div class="toolbar-info">
+                <span>Rendered live via local <strong>NLM LHC-Forms</strong> engine (FHIR R4)</span>
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary btn-sm" id="btn-get-response">📥 View Response JSON</button>
+                <button class="btn btn-secondary btn-sm" id="btn-reset-form">↺ Reset Answers</button>
+              </div>
+            </div>
+            <div id="form-container" class="lhc-form-wrapper">
+              <div class="placeholder-msg">Loading questionnaire preview...</div>
+            </div>
+          </div>
+
+          <!-- Pane 2: Working Notes -->
+          <div class="tab-pane" id="tab-notes">
+            <div class="pane-toolbar">
+              <div class="toolbar-info">
+                <span id="notes-file-path"></span>
+              </div>
+            </div>
+            <div id="notes-content" class="markdown-body"></div>
+          </div>
+
+          <!-- Pane 3: Pathologist Original -->
+          <div class="tab-pane" id="tab-original">
+            <div class="pane-toolbar">
+              <div class="toolbar-info">
+                <span id="original-file-path"></span>
+              </div>
+            </div>
+            <div id="original-content" class="markdown-body"></div>
+          </div>
+
+          <!-- Pane 4: Raw FHIR JSON -->
+          <div class="tab-pane" id="tab-fhir">
+            <div class="pane-toolbar">
+              <div class="toolbar-info">
+                <span id="fhir-file-path"></span>
+              </div>
+              <button class="btn btn-secondary btn-sm" id="btn-copy-fhir">📋 Copy JSON</button>
+            </div>
+            <pre class="code-block"><code id="fhir-json-code"></code></pre>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal for QuestionnaireResponse preview -->
+  <dialog id="response-dialog" style="padding: 1.5rem; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-width: 750px; width: 90%; max-height: 80vh;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3 style="font-size: 1.1rem; color: #0f172a;">Extracted QuestionnaireResponse (FHIR R4)</h3>
+      <button id="btn-close-dialog" style="border: none; background: transparent; font-size: 1.25rem; cursor: pointer;">✕</button>
+    </div>
+    <pre style="background: #0f172a; color: #38bdf8; padding: 1rem; border-radius: 6px; overflow: auto; max-height: 55vh; font-family: monospace; font-size: 0.85rem;"><code id="response-json-code"></code></pre>
+    <div style="margin-top: 1rem; text-align: right;">
+      <button class="btn btn-primary btn-sm" id="btn-copy-response" style="background: #1976d2; color: white;">Copy Response</button>
+    </div>
+  </dialog>
+
+  <!-- Local LHC-Forms Production Engine (Loaded in <body> so document.body is defined) -->
+  <script src="lforms/assets/lib/zone.min.js"></script>
+  <script src="lforms/runtime.js"></script>
+  <script src="lforms/polyfills.js"></script>
+  <script src="lforms/main.js"></script>
+  <script src="lforms/fhir/lformsFHIRAll.min.js"></script>
+  
+  <!-- Local Markdown Parser -->
+  <script src="lforms/marked.min.js"></script>
+
+  <!-- Pre-bundled Data -->
+  <script src="data.js"></script>
+  <!-- Viewer Script -->
+  <script src="viewer.js"></script>
+</body>
+</html>

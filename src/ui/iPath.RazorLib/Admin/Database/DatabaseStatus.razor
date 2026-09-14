@@ -3,6 +3,8 @@
 @using iPath.Application.Features.Admin
 @using iPath.Blazor.ServiceLib.ApiClient
 
+@inject IStringLocalizer T
+
 <IPathHeader Title="Database Status" />
 
 <MudTabs @bind-ActivePanelIndex="ActiveTab" Elevation="0" Class="mt-2">
@@ -172,18 +174,18 @@
             var r = await api.ApplyDatabaseMigrations();
             if (r.IsSuccessful)
             {
-                snackbar.Add($"Applied {pending} migration(s) successfully.", Severity.Success);
+                snackbar.Add(T["Applied {0} migration(s) successfully.", pending], Severity.Success);
                 await LoadMigrationData();
                 StateHasChanged();
             }
             else
             {
-                snackbar.AddError("Error applying migrations: API returned unsuccessful status.");
+                snackbar.AddError(T["Error applying migrations: API returned unsuccessful status."]);
             }
         }
         catch (Exception ex)
         {
-            snackbar.AddError($"Error applying migrations: {ex.Message}");
+            snackbar.AddError(T["Error applying migrations: {0}", ex.Message]);
         }
     }
 

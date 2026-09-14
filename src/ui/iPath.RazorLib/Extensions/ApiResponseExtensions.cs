@@ -7,7 +7,7 @@ public static class ApiResponseExtensions
     extension(IApiResponse resp)
     {   
         public string ErrorMessage =>
-         !string.IsNullOrEmpty(resp.Error?.Content) ? resp.Error.Content :
+         resp.HasResponseError(out var apiEx) && !string.IsNullOrEmpty(apiEx.Content) ? apiEx.Content :
          resp.Error?.InnerException?.Message ??
          resp.Error?.Message ??
          resp.ReasonPhrase ??

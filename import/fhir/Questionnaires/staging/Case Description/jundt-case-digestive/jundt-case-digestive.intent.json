@@ -1,0 +1,54 @@
+{
+  "id": "jundt-case-digestive",
+  "title": "Case Description — Digestive Organs",
+  "version": "1.0",
+  "icdOScope": ["C15-C26"],
+  "source": "Meeting plan 2026-09-02 + symptoms.digestive block",
+  "status": "staged",
+  "note": "No Jundt form suggestion .txt exists yet. Draft based on meeting plan and existing blocks. Awaiting Jundt's version.",
+  "sections": [
+    {
+      "linkId": "mat",
+      "title": "Material",
+      "block": "material",
+      "compositionNote": "Standard material block. No changes from block."
+    },
+    {
+      "linkId": "sym",
+      "title": "Digestive symptoms",
+      "block": "symptoms.digestive",
+      "compositionNote": "All 17 digestive-specific symptoms. 3-state (unknown/no/yes) per Jundt's hematology form convention. Includes weightloss with kg, vomiting with hematemesis, abdominal pain with 6-quadrant grid + duration."
+    },
+    {
+      "linkId": "sym.other",
+      "title": "Other systems",
+      "block": "symptoms",
+      "compositionNote": "D3/D7 gating: 'Other symptoms present?' reveals non-digestive symptoms. Includes respiratory (cough, chronic cough, breathlessness, hemoptysis, chest pain, smoker, expectoration), general (pain, swelling, night sweat, pallor, bleeding tendency, susceptibility), breast/gyn (nipple discharge, breast lump, retraction, pregnancy, vaginal bleeding/discharge), urology (dysuria, haematuria)."
+    },
+    {
+      "linkId": "img",
+      "title": "Imaging",
+      "block": "imaging",
+      "compositionNote": "General imaging only (X-ray, US, CT, MRI, PET/CT). No jaw or breast specials — not relevant for digestive. Upload attachments on Yes."
+    }
+  ],
+  "blocksUsed": ["material", "symptoms.digestive", "symptoms", "imaging"],
+  "newInlineSections": [],
+  "designDecisions": [
+    {
+      "id": "3-state-symptoms",
+      "decision": "3-state symptoms (unknown/no/yes)",
+      "reason": "Consistent with hematology form convention per Jundt's request."
+    },
+    {
+      "id": "no-duplication",
+      "decision": "Dedup: digestive block already contains weightloss, fever, jaundice, easybruising",
+      "reason": "These items appear in both symptoms.digestive and symptoms master. Digestive variant wins (richer — includes weightloss.kg)."
+    }
+  ],
+  "openQuestions": [
+    "Awaiting Jundt's own form suggestion for digestive organs",
+    "Should clinical info (type of disease, steroid treatment) also be in this form?",
+    "Imaging scope: general only or should special (mammography) be excluded explicitly?"
+  ]
+}

@@ -61,3 +61,12 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+###############################################################################
+# Vendored third-party bundles
+#
+# Store verbatim: these are upstream artifacts we replace wholesale on upgrade,
+# never edit. Normalising line endings in a 1.8 MB minified bundle only creates
+# diff churn and risks altering bytes we do not control.
+###############################################################################
+src/ui/iPath.LHCForms/wwwroot/lforms/** -text

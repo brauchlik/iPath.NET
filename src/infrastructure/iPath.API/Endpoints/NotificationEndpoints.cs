@@ -9,6 +9,9 @@ namespace iPath.API;
 
 public static class NotificationEndpoints
 {
+    private static readonly TimeSpan MaxReplayWindow = TimeSpan.FromHours(24);
+    private const int MaxReplayEvents = 200;
+
     public static IEndpointRouteBuilder MapNotificationApi(this IEndpointRouteBuilder route)
     {
         route.MapGet("events/stream", async (
@@ -21,6 +24,30 @@ public static class NotificationEndpoints
             if (sess.User is null || (!sess.User.IsAuthenticated && !ctx.User.IsInRole("CaseRoomGuest")))
                 return Results.Unauthorized();
 
+            // Members are addressed by user id. Guests all share the synthetic principal
+            // Guid.Empty, so addressing them that way put every guest in the system into one
+            // fan-out bucket and leaked each CaseRoom's sync events to guests in other rooms.
+            // They are addressed by (room, browser session) instead; a guest that cannot supply
+            // both is refused rather than silently falling back to the shared bucket.
+            string channel;
+            if (sess.User.IsAuthenticated)
+            {
+                channel = SseChannel.User(sess.User.Id);
+            }
+            else
+            {
+                if (!Guid.TryParse(ctx.Request.Query["requestId"].FirstOrDefault(), out var guestRequestId)
+                    || !Guid.TryParse(ctx.Request.Query["sessionId"].FirstOrDefault(), out var guestSessionId))
+                    return Results.BadRequest("requestId and sessionId are required for guest connections");
+
+                // The guest principal is only issued for the room named in the token, but the
+                // query string is client-supplied — bind the channel to the authorised room.
+                if (!ctx.User.HasClaim("AuthorizedRequestId", guestRequestId.ToString()))
+                    return Results.Unauthorized();
+
+                channel = SseChannel.Guest(guestRequestId, guestSessionId);
+            }
+
             ctx.Response.Headers.ContentType = "text/event-stream";
             ctx.Response.Headers.CacheControl = "no-cache";
             ctx.Response.Headers.Connection = "keep-alive";
@@ -28,34 +55,63 @@ public static class NotificationEndpoints
             var lastEventId = ctx.Request.Query["lastEventId"].FirstOrDefault()
                            ?? ctx.Request.Headers["Last-Event-ID"].FirstOrDefault();
 
+            // Replay events missed while disconnected. Guests get none: they share a
+            // synthetic principal, so "the user's groups" is meaningless for them.
             if (!string.IsNullOrEmpty(lastEventId)
+                && sess.User.IsAuthenticated
                 && DateTime.TryParse(lastEventId, null, DateTimeStyles.RoundtripKind, out var since))
             {
-                var missed = await db.Set<EventEntity>()
+                // Bound the replay: a client reconnecting after a long absence must not
+                // pull an unbounded slice of the event table into memory.
+                if (since < DateTime.UtcNow - MaxReplayWindow)
+                    since = DateTime.UtcNow - MaxReplayWindow;
+
+                var myGroupIds = await db.Set<GroupMember>()
                     .AsNoTracking()
-                    .Where(e => e.EventDate > since)
-                    .OrderBy(e => e.EventDate)
+                    .Where(m => m.UserId == sess.User.Id && m.Role != eMemberRole.Banned)
+                    .Select(m => m.GroupId)
+                    .Distinct()
                     .ToListAsync(ct);
 
-                foreach (var evt in missed)
+                // Projected, not Include()d: ServiceRequest is a plain navigation property and
+                // lazy loading is off, so dereferencing it on a tracked-free entity throws.
+                var missedRequests = await db.Set<ServiceRequestEvent>()
+                    .AsNoTracking()
+                    .Where(e => e.EventDate > since && myGroupIds.Contains(e.ServiceRequest.GroupId))
+                    .OrderBy(e => e.EventDate)
+                    .Take(MaxReplayEvents)
+                    .Select(e => new
+                    {
+                        e.EventName,
+                        e.EventId,
+                        RequestId = e.ServiceRequest.Id,
+                        GroupId = e.ServiceRequest.GroupId,
+                        e.EventDate
+                    })
+                    .ToListAsync(ct);
+
+                foreach (var e in missedRequests)
                 {
-                    var id = evt.EventDate.ToString("o");
-                    if (evt is ServiceRequestEvent srEvt)
-                    {
-                        var summary = new DomainEventSummary(
-                            evt.EventName, evt.EventId, srEvt.ServiceRequest.Id,
-                            srEvt.ServiceRequest.GroupId, evt.EventDate);
-                        await mgr.SendToUserAsync(sess.User.Id, "domain-event", summary, id);
-                    }
-                    else
-                    {
-                        var hint = new SystemEventHint(evt.EventName, evt.ObjectId, "system");
-                        await mgr.SendToUserAsync(sess.User.Id, "system-event", hint, id);
-                    }
+                    var summary = new DomainEventSummary(e.EventName, e.EventId, e.RequestId, e.GroupId, e.EventDate);
+                    await mgr.SendToUserAsync(sess.User.Id, "domain-event", summary, e.EventDate.ToString("o"));
+                }
+
+                var missedSystem = await db.Set<EventEntity>()
+                    .AsNoTracking()
+                    .Where(e => e.EventDate > since && !(e is ServiceRequestEvent))
+                    .OrderBy(e => e.EventDate)
+                    .Take(MaxReplayEvents)
+                    .Select(e => new { e.EventName, e.ObjectId, e.EventDate })
+                    .ToListAsync(ct);
+
+                foreach (var e in missedSystem)
+                {
+                    var hint = new SystemEventHint(e.EventName, e.ObjectId, "system");
+                    await mgr.SendToUserAsync(sess.User.Id, "system-event", hint, e.EventDate.ToString("o"));
                 }
             }
 
-            await mgr.AddConnectionAsync(sess.User.Id, ctx.Response, ct);
+            await mgr.AddConnectionAsync(channel, ctx.Response, ct);
             return Results.Empty;
         })
         .WithTags("Notifications");

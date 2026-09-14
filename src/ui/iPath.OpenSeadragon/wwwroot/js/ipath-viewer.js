@@ -1,79 +1,69 @@
-let viewer = null;
-let dotNetRef = null;
-let isApplyingRemote = false;
+// State is keyed by mount element id. An ES module is a singleton, so holding the
+// viewer in a module-level variable meant a second <OsdViewer> on the same page
+// clobbered the first, and either one's dispose() destroyed both.
+const instances = new Map();
 
 export function initOsd(divId, tileSourceUrl, dotNetReference, initialViewport) {
-    dotNetRef = dotNetReference;
-
     const elem = document.getElementById(divId);
     if (!elem) return;
 
-    viewer = OpenSeadragon({
+    // Defensive: re-initialising the same mount should not leak the previous viewer.
+    dispose(divId);
+
+    const viewer = OpenSeadragon({
         id: elem.id,
         visibilityRatio: 1,
         minZoomImageRatio: 1,
         prefixUrl: "_content/iPath.OpenSeadragon/images/",
-        crossOriginPolicy: "CorsPolicy",
+        // Tiles are same-origin and cookie-authenticated; "Anonymous" keeps
+        // credentials mode "same-origin", so the auth cookie is still sent.
+        crossOriginPolicy: "Anonymous",
     });
 
+    const instance = { viewer, dotNetRef: dotNetReference };
+    instances.set(divId, instance);
+
     viewer.addHandler('open', () => {
-        if (dotNetRef) dotNetRef.invokeMethodAsync('OnOsdOpened');
+        instance.dotNetRef?.invokeMethodAsync('OnOsdOpened');
         if (initialViewport && isFinite(initialViewport.x)) {
-            isApplyingRemote = true;
             viewer.viewport.panTo({ x: initialViewport.x, y: initialViewport.y }, true);
             viewer.viewport.zoomTo(initialViewport.zoom, null, true);
-            requestAnimationFrame(() => { isApplyingRemote = false; });
         }
     });
 
     viewer.addHandler('open-failed', (event) => {
-        if (dotNetRef) dotNetRef.invokeMethodAsync('OnOsdError', event.message);
+        instance.dotNetRef?.invokeMethodAsync('OnOsdError', event.message);
     });
 
-    if (tileSourceUrl) openTileSource(tileSourceUrl);
+    if (tileSourceUrl) openTileSource(divId, tileSourceUrl);
 }
 
-export function openTileSource(url) {
-    if (!viewer) return;
-    if (dotNetRef) dotNetRef.invokeMethodAsync('OnOsdLoading');
+export function openTileSource(divId, url) {
+    const instance = instances.get(divId);
+    if (!instance) return;
+    const { viewer } = instance;
+
+    instance.dotNetRef?.invokeMethodAsync('OnOsdLoading');
 
     if (url.toLowerCase().endsWith('.dzi')) {
         viewer.open(url);
-    } else {
-        import('https://cdn.jsdelivr.net/gh/episphere/GeoTIFFTileSource-JPEG2k/GeoTIFFTileSource.js')
-            .then(() => {
-                OpenSeadragon.GeoTIFFTileSource.getAllTileSources(url, { logLatency: false, cache: true, slideOnly: true })
-                    .then(tileSources => { viewer.open(tileSources); })
-                    .catch(err => { if (dotNetRef) dotNetRef.invokeMethodAsync('OnOsdError', err.message); });
-            })
-            .catch(err => {
-                if (dotNetRef) dotNetRef.invokeMethodAsync('OnOsdError', 'Failed to load GeoTIFF plugin: ' + err.message);
-            });
+        return;
     }
+
+    import('https://cdn.jsdelivr.net/gh/episphere/GeoTIFFTileSource-JPEG2k/GeoTIFFTileSource.js')
+        .then(() => OpenSeadragon.GeoTIFFTileSource.getAllTileSources(url, { logLatency: false, cache: true, slideOnly: true }))
+        .then(tileSources => {
+            // The component may have been disposed while the plugin was loading.
+            if (instances.get(divId) === instance) viewer.open(tileSources);
+        })
+        .catch(err => instance.dotNetRef?.invokeMethodAsync('OnOsdError', err.message));
 }
 
-export function setViewport(x, y, zoom) {
-    if (!viewer) return;
-    isApplyingRemote = true;
-    viewer.viewport.panTo({ x: x, y: y }, true);
-    viewer.viewport.zoomTo(zoom, null, true);
-    requestAnimationFrame(() => { isApplyingRemote = false; });
-}
+export function dispose(divId) {
+    const instance = instances.get(divId);
+    if (!instance) return;
 
-export function getViewport() {
-    if (!viewer) return null;
-    const c = viewer.viewport.getCenter();
-    const z = viewer.viewport.getZoom();
-    return { x: c.x, y: c.y, zoom: z };
-}
-
-export function setMouseNavEnabled(enabled) {
-    if (!viewer) return;
-    viewer.setMouseNavEnabled(enabled);
-}
-
-export function dispose() {
-    if (viewer) { viewer.destroy(); viewer = null; }
-    dotNetRef = null;
-    isApplyingRemote = false;
+    instances.delete(divId);
+    instance.dotNetRef = null;
+    try { instance.viewer.destroy(); } catch { /* already torn down */ }
 }

@@ -67,7 +67,11 @@ public class SseClientService : IAsyncDisposable
             _subscriptions.Add(_eventBus.SubscribeNotifications(userId, OnEventBusNotification));
             _subscriptions.Add(_eventBus.SubscribeDomainEvents(OnEventBusDomainEvent));
             _subscriptions.Add(_eventBus.SubscribeSystemEvents(OnEventBusSystemEvent));
-            _subscriptions.Add(_eventBus.SubscribeCaseRoomSync(OnEventBusCaseRoomSync));
+            // No CaseRoom subscription here: under Server mode ICaseRoomSyncReceiver resolves to
+            // InMemoryCaseRoomSyncReceiver, which subscribes to its own room directly.
+            // HttpCaseRoomSyncReceiver - the only consumer of CaseRoomSyncReceived - is registered
+            // only in the WASM client, so a circuit-wide subscription delivered every room's
+            // events to every circuit and then raised them into nothing.
             _logger.LogInformation("SSE connected in Server mode for user {UserId}", userId);
         }
         catch (Exception ex)

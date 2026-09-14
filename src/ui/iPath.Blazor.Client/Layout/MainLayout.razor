@@ -18,14 +18,7 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         <MudText Typo="Typo.h5" Class="ml-3">iPath.NET</MudText>
         <MudSpacer />
-        <MudMenu StartIcon="@Icons.Material.Filled.Translate" Label="@locale.ToUpperInvariant()" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="true">
-            @foreach (var culture in locOpts.Value.SupportedCultures)
-            {
-                <MudMenuItem OnClick='() => SwitchLanguage(culture)'>
-                    @(locOpts.Value.CultureDisplayNames.TryGetValue(culture, out var displayName) ? displayName : culture.ToUpperInvariant())
-                </MudMenuItem>
-            }
-        </MudMenu>
+        <LanguageMenu />
         <MudHidden Breakpoint="Breakpoint.Xs">
             <AuthorizeView>
                 <Authorized>
@@ -76,7 +69,6 @@
 
 @inject ITranslationLoader srvLoc
 @inject IOptions<iPathClientConfig> opts
-@inject IOptions<LocalizationSettings> locOpts
 @inject AppState appState
 @inject NavigationManager nm
 
@@ -88,15 +80,6 @@
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
-    }
-
-    string locale => System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-
-    private void SwitchLanguage(string culture)
-    {
-        var uri = new Uri(nm.Uri);
-        var localPath = uri.LocalPath + uri.Query;
-        nm.NavigateTo($"/api/localization/set?culture={culture}&redirectUri={Uri.EscapeDataString(localPath)}", forceLoad: true);
     }
 
     private bool _isDarkMode = false;
@@ -138,6 +121,7 @@
 
     async Task Reload()
     {
+        var locale = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         await srvLoc.LoadTranslationData(locale, true);
     }
 

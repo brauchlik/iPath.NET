@@ -1,0 +1,66 @@
+@rendermode @(new Microsoft.AspNetCore.Components.Web.InteractiveServerRenderMode(prerender: false))
+@inject IOptions<iPath.Application.Localization.LocalizationSettings> locOpts
+@inject NavigationManager nm
+@inject iPath.Blazor.Componenents.Shared.AppState appState
+@inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
+@inject ILogger<LanguageSelect> logger
+
+<MudSelect T="string" Value="@Value" ValueChanged="OnValueChanged" Label="@Label" Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true" Class="@Class">
+    @foreach (var item in _items)
+    {
+        <MudSelectItem Value="@item.Code">@item.DisplayName</MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public string Label { get; set; } = "Language";
+    [Parameter] public string? Class { get; set; }
+
+    private record MenuItem(string Code, string DisplayName);
+
+    private MenuItem[] _items = Array.Empty<MenuItem>();
+
+    protected override void OnInitialized()
+    {
+        var cultures = locOpts?.Value?.SupportedCultures;
+        if (cultures != null)
+        {
+            _items = cultures
+                .Distinct()
+                .Select(c => new MenuItem(c, locOpts.Value.CultureDisplayNames.TryGetValue(c, out var n) ? n : c))
+                .ToArray();
+        }
+    }
+
+    private async Task OnValueChanged(string? culture)
+    {
+        Value = culture;
+        await ValueChanged.InvokeAsync(culture);
+
+        if (string.IsNullOrEmpty(culture)) return;
+
+        if (appState?.IsAuthenticated == true && appState.User is not null)
+        {
+            try
+            {
+                var userId = appState.User.Id;
+                var userResp = await api.GetUser(userId);
+                if (userResp.IsSuccessful && userResp.Content is not null)
+                {
+                    userResp.Content.Profile.DefaultLanguage = culture;
+                    await api.UpdateProfile(new UpdateUserProfileCommand(userId, userResp.Content.Profile));
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to persist DefaultLanguage {Culture} for user {UserId}; cookie set will still take effect", culture, appState.User.Id);
+            }
+        }
+
+        var uri = new Uri(nm.Uri);
+        var localPath = uri.LocalPath + uri.Query;
+        nm.NavigateTo($"/api/localization/set?culture={culture}&redirectUri={Uri.EscapeDataString(localPath)}", forceLoad: true);
+    }
+}

@@ -56,7 +56,7 @@ public class ServiceRequestListViewModel(IPathApi api,
             return resp.Content.ToTableData();
         }
 
-        snackbar.AddError(resp.ErrorMessage);
+        snackbar.AddError(resp.ErrorText());
         return new TableData<ServiceRequestListDto>();
     }
 

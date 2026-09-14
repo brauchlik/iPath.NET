@@ -49,7 +49,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
         var query = state.BuildQuery(new GetQuestionnaireListQuery { AllVersions = ShowInactive });
         var resp = await api.GetQuestionnnaires(query);
         if (resp.IsSuccessful) return resp.Content.ToGridData();
-        snackbar.AddError(resp.ErrorMessage);
+        snackbar.AddError(resp.ErrorText());
         return new GridData<QuestionnaireListDto>();
     }
 
@@ -68,7 +68,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
             }
             else
             {
-                snackbar.AddError(resp.ErrorMessage);
+                snackbar.AddError(resp.ErrorText());
             }
         }
     }
@@ -118,7 +118,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
         }
         catch (Exception ex)
         {
-            snackbar.AddError("Resource is not valid: " + ex.Message);
+            snackbar.AddError(T["Resource is not valid: {0}", ex.Message]);
             return false;
         }
 
@@ -130,7 +130,39 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
 
     public async Task Delete(QuestionnaireListDto item)
     {
-        snackbar.Add("not implemented yet", Severity.Info);
+        var r = await dialog.ShowMessageBoxAsync(
+            title: T["Delete Questionnaire"],
+            message: T["Delete this version permanently, or just deactivate it? Deactivating keeps its history and any existing cases that already used it are unaffected."],
+            yesText: T["Delete"], noText: T["Deactivate"], cancelText: T["Cancel"]);
+
+        if (r == true)
+        {
+            var resp = await api.DeleteQuestionnaire(item.Id);
+            if (resp.IsSuccessful)
+            {
+                snackbar.Add(T["Questionnaire deleted"], Severity.Success);
+                await grid.ReloadServerData();
+            }
+            else
+            {
+                snackbar.AddError(resp.ErrorText());
+            }
+        }
+        else if (r == false)
+        {
+            var full = await api.GetQuestionnaireById(item.Id);
+            if (snackbar.CheckSuccess(full))
+            {
+                var resp = await api.CreateQuestionnaire(new UpdateQuestionnaireCommand(
+                    full.Content.QuestionnaireId, full.Content.Name, full.Content.Resource,
+                    Settings: full.Content.Settings, IsActive: false, insert: false));
+                if (snackbar.CheckSuccess(resp))
+                {
+                    snackbar.Add(T["Questionnaire deactivated"], Severity.Success);
+                    await grid.ReloadServerData();
+                }
+            }
+        }
     }
 
 

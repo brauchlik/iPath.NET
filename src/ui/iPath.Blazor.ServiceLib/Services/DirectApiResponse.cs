@@ -7,11 +7,15 @@ namespace iPath.Blazor.ServiceLib.Services;
 public class DirectApiResponse<T> : IApiResponse<T>
 {
     public T? Content { get; }
+    public bool HasContent => Content is not null;
+    public bool IsSuccessfulWithContent => IsSuccessful && Content is not null;
     public bool IsSuccessStatusCode { get; }
     public bool IsSuccessful { get; }
-    public HttpStatusCode StatusCode { get; }
+    // In-process (mediator) calls never fail before "a response" exists - there's no network hop to fail on.
+    public bool IsReceived => true;
+    public HttpStatusCode? StatusCode { get; }
     public string? ReasonPhrase { get; }
-    public ApiException? Error { get; }
+    public ApiExceptionBase? Error { get; }
     public HttpRequestMessage? RequestMessage => null;
     public HttpResponseHeaders Headers => _empty.Headers;
     public HttpContentHeaders? ContentHeaders => null;
@@ -29,8 +33,24 @@ public class DirectApiResponse<T> : IApiResponse<T>
         ReasonPhrase = isSuccess ? "OK" : error?.Message ?? "Error";
         if (error is not null)
         {
-            Error = ApiException.Create(error.Message, null!, null!, new HttpResponseMessage(statusCode), null!, error.InnerException).GetAwaiter().GetResult();
+            // Refit 15's ApiException.Create dereferences the request message/method to capture
+            // request content for diagnostics - unlike older Refit, null here throws instead of
+            // being tolerated, so pass harmless placeholders for this synthetic in-process error.
+            Error = ApiException.Create(error.Message, new HttpRequestMessage(), HttpMethod.Get,
+                new HttpResponseMessage(statusCode), new RefitSettings(), error.InnerException).GetAwaiter().GetResult();
         }
+    }
+
+    public bool HasRequestError(out ApiRequestException error)
+    {
+        error = null!;
+        return false;
+    }
+
+    public bool HasResponseError(out ApiException error)
+    {
+        error = (Error as ApiException)!;
+        return error is not null;
     }
 }
 
@@ -38,9 +58,10 @@ public class DirectApiResponse : IApiResponse
 {
     public bool IsSuccessStatusCode { get; }
     public bool IsSuccessful { get; }
-    public HttpStatusCode StatusCode { get; }
+    public bool IsReceived => true;
+    public HttpStatusCode? StatusCode { get; }
     public string? ReasonPhrase { get; }
-    public ApiException? Error { get; }
+    public ApiExceptionBase? Error { get; }
     public HttpRequestMessage? RequestMessage => null;
     public HttpResponseHeaders Headers => _empty.Headers;
     public HttpContentHeaders? ContentHeaders => null;
@@ -55,7 +76,20 @@ public class DirectApiResponse : IApiResponse
         IsSuccessful = isSuccess;
         StatusCode = statusCode;
         ReasonPhrase = isSuccess ? "OK" : error?.Message ?? "Error";
-        Error = error is null ? null 
-            : ApiException.Create(null, null!, null!, new HttpResponseMessage(statusCode), null!, error).GetAwaiter().GetResult();
+        Error = error is null ? null
+            : ApiException.Create(error.Message, new HttpRequestMessage(), HttpMethod.Get,
+                new HttpResponseMessage(statusCode), new RefitSettings(), error).GetAwaiter().GetResult();
+    }
+
+    public bool HasRequestError(out ApiRequestException error)
+    {
+        error = null!;
+        return false;
+    }
+
+    public bool HasResponseError(out ApiException error)
+    {
+        error = (Error as ApiException)!;
+        return error is not null;
     }
 }

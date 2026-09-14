@@ -381,6 +381,9 @@ public interface IPathApi
 
     [Put("/api/v1/questionnaires/assign")]
     Task<IApiResponse> AssignQuestionnaire(AssignQuestionnaireCommand command);
+
+    [Delete("/api/v1/questionnaires/{id}")]
+    Task<IApiResponse<Guid>> DeleteQuestionnaire(Guid id);
     #endregion
 
 

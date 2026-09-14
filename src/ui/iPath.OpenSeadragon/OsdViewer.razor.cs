@@ -68,10 +68,12 @@ public partial class OsdViewer : IAsyncDisposable
     {
         _viewerWidth = MaxWidth.HasValue ? $"{MaxWidth}px" : "100%";
         _viewerHeight = MaxHeight.HasValue ? $"{MaxHeight}px" : "600px";
-        var style = "background-color: black; position: relative;";
-        if (MaxWidth.HasValue)
-            style += $" max-width: {MaxWidth}px;";
-        _paperStyle = style;
+        // Set explicit width/height on the MudPaper itself, not just the inner div. The MudPaper
+        // was relying on its parent flex container for sizing - when that container collapsed
+        // (e.g. on the slideshow page) the MudPaper collapsed to 0x0, the OSD canvas had no
+        // room to paint, and clicks fell through to the surrounding slideshow MudPaper
+        // (@onclick="GotoNext" - which is why clicking still advanced slides).
+        _paperStyle = $"width: {_viewerWidth}; height: {_viewerHeight}; background-color: black; position: relative;";
     }
 
     private async Task LoadTileSourceAsync(string url)

@@ -7,6 +7,7 @@ using iPath.Domain.Config;
 using iPath.RazorLib;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
@@ -202,6 +203,25 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+// Soft-prune expired DataProtection keys on startup. Microsoft's default key lifetime is 90 days
+// and old keys stay around to decrypt in-flight cookies - which is exactly what we want. Disk usage is
+// tiny (~500 bytes per key) so this prune is purely cosmetic; we keep a 30-day buffer past
+// expiration to make sure no cookie encrypted with a "recently expired" key is still in flight
+// (default Identity cookie lifetime is 14 days).
+if (app.Services.GetService<IKeyManager>() is IDeletableKeyManager deletable)
+{
+    try
+    {
+        var cutoff = DateTimeOffset.UtcNow.AddDays(-30);
+        deletable.DeleteKeys(k => k.ExpirationDate < cutoff);
+    }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine($"WARNING: DataProtection key prune failed: {ex.Message}. Continuing.");
+    }
+}
+
 
 // Must run before anything that reads the scheme, host or client IP. It previously sat
 // after UseAuthentication and CaseRoomTokenAuthMiddleware, so behind a TLS-terminating

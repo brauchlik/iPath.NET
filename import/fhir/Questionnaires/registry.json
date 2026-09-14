@@ -1,6 +1,6 @@
 {
-  "version": "1.1",
-  "updated": "2026-09-01",
+  "version": "1.2",
+  "updated": "2026-09-10",
   "buildingBlocks": [
     {
       "id": "material",
@@ -149,56 +149,44 @@
   ],
   "caseDescriptions": [
     {
-      "id": "jundt-hematology-lymph",
-      "title": "Hematology and Lymph nodes (Historical Prototype)",
+      "id": "jundt-case-hematology-lymph",
+      "title": "Case Description — Hematology and Lymph Nodes",
       "category": "Case Description",
       "topography": ["C42", "C77"],
-      "status": "superseded",
-      "deprecated": true,
-      "sourceOriginal": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].md",
-      "sourceNotes": "staging/jundt-hematology-lymph/jundt-hematology-lymph.review.md",
-      "sourceFhir": "staging/jundt-hematology-lymph/jundt-hematology-lymph.json",
-      "summary": "Initial prototype for hematology and lymph node cases (superseded by modular building blocks).",
-      "openQuestions": []
+      "status": "staged",
+      "deprecated": false,
+      "sourceOriginal": "doc/jundt/form suggestions/Formular für Hamatologische und Lymphknoten-Erkrankungen.txt",
+      "sourceNotes": "staging/Case Description/jundt-case-hematology-lymph/jundt-case-hematology-lymph.review.md",
+      "sourceFhir": "staging/Case Description/jundt-case-hematology-lymph/jundt-case-hematology-lymph.json",
+      "summary": "Case description for hematology (C42) and lymph node (C77): material, 8 C77-relevant symptoms, 23 other symptoms behind gate, blood count lab. No imaging, no diagnostic assessment. Deferred: type of disease, steroid treatment, accidental finding, hematologic compartments, lymph node mapping, extended lab.",
+      "blocksUsed": ["material", "symptoms", "lab.blood-count"],
+      "openQuestions": [
+        "Type of disease (multi-select) — add inline or defer to new block?",
+        "Previous steroid treatment — add inline or defer?",
+        "Accidental finding — add inline or defer?",
+        "Hematology compartments (blood, bone marrow, spleen) — add inline or defer?",
+        "Lymph node mapping (location, organ involvement) — add inline or defer?",
+        "Extended lab (Hb, VitB12, Fe, MCV, MCH) — add inline or defer?",
+        "Imaging — Jundt's form includes it, meeting plan says no. Confirm?"
+      ]
     },
     {
-      "id": "jundt-imaging",
-      "title": "Imaging (Historical Prototype)",
+      "id": "jundt-case-digestive",
+      "title": "Case Description — Digestive Organs",
       "category": "Case Description",
-      "topography": [],
-      "status": "superseded",
-      "deprecated": true,
-      "sourceOriginal": "doc/jundt/Case Descriptions/03 Imaging/Imaging (generelly used techniques irrespective of speciality).md",
-      "sourceNotes": "staging/jundt-imaging/jundt-imaging.review.md",
-      "sourceFhir": "staging/jundt-imaging/jundt-imaging.json",
-      "summary": "Initial prototype for imaging requests (superseded by block imaging.json).",
-      "openQuestions": []
-    },
-    {
-      "id": "jundt-symptoms",
-      "title": "Symptoms (Historical Prototype)",
-      "category": "Case Description",
-      "topography": [],
-      "status": "superseded",
-      "deprecated": true,
-      "sourceOriginal": "doc/jundt/Case Descriptions/02 Symptoms/Symptoms general.md",
-      "sourceNotes": "staging/jundt-symptoms/jundt-symptoms.snomed.md",
-      "sourceFhir": "staging/jundt-symptoms/jundt-symptoms.json",
-      "summary": "Initial prototype for symptoms (superseded by modular symptoms blocks).",
-      "openQuestions": []
-    },
-    {
-      "id": "jundt-hematology-lymph-symptoms",
-      "title": "Hematology and Lymph nodes — Symptoms (Historical Prototype)",
-      "category": "Case Description",
-      "topography": ["C42", "C77"],
-      "status": "superseded",
-      "deprecated": true,
-      "sourceOriginal": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].md",
-      "sourceNotes": "staging/jundt-hematology-lymph/jundt-hematology-lymph-symptoms.snomed.md",
-      "sourceFhir": "staging/jundt-hematology-lymph/jundt-hematology-lymph-symptoms.json",
-      "summary": "Composite prototype with symptoms and lab values for hematology (superseded by modular blocks).",
-      "openQuestions": []
+      "topography": ["C15-C26"],
+      "status": "staged",
+      "deprecated": false,
+      "sourceOriginal": "Meeting plan 2026-09-02 + symptoms.digestive block",
+      "sourceNotes": "staging/Case Description/jundt-case-digestive/jundt-case-digestive.review.md",
+      "sourceFhir": "staging/Case Description/jundt-case-digestive/jundt-case-digestive.json",
+      "summary": "Case description for digestive organs (C15-C26): material, 18 digestive symptoms, 21 other symptoms behind gate, general imaging. No diagnostic assessment. Awaiting Jundt's form suggestion.",
+      "blocksUsed": ["material", "symptoms.digestive", "symptoms", "imaging"],
+      "openQuestions": [
+        "Awaiting Jundt's own form suggestion for digestive organs",
+        "Clinical info sections (type of disease, steroid treatment) — include?",
+        "Imaging scope: general only confirmed?"
+      ]
     }
   ]
 }

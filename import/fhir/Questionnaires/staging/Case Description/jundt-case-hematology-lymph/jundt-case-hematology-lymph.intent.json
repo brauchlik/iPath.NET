@@ -1,0 +1,76 @@
+{
+  "id": "jundt-case-hematology-lymph",
+  "title": "Case Description — Hematology and Lymph Nodes",
+  "version": "1.0",
+  "icdOScope": ["C42", "C77"],
+  "source": "Meeting plan 2026-09-02 + existing blocks",
+  "status": "staged",
+  "note": "Clean first-pass composition using only existing blocks. Jundt's additional sections (type of disease, steroid treatment, hematology compartments, extended lab, lymph node mapping) deferred to second pass after review.",
+  "sections": [
+    {
+      "linkId": "mat",
+      "title": "Material",
+      "block": "material",
+      "compositionNote": "Standard material block with cytology and histology gates. Directly inlined."
+    },
+    {
+      "linkId": "sym",
+      "title": "Symptoms",
+      "block": "symptoms",
+      "compositionNote": "8 hematologically-relevant symptoms from master block (pain, swelling, night sweat, weight loss, fever, pallor, bleeding tendency, susceptibility). All boolean (D1). linkId prefix: sym."
+    },
+    {
+      "linkId": "sym.other",
+      "title": "Other symptoms",
+      "block": "symptoms",
+      "compositionNote": "D3/D7 gating: 'Other symptoms present?' boolean reveals 11 region-specific items not relevant to hematology. Items gated behind sym.other.present. Includes night pain, jaundice, cough (+duration), constipation, diarrhoea, melaena, nipple discharge, uterine bleeding (+duration), uterine discharge, dysuria, haematuria."
+    },
+    {
+      "linkId": "lab",
+      "title": "Blood cell count",
+      "block": "lab.blood-count",
+      "compositionNote": "Standard blood count block with SI/US dual units. Directly inlined. linkId prefix: lab."
+    }
+  ],
+  "blocksUsed": ["material", "symptoms", "lab.blood-count"],
+  "newInlineSections": [],
+  "compositionRules": [
+    "All linkIds prefixed with block id (mat.*, sym.*, lab.*, diag.*)",
+    "All enableWhen.question references rewritten with same prefix",
+    "D3/D7 gating pattern: hematologically-relevant symptoms shown, others behind sym.other gate",
+    "D1 retained: boolean yes/no for all symptoms",
+    "No imaging (per meeting plan)",
+    "No new inline sections — only existing blocks"
+  ],
+  "deferredFromJundt": [
+    {
+      "section": "Type of disease",
+      "reason": "Not in any existing block. Needs new block creation after review."
+    },
+    {
+      "section": "Previous steroid treatment",
+      "reason": "Not in any existing block. Needs new block creation after review."
+    },
+    {
+      "section": "Accidental finding",
+      "reason": "Not in any existing block. Needs new block creation after review."
+    },
+    {
+      "section": "Hematology C42 — Compartment",
+      "reason": "Not in any existing block. Needs new block creation after review."
+    },
+    {
+      "section": "Extended laboratory findings",
+      "reason": "Not in any existing block. Needs new block creation after review."
+    },
+    {
+      "section": "Lymph nodes C77 — Location and involvement",
+      "reason": "Not in any existing block. Needs new block creation after review."
+    }
+  ],
+  "openQuestions": [
+    "Jundt's form includes imaging — meeting plan says no. Confirm for first pass?",
+    "Jundt's form uses 3-state symptoms (unknown/no/yes) — first pass keeps D1 boolean",
+    "Diagnostic assessment included but Jundt's form doesn't have it — keep or remove?"
+  ]
+}

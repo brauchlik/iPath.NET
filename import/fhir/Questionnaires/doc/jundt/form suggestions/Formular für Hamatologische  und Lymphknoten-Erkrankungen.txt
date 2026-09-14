@@ -1,0 +1,22 @@
+Case Details (all Cases)
+C42: Hematology and reticuloendothelial system
+C77: Lymph nodes
+
+
+Case DetailsSubmitterJournal number of submitterType of disease: (Click box)Inflammation
+Infectious diseases 
+Autoimmune diseases
+Genetic diseases 
+Metabolic diseases
+Hematologic disorders
+Neoplasia
+other (specify)AgeGenderLocalization Groups According to the ICDOType of MaterialCytology yes/no (see list)Histology yes/no (see list)Imaging (general techniques)	Conventional X-rays (2 planes) if yes, please upload images and report	Sonography if yes, please upload images and report	CT scan if yes, please upload images and report	MRI if yes, please upload images and report	PET CT if yes, please upload images and report	PET MRI if yes, please upload images and report	PET/CT MRI if yes, please upload images and reportImaging (special procedures)	Panoramic view: Maxilla and Mandible if yes, please upload images and report	Cone-beam computed tomography (CBCT) 	Maxilla and Mandible) if yes, please upload images and report	Mammography: Breast if yes, please upload images and reportPrevious steroid treatment (Click box):yes/no/unknownSuspected diagnosisSymptoms C42 und C77Previous steroid treatment (Click box):yes/no/unknownAccidental finding: Yes/No: if No:	Pain
+Drop-down list: unkown; no; yes, 
+	if yes: duration 
+	xx days, xx months, xx years)	Swelling 
+Drop-down list: unkown; no; yes, 
+	if yes: duration 
+	xx days, xx months, xx years)	Night Sweatyes/no/unknown	Weight lossyes/no/unknown	Feveryes/no/unknown	Palloryes/no/unknown	Bleeding tendencyyes/no/unknown	Susceptibility to infectionyes/no/unknown	Other: Yes/No (please specify -
+	Free-text)
+	Blood cell count available no/yes; if yes:Erythrocytes (specify)Granulocytes (specify)	Neutrophils (specify)	Eosinophils (specify)	Basophils (specify)Monocytes (specify)Lymphocytes (specify)Thrombocytes (specify)Hematology C42 (Click Box):Blood Bone marrowSpleenOther (specify)	Laboratory findings availableIf yes, please specify (Hb, VitB12, Fe, MCV, MCH etc.)Lymph nodes C77 (Click Box):Only above the diaphragm (click box)Only below the diaphragm (click box)Above and below the diaphragm (click box)		Specify: (more than one allowed)Cervical (click box)Axillary (click box)Inguinal (click box)Intrathoracic (click box)Intraabdominal (click box)Retroperitoneal (click box)	Organ involvement 
+	(more than one allowed)Spleen (clickbox)Liver (click box)Bone marrow (click box)Other (specify):

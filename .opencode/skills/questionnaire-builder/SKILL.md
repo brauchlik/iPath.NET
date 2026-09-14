@@ -10,16 +10,89 @@ resources for iPath.NET. This skill encodes a strict, gated workflow. The whole
 point is **human-in-the-loop medical correctness**: never let a misinterpretation
 silently become a questionnaire.
 
-## When to use
+## Our role
 
-Use this skill when the task involves:
+We are **medical form designers** for iPath.NET. Our job is to:
 
-- building / generating / creating FHIR Questionnaires for iPath.NET;
-- processing pathologist descriptions or case-reporting specs (markdown under
-  `import/fhir/Questionnaires/doc/`);
-- resolving medical terms to SNOMED CT codes via Snowstorm;
-- working with the jundt source files, the questionnaire registry, or the
-  building-blocks library.
+1. **Decompose** the pathologist's "general picture" into separate form types
+   that match iPath's software design.
+2. **Classify** each piece of content by its proper form type (Case Description,
+   Diagnostic Assessment, Follow-Up, Annotation).
+3. **Compose** forms from reusable building blocks, following composition rules.
+4. **Integrate** with iPath's workflow: different forms are filled by different
+   people at different times.
+
+The pathologist (Dr. Jundt) typically describes everything together — material,
+symptoms, imaging, lab values, diagnostic assessment, treatment history. He
+doesn't distinguish between "what I need to create a case" and "what I need to
+assess it later." **That separation is our job.**
+
+## iPath form types
+
+iPath uses `eQuestionnaireUsage` to classify questionnaires. Each type is used
+at a different point in the workflow, filled by different people:
+
+| Usage | Value | When | Who fills it | Purpose |
+|---|---|---|---|---|
+| `CaseDescription` | 2 | Case creation (Wizard Step 1) | Referring physician / intake | Capture the initial clinical picture: material, symptoms, imaging, lab |
+| `Annotation` | 3 | Any time after creation | Anyone (pathologist, clinician) | Free-text or structured comments |
+| `FollowUp` | 4 | After initial assessment | Clinician | Track treatment response, recurrence |
+| `FinalAssessment` | 5 | After microscopic examination | Pathologist | Summarize all diagnostic input + follow-up recommendations |
+
+**Key insight:** The pathologist's "general picture" mixes content from ALL of
+these. Our job is to sort it into the right buckets.
+
+## Content classification
+
+When processing pathologist instructions, classify each piece of content:
+
+### Case Description (`CaseDescription`)
+- Material for examination (cytology, histology, bone marrow)
+- Symptoms (pain, swelling, weight loss, etc.)
+- Imaging (X-ray, CT, MRI, PET — if available at intake)
+- Lab values (blood count, basic chemistry)
+- Clinical history relevant to the presenting complaint
+
+### Diagnostic Assessment (`FinalAssessment`)
+- Margin status (R0/R1/R2)
+- Tumor size, depth, staging
+- Histological subtype, grading
+- Lymphovascular invasion, perineural invasion
+- Resection margins
+- Pathological staging (pTNM)
+
+### Follow-Up (`FollowUp`)
+- Treatment response
+- Recurrence monitoring
+- Interval changes
+- Treatment modifications
+
+### Annotation (`Annotation`)
+- Comments, questions, notes
+- Quick observations
+- Second opinions
+
+## The decomposition problem
+
+Dr. Jundt's form suggestions typically mix:
+
+1. **Wizard-managed fields** (age, gender, ICD-O topography, submitting institute)
+   — handled by iPath, not our forms
+2. **Case Description content** (material, symptoms, imaging, lab)
+3. **Diagnostic Assessment content** (margin status, tumor size, staging)
+4. **Clinical history** (steroid treatment, previous radiation, comorbidities)
+
+Example from Jundt's hematology form:
+```
+Material (histology, blood smear, bone marrow)  → CaseDescription
+Disease type (CML, CLL, MDS, etc.)              → CaseDescription (clinical info)
+Steroid treatment                               → CaseDescription (clinical info)
+Accidental finding                              → CaseDescription (clinical info)
+Symptoms (fatigue, bleeding, infections)        → CaseDescription
+Lab values (CBC, differential)                  → CaseDescription
+Diagnostic assessment                           → FinalAssessment (NOT CaseDescription)
+Imaging (if available at intake)                → CaseDescription
+```
 
 ## Where things live
 
@@ -32,13 +105,16 @@ import/fhir/Questionnaires/
 │   └── 01 Material|02 Symptoms|03 Imaging|04 Lab/<id>.json
 │                          # each block IS a minimal FHIR R4 Questionnaire
 ├── registry.json          # memory/TOC of composed questionnaires + status
-├── staging/<id>/          # per-questionnaire artifacts awaiting review
+├── staging/
+│   └── <Form Type>/       # organized by form type (Case Description, Diagnostic Assessment, etc.)
+│       └── <id>/          # per-questionnaire artifacts awaiting review
 └── approved/              # reviewed questionnaires, ready for manual import
 ```
 
 Reference files in this skill:
 - `reference/block-schema.md`  — block = minimal FHIR Questionnaire + manifest + registry contract
 - `reference/fhir-conventions.md` — FHIR R4 output conventions (iPath/LHC-Forms compatible)
+- `reference/form-types.md` — iPath form types, content classification, decomposition rules
 - `reference/snowstorm.md`      — Snowstorm endpoint patterns
 
 Pathologist design decisions / open questions for the jundt docs live in
@@ -76,19 +152,28 @@ Pathologist design decisions / open questions for the jundt docs live in
     blocks) must carry identical text/type/SNOMED/LOINC/units, enforced via
     `blocks/coding-registry.json` + the validator. Composed forms dedupe
     identical questions (region/richer variant wins).
+11. **Respect form type boundaries.** Content classified as Diagnostic Assessment
+    (`FinalAssessment`) must NOT appear in Case Description forms. If the
+    pathologist includes it, note it as deferred to the appropriate form type.
 
 ## Workflow
 
 Run the phases in order. Never skip ahead.
 
-### Phase 0 — Intake & notes (GATE)
+### Phase 0 — Intake & classify (GATE)
 
 1. Read the source markdown file(s) in `doc/<author>/` (read-only).
 2. Read `registry.json`, `blocks/blocks.json`, `blocks/coding-registry.json`.
-3. Write a companion `<name>.notes.md` next to the source with sections:
-   `## Structure`, `## Questions for Jundt`, `## SNOMED lookups`,
-   `## Refinements`, `## Blocks`.
-4. **STOP.** Present the notes and ask the clarifying questions. Do not compile
+3. **Classify content by form type.** For each piece of content in the source:
+   - Is this Case Description material (material, symptoms, imaging, lab)?
+   - Is this Diagnostic Assessment (margin status, tumor staging)?
+   - Is this Follow-Up (treatment response, recurrence)?
+   - Is this handled by the wizard (age, gender, ICD-O, submitting institute)?
+   - Is this clinical history that belongs in Case Description (steroid treatment, previous radiation)?
+4. Write a companion `<name>.notes.md` next to the source with sections:
+   `## Structure`, `## Content Classification`, `## Questions for Jundt`,
+   `## SNOMED lookups`, `## Refinements`, `## Blocks`.
+5. **STOP.** Present the notes and ask the clarifying questions. Do not compile
    FHIR until the notes are settled.
 
 ### Phase 1 — SNOMED resolution (into notes)
@@ -106,15 +191,18 @@ Run the phases in order. Never skip ahead.
 2. Register the block in `blocks/blocks.json` (category, topography, source).
 3. Validate: parses as R4; `linkId` unique; `enableWhen` targets exist; `choice`
    has `answerOption`; `quantity` has unit options; and registry consistency
-   (same canonical id ⇒ identical text/type/coding/units across blocks).
+   (same canonical id => identical text/type/coding/units across blocks).
 
 ### Phase 3 — Composition
 
-1. Compose target questionnaires (e.g. Case Descriptions) by inlining blocks;
-   prefix linkIds with the block id (e.g. `lab.blood-count.erythrocytes`) and
-   rewrite `enableWhen` references with the same prefix.
-2. Dedupe identical questions across inlined blocks (region/richer variant wins).
-3. Write `staging/<id>/<id>.json` and validate per `reference/fhir-conventions.md`.
+1. Compose target questionnaires by form type:
+   - **Case Description:** Material + Symptoms + optional Imaging + optional Lab
+   - **Final Assessment:** Margin status, tumor size, staging, histological details + follow-up recommendations
+   - **Follow-Up:** Treatment response, recurrence monitoring
+2. Inline blocks with a per-questionnaire `linkId` prefix (e.g. `lab.blood-count.erythrocytes`).
+3. Rewrite `enableWhen` references with the same prefix.
+4. Dedupe identical questions across inlined blocks (region/richer variant wins).
+5. Write `staging/<Form Type>/<id>/<id>.json` and validate per `reference/fhir-conventions.md`.
 
 ### Phase 4 — Review & approval
 
@@ -168,6 +256,8 @@ always read it first, always update it after.
 ## Verification checklist (before claiming done)
 
 - [ ] Phase 0 report written and clarification answered by a human
+- [ ] Content classified by form type (Case Description vs Final Assessment vs Follow-Up)
+- [ ] Wizard-managed fields identified and excluded (age, gender, ICD-O, institute)
 - [ ] Every intent question has a `sourceLine` or `block` reference
 - [ ] No fabricated SNOMED codes (all from Snowstorm responses)
 - [ ] FHIR JSON parses and validates (id, title, linkId uniqueness, enableWhen targets)

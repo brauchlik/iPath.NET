@@ -22,7 +22,8 @@
             <MudIconButton Icon="@Icons.Material.Filled.CloseFullscreen" Size="Size.Small" OnClick="@(() => vm.GoUpRequestPage())" />
         </div>
 
-        <MudPaper Class="ipath_image slideshow" Style="background-color: black;" Elevation="0" @onclick="GotoNext">
+        <MudPaper Class="ipath_image slideshow" Style="background-color: black;" Elevation="0"
+                  @onclick="@(CanClickToAdvance() ? GotoNext : null)">
             @if (vm.SelectedDocument.IsImage)
             {
                 <MudImage src="@vm.SelectedDocument.PreviewFileUrl" Class="ipath_image_slideshow" Alt="@vm.SelectedDocument.GalleryCaption" />
@@ -59,6 +60,13 @@
 
     bool Wsi => opts.Value.WsiViewerActive;
     Guid? lastId = null;
+
+    // Clicks advance to the next slide for normal images, but for WSI slides the click is
+    // intercepted by the OpenSeadragon viewer for pan/zoom - advancing on every click would
+    // make the WSI viewer unusable. Only let the MudPaper @onclick fire when the slide is
+    // NOT an interactive WSI.
+    bool CanClickToAdvance()
+        => !(Wsi && vm.SelectedDocument?.IsWSI == true);
 
     protected override async Task OnParametersSetAsync()
     {

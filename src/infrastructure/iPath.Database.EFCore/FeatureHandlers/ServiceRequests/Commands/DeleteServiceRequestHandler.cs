@@ -33,7 +33,12 @@ public class DeleteServiceRequestCommandHandler(iPathDbContext db, IUserSession 
                 db.Documents.Remove(doc);
             }
         }
-        db.ServiceRequests.Remove(node);
+        // Soft delete: flag DeletedOn instead of removing the row. The query filter on
+        // ServiceRequestConfiguration (HasQueryFilter(x => !x.DeletedOn.HasValue)) hides the row from
+        // all subsequent queries, including the dependent collections above. This avoids the EF Core
+        // "association severed" error that fires on db.ServiceRequests.Remove(node) when required (non-
+        // nullable) FK relationships exist - e.g. ServiceRequestLastVisit.ServiceRequestId.
+        node.DeletedOn = DateTime.UtcNow;
         var evt = await db.CreateEventAsync<ServiceRequestDeletedEvent, DeleteServiceRequestCommand>(request, node.Id, sess);
         await db.SaveChangesAsync(ct);
 

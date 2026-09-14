@@ -11,12 +11,21 @@ public class CreateQuestionnaireInputHandler(iPathDbContext db, QuestionnaireCac
         Guard.Against.NullOrEmpty(request.QuestionnaireId);
         Guard.Against.NullOrEmpty(request.Resource);
 
-        // for new questionnaires, check that Id is not taken
         if (request.insert)
         {
+            // insert=true: this is a brand-new questionnaire. Reject if the Id is already taken.
             if (await db.Questionnaires.AnyAsync(q => q.QuestionnaireId == request.QuestionnaireId, ct))
             {
                 throw new InvalidOperationException($"Questionnaire with Id {request.QuestionnaireId} exists already");
+            }
+        }
+        else
+        {
+            // insert=false: this is a new version of an existing questionnaire. Reject if the Id
+            // is unknown - updating/upgrading must only ever be called with a known QuestionnaireId.
+            if (!await db.Questionnaires.AnyAsync(q => q.QuestionnaireId == request.QuestionnaireId, ct))
+            {
+                throw new InvalidOperationException($"Questionnaire with Id {request.QuestionnaireId} does not exist");
             }
         }
 

@@ -665,7 +665,18 @@ public class DirectApiClient(
 
     public async Task<IApiResponse<Guid>> CreateQuestionnaire(UpdateQuestionnaireCommand cmd)
     {
-        return Respond(await mediator.Send(cmd, default));
+        // Unlike the HTTP/Refit path (translated by ExceptionHandlerMiddleware), a direct in-process
+        // mediator.Send lets the handler's exception propagate straight into the Blazor circuit - catch it
+        // here so a predictable failure (duplicate QuestionnaireId, etc.) becomes a normal error response
+        // instead of crashing the page.
+        try
+        {
+            return Respond(await mediator.Send(cmd, default));
+        }
+        catch (Exception ex)
+        {
+            return RespondError<Guid>(ex);
+        }
     }
 
     public async Task<IApiResponse> AssignQuestionnaire(AssignQuestionnaireCommand command)

@@ -395,9 +395,14 @@
             object-fit: contain;
         }
 
-        .ipath_image > .slideshow {
-            width: 95vh;
-            height: 90vh;
+        /* Slideshow MudPaper carries both classes (see SlideShowPage.razor), so the selector
+           must be a compound one - not a parent-child combinator. The previous '.ipath_image >
+           .slideshow' only matched when .slideshow was a direct CHILD of .ipath_image, which
+           it never was; the rule silently never fired and the slideshow MudPaper collapsed to
+           default height, hiding the OsdViewer canvas. */
+        .ipath_image.slideshow {
+            width: 100%;
+            min-height: 95vh;
             background-color: black;
         }
 

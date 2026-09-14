@@ -31,13 +31,25 @@ public partial class OsdViewer : IAsyncDisposable
     {
         if (firstRender)
         {
-            _dotNetRef = DotNetObjectReference.Create(this);
-            _module = await JSRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/iPath.OpenSeadragon/js/ipath-viewer.js");
+            try
+            {
+                _dotNetRef = DotNetObjectReference.Create(this);
+                _module = await JSRuntime.InvokeAsync<IJSObjectReference>(
+                    "import", "./_content/iPath.OpenSeadragon/js/ipath-viewer.js");
 
-            _lastImagePath = ImagePath;
-            _initialized = true;
-            await _module.InvokeVoidAsync("initOsd", _elementId, ImagePath, _dotNetRef, null);
+                _lastImagePath = ImagePath;
+                _initialized = true;
+                await _module.InvokeVoidAsync("initOsd", _elementId, ImagePath, _dotNetRef, null);
+            }
+            catch (Exception ex)
+            {
+                // Surface JS init failures as the existing MudAlert instead of a silent
+                // black box. JSDisconnectedException covers the reload race; everything
+                // else (CDN blocked, module MIME error, OSD init failure) ends up here.
+                _errorMessage = $"Viewer init failed: {ex.Message}";
+                _isLoading = false;
+                StateHasChanged();
+            }
         }
     }
 
@@ -105,8 +117,22 @@ public partial class OsdViewer : IAsyncDisposable
                 await _module.InvokeVoidAsync("dispose", _elementId);
         }
         catch (JSDisconnectedException) { }
+        catch (ObjectDisposedException) { }
+
         _dotNetRef?.Dispose();
+
+        // Same circuit-disconnect race as above: on a page reload the Blazor circuit is disposed
+        // before this component's DisposeAsync runs, and the JS module's DisposeAsync() throws
+        // JSDisconnectedException as a result. Swallow it - the browser is gone, nothing to
+        // clean up. ObjectDisposedException covers double-disposal if Dispose is somehow called twice.
         if (_module is not null)
-            await _module.DisposeAsync();
+        {
+            try
+            {
+                await _module.DisposeAsync();
+            }
+            catch (JSDisconnectedException) { }
+            catch (ObjectDisposedException) { }
+        }
     }
 }

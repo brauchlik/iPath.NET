@@ -10,7 +10,7 @@ public class GetUserTaskAssignmentsHandler(
 {
     public async Task<PagedResultList<TaskAssignmentDto>> Handle(GetUserTaskAssignmentsQuery request, CancellationToken ct)
     {
-        var userId = request.UserId ?? sess.User.Id;
+        var userId = request.UserId ?? sess.User?.Id;
 
         var query = db.TaskAssignments
             .AsNoTracking()

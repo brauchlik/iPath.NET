@@ -48,14 +48,14 @@
                 @if (CaseRoomActive)
                 {
                     <MudBadge Content="@CaseRoomParticipantCount" Color="Color.Success" Overlap="true" Bordered="true">
-                        <IPathToolbarButton Icon="@Icons.Material.Outlined.Group" Href="@($"/request/{vm.SelectedRequest?.Id}/caseroom")"
+                        <IPathToolbarButton Icon="@Icons.Material.Outlined.Share" Href="@($"/request/{vm.SelectedRequest?.Id}/caseroom")"
                                             Disabled="@(vm.SelectedRequest is null)"
                                             Tooltip="Start Case Sharing" />
                     </MudBadge>
                 }
                 else
                 {
-                    <IPathToolbarButton Icon="@Icons.Material.Outlined.Group" Href="@($"/request/{vm.SelectedRequest?.Id}/caseroom")"
+                    <IPathToolbarButton Icon="@Icons.Material.Outlined.Share" Href="@($"/request/{vm.SelectedRequest?.Id}/caseroom")"
                                         Disabled="@(vm.SelectedRequest is null)"
                                         Tooltip="Start Case Sharing" />
                 }

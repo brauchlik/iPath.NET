@@ -108,13 +108,17 @@
         get
         {
             string ret = "";
-            if (!string.IsNullOrEmpty(vm.SelectedRequest.Description.PatientInfo.Gender))
+
+            if (vm.SelectedRequest.Description.PatientInfo != null)
             {
-                ret = ret.Append(vm.SelectedRequest.Description.PatientInfo.Gender);
-            }
-            if (vm.SelectedRequest.Description.PatientInfo.Age.HasValue)
-            {
-                ret = ret.Append($"{vm.SelectedRequest.Description.PatientInfo.Age} years");
+                if (!string.IsNullOrEmpty(vm.SelectedRequest.Description.PatientInfo.Gender))
+                {
+                    ret = ret.Append(vm.SelectedRequest.Description.PatientInfo.Gender);
+                }
+                if (vm.SelectedRequest.Description.PatientInfo.Age.HasValue)
+                {
+                    ret = ret.Append($"{vm.SelectedRequest.Description.PatientInfo.Age} years");
+                }
             }
 
             return ret;

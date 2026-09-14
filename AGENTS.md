@@ -74,6 +74,24 @@ private readonly ILogger<UserService> _logger;
 private async Task HandleSubmit() { }
 ```
 
+### Render Modes
+
+The app runs in both `InteractiveServer` and `InteractiveWebAssembly` modes
+(`iPathClientConfig:RenderMode` drives the choice). Components must remain
+mode-agnostic unless there is a hard reason otherwise.
+
+- ✅ DO: let a component inherit its render mode from its parent (i.e. omit
+  `@rendermode ...` entirely). This is the default and works for both Server
+  and WASM.
+- ❌ DON'T: hard-code `@rendermode InteractiveServerRenderMode(...)` or
+  `@rendermode InteractiveWebAssemblyRenderMode(...)` on a shared component.
+  Doing so breaks the other mode and produces runtime errors like
+  *"render mode 'InteractiveServerRenderMode' is not supported by
+  WebAssembly rendering"*.
+- ✅ EXCEPTION: Identity pages (login, logout, external callback) and a few
+  admin pages may legitimately be Server-only or pure SSR. In those cases,
+  the restriction must be justified in a code comment.
+
 ### Error Handling
 ```csharp
 // ✅ DO: Use specific exceptions and log

@@ -384,3 +384,9 @@ FodyWeavers.xsd
 # local scratch / experiment projects
 scratch_refit/
 import_test.db
+
+# CodeRush personal settings
+.cr/
+
+# agent tooling scratch (does not belong in the repo)
+data/

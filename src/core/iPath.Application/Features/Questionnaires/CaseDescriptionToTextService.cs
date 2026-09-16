@@ -25,20 +25,24 @@ public class CaseDescriptionToTextService(CaseDescriptionOutputMode mode) : IQue
 
             ProcessGroupItems(group.Item, respMap, groupEntries, groupSubLines);
 
-            var groupLabel = !string.IsNullOrEmpty(group.Text) ? group.Text : $"[{group.LinkId}]";
-            var lines = new List<string>();
+            if (groupEntries.Count == 0 && groupSubLines.Count == 0) continue;
 
-            if (groupEntries.Count > 0)
+            var groupLabel = !string.IsNullOrEmpty(group.Text) ? group.Text : $"[{group.LinkId}]";
+
+            // The header is always emitted. In expanded mode a group can consist of detail
+            // lines only (every item carries children), and dropping the header would leave
+            // those lines unlabelled.
+            var lines = new List<string>
             {
-                lines.Add($"<strong>{groupLabel}:</strong> {string.Join(", ", groupEntries)}");
-            }
+                groupEntries.Count > 0
+                    ? $"<strong>{groupLabel}:</strong> {string.Join(", ", groupEntries)}"
+                    : $"<strong>{groupLabel}:</strong>"
+            };
 
             if (mode == CaseDescriptionOutputMode.Expanded)
             {
                 lines.AddRange(groupSubLines);
             }
-
-            if (lines.Count == 0) continue;
 
             groups.Add(string.Join("<br/>", lines));
         }
@@ -74,7 +78,7 @@ public class CaseDescriptionToTextService(CaseDescriptionOutputMode mode) : IQue
                     break;
 
                 case Questionnaire.QuestionnaireItemType.Quantity:
-                    ProcessQuantityItem(q, responses, entries);
+                    ProcessQuantityItem(q, responses, entries, subLines, respMap);
                     break;
 
                 case Questionnaire.QuestionnaireItemType.Group:
@@ -131,6 +135,11 @@ public class CaseDescriptionToTextService(CaseDescriptionOutputMode mode) : IQue
     {
         var values = new List<string>();
 
+        // A single quantity child is already named by its parent ("Weight loss" -> "88 kg"),
+        // so labelling it would only duplicate that. Several are indistinguishable without
+        // their own label, so those get one.
+        var labelQuantityChildren = subItems.Count(i => i.Type == Questionnaire.QuestionnaireItemType.Quantity) > 1;
+
         foreach (var sub in subItems)
         {
             if (string.IsNullOrEmpty(sub.LinkId)) continue;
@@ -171,7 +180,7 @@ public class CaseDescriptionToTextService(CaseDescriptionOutputMode mode) : IQue
                         {
                             var v = QuantityToString(a);
                             if (!string.IsNullOrEmpty(v))
-                                values.Add(v);
+                                values.Add(labelQuantityChildren ? $"{sub.Text ?? sub.LinkId} {v}" : v);
                         }
                     }
                     break;
@@ -201,18 +210,48 @@ public class CaseDescriptionToTextService(CaseDescriptionOutputMode mode) : IQue
     private void ProcessQuantityItem(
         Questionnaire.ItemComponent q,
         List<QuestionnaireResponse.ItemComponent> responses,
-        List<string> entries)
+        List<string> entries,
+        List<string> subLines,
+        Dictionary<string, List<QuestionnaireResponse.ItemComponent>> respMap)
     {
-        foreach (var r in responses)
+        // a bare value ("60 %") is meaningless without the question it belongs to,
+        // so the label always goes into the entry
+        var values = responses
+            .SelectMany(r => r.Answer ?? [])
+            .Where(a => a.Value != null)
+            .Select(QuantityToString)
+            .Where(v => !string.IsNullOrEmpty(v))
+            .ToList();
+
+        if (values.Count == 0) return;
+
+        var label = q.Text ?? $"[{q.LinkId}]";
+        var value = string.Join(", ", values);
+
+        if (q.Item == null || q.Item.Count == 0)
         {
-            if (r.Answer == null) continue;
-            foreach (var a in r.Answer.Where(a => a.Value != null))
-            {
-                var v = QuantityToString(a);
-                if (!string.IsNullOrEmpty(v))
-                    entries.Add(v);
-            }
+            entries.Add($"{label} {value}");
+            return;
         }
+
+        var subValues = CollectSubItemValues(q.Item, respMap);
+        if (subValues.Count == 0)
+        {
+            entries.Add($"{label} {value}");
+            return;
+        }
+
+        var subCombined = string.Join(", ", subValues);
+
+        if (mode == CaseDescriptionOutputMode.Compact)
+        {
+            entries.Add($"{label} {value} ({subCombined})");
+            return;
+        }
+
+        // Expanded: the sub-line carries both the value and its children, so the parent
+        // leaves the comma-separated list - otherwise it renders twice.
+        subLines.Add($"  - {label} {value} \u2192 {subCombined}");
     }
 
     private static Dictionary<string, List<QuestionnaireResponse.ItemComponent>> BuildResponseMap(

@@ -62,7 +62,12 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
         if (res?.Data is EditQuestionnaireModel)
         {
             var m = (EditQuestionnaireModel)res.Data;
-            var resp = await api.CreateQuestionnaire(new UpdateQuestionnaireCommand(m.QuestionnaireId, m.Name, m.Resource, Settings: null, IsActive: true, insert: true));
+
+            // carry the picked filename into the settings - the entity only stores the name there
+            m.Settings ??= new();
+            m.Settings.Filename = m.ResourceFileName;
+
+            var resp = await api.CreateQuestionnaire(new UpdateQuestionnaireCommand(m.QuestionnaireId, m.Name, m.Resource, Settings: m.Settings, IsActive: true, insert: true));
             if (resp.IsSuccessful)
             {
                 await grid.ReloadServerData();
@@ -209,50 +214,52 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
 
 
 
-    public const long maxMemFile = 100000;
     public async Task<Result> UploadFile(InputFileChangeEventArgs e, EditQuestionnaireModel Model)
     {
-        if (e.File is not null)
+        if (e.File is null)
         {
-            Model.ResourceFileName = e.File.Name;
-
-            if (e.File.Size < maxMemFile)
-            {
-                try
-                {
-                    using var memoryStream = new MemoryStream();
-                    await e.File.OpenReadStream(maxMemFile).CopyToAsync(memoryStream);
-
-                    // parse as FHIR Questionnaire
-                    var fhir = System.Text.Encoding.Default.GetString(memoryStream.ToArray());
-                    var options = new JsonSerializerOptions().ForFhir(Hl7.Fhir.Model.ModelInfo.ModelInspector);
-                    var qr = JsonSerializer.Deserialize<Hl7.Fhir.Model.Questionnaire>(fhir, options);
-
-                    // extract id & title
-                    if (string.IsNullOrEmpty(Model.QuestionnaireId))
-                    {
-                        Model.QuestionnaireId = qr.Id;
-                    }
-                    if (string.IsNullOrEmpty(Model.Name))
-                    {
-                        Model.Name = qr.Title;
-                    }
-
-                    // serialize as JSON again
-                    options = new JsonSerializerOptions().ForFhir(Hl7.Fhir.Model.ModelInfo.ModelInspector).Pretty();
-                    Model.Resource = JsonSerializer.Serialize(qr, options);
-
-                    var l = Model.Resource.Length;
-
-                    return Result.Ok();
-                }
-                catch (Exception ex)
-                {
-                    return Result.Fail(T["The content provided is not a valid FHIR Quesionnaire"]);
-                }
-            }
+            return Result.Fail(T["no content uploaded"]);
         }
-        return Result.Fail(T["no content uploaded"]);
+
+        Model.ResourceFileName = e.File.Name;
+
+        // Read the file in full. The browser applies no size limit of its own, but
+        // OpenReadStream defaults to 500 KB, so pass the file's own size.
+        // No parsing or validation here - the handler is the only place content is trusted.
+        try
+        {
+            using var memoryStream = new MemoryStream();
+            await using (var stream = e.File.OpenReadStream(e.File.Size))
+            {
+                await stream.CopyToAsync(memoryStream);
+            }
+
+            Model.Resource = System.Text.Encoding.UTF8.GetString(memoryStream.ToArray());
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail(T["The file could not be read"] + ": " + ex.Message);
+        }
+
+        Model.Settings ??= new();
+        Model.Settings.Filename = Model.ResourceFileName;
+
+        // Persist through the same handler the Save button uses: it checks the Id and creates a
+        // new version carrying the uploaded resource. The API reports problems in the response,
+        // which the page surfaces to the user.
+        var resp = await api.CreateQuestionnaire(new UpdateQuestionnaireCommand(
+            Model.QuestionnaireId, Model.Name, Model.Resource,
+            Settings: Model.Settings, IsActive: true, insert: false));
+
+        if (!resp.IsSuccessful)
+        {
+            return Result.Fail(resp.ErrorText());
+        }
+
+        // reload so the model (and the bound code viewer) shows the persisted version
+        await Load(resp.Content);
+
+        return Result.Ok();
     }
 }
 
@@ -290,5 +297,9 @@ public class EditQuestionnaireModel
         IsActive = e.IsActive;
         Resource = e.Resource;
         Settings = e.Settings ?? new();
+
+        // the picked file is not stored on the entity, only its name is (Settings.Filename).
+        // Without this the bound field goes blank whenever the model is rebuilt from the entity.
+        ResourceFileName = Settings.Filename ?? string.Empty;
     }
 }

@@ -38,17 +38,29 @@ else
                 <MudTextField @bind-Value="@Model.Name" Label=@T["Name"] ShrinkLabel="true" Required="true" Variant="Variant.Outlined" />
 
 
-                <MudStack Row Class="mt-2">
-                    <MudTextField @bind-Value="Model.ResourceFileName" Label=@T["Quesiotnnaire File"] ReadOnly="true" ShrinkLabel="true" />
-                    <MudFileUpload T="IBrowserFile" @bind-Files="Model.ResourceFile" OnFilesChanged="UploadFile">
+                <MudStack Row Class="mt-2" AlignItems="AlignItems.Center">
+                    <MudTextField @bind-Value="Model.ResourceFileName" Label=@T["Quesiotnnaire File"] ReadOnly="true" 
+                        ShrinkLabel="true" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    <MudFileUpload @ref="_fileUpload" T="IBrowserFile" @bind-Files="Model.ResourceFile" OnFilesChanged="UploadFile">
                         <CustomContent Context="fileUpload">
                             <MudButton Variant="Variant.Filled"
                                        Color="Color.Primary"
+                                       Disabled="@_uploading"
                                        StartIcon="@Icons.Material.Filled.FileUpload"
                                        OnClick="@fileUpload.OpenFilePickerAsync">
                                 FHIR
                             </MudButton>
                         </CustomContent>
+                        @* The upload is sent to the API as soon as it is picked, so a chip listing the
+                           selected file is noise. Replacing SelectedTemplate suppresses MudBlazor's
+                           default chip list and shows progress instead. *@
+                        <SelectedTemplate>
+                            @if (_uploading)
+                            {
+                                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                                <MudText Typo="Typo.body2">@T["processing ..."]</MudText>
+                            }
+                        </SelectedTemplate>
                     </MudFileUpload>
                     <a href=@($"api/v1/fhir/Questionnaire/{Model.Id}")>
                         <MudButton StartIcon="@Icons.Material.Filled.Download" Color="Color.Primary" Variant="Variant.Filled">Download</MudButton>
@@ -60,6 +72,7 @@ else
 
                     <MudSelectExtended T="string" @bind-Value="Model.Settings.TextPreviewService"
                                        Variant="Variant.Outlined"
+                                       Margin="Margin.Dense"
                                        Dense="true">
                         @foreach (var svc in _previewServices)
                         {
@@ -68,13 +81,29 @@ else
                     </MudSelectExtended>
                 </MudStack>
 
-                <MudText Class="mt-4" Typo="Typo.subtitle1">FHIR Questionnaire</MudText>
-                <MudCodeViewer @bind-Code="@Model.Resource" 
-                               Style="max-height: calc(10 * 1.5em + 2rem); overflow-y: auto; border: 1px solid;"
-                               ShowHeader="false"
-                               Editable="true"
-                               Language="CodeLanguage.Json" 
-                               ShowLineNumbers="false"  />
+                <MudDivider Class="mt-4" />
+                @* The FHIR source is rarely interesting, so it lives behind a collapsed panel.
+                   MudExpansionPanel does not keep collapsed content alive, so the code viewer
+                   is not even created - and Prism does not parse the JSON - until it is opened. *@
+                <MudExpansionPanels Elevation="0" Gutters="false">
+                    <MudExpansionPanel Dense="true">
+                        <TitleContent>
+                            <MudStack Spacing="0">
+                                <MudText Typo="Typo.subtitle1">FHIR Questionnaire Resource</MudText>
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">@ResourceSummary</MudText>
+                            </MudStack>
+                        </TitleContent>
+                        <ChildContent>
+                            <MudCodeViewer @key="Model.Id"
+                                           Code="@Model.Resource"
+                                           Style="border: 1px solid;"
+                                           ShowHeader="false"
+                                           ShowCopyButton="true"
+                                           ShowLineNumbers="true"
+                                           Language="CodeLanguage.Json" />
+                        </ChildContent>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
             </MudForm>
         </MudTabPanel>
         <MudTabPanel Text=@T["Filter"] Icon="@Icons.Material.Filled.Filter">
@@ -195,20 +224,56 @@ else
         await vm.Save(Model);
     }
 
-    private void ReloadModel(MouseEventArgs args)
+    private void ReloadModel()
     {
         if (vm.SelectedQuestionnaire is not null)
             Model = new EditQuestionnaireModel(vm.SelectedQuestionnaire);
     }
 
+    private bool _uploading;
+    private MudFileUpload<IBrowserFile>? _fileUpload;
+
+    private string ResourceSummary
+    {
+        get
+        {
+            var kb = string.IsNullOrEmpty(Model.Resource) ? 0 : Model.Resource.Length / 1024;
+            return $"{Model.QuestionnaireId} | v{Model.Version} | {kb} KB";
+        }
+    }
+
     private async Task UploadFile(InputFileChangeEventArgs args)
     {
-        var res = await vm.UploadFile(args, Model);
-        if (res.IsFailed)
-        {
-            snackbar.AddError(res.Errors.FirstOrDefault().Message);
-        }
+        _uploading = true;
         StateHasChanged();
+
+        try
+        {
+            var res = await vm.UploadFile(args, Model);
+            if (res.IsFailed)
+            {
+                snackbar.AddError(res.Errors.FirstOrDefault()?.Message ?? "upload failed");
+            }
+            else
+            {
+                // the handler created a new version - rebind the model to the persisted one
+                ReloadModel();
+                snackbar.Add(T["Questionnaire uploaded"], Severity.Success);
+            }
+        }
+        finally
+        {
+            _uploading = false;
+
+            // drop the file from the selection: clears the bound field and resets the native
+            // input, so picking the same file again raises a change event
+            if (_fileUpload is not null)
+            {
+                await _fileUpload.ClearAsync();
+            }
+
+            StateHasChanged();
+        }
     }
 
     private async Task CreateText(MouseEventArgs args)

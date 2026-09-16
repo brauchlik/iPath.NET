@@ -19,13 +19,16 @@
             <MudStack Row Class="mt-2">
                 <MudTextField @bind-Value="Model.ResourceFileName" Label=@T["Quesiotnnaire File"] ReadOnly="true" ShrinkLabel="true" />
                 <MudFileUpload T="IBrowserFile" @bind-Files="Model.ResourceFile" OnFilesChanged="UploadFile">
-                    <ActivatorContent>
+                    <CustomContent Context="fileUpload">
                         <MudButton Variant="Variant.Filled"
                                    Color="Color.Primary"
-                                   StartIcon="@Icons.Material.Filled.FileUpload">
+                                   StartIcon="@Icons.Material.Filled.FileUpload"
+                                   OnClick="@fileUpload.OpenFilePickerAsync">
                             FHIR
                         </MudButton>
-                    </ActivatorContent>
+                    </CustomContent>
+                    @* the picked file is already named in the field above - suppress the chip list *@
+                    <SelectedTemplate />
                 </MudFileUpload>
             </MudStack>
             <MudTextField @bind-Value="@Model.Resource" Label=@T["FHIR Resource"] Variant="Variant.Outlined" Lines="10" ReadOnly="@resourceFromFile" />

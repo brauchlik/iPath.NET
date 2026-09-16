@@ -100,7 +100,7 @@
       ]
     },
     {
-      "id": "lab.blood-count",
+      "id": "lab.hematology",
       "title": "Labor — Blood Cell Count",
       "category": "04 Lab",
       "topography": ["C42", "C77"],
@@ -108,26 +108,11 @@
       "deprecated": false,
       "sourceOriginal": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].md",
       "sourceNotes": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].notes.md",
-      "sourceFhir": "blocks/04 Lab/lab.blood-count.json",
+      "sourceFhir": "blocks/04 Lab/lab.hematology.json",
       "summary": "Standard blood cell count with SI default units (10*12/L, 10*9/L) and US alternatives (10*6/uL, 10*3/uL).",
       "openQuestions": [
         "Confirm inclusion of Total Granulocyte Count alongside differential sub-counts.",
         "Confirm dual unit support (absolute counts vs. differential percentages %)."
-      ]
-    },
-    {
-      "id": "lab",
-      "title": "Master Lab List",
-      "category": "04 Lab",
-      "topography": ["C42", "C77"],
-      "status": "ready_for_review",
-      "deprecated": false,
-      "sourceOriginal": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].md",
-      "sourceNotes": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].notes.md",
-      "sourceFhir": "blocks/04 Lab/lab.json",
-      "summary": "Master lab questionnaire with blood count gate and full differential cell series.",
-      "openQuestions": [
-        "Scope of lab values across non-hematologic clinical requests."
       ]
     },
     {
@@ -159,7 +144,7 @@
       "sourceNotes": "staging/Case Description/jundt-case-hematology-lymph/jundt-case-hematology-lymph.review.md",
       "sourceFhir": "staging/Case Description/jundt-case-hematology-lymph/jundt-case-hematology-lymph.json",
       "summary": "Case description for hematology (C42) and lymph node (C77): material, 8 C77-relevant symptoms, 23 other symptoms behind gate, blood count lab. No imaging, no diagnostic assessment. Deferred: type of disease, steroid treatment, accidental finding, hematologic compartments, lymph node mapping, extended lab.",
-      "blocksUsed": ["material", "symptoms", "lab.blood-count"],
+      "blocksUsed": ["material", "symptoms", "lab.hematology"],
       "openQuestions": [
         "Type of disease (multi-select) — add inline or defer to new block?",
         "Previous steroid treatment — add inline or defer?",

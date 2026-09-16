@@ -14,22 +14,24 @@
         {
           "linkId": "mat.cytology",
           "type": "boolean",
-          "text": "Cytology"
-        },
-        {
-          "linkId": "mat.cytology.types",
-          "type": "choice",
-          "repeats": true,
-          "text": "Cytology material",
-          "enableWhen": [
-            { "question": "mat.cytology", "operator": "=", "answerBoolean": true }
-          ],
-          "answerOption": [
-            { "valueString": "Pap smear" },
-            { "valueString": "Smear cytology (eg Bronchus)" },
-            { "valueString": "Sputum" },
-            { "valueString": "Exfoliative cytology" },
-            { "valueString": "Fine needle aspiration" }
+          "text": "Cytology",
+          "item": [
+            {
+              "linkId": "mat.cytology.types",
+              "type": "choice",
+              "repeats": true,
+              "text": "Cytology material",
+              "enableWhen": [
+                { "question": "mat.cytology", "operator": "=", "answerBoolean": true }
+              ],
+              "answerOption": [
+                { "valueString": "Pap smear" },
+                { "valueString": "Smear cytology (eg Bronchus)" },
+                { "valueString": "Sputum" },
+                { "valueString": "Exfoliative cytology" },
+                { "valueString": "Fine needle aspiration" }
+              ]
+            }
           ]
         },
         {
@@ -51,21 +53,23 @@
         {
           "linkId": "mat.histology",
           "type": "boolean",
-          "text": "Histology"
-        },
-        {
-          "linkId": "mat.histology.types",
-          "type": "choice",
-          "repeats": true,
-          "text": "Histology material",
-          "enableWhen": [
-            { "question": "mat.histology", "operator": "=", "answerBoolean": true }
-          ],
-          "answerOption": [
-            { "valueString": "Core biopsy" },
-            { "valueString": "Open biopsy" },
-            { "valueString": "Excisional biopsy" },
-            { "valueString": "Resection" }
+          "text": "Histology",
+          "item": [
+            {
+              "linkId": "mat.histology.types",
+              "type": "choice",
+              "repeats": true,
+              "text": "Histology material",
+              "enableWhen": [
+                { "question": "mat.histology", "operator": "=", "answerBoolean": true }
+              ],
+              "answerOption": [
+                { "valueString": "Core biopsy" },
+                { "valueString": "Open biopsy" },
+                { "valueString": "Excisional biopsy" },
+                { "valueString": "Resection" }
+              ]
+            }
           ]
         }
       ]

@@ -8,15 +8,20 @@ Branch: `MAIN` · Server: `http://basyssrvdock1:8082` · Started: 2026-08-18 · 
 
 ```
 Blood cell count available   boolean (gate)
-Erythrocytes                 quantity (10*6/uL | 10*12/L)
-Granulocytes                 group
+Erythrocytes                 quantity (10*6/uL | 10*12/L)     enableWhen gate = true
+Granulocytes (total)         quantity (% | 10*3/uL | 10*9/L)  enableWhen gate = true
 ├── Neutrophils              quantity (% | 10*3/uL | 10*9/L)
 ├── Eosinophils              quantity (% | 10*3/uL | 10*9/L)
 └── Basophils                quantity (% | 10*3/uL | 10*9/L)
-Monocytes                    quantity (% | 10*3/uL | 10*9/L)
-Lymphocytes                  quantity (% | 10*3/uL | 10*9/L)
-Thrombocytes                 quantity (10*3/uL | 10*9/L)
+Monocytes                    quantity (% | 10*3/uL | 10*9/L)  enableWhen gate = true
+Lymphocytes                  quantity (% | 10*3/uL | 10*9/L)  enableWhen gate = true
+Thrombocytes                 quantity (10*3/uL | 10*9/L)     enableWhen gate = true
 ```
+
+The measurements are **siblings** of the gate, each gated by `enableWhen`, not children of
+it. Nesting the whole set under the gate pushes `Granulocytes`' own children to a second
+level, and the case-description text preview reads only one level down - the differential
+would be silently dropped. This is the "one level only" rule in `block-schema.md`.
 
 ## Decisions & Questions for Jundt
 
@@ -28,7 +33,7 @@ Thrombocytes                 quantity (10*3/uL | 10*9/L)
 |---|---|---|---|
 | Blood cell count available (gate) | `88308000` | — | — |
 | Erythrocytes | `14089001` | `789-8` | `10*6/uL`, `10*12/L` |
-| Granulocytes (group) | `118138007` | — | — |
+| Granulocytes (total) | `118138007` | `19023-1` / `30427-9` | `%`, `10*3/uL`, `10*9/L` |
 | Neutrophils | `30630007` | `26499-4` / `770-8` | `%`, `10*3/uL`, `10*9/L` |
 | Eosinophils | `71960002` | `711-2` / `713-8` | `%`, `10*3/uL`, `10*9/L` |
 | Basophils | `42351005` | `704-7` / `706-2` | `%`, `10*3/uL`, `10*9/L` |
@@ -43,4 +48,5 @@ Thrombocytes                 quantity (10*3/uL | 10*9/L)
 
 ## Blocks
 
-- `lab.blood-count` — topography `["C42", "C77"]`.
+- `lab.hematology` — topography `["C42", "C77"]`. Organ-specific lab block; there is no generic lab
+  block by design (each organ gets its own).

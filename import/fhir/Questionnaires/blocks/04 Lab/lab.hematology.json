@@ -1,6 +1,6 @@
 {
   "resourceType": "Questionnaire",
-  "id": "lab.blood-count",
+  "id": "lab.hematology",
   "status": "draft",
   "title": "Labor — blood cell count",
   "subjectType": [

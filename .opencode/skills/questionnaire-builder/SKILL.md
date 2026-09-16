@@ -192,6 +192,15 @@ Run the phases in order. Never skip ahead.
 3. Validate: parses as R4; `linkId` unique; `enableWhen` targets exist; `choice`
    has `answerOption`; `quantity` has unit options; and registry consistency
    (same canonical id => identical text/type/coding/units across blocks).
+4. **Nest one level only - children must be leaves.** A conditional detail is a child item
+   of the question it belongs to (`pain` → `pain.duration`, `cytology` → `cytology.types`,
+   `granulocytes` → `neutrophils`). A question that has its own children must sit directly
+   under a group, never inside another question's `item[]`: the case-description text
+   preview reads exactly one level down, so a grandchild is silently dropped. In
+   particular a *set* of measurements behind one gate stays siblings carrying `enableWhen`
+   (`lab.blood-count.json`), instead of being nested under the gate (`lab.json`, which
+   loses the differential). The only true exception is a reveal bound to a **single
+   option** of a multi-select, which also stays a sibling (see `reference/block-schema.md`).
 
 ### Phase 3 — Composition
 
@@ -201,8 +210,12 @@ Run the phases in order. Never skip ahead.
    - **Follow-Up:** Treatment response, recurrence monitoring
 2. Inline blocks with a per-questionnaire `linkId` prefix (e.g. `lab.blood-count.erythrocytes`).
 3. Rewrite `enableWhen` references with the same prefix.
-4. Dedupe identical questions across inlined blocks (region/richer variant wins).
-5. Write `staging/<Form Type>/<id>/<id>.json` and validate per `reference/fhir-conventions.md`.
+4. **Preserve the item tree.** Prefixing linkIds and rewriting `enableWhen` are the only
+   transformations allowed - never hoist a child up to a sibling. (Precedent: `lab.json`
+   nests the quantities under `available`, while `lab.blood-count.json` keeps them as
+   siblings; compose from the nested shape.)
+5. Dedupe identical questions across inlined blocks (region/richer variant wins).
+6. Write `staging/<Form Type>/<id>/<id>.json` and validate per `reference/fhir-conventions.md`.
 
 ### Phase 4 — Review & approval
 

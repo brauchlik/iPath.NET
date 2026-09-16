@@ -61,24 +61,14 @@
       "when": "Master block containing all general and special imaging modalities"
     },
     {
-      "id": "lab.blood-count",
+      "id": "lab.hematology",
       "title": "Labor — blood cell count",
       "category": "Lab",
       "topography": ["C42", "C77"],
       "source": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].md",
       "status": "coded",
-      "file": "blocks/04 Lab/lab.blood-count.json",
+      "file": "blocks/04 Lab/lab.hematology.json",
       "when": "Include for hematologic or lymph-node cases (ICD-O C42 / C77)"
-    },
-    {
-      "id": "lab",
-      "title": "Master Lab List",
-      "category": "Lab",
-      "topography": ["C42", "C77"],
-      "source": "doc/jundt/Case Descriptions/04 Lab/Hematology [C42-C42] and Lymph nodes [C77].md",
-      "status": "coded",
-      "file": "blocks/04 Lab/lab.json",
-      "when": "Master block for blood cell count and differential lab values"
     },
     {
       "id": "diagnostic",

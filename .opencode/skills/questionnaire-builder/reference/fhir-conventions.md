@@ -113,7 +113,18 @@ option), and add the LOINC code as a second `item.code` coding:
 
 - [ ] Deserializes with Hl7.Fhir R4
 - [ ] `resourceType`, `id`, `title`, `status` present
-- [ ] `linkId` unique across all items
+- [ ] `linkId` unique across all items (known violation still to fix: `sym.other` in
+      `jundt-case-digestive.json` exists both as a `string` inside `sym` and as a
+      top-level `group` with 22 children)
+- [ ] conditional details are **one level deep**: a question's children are leaves, and a
+      question that has children sits directly under a group (a grandchild is dropped by
+      the text preview - e.g. `menopause` → `regularcycle` → `irregularities`)
+- [ ] a reveal bound to one multi-select option is a sibling with `enableWhen`
+      `answerString` (`material`: `cytology.exfoliative`)
+- [ ] a *set* of measurements behind one gate are siblings carrying `enableWhen` on the
+      gate, not children of it (`lab.blood-count.json`, not `lab.json`)
+- [ ] a child's `linkId` is `<parentLinkId>.<name>` and the child carries an `enableWhen`
+      on its parent
 - [ ] `choice`/`open-choice` items have `answerOption`
 - [ ] every `enableWhen.question` linkId exists
 - [ ] quantity items declare a unit

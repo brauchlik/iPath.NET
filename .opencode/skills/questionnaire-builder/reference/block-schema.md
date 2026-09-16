@@ -24,9 +24,26 @@ gastro symptoms), and that serves as a blueprint for larger composed forms.
   `{ "url": "http://ipath.local/sourceLine", "valueInteger": <line> }`.
 - Multi-select = `choice` + `repeats: true`.
 - "if yes, upload …" = `boolean` + conditional `attachment` child (`enableWhen`).
-- Nested reveal (e.g. exfoliative sites) = child `choice` with `enableWhen`
-  `answerString` on the parent option (use `=`, not `exists` — LHC-Forms
-  multi-select bug).
+- Conditional reveal = a **child item** of the question it belongs to, with `enableWhen`
+  referencing that parent (`symptoms`: `pain` → `pain.duration`; `material`: `cytology` →
+  `cytology.types`). Children carry the detail, so composed forms render them as
+  sub-lines in the text preview.
+- **One level only — children must be leaves, never grandchildren.** The text preview
+  reads one level of children below each question, so a question that itself has children
+  must sit directly under a group, never inside another question's `item[]`.
+  - Nest: `pain` → `pain.duration`; `cytology` → `cytology.types`;
+    `granulocytes` → `neutrophils`/`eosinophils`/`basophils`.
+  - Do **not** nest a set of measurements behind one gate when one of them is itself a
+    parent. `available` → `granulocytes` → `neutrophils…` renders the granulocyte total
+    but silently drops the differential — the abandoned `lab.json` shape. Model the set as
+    siblings carrying `enableWhen` on the gate, which is what `lab.blood-count.json` does.
+  - Known violation to fix: `menopause` → `regularcycle` → `irregularities` is a
+    grandchild, so `irregularities` never renders.
+- Reveal tied to **one specific option** of a multi-select stays a flat sibling with
+  `enableWhen` `answerString` on that option (e.g. `cytology.exfoliative`, gated by the
+  `Exfoliative cytology` option of `cytology.types`). It cannot be a child of it, because
+  it belongs to a single answer rather than to the question. Use `=`, not `exists` —
+  LHC-Forms multi-select bug.
 
 ## Manifest (`blocks/blocks.json`)
 

@@ -14,7 +14,7 @@ Your Hematology/Lymph form suggestion (`.txt`) was used as the primary source. W
 | Material (Cytology/Histology) | Lines 28-30 | ✅ Included (material block) |
 | Imaging (general + special) | Lines 31-54 | ✅ Included (imaging block) |
 | Symptoms C42/C77 | Lines 59-88 | ✅ Included (symptoms block, 3-state) |
-| Blood cell count | Lines 91-99 | ✅ Included (lab.blood-count block) |
+| Blood cell count | Lines 91-99 | ✅ Included (lab.hematology block) |
 | Type of disease | Lines 12-20 | ✅ Included (new inline section) |
 | Steroid treatment | Lines 55, 61 | ✅ Included (new inline section) |
 | Accidental finding | Line 63 | ✅ Included (new inline section) |

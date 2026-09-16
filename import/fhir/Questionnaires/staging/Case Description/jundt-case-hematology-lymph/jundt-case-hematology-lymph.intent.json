@@ -28,11 +28,11 @@
     {
       "linkId": "lab",
       "title": "Blood cell count",
-      "block": "lab.blood-count",
+      "block": "lab.hematology",
       "compositionNote": "Standard blood count block with SI/US dual units. Directly inlined. linkId prefix: lab."
     }
   ],
-  "blocksUsed": ["material", "symptoms", "lab.blood-count"],
+  "blocksUsed": ["material", "symptoms", "lab.hematology"],
   "newInlineSections": [],
   "compositionRules": [
     "All linkIds prefixed with block id (mat.*, sym.*, lab.*, diag.*)",

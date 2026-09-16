@@ -51,8 +51,14 @@ Histology Yes/No                     (gate, boolean)
 
 ## Refinements
 
-- Gates: `Cytology` and `Histology` are flat top-level `boolean` items.
-- Sub-types: `choice` + `repeats: true` (multi-select), with `enableWhen` referencing the respective gate = `true`.
+- Gates: `Cytology` and `Histology` are `boolean` items.
+- Sub-types: `choice` + `repeats: true` (multi-select), nested as child items of their
+  gate — `cytology.types` under `cytology`, `histology.types` under `histology` — with
+  `enableWhen` referencing the gate = `true`. Nesting keeps the types with the gate they
+  belong to, and lets the text preview render them as detail lines.
+- `cytology.exfoliative` (site list) stays a flat sibling, gated by `answerString` on the
+  `Exfoliative cytology` option of `cytology.types`: it belongs to one answer rather than
+  to the gate, so it cannot be a child of it.
 - `"No data"` option removed from multi-select sub-type choice lists.
 
 ## Blocks

@@ -27,7 +27,7 @@
 | Material | `material` | `mat.` | Cytology (bool + types), Histology (bool + types) |
 | Symptoms | `symptoms` | `sym.` | 8 C77-relevant: pain (+duration), swelling (+duration), night sweat, weight loss (+kg), fever, pallor, bleeding tendency, susceptibility |
 | Other Symptoms | `symptoms` | `sym.other.` | 23 non-C77 items behind "Other symptoms present?" gate |
-| Blood cell count | `lab.blood-count` | `lab.` | Available gate, erythrocytes, granulocytes (3 sub-counts), monocytes, lymphocytes, thrombocytes |
+| Blood cell count | `lab.hematology` | `lab.` | Available gate, erythrocytes, granulocytes (3 sub-counts), monocytes, lymphocytes, thrombocytes |
 
 ## What was applied
 

@@ -281,7 +281,9 @@ public class EditQuestionnaireModel
 
     public string? Resource { get; set; }
 
-    public QuestionnaireSettings Settings { get; set; } = null;
+    // never null: the page renders a default model while the entity is still loading, and the
+    // tabs read Model.Settings directly
+    public QuestionnaireSettings Settings { get; set; } = new();
 
     public EditQuestionnaireModel()
     {

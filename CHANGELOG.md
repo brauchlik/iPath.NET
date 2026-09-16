@@ -6,6 +6,7 @@
 - Fix: the questionnaire admin page failed to render under WebAssembly - the text preview services and their registry were registered server-side only; they now come from one shared `AddQuestionnaireToTextServices()` used by both the API and the RazorLib registration
 - Questionnaire text preview: the mode used when a questionnaire has none selected is now configurable (`iPathClientConfig:DefaultTextPreviewService`) instead of hardcoded to "Default List"
 - Symptoms blocks: `menopause.irregularities` moved up to be a sibling of `menopause.regularcycle` (it was a grandchild, so the text preview dropped it)
+- Fix: the questionnaire admin page could throw a NullReferenceException while the questionnaire was still loading - `EditQuestionnaireModel.Settings` defaulted to null and the tabs read it during that render
 - Docs: AGENTS.md records that `openapi.json` is build-generated and committed, and `.gitignore` now covers CodeRush's `.cr/` folder and the `data/` scratch directory
 
 ## 0.3

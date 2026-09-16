@@ -15,5 +15,6 @@ public record AnnotationDto
     public Guid OwnerId { get; init; }
     public required OwnerDto Owner { get; init; }
     public Guid? DocumentId { get; init; }
+    public Guid? ReplyToId { get; init; }
     public AnnotationData? Data { get; init; }
 }

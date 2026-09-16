@@ -3,6 +3,7 @@
 @using System.Threading.Tasks
 
 @inject QuestionnaireAdminViewModel vm
+@inject IQuestionnaireToTextServiceRegistry previewRegistry
 
 <MudBreadcrumbs Items="vm.BreadCrumbs" Class="mt-0 pt-0"></MudBreadcrumbs>
 
@@ -40,21 +41,40 @@ else
                 <MudStack Row Class="mt-2">
                     <MudTextField @bind-Value="Model.ResourceFileName" Label=@T["Quesiotnnaire File"] ReadOnly="true" ShrinkLabel="true" />
                     <MudFileUpload T="IBrowserFile" @bind-Files="Model.ResourceFile" OnFilesChanged="UploadFile">
-                        <ActivatorContent>
+                        <CustomContent Context="fileUpload">
                             <MudButton Variant="Variant.Filled"
                                        Color="Color.Primary"
-                                       StartIcon="@Icons.Material.Filled.FileUpload">
+                                       StartIcon="@Icons.Material.Filled.FileUpload"
+                                       OnClick="@fileUpload.OpenFilePickerAsync">
                                 FHIR
                             </MudButton>
-                        </ActivatorContent>
+                        </CustomContent>
                     </MudFileUpload>
                     <a href=@($"api/v1/fhir/Questionnaire/{Model.Id}")>
                         <MudButton StartIcon="@Icons.Material.Filled.Download" Color="Color.Primary" Variant="Variant.Filled">Download</MudButton>
                     </a>
                 </MudStack>
 
-                <MudTextField @bind-Value="@Model.Resource" Label=@T["FHIR Resource"] Variant="Variant.Outlined"
-                              Lines="10" Margin="Margin.Dense" Typo="Typo.body2" />
+                <MudStack Row AlignItems="AlignItems.Center">
+                    <MudText>@T["Text Preview Mode"]</MudText>
+
+                    <MudSelectExtended T="string" @bind-Value="Model.Settings.TextPreviewService"
+                                       Variant="Variant.Outlined"
+                                       Dense="true">
+                        @foreach (var svc in _previewServices)
+                        {
+                            <MudSelectItemExtended Value="@svc.Key">@svc.DisplayName</MudSelectItemExtended>
+                        }
+                    </MudSelectExtended>
+                </MudStack>
+
+                <MudText Class="mt-4" Typo="Typo.subtitle1">FHIR Questionnaire</MudText>
+                <MudCodeViewer @bind-Code="@Model.Resource" 
+                               Style="max-height: calc(10 * 1.5em + 2rem); overflow-y: auto; border: 1px solid;"
+                               ShowHeader="false"
+                               Editable="true"
+                               Language="CodeLanguage.Json" 
+                               ShowLineNumbers="false"  />
             </MudForm>
         </MudTabPanel>
         <MudTabPanel Text=@T["Filter"] Icon="@Icons.Material.Filled.Filter">
@@ -64,9 +84,56 @@ else
             <iPath.LHCForms.LhcForm @ref="vm.PreviewForm" ReadOnly="false"
                                     Questionnaire="@Model.Resource" />
 
-            <MudDivider Class="my-2" />
-            <MudButton OnClick="CreateText" Variant="Variant.Filled">To Text</MudButton>
-            @text
+            <MudDivider Class="mt-8" />
+
+            <MudStack Row Spacing="2" Class="mb-2" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h6" Class="mb-2">Text Preview</MudText>
+                <MudSpacer />
+                <MudSelectExtended T="string" @bind-Value="Model.Settings.TextPreviewService"
+                                   Label=@T["Text Preview Mode"]
+                                   Variant="Variant.Outlined"
+                                   Dense="true"
+                                   ShrinkLabel="true"
+                                   Class="flex-grow-1">
+                    @foreach (var svc in _previewServices)
+                    {
+                        <MudSelectItemExtended Value="@svc.Key">@svc.DisplayName</MudSelectItemExtended>
+                    }
+                </MudSelectExtended>
+                <MudButton OnClick="CreateText" Variant="Variant.Filled" Color="Color.Primary">Generate text</MudButton>
+            </MudStack>
+
+            <MudButtonGroup Class="mb-2">
+                <MudButton Variant="previewMode == PreviewMode.Text ? Variant.Filled : Variant.Outlined"
+                           OnClick="@(() => previewMode = PreviewMode.Text)">Text Preview</MudButton>
+                <MudButton Variant="previewMode == PreviewMode.Json ? Variant.Filled : Variant.Outlined"
+                           OnClick="@(() => previewMode = PreviewMode.Json)">Response JSON</MudButton>
+            </MudButtonGroup>
+
+            <MudPaper Elevation="2" Class="pa-4">
+                @if (previewMode == PreviewMode.Text)
+                {
+                    @if (string.IsNullOrEmpty(vm.PreviewText))
+                    {
+                        <MudText Class="mud-text-muted">Click "Generate text" to preview.</MudText>
+                    }
+                    else
+                    {
+                        @((MarkupString)vm.PreviewText)
+                    }
+                }
+                else
+                {
+                    @if (string.IsNullOrEmpty(vm.PreviewResponseJson))
+                    {
+                        <MudText Class="mud-text-muted">Click "Generate text" to see the response JSON.</MudText>
+                    }
+                    else
+                    {
+                        <MudCodeViewer Code="@vm.PreviewResponseJson" Language="CodeLanguage.Json" ShowLineNumbers="true" Wrap="true" />
+                    }
+                }
+            </MudPaper>
         </MudTabPanel>
     </MudTabs>
 
@@ -79,6 +146,8 @@ else
 
 
 @code {
+    enum PreviewMode { Text, Json }
+
     [Parameter]
     public string id { get; set; }
 
@@ -91,10 +160,13 @@ else
     int panelIndex = 0;
 
     TopoTreeFilter _topoTree;
-    string text;
+    PreviewMode previewMode = PreviewMode.Text;
+    IReadOnlyList<TextPreviewServiceInfo> _previewServices = [];
 
     protected override async Task OnParametersSetAsync()
     {
+        _previewServices = previewRegistry.GetAll();
+
         if (Guid.TryParse(id, out var guid))
         {
             await vm.Load(guid);
@@ -141,6 +213,7 @@ else
 
     private async Task CreateText(MouseEventArgs args)
     {
-        text = await vm.GetPreviewText();
+        await vm.GetPreviewText();
+        StateHasChanged();
     }
 }

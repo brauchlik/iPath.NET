@@ -3,6 +3,16 @@
 
 @if (Model is not null)
 {
+    @if (ReplyTo is not null)
+    {
+        <div class="ipath_annotation_reply_context">
+            <MudIcon Icon="@Icons.Material.Filled.Reply" Size="Size.Small" />
+            <MudText Typo="Typo.caption" Class="ml-1">
+                @T["Reply to"] <b>@ReplyTo.Owner.Username</b>: "@(ReplyTo.Data.Text?.Length > 100 ? ReplyTo.Data.Text[..100] + "..." : ReplyTo.Data.Text)"
+            </MudText>
+        </div>
+    }
+
     <MudStack Spacing="1">
         <MudGrid>
             <MudItem xs="12" sm="3">
@@ -61,6 +71,9 @@
 @code {
     [Parameter]
     public AnnotationEditModel Model { get; set; } = new();
+
+    [Parameter]
+    public AnnotationDto? ReplyTo { get; set; }
 
     private bool useQuestionnaire = false;
     iPath.LHCForms.LhcForm lhcForm;

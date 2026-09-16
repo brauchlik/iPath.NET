@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="EFCore.BulkExtensions" Version="10.0.1" />
-    <PackageReference Include="MailKit" Version="4.17.0" />
+    <PackageReference Include="MailKit" Version="4.18.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="10.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
@@ -26,7 +26,7 @@
     <PackageReference Include="OllamaSharp" Version="5.4.30" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.17.3" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-    <PackageReference Include="Dapper" Version="2.1.79" />
+    <PackageReference Include="Dapper" Version="2.1.86" />
     <PackageReference Include="MySqlConnector" Version="2.6.2" />
   </ItemGroup>
 

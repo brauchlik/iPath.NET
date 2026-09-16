@@ -865,6 +865,29 @@ public class ServiceRequestViewModel(IPathApi api,
         OnChange?.Invoke();
     }
 
+    public async Task SubmitReply(Guid replyToId, string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return;
+
+        var data = new AnnotationData
+        {
+            Type = eAnnotationType.Comment,
+            Text = text.Trim()
+        };
+
+        var cmd = new CreateAnnotationCommand(
+            SelectedRequest!.Id,
+            data,
+            replyToId);
+
+        var resp = await api.CreateAnnotation(cmd);
+        if (snackbar.CheckSuccess(resp))
+        {
+            await ReloadNode();
+        }
+        NotifyStateChanged();
+    }
+
     private AnnotationEditModel CreateNewAnnotationInput(DocumentDto? Document = null)
     {
         var model = new AnnotationEditModel();
@@ -912,7 +935,7 @@ public class ServiceRequestViewModel(IPathApi api,
         {
             if (!data.Id.HasValue)
             {
-                var cmd = new CreateAnnotationCommand(data.ServiceRequestId, data.Data);
+                var cmd = new CreateAnnotationCommand(data.ServiceRequestId, data.Data, data.ReplyToId);
                 var resp = await api.CreateAnnotation(cmd);
                 if (snackbar.CheckSuccess(resp))
                 {

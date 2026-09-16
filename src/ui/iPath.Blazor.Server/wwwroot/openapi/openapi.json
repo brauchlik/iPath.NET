@@ -4451,6 +4451,13 @@
             ],
             "format": "uuid"
           },
+          "replyToId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
           "data": {
             "oneOf": [
               {
@@ -5197,6 +5204,13 @@
                 "$ref": "#/components/schemas/AnnotationData"
               }
             ]
+          },
+          "replyToId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           },
           "objectName": {
             "type": [
@@ -8468,6 +8482,12 @@
               {
                 "$ref": "#/components/schemas/ConceptFilter"
               }
+            ]
+          },
+          "textPreviewService": {
+            "type": [
+              "null",
+              "string"
             ]
           }
         }

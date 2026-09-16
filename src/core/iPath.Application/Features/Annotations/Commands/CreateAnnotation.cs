@@ -1,6 +1,6 @@
 ﻿namespace iPath.Application.Features.Annotations;
 
-public record CreateAnnotationCommand(Guid requestId, AnnotationData? Data)
+public record CreateAnnotationCommand(Guid requestId, AnnotationData? Data, Guid? ReplyToId = null)
     : IRequest<CreateAnnotationCommand, Task<AnnotationDto>>
     , IEventInput
 {
@@ -19,6 +19,7 @@ public static partial class ServiceRequestCommandExtensions
             ServiceRequestId = request.requestId,
             DcoumentNodeId = request.Data.DocumentId,
             CreatedOn = DateTime.UtcNow,
+            ReplyToId = request.ReplyToId
         };
         node.Annotations.Add(a);
         node.CreateEvent<AnnotationAddedEvent, CreateAnnotationCommand>(request, userId);

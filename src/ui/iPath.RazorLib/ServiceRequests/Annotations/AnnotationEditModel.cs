@@ -4,6 +4,7 @@ public class AnnotationEditModel
 {
     public Guid? Id { get; set; } = null;
     public bool AskMorphology { get; set; }
+    public Guid? ReplyToId { get; set; }
 
     public AnnotationData Data { get; set; } = new();
 
@@ -15,7 +16,8 @@ public class AnnotationEditModel
         {
             Id = dto.Id,
             ServiceRequestId = dto.ServiceRequestId,
-            Data = dto.Data
+            Data = dto.Data,
+            ReplyToId = dto.ReplyToId
         };
         return m;
     }

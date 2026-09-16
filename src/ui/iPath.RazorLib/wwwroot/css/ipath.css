@@ -316,6 +316,38 @@
     }
 
 
+    /* Reply threading indentation */
+    .ipath_annotation_indent {
+        border-left: 3px solid #e0e0e0;
+        margin-left: 0;
+        padding-left: 12px;
+        margin-top: -4px;
+    }
+
+    .ipath_annotation_indent.depth-1 { margin-left: 24px; }
+    .ipath_annotation_indent.depth-2 { margin-left: 48px; }
+    .ipath_annotation_indent.depth-3 { margin-left: 72px; }
+    .ipath_annotation_indent.depth-4 { margin-left: 96px; }
+    .ipath_annotation_indent.depth-5 { margin-left: 120px; }
+
+    .ipath_annotation_reply_context {
+        display: flex;
+        align-items: center;
+        padding: 6px 10px;
+        margin-bottom: 8px;
+        background-color: #f5f5f5;
+        border-left: 3px solid #1976d2;
+        border-radius: 0 4px 4px 0;
+        color: #666;
+    }
+
+    .ipath_annotation_reply_row {
+        margin-top: 4px;
+        padding-top: 4px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+
 /**** Gallery *******************************************************************/
 .gallery {
     display: grid;

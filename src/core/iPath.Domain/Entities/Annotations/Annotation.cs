@@ -18,12 +18,16 @@ public class Annotation : AuditableEntityWithEvents
     public Guid OwnerId { get; set; }
     public User Owner { get; set; } = null!;
 
+    public Guid? ReplyToId { get; set; }
+    public Annotation? ReplyTo { get; set; }
+    public ICollection<Annotation> Replies { get; set; } = [];
+
     public AnnotationData? Data { get; set; }
 
     public ICollection<QuestionnaireResponseEntity> QuestionnaireResponses { get; set; } = [];
 
 
-    public static Annotation Create(ServiceRequest node, Guid ownerId, AnnotationData data)
+    public static Annotation Create(ServiceRequest node, Guid ownerId, AnnotationData data, Guid? replyToId = null)
     {
         var ret = new Annotation
         {
@@ -31,7 +35,8 @@ public class Annotation : AuditableEntityWithEvents
             CreatedOn = DateTime.UtcNow,
             ServiceRequestId = node.Id,
             OwnerId = ownerId,
-            Data = data
+            Data = data,
+            ReplyToId = replyToId
         };
 
         // create event

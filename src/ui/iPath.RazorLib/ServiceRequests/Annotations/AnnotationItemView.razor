@@ -8,7 +8,7 @@
 
 @if (editModel is null)
 {
-    <div class="ipath_annotation_block">
+    <div class="ipath_annotation_block @CssClass">
         <div class="ipath_annotation_info">
             <div class="ipath_annotation_info1"><OwnerLink Owner="@Item.Owner" /></div>
             <div class="ipath_annotation_info2">@Item.CreatedOn.ToString("g")</div>
@@ -49,6 +49,32 @@
                     <span>@T["Comment on: "]</span><MudLink OnClick=@(() => vm.SelectDocument(Item.DocumentId.Value))>@DocumentCaption</MudLink>
                 </div>
             }
+
+            @if (!Item.Deleted)
+            {
+                <div class="ipath_annotation_reply_row">
+                    @if (isReplying)
+                    {
+                        <div class="ipath_annotation_reply_context">
+                            <MudIcon Icon="@Icons.Material.Filled.Reply" Size="Size.Small" />
+                            <MudText Typo="Typo.caption" Class="ml-1">
+                                @T["Reply to"] <b>@Item.Owner.Username</b>
+                            </MudText>
+                        </div>
+                        <MudTextField @bind-Value="replyText" Immediate="true"
+                                      AutoGrow="true" Lines="3" Variant="Variant.Outlined"
+                                      Placeholder="@T["Type your reply..."]" Class="mb-2" />
+                        <MudStack Row Spacing="1">
+                            <MudButton OnClick="SubmitReply" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">@T["Submit"]</MudButton>
+                            <MudButton OnClick="CancelReply" Variant="Variant.Outlined" Size="Size.Small">@T["Cancel"]</MudButton>
+                        </MudStack>
+                    }
+                    else
+                    {
+                        <MudLink OnClick="Reply" Typo="Typo.body2"><MudIcon Icon="@Icons.Material.Filled.Reply" Size="Size.Small" /> @T["Reply"]</MudLink>
+                    }
+                </div>
+            }
         </div>
     </div>
 
@@ -70,12 +96,17 @@ else
     public EventCallback<AnnotationDto> OnEdit { get; set; }
 
     [Parameter]
-    public EventCallback<AnnotationDto> OnReply { get; set; }
+    public AnnotationDto? ParentAnnotation { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; } = "";
 
     private bool Hovering;
     private string Initials;
 
     private InlineAnnotationEdit edit;
+    private bool isReplying;
+    private string replyText = "";
 
 
     private string TextClass => "ipath_annotation_text" + (Item.Deleted ? " ipath_item_deleted" : "");
@@ -110,7 +141,24 @@ else
 
     async Task Reply()
     {
-        await OnReply.InvokeAsync(Item);
+        isReplying = true;
+        replyText = "";
+    }
+
+    async Task SubmitReply()
+    {
+        if (!string.IsNullOrWhiteSpace(replyText))
+        {
+            await vm.SubmitReply(Item.Id, replyText);
+            isReplying = false;
+            replyText = "";
+        }
+    }
+
+    async Task CancelReply()
+    {
+        isReplying = false;
+        replyText = "";
     }
 
 

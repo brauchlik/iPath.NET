@@ -2,14 +2,15 @@
 using Hl7.Fhir.Serialization;
 using iPath.Application.Features.Questionnaires;
 using iPath.Application.Services;
+using Microsoft.Extensions.DependencyInjection;
 using iPath.EF.Core.FeatureHandlers.Users;
 using System.Text.Json;
 
 namespace iPath.EF.Core.FeatureHandlers.ServiceRequests.Commands;
 
 
-public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator, 
-    IQuestionnaireToTextService q2t,
+public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator,
+    IServiceProvider sp,
     QuestionnaireCacheServer cache,
     IUserSession sess)
     : IRequestHandler<UpdateServiceRequestCommand, Task<bool>>
@@ -46,6 +47,13 @@ public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator,
                 var q = await cache.GetQuestionnaireAsync(qr.QuestionnaireId);
                 if (q is not null)
                 {
+                    var settings = await cache.GetSettingsAsync(qr.QuestionnaireId);
+                    var serviceKey = settings?.TextPreviewService;
+                    var q2t = string.IsNullOrEmpty(serviceKey)
+                        ? sp.GetRequiredKeyedService<IQuestionnaireToTextService>("Default List")
+                        : sp.GetKeyedService<IQuestionnaireToTextService>(serviceKey)
+                          ?? sp.GetRequiredKeyedService<IQuestionnaireToTextService>("Default List");
+
                     request.Description.Questionnaire.GeneratedText = q2t.CreateText(r, q);
                 }
             }

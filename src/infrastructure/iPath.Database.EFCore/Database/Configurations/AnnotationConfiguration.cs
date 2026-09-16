@@ -16,8 +16,13 @@ internal class AnnotationConfiguration : IEntityTypeConfiguration<Annotation>
         b.HasOne(x => x.Owner).WithMany().HasForeignKey(x => x.OwnerId).IsRequired()
             .OnDelete(DeleteBehavior.NoAction);
 
+        b.Property(x => x.ReplyToId).HasColumnName("reply_to_id");
+        b.HasOne(x => x.ReplyTo).WithMany(x => x.Replies).HasForeignKey(x => x.ReplyToId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         b.HasMany(x => x.QuestionnaireResponses).WithOne(r => r.Annotation).IsRequired(false);
 
         b.HasIndex(x => new { x.ServiceRequestId, x.DeletedOn });
+        b.HasIndex(x => x.ReplyToId);
     }
 }

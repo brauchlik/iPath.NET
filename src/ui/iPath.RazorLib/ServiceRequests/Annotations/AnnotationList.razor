@@ -1,10 +1,11 @@
 ﻿@if (Items is not null)
 {
-    @foreach (var a in Items.OrderByDirection(Sort, a => a.CreatedOn))
+    @foreach (var thread in Items.BuildThreads(Sort == SortDirection.Ascending))
     {
         @if (ShowAnnotations)
         {
-            <AnnotationItemView Item="a" OnDelete="OnDelete" OnReply="OnReply" OnEdit="OnEdit" />
+            <AnnotationItemView Item="thread.Root" />
+            @RenderChildren(thread.Children, 1)
         }
         else
         {
@@ -25,25 +26,15 @@
     [Parameter]
     public SortDirection Sort { get; set; }
 
-    // [Parameter]
-    // public EventCallback<AnnotationDto> OnDelete { get; set;  }
-        
-
-    async Task OnDelete(AnnotationDto item)
+    RenderFragment RenderChildren(List<AnnotationThread> children, int depth) => builder =>
     {
-        await vm.DeleteAnnotation(item);
-        await vm.ReloadNode();
-    }
-
-    async Task OnEdit(AnnotationDto item)
-    {
-        // await vm.DeleteAnnotation(item);
-        // await vm.ReloadNode();
-    }
-
-    async Task OnReply(AnnotationDto item)
-    {
-        // await vm.DeleteAnnotation(item);
-        // await vm.ReloadNode();
-    }
+        foreach (var child in children)
+        {
+            builder.OpenComponent<AnnotationItemView>(0);
+            builder.AddAttribute(1, "Item", child.Root);
+            builder.AddAttribute(2, "CssClass", $"ipath_annotation_indent depth-{Math.Min(depth, 5)}");
+            builder.CloseComponent();
+            builder.AddContent(3, RenderChildren(child.Children, depth + 1));
+        }
+    };
 }

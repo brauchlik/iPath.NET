@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using MudBlazor.Services;
+using MudExtensions.Services;
 using Serilog;
 using System.Net;
 using Serilog.Enrichers.Span;
@@ -74,6 +75,9 @@ builder.AddServiceDefaults();
 
 // Add MudBlazor services
 builder.Services.AddMudServices();
+
+// Add MudBlazor Extensions services
+builder.Services.AddMudExtensions();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

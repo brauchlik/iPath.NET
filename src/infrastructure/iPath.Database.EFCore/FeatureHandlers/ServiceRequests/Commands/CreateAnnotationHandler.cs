@@ -25,6 +25,15 @@ public class CreateAnnotationCommandHandler(iPathDbContext db, IMediator mediato
                 throw new ArgumentException("Child doe nbot belong to RootNode");
         }
 
+        if (request.ReplyToId.HasValue)
+        {
+            var parentAnnotation = await db.Annotations.FindAsync(request.ReplyToId.Value);
+            Guard.Against.NotFound(request.ReplyToId.Value, parentAnnotation);
+
+            if (parentAnnotation.ServiceRequestId != serviceRequest.Id)
+                throw new ArgumentException("Reply target does not belong to this service request");
+        }
+
         if (!sess.IsAdmin)
         {
             // TODO: check authorization. Who may add Annotations ???

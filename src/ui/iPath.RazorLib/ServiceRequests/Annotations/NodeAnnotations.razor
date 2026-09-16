@@ -26,18 +26,18 @@
         }
 
         <div class="ipath_annotations">
-            @if (vm.NewAnnotation is not null)
-            {
-                <MudFocusTrap DefaultFocus="DefaultFocus.Element">
-                    <div class="mb-10">
-                        <AnnotationForm Model="vm.NewAnnotation" @ref="annotationForm" />
-                        <MudStack Row>
-                            <MudButton OnClick="OnSubmit" Variant="Variant.Filled" Color="Color.Primary">@T["Submit"]</MudButton>
-                            <MudButton OnClick="Reset" Variant="Variant.Filled">@T["Cancel"]</MudButton>
-                        </MudStack>
-                    </div>
-                </MudFocusTrap>
-            }
+        @if (vm.NewAnnotation is not null)
+        {
+            <MudFocusTrap DefaultFocus="DefaultFocus.Element">
+                <div class="mb-10">
+                    <AnnotationForm Model="vm.NewAnnotation" @ref="annotationForm" />
+                    <MudStack Row>
+                        <MudButton OnClick="OnSubmit" Variant="Variant.Filled" Color="Color.Primary">@T["Submit"]</MudButton>
+                        <MudButton OnClick="Reset" Variant="Variant.Filled">@T["Cancel"]</MudButton>
+                    </MudStack>
+                </div>
+            </MudFocusTrap>
+        }
 
             <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" TabPanelsClass="py-1">
                 <MudTabPanel Text=@T["Comments / Assessment"]>

@@ -3,12 +3,13 @@ using FluentResults;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using iPath.Application.Features.Questionnaires;
+using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace iPath.Blazor.Componenents.Admin.Questionnaires;
 
-public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dialog, IPathApi api, IStringLocalizer T, NavigationManager nm)
+public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dialog, IPathApi api, IStringLocalizer T, NavigationManager nm, IServiceProvider sp)
     : IViewModel
 {
     public MudDataGrid<QuestionnaireListDto> grid;
@@ -175,6 +176,9 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
             await PreviewForm.LoadFormAsync(SelectedQuestionnaire.Resource, "");
         }
     }
+    public string PreviewText { get; private set; } = string.Empty;
+    public string PreviewResponseJson { get; private set; } = string.Empty;
+
     public async Task<string> GetPreviewText()
     {
         try
@@ -185,11 +189,20 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
             var qr = await PreviewForm.GetDataAsync();
             var r = JsonSerializer.Deserialize<QuestionnaireResponse>(qr, options);
 
-            var q2t = new GenericQuestionnaireToCvsTextService();
-            return q2t.CreateText(r, q);
+            PreviewResponseJson = qr ?? string.Empty;
+
+            var serviceKey = SelectedQuestionnaire?.Settings?.TextPreviewService;
+            var q2t = string.IsNullOrEmpty(serviceKey)
+                ? sp.GetRequiredKeyedService<IQuestionnaireToTextService>("Default List")
+                : sp.GetKeyedService<IQuestionnaireToTextService>(serviceKey)
+                  ?? sp.GetRequiredKeyedService<IQuestionnaireToTextService>("Default List");
+
+            PreviewText = q2t.CreateText(r, q);
+            return PreviewText;
         }
         catch(Exception ex)
         {
+            PreviewResponseJson = string.Empty;
             return "Error: " + ex.Message;
         }        
     }

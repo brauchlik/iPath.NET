@@ -3,6 +3,7 @@ using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using iPath.Application.Contracts;
 using iPath.Application.Features;
+using iPath.Domain.Entities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -18,6 +19,7 @@ public class QuestionnaireCacheServer(IMemoryCache cache, IMediator mediator, IL
     }
 
     string GetKey(String Id, int? Version = null) => $"qr_{Id}" + (Version.HasValue ? $"_{Version}" : "");
+    string GetSettingsKey(String Id, int? Version = null) => $"qr_settings_{Id}" + (Version.HasValue ? $"_{Version}" : "");
 
     public async Task<Questionnaire?> GetQuestionnaireAsync(String Id, int? Version = null)
     {
@@ -39,6 +41,10 @@ public class QuestionnaireCacheServer(IMemoryCache cache, IMediator mediator, IL
 
                     var opts = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(60));
                     cache.Set(cacheKey, q, opts);
+
+                    // Cache settings alongside the questionnaire
+                    var settingsCacheKey = GetSettingsKey(Id, Version);
+                    cache.Set(settingsCacheKey, entity.Settings ?? new QuestionnaireSettings(), opts);
                 }
                 else
                 {
@@ -51,5 +57,21 @@ public class QuestionnaireCacheServer(IMemoryCache cache, IMediator mediator, IL
             }
         }
         return q;
+    }
+
+    public async Task<QuestionnaireSettings?> GetSettingsAsync(String Id, int? Version = null)
+    {
+        if (string.IsNullOrEmpty(Id)) return null;
+
+        var settingsCacheKey = GetSettingsKey(Id, Version);
+
+        if (cache.TryGetValue(settingsCacheKey, out QuestionnaireSettings? settings))
+            return settings;
+
+        // Settings might not be cached yet; load the questionnaire to populate cache
+        await GetQuestionnaireAsync(Id, Version);
+
+        cache.TryGetValue(settingsCacheKey, out settings);
+        return settings;
     }
 }

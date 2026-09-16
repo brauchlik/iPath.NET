@@ -70,21 +70,27 @@ else
                 <MudStack Row AlignItems="AlignItems.Center">
                     <MudText>@T["Text Preview Mode"]</MudText>
 
-                    <MudSelectExtended T="string" @bind-Value="Model.Settings.TextPreviewService"
-                                       Variant="Variant.Outlined"
-                                       Margin="Margin.Dense"
-                                       Dense="true">
+                    <MudSelect T="string" @bind-Value="Model.Settings.TextPreviewService"
+                               Variant="Variant.Outlined"
+                               Margin="Margin.Dense">
                         @foreach (var svc in _previewServices)
                         {
-                            <MudSelectItemExtended Value="@svc.Key">@svc.DisplayName</MudSelectItemExtended>
+                            <MudSelectItem Value="@svc.Key">@svc.DisplayName</MudSelectItem>
                         }
-                    </MudSelectExtended>
+                    </MudSelect>
+
+                    @if (string.IsNullOrEmpty(Model.Settings.TextPreviewService))
+                    {
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            @T["not selected - the configured default applies ({0})", previewRegistry.GetDefault().DisplayName]
+                        </MudText>
+                    }
                 </MudStack>
 
                 <MudDivider Class="mt-4" />
                 @* The FHIR source is rarely interesting, so it lives behind a collapsed panel.
-                   MudExpansionPanel does not keep collapsed content alive, so the code viewer
-                   is not even created - and Prism does not parse the JSON - until it is opened. *@
+                   MudExpansionPanel does not keep collapsed content alive, so the field is not
+                   even created until the panel is opened. *@
                 <MudExpansionPanels Elevation="0" Gutters="false">
                     <MudExpansionPanel Dense="true">
                         <TitleContent>
@@ -94,13 +100,12 @@ else
                             </MudStack>
                         </TitleContent>
                         <ChildContent>
-                            <MudCodeViewer @key="Model.Id"
-                                           Code="@Model.Resource"
-                                           Style="border: 1px solid;"
-                                           ShowHeader="false"
-                                           ShowCopyButton="true"
-                                           ShowLineNumbers="true"
-                                           Language="CodeLanguage.Json" />
+                            <MudTextField Value="@Model.Resource"
+                                          ReadOnly="true"
+                                          Variant="Variant.Outlined"
+                                          Margin="Margin.Dense"
+                                          Typo="Typo.body2"
+                                          Lines="20" />
                         </ChildContent>
                     </MudExpansionPanel>
                 </MudExpansionPanels>
@@ -118,17 +123,17 @@ else
             <MudStack Row Spacing="2" Class="mb-2" AlignItems="AlignItems.Center">
                 <MudText Typo="Typo.h6" Class="mb-2">Text Preview</MudText>
                 <MudSpacer />
-                <MudSelectExtended T="string" @bind-Value="Model.Settings.TextPreviewService"
-                                   Label=@T["Text Preview Mode"]
-                                   Variant="Variant.Outlined"
-                                   Dense="true"
-                                   ShrinkLabel="true"
-                                   Class="flex-grow-1">
+                <MudSelect T="string" @bind-Value="Model.Settings.TextPreviewService"
+                           Label=@T["Text Preview Mode"]
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense"
+                           ShrinkLabel="true"
+                           Class="flex-grow-1">
                     @foreach (var svc in _previewServices)
                     {
-                        <MudSelectItemExtended Value="@svc.Key">@svc.DisplayName</MudSelectItemExtended>
+                        <MudSelectItem Value="@svc.Key">@svc.DisplayName</MudSelectItem>
                     }
-                </MudSelectExtended>
+                </MudSelect>
                 <MudButton OnClick="CreateText" Variant="Variant.Filled" Color="Color.Primary">Generate text</MudButton>
             </MudStack>
 
@@ -159,7 +164,12 @@ else
                     }
                     else
                     {
-                        <MudCodeViewer Code="@vm.PreviewResponseJson" Language="CodeLanguage.Json" ShowLineNumbers="true" Wrap="true" />
+                        <MudTextField Value="@vm.PreviewResponseJson"
+                                      ReadOnly="true"
+                                      Variant="Variant.Outlined"
+                                      Margin="Margin.Dense"
+                                      Typo="Typo.body2"
+                                      Lines="20" />
                     }
                 }
             </MudPaper>

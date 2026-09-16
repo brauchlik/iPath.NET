@@ -1,5 +1,4 @@
 using Hl7.Fhir.Model;
-using System.Text;
 
 namespace iPath.Application.Features.Questionnaires;
 
@@ -17,8 +16,7 @@ public class CaseDescriptionToTextService(CaseDescriptionOutputMode mode) : IQue
 
         var respMap = BuildResponseMap(response.Item);
 
-        var sb = new StringBuilder();
-        var firstGroup = true;
+        var groups = new List<string>();
 
         foreach (var group in questionnaire.Item.Where(i => i.Type == Questionnaire.QuestionnaireItemType.Group))
         {
@@ -27,30 +25,25 @@ public class CaseDescriptionToTextService(CaseDescriptionOutputMode mode) : IQue
 
             ProcessGroupItems(group.Item, respMap, groupEntries, groupSubLines);
 
-            if (groupEntries.Count == 0) continue;
-
-            if (!firstGroup)
-            {
-                sb.Append("<br/><br/>");
-            }
-            firstGroup = false;
-
             var groupLabel = !string.IsNullOrEmpty(group.Text) ? group.Text : $"[{group.LinkId}]";
-            var entries = string.Join(", ", groupEntries);
-            sb.Append($"<strong>{groupLabel}:</strong> {entries}");
+            var lines = new List<string>();
 
-            if (mode == CaseDescriptionOutputMode.Expanded && groupSubLines.Count > 0)
+            if (groupEntries.Count > 0)
             {
-                sb.Append("<br/>");
-                foreach (var subLine in groupSubLines)
-                {
-                    sb.Append($"{subLine}");
-                    sb.Append("<br/>");
-                }
+                lines.Add($"<strong>{groupLabel}:</strong> {string.Join(", ", groupEntries)}");
             }
+
+            if (mode == CaseDescriptionOutputMode.Expanded)
+            {
+                lines.AddRange(groupSubLines);
+            }
+
+            if (lines.Count == 0) continue;
+
+            groups.Add(string.Join("<br/>", lines));
         }
 
-        return sb.ToString().TrimEnd();
+        return string.Join("<br/><br/>", groups);
     }
 
     private void ProcessGroupItems(
@@ -127,14 +120,9 @@ public class CaseDescriptionToTextService(CaseDescriptionOutputMode mode) : IQue
             return;
         }
 
-        if (subValues.Count > 0)
-        {
-            subLines.Add($"  - {label} \u2192 {subCombined}<br/>");
-        }
-        else
-        {
-            entries.Add(label);
-        }
+        // Expanded: the detail is carried by the sub-line, so the label goes there
+        // instead of into the comma-separated list - otherwise it renders twice.
+        subLines.Add($"  - {label} \u2192 {subCombined}");
     }
 
     private List<string> CollectSubItemValues(

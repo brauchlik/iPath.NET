@@ -34,6 +34,38 @@ function whenReady() {
     });
 }
 
+// LForms' internal _codingsEqual() dereferences both arguments (.system/.code/.text)
+// without a null check. While a multi-select answer with sub-items settles, the value
+// array can transiently hold a null, so skip-logic evaluation throws
+// "Cannot read properties of null (reading 'system')" and aborts - leaving the
+// dependent sub-items unexpanded. Verified still unguarded in LForms 44.0.0.
+// A null answer equals no trigger, so returning false is the correct semantics; the
+// next real update re-evaluates normally.
+function guardCodingComparison(componentId, attemptsLeft = 20) {
+    const host = document.getElementById(componentId);
+    const form = host && host.getElementsByTagName('wc-lhc-form')[0]?.lhcFormData;
+
+    if (!form) {
+        if (attemptsLeft > 0) {
+            setTimeout(() => guardCodingComparison(componentId, attemptsLeft - 1), 100);
+        }
+        return;
+    }
+
+    const owner = Object.prototype.hasOwnProperty.call(form, '_codingsEqual')
+        ? form
+        : Object.getPrototypeOf(form);
+
+    if (!owner || typeof owner._codingsEqual !== 'function' || owner.__ipathCodingGuard) return;
+
+    const original = owner._codingsEqual;
+    owner._codingsEqual = function (a, b) {
+        if (a == null || b == null) return false;
+        return original.call(this, a, b);
+    };
+    owner.__ipathCodingGuard = true;
+}
+
 // Load a Questionnaire, optionally with an existing QuestionnaireResponse.
 export async function loadData(questionnaireJson, responseJson, componentId, asReadonly) {
     await whenReady();
@@ -41,11 +73,13 @@ export async function loadData(questionnaireJson, responseJson, componentId, asR
     const qData = JSON.parse(questionnaireJson);
     const qrData = responseJson ? JSON.parse(responseJson) : null;
 
-    LForms.Util.addFormToPage(qData, componentId, {
+    await LForms.Util.addFormToPage(qData, componentId, {
         fhirVersion: 'R4',
         questionnaireResponse: qrData,
         readonlyMode: asReadonly
     });
+
+    guardCodingComparison(componentId);
 }
 
 // Read what the user entered back out as a QuestionnaireResponse.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1
+
+- Removed the CodeBeam.MudBlazor.Extensions dependency: the JSON panels are plain read-only text fields again and the preview-mode selects use MudBlazor's own MudSelect. Two of its components had caused failures - MudSelectExtended needs a service that was registered server-side only, and MudCodeViewer's JS helper dereferences an unresolved element reference without a null check
+- Fix: the questionnaire admin page failed to render under WebAssembly - the text preview services and their registry were registered server-side only; they now come from one shared `AddQuestionnaireToTextServices()` used by both the API and the RazorLib registration
+- Questionnaire text preview: the mode used when a questionnaire has none selected is now configurable (`iPathClientConfig:DefaultTextPreviewService`) instead of hardcoded to "Default List"
+- Symptoms blocks: `menopause.irregularities` moved up to be a sibling of `menopause.regularcycle` (it was a grandchild, so the text preview dropped it)
+
 ## 0.3
 
 - Annotation replies (threaded comments), with `AddAnnotationReplyTo` migration

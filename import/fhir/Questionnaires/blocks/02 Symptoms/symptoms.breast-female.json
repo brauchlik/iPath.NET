@@ -210,22 +210,20 @@
                   "display": "Regular menstrual cycle"
                 }
               ],
-              "enableWhen": [ { "question": "menopause", "operator": "=", "answerBoolean": false } ],
-              "item": [
-                {
-                  "linkId": "menopause.irregularities",
-                  "type": "choice",
-                  "repeats": true,
-                  "text": "If no: Irregular periods",
-                  "answerOption": [
-                    { "valueCoding": { "system": "http://snomed.info/sct", "code": "386692008", "display": "Heavy menstrual bleeding / Menorrhagia" } },
-                    { "valueCoding": { "system": "http://snomed.info/sct", "code": "289535001", "display": "Abnormal bleeding / Spotting" } },
-                    { "valueCoding": { "system": "http://snomed.info/sct", "code": "89217008", "display": "Missed periods / Amenorrhea" } },
-                    { "valueCoding": { "system": "http://snomed.info/sct", "code": "266599000", "display": "Painful periods / Dysmenorrhea" } }
-                  ],
-                  "enableWhen": [ { "question": "menopause.regularcycle", "operator": "=", "answerBoolean": false } ]
-                }
-              ]
+              "enableWhen": [ { "question": "menopause", "operator": "=", "answerBoolean": false } ]
+            },
+            {
+              "linkId": "menopause.irregularities",
+              "type": "choice",
+              "repeats": true,
+              "text": "If no: Irregular periods",
+              "answerOption": [
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "386692008", "display": "Heavy menstrual bleeding / Menorrhagia" } },
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "289535001", "display": "Abnormal bleeding / Spotting" } },
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "89217008", "display": "Missed periods / Amenorrhea" } },
+                { "valueCoding": { "system": "http://snomed.info/sct", "code": "266599000", "display": "Painful periods / Dysmenorrhea" } }
+              ],
+              "enableWhen": [ { "question": "menopause.regularcycle", "operator": "=", "answerBoolean": false } ]
             }
           ]
         },

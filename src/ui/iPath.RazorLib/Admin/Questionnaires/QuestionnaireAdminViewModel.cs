@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace iPath.Blazor.Componenents.Admin.Questionnaires;
 
-public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dialog, IPathApi api, IStringLocalizer T, NavigationManager nm, IServiceProvider sp)
+public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dialog, IPathApi api, IStringLocalizer T, NavigationManager nm, IServiceProvider sp, IQuestionnaireToTextServiceRegistry previewRegistry)
     : IViewModel
 {
     public MudDataGrid<QuestionnaireListDto> grid;
@@ -196,11 +196,11 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
 
             PreviewResponseJson = qr ?? string.Empty;
 
+            // the questionnaire's own mode wins; otherwise the configured default applies
             var serviceKey = SelectedQuestionnaire?.Settings?.TextPreviewService;
-            var q2t = string.IsNullOrEmpty(serviceKey)
-                ? sp.GetRequiredKeyedService<IQuestionnaireToTextService>("Default List")
-                : sp.GetKeyedService<IQuestionnaireToTextService>(serviceKey)
-                  ?? sp.GetRequiredKeyedService<IQuestionnaireToTextService>("Default List");
+            var fallbackKey = previewRegistry.GetDefault().Key;
+            var q2t = (string.IsNullOrEmpty(serviceKey) ? null : sp.GetKeyedService<IQuestionnaireToTextService>(serviceKey))
+                      ?? sp.GetRequiredKeyedService<IQuestionnaireToTextService>(fallbackKey);
 
             PreviewText = q2t.CreateText(r, q);
             return PreviewText;

@@ -14,6 +14,7 @@
     <PackageReference Include="Hl7.Fhir.R4" Version="6.5.0" />
     <PackageReference Include="MailKit" Version="4.18.0" />
     <PackageReference Include="Microsoft.Extensions.AI" Version="10.10.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.12" />
     <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="10.0.12" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.12" />
     <PackageReference Include="MimeKit" Version="4.18.0" />

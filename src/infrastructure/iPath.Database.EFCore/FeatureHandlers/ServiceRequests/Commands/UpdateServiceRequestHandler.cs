@@ -12,6 +12,7 @@ namespace iPath.EF.Core.FeatureHandlers.ServiceRequests.Commands;
 public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator,
     IServiceProvider sp,
     QuestionnaireCacheServer cache,
+    IQuestionnaireToTextServiceRegistry previewRegistry,
     IUserSession sess)
     : IRequestHandler<UpdateServiceRequestCommand, Task<bool>>
 {
@@ -49,10 +50,9 @@ public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator,
                 {
                     var settings = await cache.GetSettingsAsync(qr.QuestionnaireId);
                     var serviceKey = settings?.TextPreviewService;
-                    var q2t = string.IsNullOrEmpty(serviceKey)
-                        ? sp.GetRequiredKeyedService<IQuestionnaireToTextService>("Default List")
-                        : sp.GetKeyedService<IQuestionnaireToTextService>(serviceKey)
-                          ?? sp.GetRequiredKeyedService<IQuestionnaireToTextService>("Default List");
+                    var fallbackKey = previewRegistry.GetDefault().Key;
+                    var q2t = (string.IsNullOrEmpty(serviceKey) ? null : sp.GetKeyedService<IQuestionnaireToTextService>(serviceKey))
+                              ?? sp.GetRequiredKeyedService<IQuestionnaireToTextService>(fallbackKey);
 
                     request.Description.Questionnaire.GeneratedText = q2t.CreateText(r, q);
                 }

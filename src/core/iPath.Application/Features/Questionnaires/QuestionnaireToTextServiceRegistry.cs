@@ -1,6 +1,6 @@
 namespace iPath.Application.Features.Questionnaires;
 
-public class QuestionnaireToTextServiceRegistry : IQuestionnaireToTextServiceRegistry
+public class QuestionnaireToTextServiceRegistry(string? defaultServiceKey = null) : IQuestionnaireToTextServiceRegistry
 {
     private static readonly TextPreviewServiceInfo[] Services =
     [
@@ -10,9 +10,10 @@ public class QuestionnaireToTextServiceRegistry : IQuestionnaireToTextServiceReg
         new("Case Description (Expanded)", "Case Description (Expanded)", "Grouped by section, sub-items on separate lines"),
     ];
 
-    private static readonly TextPreviewServiceInfo DefaultService = Services[0];
-
     public IReadOnlyList<TextPreviewServiceInfo> GetAll() => Services;
 
-    public TextPreviewServiceInfo GetDefault() => DefaultService;
+    // configured default if it names a known service, otherwise the first entry
+    public TextPreviewServiceInfo GetDefault() =>
+        Services.FirstOrDefault(s => string.Equals(s.Key, defaultServiceKey, StringComparison.OrdinalIgnoreCase))
+        ?? Services[0];
 }

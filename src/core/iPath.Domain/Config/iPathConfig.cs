@@ -58,4 +58,10 @@ public class iPathClientConfig
     public bool SyncImportEnabled { get; set; }
     public bool AiEnabled { get; set; }
     public bool WsiConversionEnabled { get; set; }
+
+    /// <summary>
+    /// Text preview mode used when a questionnaire has none selected. Must match a key from
+    /// QuestionnaireToTextServiceRegistry; an unknown value falls back to the first entry.
+    /// </summary>
+    public string DefaultTextPreviewService { get; set; } = "Default List";
 }

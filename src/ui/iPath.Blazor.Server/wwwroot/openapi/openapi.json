@@ -7344,6 +7344,9 @@
           },
           "wsiConversionEnabled": {
             "type": "boolean"
+          },
+          "defaultTextPreviewService": {
+            "type": "string"
           }
         }
       },

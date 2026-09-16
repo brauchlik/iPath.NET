@@ -2,6 +2,7 @@ using iPath.Application.Contracts;
 using iPath.Application.Features.Admin;
 using iPath.Application.Features.CaseRoom;
 using iPath.Application.Features.Notifications;
+using iPath.Application.Features.Questionnaires;
 using iPath.Application.Fhir;
 using iPath.Application.Localization;
 using iPath.Blazor.ServiceLib.Services;
@@ -90,6 +91,10 @@ public static class RazorLibServiceRegistration
 
         // FHIR: questionnaires & coding
         services.AddScoped<QuestionnaireCacheClient>();
+
+        // the admin page renders the text preview in whichever host it runs, so the
+        // preview services must be resolvable here too (shared with the API registration)
+        services.AddQuestionnaireToTextServices();
 
         if (WasmClient)
         {

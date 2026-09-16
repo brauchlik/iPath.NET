@@ -172,14 +172,8 @@ public static class APIServicesRegistration
         // Questionnaire handling
         services.AddScoped<QuestionnaireCacheServer>();
 
-        // Text preview services — keyed by display name (matches QuestionnaireToTextServiceRegistry)
-        services.AddKeyedTransient<IQuestionnaireToTextService, GenericQuestionnaireToListTextService>("Default List");
-        services.AddKeyedTransient<IQuestionnaireToTextService, GenericQuestionnaireToCvsTextService>("CSV");
-        services.AddKeyedTransient<IQuestionnaireToTextService>("Case Description (Compact)",
-            (sp, _) => new CaseDescriptionToTextService(CaseDescriptionOutputMode.Compact));
-        services.AddKeyedTransient<IQuestionnaireToTextService>("Case Description (Expanded)",
-            (sp, _) => new CaseDescriptionToTextService(CaseDescriptionOutputMode.Expanded));
-        services.AddSingleton<IQuestionnaireToTextServiceRegistry, QuestionnaireToTextServiceRegistry>();
+        // Text preview services - keyed by display name (matches QuestionnaireToTextServiceRegistry)
+        services.AddQuestionnaireToTextServices();
 
         // Caching
         services.AddMemoryCache();

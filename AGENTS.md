@@ -249,6 +249,43 @@ When adding new Razor components in a custom namespace, add the namespace to the
 - Blazor Server with MudBlazor
 - xUnit testing with FluentAssertions
 
+### Changelog
+
+`CHANGELOG.md` in the repo root is maintained by hand: flat bullets under the
+current version heading (`## 0.3`), newest version on top.
+
+- Update it **before committing** - add a one-line bullet for the change you are
+  about to commit.
+- Keep bullets plain: no sections, no dates, no links.
+- If a change is reverted, remove its bullet again.
+
+### UI vs API Boundary
+
+Blazor gives us no technical boundary between UI and server code: the in-process
+`DirectApiClient` lets any component call any handler directly, so duplicated
+rules creep in silently. Decide deliberately where each piece of logic lives.
+
+- **API / Application (handlers, domain, services):** anything that decides
+  whether data is valid, what it means, or what gets persisted. Validation, id
+  checks, existence checks, resolution, defaults, invariants, business rules.
+- **UI (Razor components, view models):** presentation and interaction only.
+  Reading a file into the field it binds to, prefill, formatting, confirmation
+  prompts, and surfacing the API's message.
+
+Rules:
+
+- Never re-implement in the UI a rule the API already enforces. Call the API and
+  show its response (`resp.ErrorText()`).
+- If the UI needs a value the API could also derive (e.g. an id to prefill a
+  form), that is a legitimate UI concern - but it must not become a second
+  source of truth for the rule.
+- One piece of logic, one place. If two components need it, extract it instead
+  of copying it.
+- When touching an existing flow, check for a second copy before adding to the
+  first. The questionnaire FHIR upload exists in both
+  `QuestionnaireAdminViewModel.UploadFile` and `DlgEditQuestionnaire.UploadFile`
+  - a known duplication to resolve, not to extend.
+
 ### EF Core Migrations Workflow
 
 **Rule: Developer runs `dotnet ef` CLI commands, not the AI.**
@@ -285,3 +322,32 @@ The old iPath2 PHP app connected to MySQL with `Charset=latin1`. When storing UT
 This lets MySqlConnector/Dapper map the result directly to `string?` without any client-side `byte[] → Encoding.UTF8.GetString()` conversion.
 
 **Reference:** `OldDataService.cs` defines the SQL snippet constants `DataDecode` and `InfoDecode` using this pattern.
+
+### LHC-Forms Bundle (vendored)
+
+`src/ui/iPath.LHCForms/wwwroot/lforms/` holds a vendored LHC-Forms build; `App.razor`
+loads `lhc-forms.js` + `fhir/R4/lformsFHIR.min.js` from it.
+
+The upstream release repo named in the original commit (`lhncbc/lforms-versions`) no
+longer exists. Take files from the npm package instead, e.g.
+`https://cdn.jsdelivr.net/npm/lforms@<version>/dist/lforms/...`:
+
+| our path | package path |
+|---|---|
+| `lforms/lhc-forms.js` | `dist/lforms/webcomponent/lhc-forms.js` |
+| `lforms/styles.css` | `dist/lforms/webcomponent/styles.css` |
+| `lforms/assets/lib/zone.min.js` | `dist/lforms/webcomponent/assets/lib/zone.min.js` |
+| `lforms/down_arrow_gray_10_10.png`, `lforms/magnifying_glass.png` | `dist/lforms/webcomponent/...` |
+| `lforms/fhir/R4/lformsFHIR.min.js` | `dist/lforms/fhir/R4/lformsFHIR.min.js` |
+
+**Always strip the `@layer lforms{...}` wrappers from `styles.css` after upgrading.**
+Since 43.0.0 upstream wraps its vendor CSS in a cascade layer. MudBlazor ships an
+*unlayered* preflight containing `*{border-width:0}`, and unlayered declarations beat
+layered ones regardless of specificity - so every LForms border silently disappears
+(the boolean radio buttons, for example, render as invisible white-on-white outlines).
+There are ~10 top-level `@layer lforms{` blocks; remove each prefix and its matching
+`}`, leaving the inner rules (with their `:where(.lhc-form)` scoping) unlayered.
+Verify afterwards: brace count still balanced, no `@layer` left, radios visible again.
+
+Current version: 44.0.0 (upgraded from 38.7.2). The `_codingsEqual` null-guard in
+`wwwroot/lhcformsJsInterop.js` is still required - 44.0.0 does not fix it upstream.

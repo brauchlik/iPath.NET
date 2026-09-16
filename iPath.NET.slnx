@@ -9,6 +9,7 @@
     <Project Path="import/GoogleDriveAccess/GoogleDriveAccess.csproj" />
   </Folder>
   <Folder Name="/Doc/">
+    <File Path="CHANGELOG.md" />
     <File Path="doc/DEBUG.md" />
     <File Path="doc/INSTALLATION.md" />
     <File Path="README.md" />

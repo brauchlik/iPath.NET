@@ -8,6 +8,8 @@
 - Symptoms blocks: `menopause.irregularities` moved up to be a sibling of `menopause.regularcycle` (it was a grandchild, so the text preview dropped it)
 - Fix: the questionnaire admin page could throw a NullReferenceException while the questionnaire was still loading - `EditQuestionnaireModel.Settings` defaulted to null and the tabs read it during that render
 - Docs: AGENTS.md records that `openapi.json` is build-generated and committed, and `.gitignore` now covers CodeRush's `.cr/` folder and the `data/` scratch directory
+- Fix: `GET /api/v1/translations/{lang}` returned HTTP 500 whenever `LocalizationSettings` was missing from a server's appsettings (because `SupportedCultures` then binds empty) - an unknown culture, an unconfigured `LocalesRoot` and an unreadable locale file now log a warning and return empty data instead of throwing, and an empty `SupportedCultures` falls back to `["en"]` with a warning
+- Locale files are no longer seeded with the `Test`/`Test2` placeholder words when a missing file is auto-saved
 
 ## 0.3
 

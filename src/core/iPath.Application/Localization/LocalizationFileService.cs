@@ -36,32 +36,53 @@ public class LocalizationFileService
     {
         lock (_fileLock)
         {
-            TranslationData data;
+            if (string.IsNullOrEmpty(_opts.Value.LocalesRoot))
+            {
+                _logger.LogWarning("Translation locale root is not configured, returning empty translation data for {Locale}", locale);
+                return EmptyTranslationData(locale);
+            }
 
             if (!_opts.Value.SupportedCultures.Contains(locale))
             {
-                throw new InvalidOperationException($"Culture {locale} is not supported");
+                _logger.LogWarning("Culture {Locale} is not supported, returning empty translation data", locale);
+                return EmptyTranslationData(locale);
             }
 
             string fileName = Path.Combine(_opts.Value.LocalesRoot, $"{locale}.json");
             if (!File.Exists(fileName))
             {
-                data = new();
-                data.locale = locale;
-                data.ModifiedOn = DateTime.Now;
-                data.Words = new();
-                data.Words["Test"] = "Test";
-                data.Words["Test2"] = "Test2";
+                _logger.LogWarning("Translation file {FileName} for locale {Locale} does not exist", fileName, locale);
+                var data = EmptyTranslationData(locale);
                 if (_opts.Value.AutoSave) SaveTranslationInternal(data);
-            }
-            else
-            {
-                data = JsonSerializer.Deserialize<TranslationData>(File.ReadAllText(fileName));
+                return data;
             }
 
-            return data;
+            try
+            {
+                var data = JsonSerializer.Deserialize<TranslationData>(File.ReadAllText(fileName));
+                if (data is null)
+                {
+                    _logger.LogWarning("Translation file {FileName} contains no data", fileName);
+                    return EmptyTranslationData(locale);
+                }
+                data.Words ??= new();
+                if (string.IsNullOrEmpty(data.locale)) data.locale = locale;
+                return data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error reading translation file {FileName}", fileName);
+                return EmptyTranslationData(locale);
+            }
         }
     }
+
+    private static TranslationData EmptyTranslationData(string locale) => new()
+    {
+        locale = locale,
+        ModifiedOn = DateTime.Now,
+        Words = new()
+    };
 
     public bool SaveTranslation(TranslationData data)
     {

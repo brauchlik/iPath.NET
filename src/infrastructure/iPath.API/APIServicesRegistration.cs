@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
 using iPath.Database.EFCore.AI;
 using System.Reflection;
@@ -183,6 +184,14 @@ public static class APIServicesRegistration
 
         // Localization
         services.Configure<LocalizationSettings>(config.GetSection(LocalizationSettings.ConfigName));
+        services.AddOptions<LocalizationSettings>().PostConfigure<ILogger<LocalizationSettings>>((opts, logger) =>
+        {
+            if (opts.SupportedCultures is null || opts.SupportedCultures.Length == 0)
+            {
+                opts.SupportedCultures = ["en"];
+                logger.LogWarning("LocalizationSettings.SupportedCultures is empty, falling back to [\"en\"]");
+            }
+        });
         services.AddSingleton<LocalizationFileService>();
 
         // Google Workspace

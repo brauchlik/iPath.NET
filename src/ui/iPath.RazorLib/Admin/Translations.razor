@@ -2,17 +2,27 @@
 @attribute [Authorize(Roles = "Admin")]
 @using iPath.Application.Features.Admin
 @using iPath.Application.Localization
+@using iPath.Domain.Config
 
 <IPathHeader Title="Translations Manager" />
 
 <MudGrid Class="mt-2">
     <MudItem xs="12" md="6">
-        <MudSelect T="string" Label="Select Target Language" Value="@_selectedLocale" ValueChanged="OnLocaleChangedAsync" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
-            @foreach (var locale in localizationOpts.Value.SupportedCultures.Where(c => c != "en"))
-            {
-                <MudSelectItem Value="@locale">@GetLanguageDisplayName(locale)</MudSelectItem>
-            }
-        </MudSelect>
+        @if (TargetLanguages.Length == 0)
+        {
+            <MudAlert Severity="Severity.Warning" Dense="true">
+                No target language is configured (<code>LocalizationSettings:SupportedCultures</code>).
+            </MudAlert>
+        }
+        else
+        {
+            <MudSelect T="string" Label="Select Target Language" Value="@_selectedLocale" ValueChanged="OnLocaleChangedAsync" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                @foreach (var locale in TargetLanguages)
+                {
+                    <MudSelectItem Value="@locale">@GetLanguageDisplayName(locale)</MudSelectItem>
+                }
+            </MudSelect>
+        }
     </MudItem>
 
     @if (_translationStatus != null)
@@ -130,7 +140,7 @@
 </MudGrid>
 
 @inject IPathApi api
-@inject IOptions<LocalizationSettings> localizationOpts
+@inject IOptions<iPathClientConfig> clientConfig
 @inject ITranslationLoader translationLoader
 @inject IDialogService dialog
 @inject ISnackbar snackbar
@@ -142,6 +152,15 @@
     private List<TranslationRow> _translationRows = new();
 
     private bool CanEdit => _translationStatus?.IsEditable == true;
+
+    /// <summary>
+    /// Target languages come from iPathClientConfig, not LocalizationSettings: the latter is a
+    /// server-only options type and is never bound in the WASM client, so reading it there left
+    /// the picker empty. iPathClientConfig mirrors the same values and is sent to the client by
+    /// /api/v1/config (see APIServicesRegistration's PostConfigure block) - LanguageMenu uses it too.
+    /// </summary>
+    private string[] TargetLanguages =>
+        (clientConfig.Value.SupportedCultures ?? []).Where(c => c != "en").ToArray();
 
     private static bool DiffersFromShipped(TranslationRow row) =>
         !string.IsNullOrEmpty(row.Shipped) && row.Translation != row.Shipped;
@@ -166,7 +185,7 @@
     }
 
     private string GetLanguageDisplayName(string locale) =>
-        localizationOpts.Value.CultureDisplayNames.TryGetValue(locale.ToLowerInvariant(), out var name)
+        clientConfig.Value.CultureDisplayNames.TryGetValue(locale.ToLowerInvariant(), out var name)
             ? $"{name} ({locale})"
             : locale.ToUpperInvariant();
 
@@ -182,7 +201,7 @@
         if (string.IsNullOrEmpty(_selectedLocale))
         {
             var uiLocale = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-            var supported = localizationOpts.Value.SupportedCultures.Where(c => c != "en").ToList();
+            var supported = TargetLanguages.ToList();
 
             // Default to current UI language if it's a non-English supported culture
             _selectedLocale = supported.Contains(uiLocale) ? uiLocale : (supported.FirstOrDefault() ?? string.Empty);

@@ -2,6 +2,7 @@
 
 ## 0.3.3
 
+- Fix: the translations admin page was unusable in WebAssembly - it read the target languages from `LocalizationSettings`, a server-only options type that is never bound in the WASM client, so the picker had no entries and nothing loaded. It now reads the same `iPathClientConfig` mirror that the language menu uses, and says so when no target language is configured
 - Admin: the translations page can import shipped defaults (adds keys missing from the live store and fills empty ones, never overwriting a translation) and flags rows whose live translation differs from the shipped text, with the original in the hover and a reset icon in the inline editor to restore the shipped wording
 - Admin: translation editing is disabled and server-enforced when `LocalesRoot` and `DefaultsRoot` point at the same folder, since the shipped files are then the live store; the page says so
 - Fix: the startup default-translation import now runs before the localization preload, so freshly imported keys appear immediately instead of after a second restart

@@ -60,7 +60,7 @@
                     Translations are read directly from the shipped files and cannot be edited here.
                 </MudAlert>
             }
-            <MudDataGrid Items="@_translationRows" T="TranslationRow" ReadOnly="@(!CanEdit)" EditMode="DataGridEditMode.Inline" EditTrigger="DataGridEditTrigger.Manual"
+            <MudDataGrid Items="@_translationRows" T="TranslationRow" ReadOnly="@(!CanEdit)" EditMode="DataGridEditMode.Inline" EditTrigger="DataGridEditTrigger.Manual" RowsPerPage="25"
                          StartedEditingItem="@OnStartedEditingItem" CanceledEditingItem="@OnCanceledEditingItem"
                          CommittedItemChanges="@OnRowCommitted" QuickFilter="@_quickFilter" Dense="true" Striped="true" Hover="true" Class="mt-4" Elevation="1">
                 <ToolBarContent>
@@ -78,12 +78,18 @@
                     <PropertyColumn Property="x => x.Key" Title="English Key (Source)" Editable="false" />
                     <PropertyColumn Property="x => x.Translation" Title="Translation">
                         <EditTemplate>
-                            <MudTextField @bind-Value="context.Item.Translation"
-                                          Variant="Variant.Outlined" Margin="Margin.Dense" FullWidth="true"
-                                          Immediate="true" AutoFocus="true" Placeholder="Translation"
-                                          Adornment="@(DiffersFromShipped(context.Item) ? Adornment.End : Adornment.None)"
-                                          AdornmentIcon="@Icons.Material.Filled.Restore"
-                                          OnAdornmentClick="@(() => context.Item.Translation = context.Item.Shipped)" />
+                            <MudStack Spacing="0">
+                                <MudTextField @bind-Value="context.Item.Translation"
+                                              Variant="Variant.Outlined" Margin="Margin.Dense" FullWidth="true"
+                                              Immediate="true" AutoFocus="true" Placeholder="Translation"
+                                              Adornment="@(DiffersFromShipped(context.Item) ? Adornment.End : Adornment.None)"
+                                              AdornmentIcon="@Icons.Material.Filled.Restore"
+                                              OnAdornmentClick="@(() => context.Item.Translation = context.Item.Shipped)" />
+                                @if (DiffersFromShipped(context.Item))
+                                {
+                                    <MudText Typo="Typo.caption" Class="mud-text-secondary ps-3">@context.Item.Shipped</MudText>
+                                }
+                            </MudStack>
                         </EditTemplate>
                     </PropertyColumn>
                     <TemplateColumn CellClass="d-flex justify-end">
@@ -110,7 +116,7 @@
                     </TemplateColumn>
                 </Columns>
                 <PagerContent>
-                    <MudDataGridPager T="TranslationRow" PageSizeOptions="new int[]{10, 20, 50, 100}" />
+                    <MudDataGridPager T="TranslationRow" PageSizeOptions="new int[]{10, 25, 50, 100}" />
                 </PagerContent>
             </MudDataGrid>
         </MudItem>

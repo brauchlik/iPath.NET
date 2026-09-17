@@ -40,6 +40,22 @@ ExportProfile = Cohort  +  Columns  +  Options
 on the page or stored inside a profile. A profile is therefore free-standing: its scope is either a
 group *or* a search, both expressed in the same fields (decisions 2 and 3).
 
+### Scale expectations (this decides the shape, not just the tuning)
+
+Today a group holds a handful of cases; the realistic target is **10 000 to 100 000 cases**. That
+matters more than it looks:
+
+- `service_request_answers` rows ≈ cases × answered concepts. 100 000 cases with ~30 answered
+  concepts is **~3 million rows** — too many to materialise, and too many for an unindexed `Value`
+  scan once value filters arrive (§5 item 9).
+- The current pivot materialises the cohort's case ids, then the cohort's answers for the cells, then
+  the page's answers (`ServiceRequestAnswerQueryHandlers.cs:181-280`). That is correct for a 25-row
+  page and wrong for a cohort export.
+- A CSV of 100 000 cases × ~70 concepts is ~7 million cells; an xlsx with the same content through a
+  DOM-based writer is exactly the case §6.1 avoids.
+
+So the export is designed as a **stream** from the start, not optimised into one later.
+
 ## 3. What already exists (do not rebuild)
 
 | Need | Existing primitive |
@@ -83,11 +99,43 @@ group *or* a search, both expressed in the same fields (decisions 2 and 3).
 
 ## 6. Phase 3 — CSV export
 
-10. A dedicated export query returning all rows unpaged (`PageSize = null`, as `GetServiceRequestIdListQuery` does), sharing the selection helper of §5 item 8.
-11. Endpoint returning `Results.File(bytes, "text/csv", $"{name}-{yyyy-MM-dd}.csv")`.
+10. A dedicated export query that **streams** the cohort row by row (`AsNoTracking()` +
+    `AsAsyncEnumerable()`, see §6.1) instead of materialising it, sharing the selection helper of §5
+    item 8.
+11. Endpoint streaming `text/csv` straight to the response (or, beyond that, a temp file served with `Results.File(path)`); filename from the profile name plus the date.
 12. Format: UTF-8 **BOM**, **semicolon** separator so Excel in a German locale opens it in columns; header = concept label + code in profile order; one row per case.
 13. Content (decision 4): **matrix + case identity** — title, date, accession no, body site, then one column per selected concept, rendered exactly as the pivot renders it (`AnswerCellFormatter`).
-14. Both an ad-hoc export of the current selection and an export of a loaded profile; filename from the profile name plus the date.
+14. Both an ad-hoc export of the current selection and an export of a loaded profile.
+
+### 6.1 How the rows leave the database (streaming)
+
+- **Read** with `AsNoTracking()` and enumerate with `AsAsyncEnumerable()` / `await foreach`, writing
+  each row straight to the output. No `List<case>`, no dictionary of cells for the whole cohort.
+- **Shape**: one query joined to just the selected concepts, ordered by `ServiceRequestId`; emit the
+  case row when the id changes (a grouped stream), joining repeating values in the same pass so
+  `AnswerCellFormatter` stays the single formatting authority. That also removes the separate
+  "cohort case ids" query the pivot needs.
+- **Columns must exist before the first byte.** A profile's explicit selection provides them
+  directly; the "columns from the data" mode needs a cheap pre-pass (`DISTINCT CodeSystem, Code`
+  over the cohort — the handler already does this at line 200) *before* the header is written. An
+  export of a saved profile is therefore the natural streaming mode.
+- **Destination**: the response stream (`Results.Stream` / `Response.Body`, `text/csv`) or a temp
+  file served with `Results.File(path)`. **Never a `MemoryStream`** — that puts the whole file back
+  into managed memory and defeats the point.
+- **EF constraint**: a `DbContext` cannot run concurrent operations; while streaming, never issue
+  per-row queries on the same context (the N+1 trap that "enrich each row asynchronously" APIs
+  invite). Labels come from the catalog, resolved up front.
+- **CSV details**: UTF-8 BOM, `;`, `\r\n`, quote-doubling and quoting only when a value needs it,
+  `InvariantCulture` for numbers and dates, quantity cells rendered as `value + unit` exactly as the
+  pivot shows them.
+- **Long requests**: at 100 000 rows the request outlives a proxy's buffering window or a client
+  timeout. Streaming to the client is the cheap answer; a temp file plus a link (generated in the
+  background) is the robust one and stays out of scope until the volume actually arrives.
+- **xlsx later**: OpenXML SDK `OpenXmlWriter` (MIT) writing rows into the same kind of stream —
+  **not EPPlus** (Polyform Noncommercial; commercial use needs a paid per-developer licence, and v8
+  tags non-commercial workbooks). ClosedXML and NPOI are licence-clean but DOM-based: they hold the
+  workbook in memory, which is the thing streaming exists to avoid. Excel's 1 048 576-row cap only
+  bites in a long/tidy layout.
 
 ## 7. Gotchas found while researching
 
@@ -97,6 +145,9 @@ group *or* a search, both expressed in the same fields (decisions 2 and 3).
 - `Value` is text only; there is **no** CSV/Excel package, and none of the JS interop files (they live in the RCLs — `iPath.RazorLib/wwwroot/js/*`, `iPath.LHCForms/wwwroot/*`) has a file-download helper. The download should go through `Results.File`, which the app already uses.
 - Four providers exist (`Sqlite` live, Postgres and SqlServer snapshots stale): keep filter SQL provider-neutral (as the codebase does with `EF.Functions.Like`) — a reason to avoid casting text to numbers in SQL.
 - Free-text search in the answers handler already covers `LinkId`, `Code`, `CodeDisplay`, `Value` and `ValueDisplay`; structured criteria are an addition, not a replacement.
+- The pivot materialises three collections per request (cohort case ids, the cohort's answers for the cells, the page's answers). Correct for a 25-row page, wrong for a cohort of 10 000–100 000 cases — the export must not reuse that shape (§6.1).
+- At 100 000 cases the answers table reaches millions of rows and a full-cohort `contains` scan stops being acceptable; that is when the index decision in §5 item 9 is actually due.
+- A `DbContext` cannot run concurrent operations: any "enrich each row while streaming" design must resolve its labels before the stream starts.
 
 ## 8. Decisions (taken 2026-09-17)
 
@@ -117,13 +168,17 @@ group *or* a search, both expressed in the same fields (decisions 2 and 3).
 - [ ] Endpoints under `admin/export/profiles`, Developer-gated.
 - [ ] UI: profile select, save as new / update / delete, modified marker.
 - [ ] Criteria model + condition editor (§5), reusing the catalog's `Options`.
-- [ ] Unpaged export query + CSV writer (escaping, BOM, semicolon) + `Results.File` endpoint.
+- [ ] Streaming export query: `AsNoTracking()` + `AsAsyncEnumerable()`, one query ordered by case, the case row emitted when the id changes; columns resolved before the header (the profile selection, or a `DISTINCT` pre-pass for observed columns).
+- [ ] CSV writer: BOM, `;`, `\r\n`, quote-doubling, `InvariantCulture`, quantity cells as the pivot renders them — written to the response stream or a temp file, never a `MemoryStream`.
+- [ ] Decide when the volume justifies a temp file plus a link instead of streaming into the request.
 - [ ] Tests: catalog-key ↔ criteria-key consistency, criterion semantics (AND/OR, set/not-set, repeats), profile round-trip, CSV escaping and header order.
 - [ ] CHANGELOG bullets under the current version; regenerate `openapi.json` (Debug build) once endpoints change.
 
 ## 10. Out of scope
 
-Documents and WSI in the export · scheduled/background exports · xlsx workbooks · numeric and date
+Documents and WSI in the export · scheduled/background exports (a temp file plus a link only when the
+volume demands it) · xlsx for now — when it comes it must be a streaming writer (OpenXML SDK
+`OpenXmlWriter`), since EPPlus is ruled out by its Polyform Noncommercial licence · numeric and date
 ranges **on answer values** and the typed columns they would need (the case period is in scope) ·
 annotation responses · FHIR `Observation` projection · de-identification and compliance review ·
 governance of who may export what (only touched by decision 5 for now).

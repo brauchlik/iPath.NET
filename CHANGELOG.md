@@ -4,6 +4,7 @@
 
 - Removed the built-in AI auto-translate pipeline (`TranslateKeysBatchCommand`/`Handler`, `ITranslationJobQueue`/`TranslationJobWorker`, the `admin/ai/translations/translate` endpoint, the "Auto-Translate" button on Admin > AI Status > Translations Manager, and the now-dead `LocalizationSettings:Active`/`AddMissingStrings` flags): it only ever saw a bare source string with no surrounding context, so it couldn't disambiguate short/generic phrases the way translating with a coding agent (see the `translation-update` skill) does. The manual per-key editor, the status/missing-key display, and the file-based translation store are untouched.
 - Removed `src/ui/iPath.RazorLib/Localization/LocalizationService.cs`, an unused, unreferenced second `IStringLocalizer` implementation superseded by `StringLocalizerService`
+- Removed `LocalizationSettings:AutoSave`: with the AI pipeline gone, its only remaining effect was pre-creating an empty locale file the first time a not-yet-existing locale was touched - both real write paths (the sync CLI's `--write` and `AutoUpdate`) always save real content immediately anyway, so the early empty write was dead weight
 
 ## 0.3.1
 

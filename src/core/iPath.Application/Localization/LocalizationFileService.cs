@@ -52,9 +52,7 @@ public class LocalizationFileService
             if (!File.Exists(fileName))
             {
                 _logger.LogWarning("Translation file {FileName} for locale {Locale} does not exist", fileName, locale);
-                var data = EmptyTranslationData(locale);
-                if (_opts.Value.AutoSave) SaveTranslationInternal(data);
-                return data;
+                return EmptyTranslationData(locale);
             }
 
             try

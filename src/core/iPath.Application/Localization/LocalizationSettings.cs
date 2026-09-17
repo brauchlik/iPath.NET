@@ -4,8 +4,6 @@ public class LocalizationSettings
 {
     public const string ConfigName = "LocalizationSettings";
 
-    public bool AutoSave { get; set; }
-
     /// <summary>
     /// The live translation store this instance reads/writes at runtime. Defaults to the same
     /// folder as <see cref="DefaultsRoot"/>, but a deployment that wants a human editor's

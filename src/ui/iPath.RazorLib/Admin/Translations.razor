@@ -1,0 +1,216 @@
+@page "/admin/translations"
+@attribute [Authorize(Roles = "Admin")]
+@using iPath.Application.Features.Admin
+@using iPath.Application.Localization
+@using Microsoft.Extensions.Options
+
+<IPathHeader Title="Translations Manager" />
+
+<MudGrid Class="mt-2">
+    <MudItem xs="12" md="6">
+        <MudSelect T="string" Label="Select Target Language" Value="@_selectedLocale" ValueChanged="OnLocaleChangedAsync" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+            @foreach (var locale in localizationOpts.Value.SupportedCultures.Where(c => c != "en"))
+            {
+                <MudSelectItem Value="@locale">@GetLanguageDisplayName(locale)</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+
+    @if (_translationStatus != null)
+    {
+        <MudItem xs="12" md="6">
+            <MudCard Outlined="true" Class="h-100">
+                <MudCardContent>
+                    <MudText Typo="Typo.subtitle1" Class="mb-2"><b>Stats for @GetLanguageDisplayName(_selectedLocale):</b></MudText>
+                    <div class="d-flex justify-space-between mb-1">
+                        <MudText>Total Keys:</MudText>
+                        <MudText><b>@_translationStatus.TotalKeys</b></MudText>
+                    </div>
+                    <div class="d-flex justify-space-between mb-1">
+                        <MudText>Translated Keys:</MudText>
+                        <MudText><b>@_translationStatus.TranslatedKeys</b></MudText>
+                    </div>
+                    <div class="d-flex justify-space-between mb-1">
+                        <MudText>Missing Keys:</MudText>
+                        <MudText><b>@_translationStatus.MissingKeys</b></MudText>
+                    </div>
+
+                    @if (_translationStatus.MissingKeys > 0)
+                    {
+                        <MudAlert Severity="Severity.Info" Class="mt-4" Dense="true">
+                            @_translationStatus.MissingKeys phrase(s) still need translation - edit them directly in the table below.
+                        </MudAlert>
+                    }
+                    else
+                    {
+                        <MudAlert Severity="Severity.Success" Class="mt-4" Dense="true">All phrases are translated!</MudAlert>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12">
+            <MudDataGrid Items="@_translationRows" T="TranslationRow" EditMode="DataGridEditMode.Form" CommittedItemChanges="@OnRowCommitted" QuickFilter="@_quickFilter" Bordered="true" Dense="true" Striped="true" Hover="true" Class="mt-4" Elevation="1">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">Phrase Repository</MudText>
+                    <MudSpacer />
+                    <MudTextField @bind-Value="_searchString" Placeholder="Search key or translation..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0" Immediate="true" Clearable="true" />
+                </ToolBarContent>
+                <Columns>
+                    <PropertyColumn Property="x => x.Key" Title="English Key (Source)" ReadOnly="true" />
+                    <PropertyColumn Property="x => x.Translation" Title="Translation" />
+                    <TemplateColumn Title="Status">
+                        <CellTemplate>
+                            @if (context.Item.IsHumanModified)
+                            {
+                                <MudChip T="string" Color="Color.Info" Size="Size.Small" Variant="Variant.Filled">Human Modified</MudChip>
+                            }
+                            else if (!string.IsNullOrEmpty(context.Item.ModelUsed))
+                            {
+                                <MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Text">@context.Item.ModelUsed</MudChip>
+                            }
+                            else if (string.IsNullOrEmpty(context.Item.Translation))
+                            {
+                                <MudChip T="string" Color="Color.Default" Size="Size.Small" Variant="Variant.Outlined">Missing</MudChip>
+                            }
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn CellClass="d-flex justify-end" RequiredToBeEditable="false">
+                        <CellTemplate>
+                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="TranslationRow" PageSizeOptions="new int[]{10, 20, 50, 100}" />
+                </PagerContent>
+            </MudDataGrid>
+        </MudItem>
+    }
+    else if (!string.IsNullOrEmpty(_selectedLocale))
+    {
+        <MudItem xs="12">
+            <MudText Class="mt-2">Loading translation status...</MudText>
+        </MudItem>
+    }
+</MudGrid>
+
+@inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
+@inject Microsoft.Extensions.Options.IOptions<iPath.Application.Localization.LocalizationSettings> localizationOpts
+@inject ITranslationLoader translationLoader
+
+@code {
+    private string _selectedLocale = string.Empty;
+    private TranslationStatusDto? _translationStatus;
+    private string _searchString = string.Empty;
+    private List<TranslationRow> _translationRows = new();
+
+    private Func<TranslationRow, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.Key.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.Translation != null && x.Translation.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTranslationStatusAsync();
+    }
+
+    private string GetLanguageDisplayName(string locale) =>
+        localizationOpts.Value.CultureDisplayNames.TryGetValue(locale.ToLowerInvariant(), out var name)
+            ? $"{name} ({locale})"
+            : locale.ToUpperInvariant();
+
+    private async Task OnLocaleChangedAsync(string locale)
+    {
+        _selectedLocale = locale;
+        _translationStatus = null;
+        await LoadTranslationStatusAsync();
+    }
+
+    private async Task LoadTranslationStatusAsync()
+    {
+        if (string.IsNullOrEmpty(_selectedLocale))
+        {
+            var uiLocale = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            var supported = localizationOpts.Value.SupportedCultures.Where(c => c != "en").ToList();
+
+            // Default to current UI language if it's a non-English supported culture
+            _selectedLocale = supported.Contains(uiLocale) ? uiLocale : (supported.FirstOrDefault() ?? string.Empty);
+
+            if (string.IsNullOrEmpty(_selectedLocale))
+                return;
+        }
+
+        try
+        {
+            var response = await api.GetTranslationStatus(_selectedLocale);
+            if (response.IsSuccessful && response.Content is not null)
+            {
+                _translationStatus = response.Content;
+                _translationRows = _translationStatus.Words.Select(kvp =>
+                {
+                    _translationStatus.WordMetadata.TryGetValue(kvp.Key, out var meta);
+                    return new TranslationRow
+                    {
+                        Key = kvp.Key,
+                        Translation = kvp.Value,
+                        ModelUsed = meta?.ModelUsed ?? string.Empty,
+                        TranslatedAt = meta?.TranslatedAt,
+                        IsHumanModified = meta?.IsHumanModified ?? false
+                    };
+                }).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle error silently or log
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task<MudBlazor.DataGridEditFormAction> OnRowCommitted(TranslationRow row)
+    {
+        try
+        {
+            var command = new UpdateTranslationKeyCommand(_selectedLocale, row.Key, row.Translation);
+            var response = await api.UpdateTranslationKey(command);
+            if (response.IsSuccessful && response.Content)
+            {
+                row.IsHumanModified = true;
+                row.ModelUsed = "Human";
+                row.TranslatedAt = DateTime.UtcNow;
+
+                // Force localizer cache to reload
+                await translationLoader.LoadTranslationData(_selectedLocale, reload: true);
+            }
+            else
+            {
+                await LoadTranslationStatusAsync();
+            }
+        }
+        catch
+        {
+            await LoadTranslationStatusAsync();
+        }
+        return MudBlazor.DataGridEditFormAction.Close;
+    }
+
+    public class TranslationRow
+    {
+        public string Key { get; set; } = string.Empty;
+        public string Translation { get; set; } = string.Empty;
+        public string ModelUsed { get; set; } = string.Empty;
+        public DateTime? TranslatedAt { get; set; }
+        public bool IsHumanModified { get; set; }
+    }
+}

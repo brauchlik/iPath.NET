@@ -1,5 +1,5 @@
 {
-  "ModifiedOn": "2026-09-17T09:37:36.210950+02:00",
+  "ModifiedOn": "2026-09-17T14:30:41.670401+02:00",
   "locale": "en",
   "Words": {
     "Edit communiy": "Edit communiy",
@@ -374,7 +374,8 @@
     "New cases in group": "New cases in group",
     "In App": "In App",
     "Notification Settings for {0}": "Notification Settings for {0}",
-    "Message Body": "Message Body"
+    "Message Body": "Message Body",
+    "Translations": "Translations"
   },
   "WordMetadata": {}
 }

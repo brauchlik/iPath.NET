@@ -1,10 +1,7 @@
 @page "/admin/ai"
 @attribute [Authorize(Roles = "Admin")]
 @using iPath.Application.Features.Admin
-@using iPath.Application.Localization
 @using iPath.Blazor.Componenents.Admin
-@using iPath.Domain.Config
-@using Microsoft.Extensions.Options
 @using MudBlazor
 
 <IPathHeader Title="AI Status Dashboard" />
@@ -15,270 +12,155 @@
 }
 else
 {
-    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToInnerCards="true" PanelClass="pa-6" Color="Color.Primary" Class="mt-4">
-        <MudTabPanel Text="Queue & System Status">
-            <MudGrid Class="mt-2">
-                <MudItem xs="12" md="6">
-                    <MudCard Outlined="true" Class="h-100">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudText Typo="Typo.h6">LLM Connection & Configuration</MudText>
-                            </CardHeaderContent>
-                            <CardHeaderActions>
-                                @if (status.IsEnabled)
-                                {
-                                    @if (status.IsLlmOnline == true)
-                                    {
-                                        <MudChip T="string" Color="Color.Success" Size="Size.Small">ONLINE</MudChip>
-                                    }
-                                    else if (status.IsLlmOnline == false)
-                                    {
-                                        <MudChip T="string" Color="Color.Error" Size="Size.Small">OFFLINE</MudChip>
-                                    }
-                                    else
-                                    {
-                                        <MudChip T="string" Color="Color.Default" Size="Size.Small">CHECKING...</MudChip>
-                                    }
-                                }
-                                else
-                                {
-                                    <MudChip T="string" Color="Color.Default" Size="Size.Small">DISABLED</MudChip>
-                                }
-                            </CardHeaderActions>
-                        </MudCardHeader>
-                        <MudCardContent>
-                            <MudText><b>Global Status:</b> @(status.IsEnabled ? "Enabled" : "Disabled")</MudText>
-                            <MudText><b>Active Provider:</b> @status.Provider</MudText>
-                            <MudText><b>Chat Model:</b> @(string.IsNullOrEmpty(status.ChatModel) ? "N/A" : status.ChatModel)</MudText>
-                            <MudText><b>Embedding Model:</b> @(string.IsNullOrEmpty(status.EmbeddingModel) ? "N/A" : status.EmbeddingModel)</MudText>
-                        </MudCardContent>
-                    </MudCard>
-                </MudItem>
-
-                <MudItem xs="12" md="6">
-                    <MudCard Outlined="true" Class="h-100">
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudText Typo="Typo.h6">Background Transcription Queue</MudText>
-                            </CardHeaderContent>
-                            <CardHeaderActions>
-                                @if (status.QueueLength > 0)
-                                {
-                                    <MudChip T="string" Color="Color.Warning" Size="Size.Small">PROCESSING</MudChip>
-                                }
-                                else
-                                {
-                                    <MudChip T="string" Color="Color.Default" Size="Size.Small">IDLE</MudChip>
-                                }
-                            </CardHeaderActions>
-                        </MudCardHeader>
-                        <MudCardContent>
-                            <MudText><b>Queue Strategy:</b> Sequential Single-Reader FIFO</MudText>
-                            <MudText><b>Enqueued Cases:</b> @status.QueueLength</MudText>
-                            <MudText Class="mud-text-secondary mt-2" Typo="Typo.body2">
-                                Protects local GPU / LLM instances from resource exhaustion by processing enqueued transcription tasks one after another.
-                            </MudText>
-                        </MudCardContent>
-                    </MudCard>
-                </MudItem>
-
-                <MudItem xs="12">
-                    <MudText Typo="Typo.h6" Class="mt-4 mb-2">Recent Ingestion Activities</MudText>
-                    @if (status.RecentActivities.Count == 0)
-                    {
-                        <MudAlert Severity="Severity.Info">No recent AI activities found in the lineage logs.</MudAlert>
-                    }
-                    else
-                    {
-                        <MudTable Items="@status.RecentActivities" Dense="true" Striped="true" Hover="true" OnRowClick="@(async (TableRowClickEventArgs<AiActivityDto> args) => await OpenDetailDialogAsync(args))">
-                            <HeaderContent>
-                                <MudTh>Case Title</MudTh>
-                                <MudTh>Status</MudTh>
-                                <MudTh>Model Used</MudTh>
-                                <MudTh>Outcome</MudTh>
-                                <MudTh>Timestamp (UTC)</MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd DataLabel="Case Title">
-                                    <MudLink Href="@($"/request/{context.CaseId}")" @onclick:stopPropagation="true">@context.CaseTitle</MudLink>
-                                </MudTd>
-                                <MudTd DataLabel="Status">
-                                    @if (context.Status == "Completed")
-                                    {
-                                        <MudChip T="string" Color="Color.Success" Size="Size.Small">Completed</MudChip>
-                                    }
-                                    else if (context.Status == "Failed")
-                                    {
-                                        <MudChip T="string" Color="Color.Error" Size="Size.Small">Failed</MudChip>
-                                    }
-                                    else if (context.Status == "Skipped")
-                                    {
-                                        <MudChip T="string" Color="Color.Default" Size="Size.Small">Skipped</MudChip>
-                                    }
-                                    else if (context.Status == "Processing")
-                                    {
-                                        <MudChip T="string" Color="Color.Info" Size="Size.Small">Processing</MudChip>
-                                    }
-                                    else if (context.Status == "Queued")
-                                    {
-                                        <MudChip T="string" Color="Color.Warning" Size="Size.Small">Queued</MudChip>
-                                    }
-                                    else
-                                    {
-                                        <MudChip T="string" Size="Size.Small">@context.Status</MudChip>
-                                    }
-                                </MudTd>
-                                <MudTd DataLabel="Model Used">@context.ModelUsed</MudTd>
-                                <MudTd DataLabel="Outcome">
-                                    @if (context.WasOverridden)
-                                    {
-                                        <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Text">Overridden by User</MudChip>
-                                    }
-                                    else if (context.Status == "Completed")
-                                    {
-                                        <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Text">Accepted</MudChip>
-                                    }
-                                    else if (context.Status == "Failed")
-                                    {
-                                        <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Text">Error</MudChip>
-                                    }
-                                    else
-                                    {
-                                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@context.Status</MudChip>
-                                    }
-                                    @if (!string.IsNullOrEmpty(context.ErrorMessage))
-                                    {
-                                        <MudTooltip Text="@context.ErrorMessage">
-                                            <MudIcon Icon="@Icons.Material.Filled.ErrorOutline" Color="Color.Error" Size="Size.Small" Class="ml-1" />
-                                        </MudTooltip>
-                                    }
-                                </MudTd>
-                                <MudTd DataLabel="Timestamp">@context.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</MudTd>
-                            </RowTemplate>
-                        </MudTable>
-                    }
-                </MudItem>
-            </MudGrid>
-        </MudTabPanel>
-
-        <MudTabPanel Text="Translations Manager" OnClick="LoadTranslationStatusAsync">
-            <MudGrid Class="mt-2">
-                <MudItem xs="12" md="6">
-                    <MudSelect T="string" Label="Select Target Language" Value="@_selectedLocale" ValueChanged="OnLocaleChangedAsync" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
-                        @foreach (var locale in localizationOpts.Value.SupportedCultures.Where(c => c != "en"))
+    <MudGrid Class="mt-2">
+        <MudItem xs="12" md="6">
+            <MudCard Outlined="true" Class="h-100">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">LLM Connection & Configuration</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        @if (status.IsEnabled)
                         {
-                            <MudSelectItem Value="@locale">@GetLanguageDisplayName(locale)</MudSelectItem>
+                            @if (status.IsLlmOnline == true)
+                            {
+                                <MudChip T="string" Color="Color.Success" Size="Size.Small">ONLINE</MudChip>
+                            }
+                            else if (status.IsLlmOnline == false)
+                            {
+                                <MudChip T="string" Color="Color.Error" Size="Size.Small">OFFLINE</MudChip>
+                            }
+                            else
+                            {
+                                <MudChip T="string" Color="Color.Default" Size="Size.Small">CHECKING...</MudChip>
+                            }
                         }
-                    </MudSelect>
-                </MudItem>
+                        else
+                        {
+                            <MudChip T="string" Color="Color.Default" Size="Size.Small">DISABLED</MudChip>
+                        }
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText><b>Global Status:</b> @(status.IsEnabled ? "Enabled" : "Disabled")</MudText>
+                    <MudText><b>Active Provider:</b> @status.Provider</MudText>
+                    <MudText><b>Chat Model:</b> @(string.IsNullOrEmpty(status.ChatModel) ? "N/A" : status.ChatModel)</MudText>
+                    <MudText><b>Embedding Model:</b> @(string.IsNullOrEmpty(status.EmbeddingModel) ? "N/A" : status.EmbeddingModel)</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
 
-                @if (_translationStatus != null)
-                {
-                    <MudItem xs="12" md="6">
-                        <MudCard Outlined="true" Class="h-100">
-                            <MudCardContent>
-                                <MudText Typo="Typo.subtitle1" Class="mb-2"><b>Stats for @GetLanguageDisplayName(_selectedLocale):</b></MudText>
-                                <div class="d-flex justify-space-between mb-1">
-                                    <MudText>Total Keys:</MudText>
-                                    <MudText><b>@_translationStatus.TotalKeys</b></MudText>
-                                </div>
-                                <div class="d-flex justify-space-between mb-1">
-                                    <MudText>Translated Keys:</MudText>
-                                    <MudText><b>@_translationStatus.TranslatedKeys</b></MudText>
-                                </div>
-                                <div class="d-flex justify-space-between mb-1">
-                                    <MudText>Missing Keys:</MudText>
-                                    <MudText><b>@_translationStatus.MissingKeys</b></MudText>
-                                </div>
+        <MudItem xs="12" md="6">
+            <MudCard Outlined="true" Class="h-100">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Background Transcription Queue</MudText>
+                    </CardHeaderContent>
+                    <CardHeaderActions>
+                        @if (status.QueueLength > 0)
+                        {
+                            <MudChip T="string" Color="Color.Warning" Size="Size.Small">PROCESSING</MudChip>
+                        }
+                        else
+                        {
+                            <MudChip T="string" Color="Color.Default" Size="Size.Small">IDLE</MudChip>
+                        }
+                    </CardHeaderActions>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText><b>Queue Strategy:</b> Sequential Single-Reader FIFO</MudText>
+                    <MudText><b>Enqueued Cases:</b> @status.QueueLength</MudText>
+                    <MudText Class="mud-text-secondary mt-2" Typo="Typo.body2">
+                        Protects local GPU / LLM instances from resource exhaustion by processing enqueued transcription tasks one after another.
+                    </MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
 
-                                @if (_translationStatus.MissingKeys > 0)
-                                {
-                                    <MudAlert Severity="Severity.Info" Class="mt-4" Dense="true">
-                                        @_translationStatus.MissingKeys phrase(s) still need translation - edit them directly in the table below.
-                                    </MudAlert>
-                                }
-                                else
-                                {
-                                    <MudAlert Severity="Severity.Success" Class="mt-4" Dense="true">All phrases are translated!</MudAlert>
-                                }
-                            </MudCardContent>
-                        </MudCard>
-                    </MudItem>
-
-                    <MudItem xs="12">
-                        <MudDataGrid Items="@_translationRows" T="TranslationRow" EditMode="DataGridEditMode.Form" CommittedItemChanges="@OnRowCommitted" QuickFilter="@_quickFilter" Bordered="true" Dense="true" Striped="true" Hover="true" Class="mt-4" Elevation="1">
-                            <ToolBarContent>
-                                <MudText Typo="Typo.h6">Phrase Repository</MudText>
-                                <MudSpacer />
-                                <MudTextField @bind-Value="_searchString" Placeholder="Search key or translation..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0" Immediate="true" Clearable="true" />
-                            </ToolBarContent>
-                            <Columns>
-                                <PropertyColumn Property="x => x.Key" Title="English Key (Source)" ReadOnly="true" />
-                                <PropertyColumn Property="x => x.Translation" Title="Translation" />
-                                <TemplateColumn Title="Status">
-                                    <CellTemplate>
-                                        @if (context.Item.IsHumanModified)
-                                        {
-                                            <MudChip T="string" Color="Color.Info" Size="Size.Small" Variant="Variant.Filled">Human Modified</MudChip>
-                                        }
-                                        else if (!string.IsNullOrEmpty(context.Item.ModelUsed))
-                                        {
-                                            <MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Text">@context.Item.ModelUsed</MudChip>
-                                        }
-                                        else
-                                        {
-                                            <MudChip T="string" Color="Color.Default" Size="Size.Small" Variant="Variant.Outlined">Missing</MudChip>
-                                        }
-                                    </CellTemplate>
-                                </TemplateColumn>
-                                <TemplateColumn CellClass="d-flex justify-end" RequiredToBeEditable="false">
-                                    <CellTemplate>
-                                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
-                                    </CellTemplate>
-                                </TemplateColumn>
-                            </Columns>
-                            <PagerContent>
-                                <MudDataGridPager T="TranslationRow" PageSizeOptions="new int[]{10, 20, 50, 100}" />
-                            </PagerContent>
-                        </MudDataGrid>
-                    </MudItem>
-                }
-                else if (!string.IsNullOrEmpty(_selectedLocale))
-                {
-                    <MudItem xs="12">
-                        <MudText Class="mt-2">Loading translation status...</MudText>
-                    </MudItem>
-                }
-            </MudGrid>
-        </MudTabPanel>
-    </MudTabs>
+        <MudItem xs="12">
+            <MudText Typo="Typo.h6" Class="mt-4 mb-2">Recent Ingestion Activities</MudText>
+            @if (status.RecentActivities.Count == 0)
+            {
+                <MudAlert Severity="Severity.Info">No recent AI activities found in the lineage logs.</MudAlert>
+            }
+            else
+            {
+                <MudTable Items="@status.RecentActivities" Dense="true" Striped="true" Hover="true" OnRowClick="@(async (TableRowClickEventArgs<AiActivityDto> args) => await OpenDetailDialogAsync(args))">
+                    <HeaderContent>
+                        <MudTh>Case Title</MudTh>
+                        <MudTh>Status</MudTh>
+                        <MudTh>Model Used</MudTh>
+                        <MudTh>Outcome</MudTh>
+                        <MudTh>Timestamp (UTC)</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Case Title">
+                            <MudLink Href="@($"/request/{context.CaseId}")" @onclick:stopPropagation="true">@context.CaseTitle</MudLink>
+                        </MudTd>
+                        <MudTd DataLabel="Status">
+                            @if (context.Status == "Completed")
+                            {
+                                <MudChip T="string" Color="Color.Success" Size="Size.Small">Completed</MudChip>
+                            }
+                            else if (context.Status == "Failed")
+                            {
+                                <MudChip T="string" Color="Color.Error" Size="Size.Small">Failed</MudChip>
+                            }
+                            else if (context.Status == "Skipped")
+                            {
+                                <MudChip T="string" Color="Color.Default" Size="Size.Small">Skipped</MudChip>
+                            }
+                            else if (context.Status == "Processing")
+                            {
+                                <MudChip T="string" Color="Color.Info" Size="Size.Small">Processing</MudChip>
+                            }
+                            else if (context.Status == "Queued")
+                            {
+                                <MudChip T="string" Color="Color.Warning" Size="Size.Small">Queued</MudChip>
+                            }
+                            else
+                            {
+                                <MudChip T="string" Size="Size.Small">@context.Status</MudChip>
+                            }
+                        </MudTd>
+                        <MudTd DataLabel="Model Used">@context.ModelUsed</MudTd>
+                        <MudTd DataLabel="Outcome">
+                            @if (context.WasOverridden)
+                            {
+                                <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Text">Overridden by User</MudChip>
+                            }
+                            else if (context.Status == "Completed")
+                            {
+                                <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Text">Accepted</MudChip>
+                            }
+                            else if (context.Status == "Failed")
+                            {
+                                <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Text">Error</MudChip>
+                            }
+                            else
+                            {
+                                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@context.Status</MudChip>
+                            }
+                            @if (!string.IsNullOrEmpty(context.ErrorMessage))
+                            {
+                                <MudTooltip Text="@context.ErrorMessage">
+                                    <MudIcon Icon="@Icons.Material.Filled.ErrorOutline" Color="Color.Error" Size="Size.Small" Class="ml-1" />
+                                </MudTooltip>
+                            }
+                        </MudTd>
+                        <MudTd DataLabel="Timestamp">@context.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudItem>
+    </MudGrid>
 }
 
 @inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
-@inject Microsoft.Extensions.Options.IOptions<iPath.Application.Localization.LocalizationSettings> localizationOpts
-@inject ITranslationLoader translationLoader
 @inject IDialogService dialog
 
 @code {
     private AiStatusDto? status;
-    private string _selectedLocale = string.Empty;
-    private TranslationStatusDto? _translationStatus;
-    private string _searchString = string.Empty;
-    private List<TranslationRow> _translationRows = new();
-
-    private Func<TranslationRow, bool> _quickFilter => x =>
-    {
-        if (string.IsNullOrWhiteSpace(_searchString))
-            return true;
-
-        if (x.Key.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (x.Translation != null && x.Translation.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return false;
-    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -324,87 +206,6 @@ else
         }
     }
 
-    private string GetLanguageDisplayName(string locale) =>
-        localizationOpts.Value.CultureDisplayNames.TryGetValue(locale.ToLowerInvariant(), out var name)
-            ? $"{name} ({locale})"
-            : locale.ToUpperInvariant();
-
-    private async Task OnLocaleChangedAsync(string locale)
-    {
-        _selectedLocale = locale;
-        _translationStatus = null;
-        await LoadTranslationStatusAsync();
-    }
-
-    private async Task LoadTranslationStatusAsync()
-    {
-        if (string.IsNullOrEmpty(_selectedLocale))
-        {
-            var uiLocale = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-            var supported = localizationOpts.Value.SupportedCultures.Where(c => c != "en").ToList();
-
-            // Default to current UI language if it's a non-English supported culture
-            _selectedLocale = supported.Contains(uiLocale) ? uiLocale : (supported.FirstOrDefault() ?? string.Empty);
-
-            if (string.IsNullOrEmpty(_selectedLocale))
-                return;
-        }
-
-        try
-        {
-            var response = await api.GetTranslationStatus(_selectedLocale);
-            if (response.IsSuccessful && response.Content is not null)
-            {
-                _translationStatus = response.Content;
-                _translationRows = _translationStatus.Words.Select(kvp =>
-                {
-                    _translationStatus.WordMetadata.TryGetValue(kvp.Key, out var meta);
-                    return new TranslationRow
-                    {
-                        Key = kvp.Key,
-                        Translation = kvp.Value,
-                        ModelUsed = meta?.ModelUsed ?? string.Empty,
-                        TranslatedAt = meta?.TranslatedAt,
-                        IsHumanModified = meta?.IsHumanModified ?? false
-                    };
-                }).ToList();
-            }
-        }
-        catch (Exception ex)
-        {
-            // Handle error silently or log
-        }
-
-        StateHasChanged();
-    }
-
-    private async Task<MudBlazor.DataGridEditFormAction> OnRowCommitted(TranslationRow row)
-    {
-        try
-        {
-            var command = new UpdateTranslationKeyCommand(_selectedLocale, row.Key, row.Translation);
-            var response = await api.UpdateTranslationKey(command);
-            if (response.IsSuccessful && response.Content)
-            {
-                row.IsHumanModified = true;
-                row.ModelUsed = "Human";
-                row.TranslatedAt = DateTime.UtcNow;
-
-                // Force localizer cache to reload
-                await translationLoader.LoadTranslationData(_selectedLocale, reload: true);
-            }
-            else
-            {
-                await LoadTranslationStatusAsync();
-            }
-        }
-        catch
-        {
-            await LoadTranslationStatusAsync();
-        }
-        return MudBlazor.DataGridEditFormAction.Close;
-    }
-
     private async Task OpenDetailDialogAsync(TableRowClickEventArgs<AiActivityDto> args)
     {
         var activity = args.Item;
@@ -426,14 +227,5 @@ else
         {
             // Silently handle
         }
-    }
-
-    public class TranslationRow
-    {
-        public string Key { get; set; } = string.Empty;
-        public string Translation { get; set; } = string.Empty;
-        public string ModelUsed { get; set; } = string.Empty;
-        public DateTime? TranslatedAt { get; set; }
-        public bool IsHumanModified { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 {
-  "ModifiedOn": "2026-09-17T09:37:36.210950+02:00",
+  "ModifiedOn": "2026-09-17T14:30:41.670401+02:00",
   "locale": "de",
   "Words": {
     "Edit communiy": "Gemeinschaft bearbeiten",
@@ -374,6 +374,8 @@
     "New cases in group": "Neue Fälle in Gruppe",
     "In App": "In der App",
     "Notification Settings for {0}": "Benachrichtigungseinstellungen für {0}",
-    "Message Body": "Nachrichtentext"
-  }
+    "Message Body": "Nachrichtentext",
+    "Translations": "Übersetzungen"
+  },
+  "WordMetadata": {}
 }

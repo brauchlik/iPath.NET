@@ -16,6 +16,8 @@
 - Fix: under WebAssembly the text preview kept the previous text after saving - the server derives the preview text and the pinned questionnaire version, and the client reused its own copy instead of re-reading the case after a successful save. Server mode only appeared to work because the in-process DTO is the instance the handler mutates
 - Development: Blazor circuit timeouts raised (client 300 s, JS interop 300 s, disconnected retention 600 s, configurable via `CircuitTimeouts`) so that pausing at a debugger breakpoint no longer cancels a pending navigation and tears the circuit down; circuit open/close and connection state are now logged, as is the reason a case page failed to load
 - Docs: `docs/superpowers/specs/2026-09-17-sdc-answer-extraction-design.md` records the extraction rules, the data model and what is deliberately left to later sprints
+- Cleared the per-key `WordMetadata` (`ModelUsed`/`TranslatedAt`/`IsHumanModified`) this session's own translation pass had stamped onto every entry in `Locales/*.json` - it was provenance for the removed AI pipeline, not something worth shipping as committed data; only genuine admin-UI edits populate it now. The Translations Manager status chip no longer mislabels a translated-but-unattributed entry as "Missing"
+- Admin: split the "Translations Manager" tab out of the AI Status page into its own `/admin/translations` page with a permanent nav entry - it has nothing to do with AI, and living inside a tab gated behind `iPathClientConfig:AiEnabled` made it unreachable on any deployment without the case-intake AI feature turned on
 
 ## 0.3.2
 

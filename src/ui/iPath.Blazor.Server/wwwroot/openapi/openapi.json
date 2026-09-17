@@ -1025,6 +1025,64 @@
         }
       }
     },
+    "/api/v1/admin/answers/table": {
+      "post": {
+        "tags": [
+          "Answers"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetAnswerTableQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerTableDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/answers/catalog": {
+      "post": {
+        "tags": [
+          "Answers"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetAnswerCatalogQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerCatalogDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/answers/issues": {
       "get": {
         "tags": [
@@ -4701,6 +4759,127 @@
           }
         }
       },
+      "AnswerCaseRowDto": {
+        "required": [
+          "serviceRequestId",
+          "title",
+          "createdOn",
+          "accessionNo",
+          "bodySite",
+          "cells"
+        ],
+        "type": "object",
+        "properties": {
+          "serviceRequestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "createdOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "accessionNo": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "bodySite": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "cells": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AnswerCatalogDto": {
+        "required": [
+          "forms",
+          "concepts",
+          "warnings",
+          "casesInGroup"
+        ],
+        "type": "object",
+        "properties": {
+          "forms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogFormDto"
+            }
+          },
+          "concepts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CatalogConceptDto"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "casesInGroup": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "AnswerColumnDto": {
+        "required": [
+          "key",
+          "codeSystem",
+          "code",
+          "display",
+          "hasCode"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "codeSystem": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "display": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hasCode": {
+            "type": "boolean"
+          }
+        }
+      },
       "AnswerExtractionStateDto": {
         "required": [
           "serviceRequestId",
@@ -4777,6 +4956,33 @@
           "extractionDisabled": {
             "type": "boolean",
             "default": false
+          }
+        }
+      },
+      "AnswerTableDto": {
+        "required": [
+          "columns",
+          "rows"
+        ],
+        "type": "object",
+        "properties": {
+          "columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnswerColumnDto"
+            }
+          },
+          "rows": {
+            "$ref": "#/components/schemas/PagedResultListOfAnswerCaseRowDto"
+          },
+          "conceptsOutsideColumns": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 0
           }
         }
       },
@@ -5079,6 +5285,133 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ServiceRequestAnswerDto"
+            }
+          }
+        }
+      },
+      "CatalogConceptDto": {
+        "required": [
+          "key",
+          "codeSystem",
+          "code",
+          "display",
+          "hasCode",
+          "valueType",
+          "repeats",
+          "options",
+          "linkIds",
+          "forms",
+          "answeredCases",
+          "answeredRows"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "codeSystem": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "display": {
+            "type": "string"
+          },
+          "hasCode": {
+            "type": "boolean"
+          },
+          "valueType": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "repeats": {
+            "type": "boolean"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "linkIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "forms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "answeredCases": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "answeredRows": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "CatalogFormDto": {
+        "required": [
+          "questionnaireId",
+          "name",
+          "version",
+          "assigned",
+          "casesWithAnswers",
+          "findings"
+        ],
+        "type": "object",
+        "properties": {
+          "questionnaireId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "assigned": {
+            "type": "boolean"
+          },
+          "casesWithAnswers": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConformityFinding"
             }
           }
         }
@@ -6309,6 +6642,18 @@
           }
         }
       },
+      "GetAnswerCatalogQuery": {
+        "required": [
+          "groupId"
+        ],
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "GetAnswersByFilterQuery": {
         "type": "object",
         "properties": {
@@ -6330,6 +6675,76 @@
               "null",
               "string"
             ]
+          },
+          "sorting": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "filter": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 0
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 10
+          }
+        }
+      },
+      "GetAnswerTableQuery": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "questionnaireId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "searchString": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "columns": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/AnswerColumnDto"
+            }
           },
           "sorting": {
             "type": [
@@ -8180,6 +8595,29 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "PagedResultListOfAnswerCaseRowDto": {
+        "required": [
+          "totalItems",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnswerCaseRowDto"
+            }
           }
         }
       },

@@ -1,4 +1,5 @@
 @namespace iPath.Blazor.Componenents.Admin
+@using iPath.Application.Features.Questionnaires
 @using iPath.Application.Features.Questionnaires.Queries
 
 @inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
@@ -180,17 +181,5 @@
     }
 
     private static string Value(ServiceRequestAnswerDto answer)
-    {
-        if (string.Equals(answer.ValueType, "coding", StringComparison.OrdinalIgnoreCase))
-        {
-            return string.IsNullOrEmpty(answer.ValueDisplay) ? answer.Value ?? "" : answer.ValueDisplay;
-        }
-
-        var value = answer.Value ?? "";
-        if (!string.IsNullOrEmpty(answer.Unit))
-        {
-            value = $"{value} {answer.Unit}";
-        }
-        return value;
-    }
+        => AnswerCellFormatter.Format(answer.ValueType, answer.Value, answer.ValueDisplay, answer.Unit);
 }

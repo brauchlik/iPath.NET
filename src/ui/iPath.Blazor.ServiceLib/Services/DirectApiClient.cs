@@ -616,6 +616,16 @@ public class DirectApiClient(
         return Respond(await mediator.Send(query, default));
     }
 
+    public async Task<IApiResponse<AnswerTableDto>> GetAnswerTable(GetAnswerTableQuery query)
+    {
+        return Respond(await mediator.Send(query, default));
+    }
+
+    public async Task<IApiResponse<AnswerCatalogDto>> GetAnswerCatalog(GetAnswerCatalogQuery query)
+    {
+        return Respond(await mediator.Send(query, default));
+    }
+
     public async Task<IApiResponse<List<AnswerExtractionStateDto>>> GetAnswerIssues(Guid? groupId = null, int? max = null)
     {
         return Respond(await mediator.Send(new GetAnswerExtractionIssuesQuery(groupId, max ?? 200), default));

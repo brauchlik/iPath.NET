@@ -401,7 +401,7 @@ public static class AdminEndpoints
         })
             .Produces<CaseAnswersDto>()
             .WithTags("Answers")
-            .RequireAuthorization("Admin");
+            .RequireAuthorization("Developer");
 
         route.MapPost("admin/answers/list", async (GetAnswersByFilterQuery request, IMediator mediator, CancellationToken ct) =>
         {
@@ -410,7 +410,25 @@ public static class AdminEndpoints
         })
             .Produces<PagedResultList<ServiceRequestAnswerDto>>()
             .WithTags("Answers")
-            .RequireAuthorization("Admin");
+            .RequireAuthorization("Developer");
+
+        route.MapPost("admin/answers/table", async (GetAnswerTableQuery request, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(request, ct);
+            return Results.Ok(result);
+        })
+            .Produces<AnswerTableDto>()
+            .WithTags("Answers")
+            .RequireAuthorization("Developer");
+
+        route.MapPost("admin/answers/catalog", async (GetAnswerCatalogQuery request, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(request, ct);
+            return Results.Ok(result);
+        })
+            .Produces<AnswerCatalogDto>()
+            .WithTags("Answers")
+            .RequireAuthorization("Developer");
 
         route.MapGet("admin/answers/issues", async (Guid? groupId, int? max, IMediator mediator, CancellationToken ct) =>
         {
@@ -419,7 +437,7 @@ public static class AdminEndpoints
         })
             .Produces<List<AnswerExtractionStateDto>>()
             .WithTags("Answers")
-            .RequireAuthorization("Admin");
+            .RequireAuthorization("Developer");
 
         route.MapPost("admin/answers/re-extract/{caseId}", async (Guid caseId, IMediator mediator, CancellationToken ct) =>
         {
@@ -428,7 +446,7 @@ public static class AdminEndpoints
         })
             .Produces<int>()
             .WithTags("Answers")
-            .RequireAuthorization("Admin");
+            .RequireAuthorization("Developer");
 
         route.MapPost("admin/answers/backfill", async (BackfillServiceRequestAnswersCommand command, IMediator mediator, CancellationToken ct) =>
         {
@@ -437,7 +455,7 @@ public static class AdminEndpoints
         })
             .Produces<BackfillAnswersResult>()
             .WithTags("Answers")
-            .RequireAuthorization("Admin");
+            .RequireAuthorization("Developer");
 
         route.MapGet("admin/questionnaires/{questionnaireId}/conformity", async (string questionnaireId, int? version, IMediator mediator, CancellationToken ct) =>
         {
@@ -446,7 +464,7 @@ public static class AdminEndpoints
         })
             .Produces<List<ConformityFinding>>()
             .WithTags("Answers")
-            .RequireAuthorization("Admin");
+            .RequireAuthorization("Developer");
         #endregion
 
 

@@ -1,92 +1,249 @@
 @page "/admin/answers"
+@attribute [Authorize(Roles = "Developer")]
 @namespace iPath.Blazor.Componenents.Admin
+
 @using iPath.Application.Features.Questionnaires.Queries
 @using iPath.Application.Features.Questionnaires.Commands
 
 @inject IPathApi api
 @inject ISnackbar snackbar
-@inject IDialogService dialog
+
+<style>
+    .answer-pivot { overflow-x: auto; border: 1px solid var(--mud-palette-divider); }
+    .answer-pivot table { border-collapse: collapse; font-size: 0.8rem; white-space: nowrap; }
+    .answer-pivot th, .answer-pivot td { border: 1px solid var(--mud-palette-divider); padding: 2px 6px; text-align: left; }
+    .answer-pivot thead th { position: sticky; top: 0; background: var(--mud-palette-surface); z-index: 2; }
+    /* items without a code are the form's own logic, not clinical concepts */
+    .nocode { color: var(--mud-palette-text-secondary); font-style: italic; }
+    .answer-pivot .casecol { position: sticky; left: 0; background: var(--mud-palette-surface); z-index: 1; }
+    .answer-pivot thead th.casecol { z-index: 3; }
+</style>
 
 <MudBreadcrumbs Items="BreadCrumbs" Class="mt-0 pt-0"></MudBreadcrumbs>
 
-<MudText Typo="Typo.h6" Class="mb-2">Extracted Questionnaire Answers</MudText>
+<MudText Typo="Typo.h6" Class="mb-2">Data Export</MudText>
 <MudText Typo="Typo.body2" Class="mb-4">
-    Direct view of the answer rows (SDC extraction) for reviewing and for deciding what a search or export needs.
+    Pick a group to see its case description forms, the concepts they record (the catalog) and the
+    answers its cases gave - one row per case, one column per concept.
 </MudText>
 
 <MudPaper Outlined="true" Class="pa-3 mb-4">
     <MudGrid Spacing="2" Class="d-flex align-center">
-        <MudItem xs="12" sm="3">
-            <MudTextField @bind-Value="groupIdText" Label="Group Id (optional)" Variant="Variant.Outlined"
-                          Margin="Margin.Dense" Dense="true" />
+        <MudItem xs="12" sm="4">
+            <GroupAdminLookup Label=@T["Group"] Clearable="true" @bind-Value="_group" @bind-Value:after="OnGroupChanged"
+                              Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true" />
         </MudItem>
-        <MudItem xs="12" sm="3">
-            <MudTextField @bind-Value="questionnaireId" Label="Questionnaire Id (optional)" Variant="Variant.Outlined"
-                          Margin="Margin.Dense" Dense="true" />
+        <MudItem xs="12" sm="4">
+            @if (_catalog is not null)
+            {
+                <MudText Typo="Typo.body2">
+                    @_catalog.CasesInGroup cases · @_catalog.Forms.Count forms · @_catalog.Concepts.Count concepts
+                    (@NoCodeConcepts without code)
+                </MudText>
+            }
         </MudItem>
-        <MudItem xs="12" sm="3">
-            <MudTextField @bind-Value="search" Label="Search (linkId, code, value)" Variant="Variant.Outlined"
-                          Margin="Margin.Dense" Dense="true" />
-        </MudItem>
-        <MudItem xs="12" sm="3">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Reload"
-                       StartIcon="@Icons.Material.Filled.Search">Load</MudButton>
+        <MudItem xs="12" sm="4">
+            <MudButton Variant="Variant.Text" OnClick="Reload" Disabled="@(_group is null)"
+                       StartIcon="@Icons.Material.Filled.Refresh">Reload</MudButton>
         </MudItem>
     </MudGrid>
 </MudPaper>
 
-<MudDataGrid T="ServiceRequestAnswerDto" ServerData="GetDataAsync" Dense="true" Hover="true" Striped="true" @ref="grid">
-    <Columns>
-        <PropertyColumn Title="Case" Property="x => x.CaseTitle" Sortable="true">
-            <CellTemplate>
-                <MudLink Href="@($"/request/{context.Item.ServiceRequestId}")">
-                    @(string.IsNullOrEmpty(context.Item.CaseTitle) ? context.Item.ServiceRequestId.ToString() : context.Item.CaseTitle)
-                </MudLink>
-            </CellTemplate>
-        </PropertyColumn>
-        <PropertyColumn Title="Created" Property="x => x.CaseCreatedOn" Format="yyyy-MM-dd" Sortable="true" />
-        <PropertyColumn Title="Question (linkId)" Property="x => x.LinkId" Sortable="true" />
-        <PropertyColumn Title="Code" Property="x => x.Code" Sortable="true">
-            <CellTemplate>
-                @if (!string.IsNullOrEmpty(context.Item.Code))
-                {
-                    <span>@context.Item.CodeSystem|@context.Item.Code</span>
-                    @if (!string.IsNullOrEmpty(context.Item.OtherCodings))
+@if (_group is null)
+{
+    <MudAlert Severity="Severity.Info" Dense="true">
+        Select a group. The catalog is built from the case description forms assigned to it.
+    </MudAlert>
+}
+else if (_catalog is null)
+{
+    <MudProgressLinear Indeterminate="true" Class="my-4" />
+}
+else
+{
+    @if (_catalog.Warnings.Count > 0)
+    {
+        <MudAlert Severity="Severity.Warning" Dense="true" Class="mb-4">
+            @foreach (var warning in _catalog.Warnings)
+            {
+                <div>@warning</div>
+            }
+        </MudAlert>
+    }
+
+    <MudExpansionPanels Elevation="1" Gutters="true" Class="mb-6">
+        <MudExpansionPanel Dense="true" Text="@CatalogPanelTitle">
+            <ChildContent>
+
+                <MudText Typo="Typo.h6" Class="my-2">Forms</MudText>
+                <MudTable Items="_catalog.Forms" Dense="true" Hover="true">
+                    <HeaderContent>
+                        <MudTh>Form</MudTh>
+                        <MudTh>Version</MudTh>
+                        <MudTh>Assigned</MudTh>
+                        <MudTh>Cases</MudTh>
+                        <MudTh>Findings</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Form">
+                            @context.Name
+                            <MudText Typo="Typo.caption" Class="nocode">@context.QuestionnaireId</MudText>
+                        </MudTd>
+                        <MudTd DataLabel="Version">v@context.Version</MudTd>
+                        <MudTd DataLabel="Assigned">
+                            @if (context.Assigned)
+                            {
+                                <MudIcon Icon="@Icons.Material.Filled.Check" Size="Size.Small" />
+                            }
+                            else
+                            {
+                                <MudChip T="string" Size="Size.Small" Color="Color.Warning">used, not assigned</MudChip>
+                            }
+                        </MudTd>
+                        <MudTd DataLabel="Cases">@context.CasesWithAnswers</MudTd>
+                        <MudTd DataLabel="Findings">
+                            @if (context.Findings.Count > 0)
+                            {
+                                <MudTooltip>
+                                    <ChildContent>
+                                        <MudText Typo="Typo.body2">@context.Findings.Count</MudText>
+                                    </ChildContent>
+                                    <TooltipContent>
+                                        @foreach (var f in context.Findings.Take(25))
+                                        {
+                                            <div>@f.Severity: @(f.LinkId ?? "-") - @f.Message</div>
+                                        }
+                                    </TooltipContent>
+                                </MudTooltip>
+                            }
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+
+                <MudStack Row AlignItems="AlignItems.Center" Class="my-4" Spacing="2">
+                    <MudText Typo="Typo.h6">Columns</MudText>
+                    <MudTextField @bind-Value="conceptFilter" Immediate="true" Clearable="true"
+                                  Placeholder="filter by label, code or linkId"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true" Style="max-width: 280px" />
+                    <MudCheckBox T="bool" @bind-Value="onlyUsed" Color="Color.Primary" Label=@T["only answered ones"] />
+                    <MudSpacer />
+                    <MudText Typo="Typo.body2">@_selectedColumns.Count selected</MudText>
+                    <MudButton Size="Size.Small" Variant="Variant.Text" OnClick="SelectCodedColumns">@T["select all coded"]</MudButton>
+                    <MudButton Size="Size.Small" Variant="Variant.Text" OnClick="SelectAnsweredColumns">@T["select answered"]</MudButton>
+                    <MudButton Size="Size.Small" Variant="Variant.Text" OnClick="ClearColumnSelection">@T["clear"]</MudButton>
+                </MudStack>
+
+                <MudTable Items="FilteredConcepts" Dense="true" Hover="true">
+                    <HeaderContent>
+                        <MudTh>Use</MudTh>
+                        <MudTh>Concept</MudTh>
+                        <MudTh>Code</MudTh>
+                        <MudTh>Type</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Use">
+                            <MudCheckBox T="bool" Dense="true" Color="Color.Primary"
+                                         Value="@_selectedColumns.Contains(context.Key)"
+                                         ValueChanged="@(v => ToggleColumn(context, v))" />
+                        </MudTd>
+                        <MudTd DataLabel="Concept">
+                            <span class="@(context.HasCode ? "" : "nocode")">@context.Display</span>
+                            <MudText Typo="Typo.caption" Class="nocode">@string.Join(", ", context.LinkIds)</MudText>
+                        </MudTd>
+                        <MudTd DataLabel="Code">
+                            <span class="nocode">@context.Code</span>
+                        </MudTd>
+                        <MudTd DataLabel="Type">@context.ValueType</MudTd>
+                    </RowTemplate>
+                </MudTable>
+
+            </ChildContent>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+
+    <MudStack Row AlignItems="AlignItems.Center" Class="mb-2">
+        <MudText Typo="Typo.h6">Answers</MudText>
+        <MudSelect T="string" Value="_formFilter" ValueChanged="OnFormFilterChanged" Clearable="true"
+                   Placeholder=@T["all forms"] Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true"
+                   Style="min-width: 260px">
+            @foreach (var form in _catalog.Forms)
+            {
+                <MudSelectItem T="string" Value="@form.QuestionnaireId">@form.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudTextField @bind-Value="search" Placeholder="which cases (linkId, code, value)" Clearable="true"
+                      Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true" Style="max-width: 280px"
+                      @bind-Value:after="ReloadAnswers" />
+        <MudSpacer />
+        <MudSelect T="int" @bind-Value="_pageSize" @bind-Value:after="OnPageSizeChanged" Variant="Variant.Outlined"
+                   Margin="Margin.Dense" Dense="true" Style="width: 100px">
+            <MudSelectItem T="int" Value="25">25</MudSelectItem>
+            <MudSelectItem T="int" Value="50">50</MudSelectItem>
+            <MudSelectItem T="int" Value="100">100</MudSelectItem>
+        </MudSelect>
+        <MudIconButton Icon="@Icons.Material.Filled.ChevronLeft" OnClick="PreviousPage" Disabled="@(_page == 0)"
+                       Size="Size.Small" Title="Previous page" />
+        <MudText Typo="Typo.body2">@PageInfo</MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.ChevronRight" OnClick="NextPage" Disabled="@(!HasNextPage)"
+                       Size="Size.Small" Title="Next page" />
+    </MudStack>
+
+    @if (_table is null || _table.Columns.Count == 0 || _table.Rows.TotalItems == 0)
+    {
+        <MudAlert Severity="Severity.Info" Dense="true">No extracted answers match.</MudAlert>
+    }
+    else
+    {
+        <MudText Typo="Typo.caption" Class="mb-1">
+            @_table.Rows.TotalItems cases · @_table.Columns.Count columns
+            @(_selectedColumns.Count > 0 ? "from the catalog" : "from the answers")
+            · @NoCodeColumns without code. Empty cell = not answered;
+            <span class="nocode">*</span> = question without a code.
+            @if (_table.ConceptsOutsideColumns > 0)
+            {
+                <text> @_table.ConceptsOutsideColumns concept(s) in the data are not in the selected columns.</text>
+            }
+        </MudText>
+
+        <div class="answer-pivot">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="casecol">Case</th>
+                        <th>Created</th>
+                        <th>Accession</th>
+                        <th>Body site</th>
+                        @foreach (var col in _table.Columns)
+                        {
+                            <th class="@(col.HasCode ? "" : "nocode")" title="@col.Key">@col.Display</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in _table.Rows.Items)
                     {
-                        <MudTooltip Text="@context.Item.OtherCodings">
-                            <MudIcon Icon="@Icons.Material.Filled.MoreHoriz" Size="Size.Small" />
-                        </MudTooltip>
+                        <tr>
+                            <td class="casecol">
+                                <MudLink Href="@($"/request/{row.ServiceRequestId}")">
+                                    @(string.IsNullOrEmpty(row.Title) ? "(untitled case)" : row.Title)
+                                </MudLink>
+                            </td>
+                            <td>@row.CreatedOn?.ToString("yyyy-MM-dd")</td>
+                            <td>@row.AccessionNo</td>
+                            <td>@row.BodySite</td>
+                            @foreach (var col in _table.Columns)
+                            {
+                                <td class="@(col.HasCode ? "" : "nocode")">
+                                    @(row.Cells.TryGetValue(col.Key, out var cell) ? cell : "")
+                                </td>
+                            }
+                        </tr>
                     }
-                }
-            </CellTemplate>
-        </PropertyColumn>
-        <PropertyColumn Title="Code Display" Property="x => x.CodeDisplay" />
-        <PropertyColumn Title="Type" Property="x => x.ValueType" />
-        <PropertyColumn Title="Value" Property="x => x.Value">
-            <CellTemplate>
-                @if (string.Equals(context.Item.ValueType, "coding", StringComparison.OrdinalIgnoreCase))
-                {
-                    <span>@(context.Item.ValueDisplay ?? context.Item.Value)</span>
-                }
-                else
-                {
-                    <span>@context.Item.Value@(string.IsNullOrEmpty(context.Item.Unit) ? "" : $" {context.Item.Unit}")</span>
-                }
-            </CellTemplate>
-        </PropertyColumn>
-        <PropertyColumn Title="Form" Property="x => x.QuestionnaireId" />
-        <PropertyColumn Title="v" Property="x => x.QuestionnaireVersion" />
-        <TemplateColumn Title="" Sortable="false">
-            <CellTemplate>
-                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Visibility"
-                               OnClick="@(() => ShowCase(context.Item))" Title="Case answers" />
-            </CellTemplate>
-        </TemplateColumn>
-    </Columns>
-    <PagerContent>
-        <MudDataGridPager T="ServiceRequestAnswerDto" PageSizeOptions="pageoptions" />
-    </PagerContent>
-</MudDataGrid>
+                </tbody>
+            </table>
+        </div>
+    }
+}
 
 <MudDivider Class="my-6" />
 
@@ -159,13 +316,17 @@ else
 }
 
 @code {
-    int[] pageoptions = new[] { 25, 50, 100 };
-
-    private MudDataGrid<ServiceRequestAnswerDto>? grid;
-    private string? groupIdText;
-    private string? questionnaireId;
-    private string? search;
+    private GroupListDto? _group;
+    private AnswerCatalogDto? _catalog;
+    private AnswerTableDto? _table;
     private List<AnswerExtractionStateDto>? issues;
+    private string? conceptFilter;
+    private bool onlyUsed;
+    private readonly HashSet<string> _selectedColumns = new(StringComparer.OrdinalIgnoreCase);
+    private string? _formFilter;
+    private string? search;
+    private int _page;
+    private int _pageSize = 25;
     private int backfillMax = 100;
     private bool backfillRunning;
 
@@ -174,39 +335,158 @@ else
         get
         {
             var ret = new List<BreadcrumbItem> { new("Administration", href: "admin") };
-            ret.Add(new("Extracted Answers", href: null, disabled: true));
+            ret.Add(new("Data Export", href: null, disabled: true));
             return ret;
         }
     }
 
-    protected override async Task OnInitializedAsync() => await LoadIssues();
+    private Guid? GroupId => _group?.Id;
 
-    private Guid? GroupId => Guid.TryParse(groupIdText, out var g) ? g : null;
+    private string CatalogPanelTitle
+        => $"Forms & columns - {_catalog?.Forms.Count ?? 0} forms, {_selectedColumns.Count} of {_catalog?.Concepts.Count ?? 0} columns selected";
 
-    private async Task<GridData<ServiceRequestAnswerDto>> GetDataAsync(GridState<ServiceRequestAnswerDto> state, CancellationToken ct)
-    {
-        var query = state.BuildQuery(new GetAnswersByFilterQuery
-        {
-            GroupId = GroupId,
-            QuestionnaireId = string.IsNullOrWhiteSpace(questionnaireId) ? null : questionnaireId.Trim(),
-            SearchString = search
-        });
+    private int NoCodeConcepts => _catalog?.Concepts.Count(c => !c.HasCode) ?? 0;
 
-        var resp = await api.GetAnswersList(query);
-        if (resp.IsSuccessful && resp.Content is not null) return resp.Content.ToGridData();
+    private int NoCodeColumns => _table?.Columns.Count(c => !c.HasCode) ?? 0;
 
-        snackbar.AddWarning(resp.ErrorText());
-        return new GridData<ServiceRequestAnswerDto>();
-    }
+    private IEnumerable<CatalogConceptDto> FilteredConcepts => _catalog is null
+        ? []
+        : _catalog.Concepts.Where(c =>
+            (!onlyUsed || c.AnsweredCases > 0)
+            && (string.IsNullOrWhiteSpace(conceptFilter)
+                || c.Display.Contains(conceptFilter, StringComparison.OrdinalIgnoreCase)
+                || (c.Code is not null && c.Code.Contains(conceptFilter, StringComparison.OrdinalIgnoreCase))
+                || c.LinkIds.Any(l => l.Contains(conceptFilter, StringComparison.OrdinalIgnoreCase))));
+
+    /// <summary>The columns picked in the catalog, in catalog order; null while nothing is picked.</summary>
+    private AnswerColumnDto[]? SelectedColumns => _catalog is null || _selectedColumns.Count == 0
+        ? null
+        : _catalog.Concepts
+            .Where(c => _selectedColumns.Contains(c.Key))
+            .Select(c => new AnswerColumnDto(c.Key, c.CodeSystem, c.Code, c.Display, c.HasCode))
+            .ToArray();
+
+    private bool HasNextPage => _table is not null && (_page + 1) * _pageSize < _table.Rows.TotalItems;
+
+    private string PageInfo => _table is null || _table.Rows.TotalItems == 0
+        ? string.Empty
+        : $"{_page * _pageSize + 1}-{Math.Min((_page + 1) * _pageSize, _table.Rows.TotalItems)} of {_table.Rows.TotalItems}";
 
     private async Task Reload()
     {
-        if (grid is not null) await grid.ReloadServerData();
+        _page = 0;
+        _table = null;
+        _catalog = null;
+
+        if (_group is null)
+        {
+            issues = null;
+            return;
+        }
+
+        await LoadCatalog();
+        await LoadAnswers();
         await LoadIssues();
+    }
+
+    private async Task LoadCatalog()
+    {
+        var resp = await api.GetAnswerCatalog(new GetAnswerCatalogQuery(_group!.Id));
+        if (resp.IsSuccessful && resp.Content is not null) _catalog = resp.Content;
+        else snackbar.AddWarning(resp.ErrorText());
+    }
+
+    private async Task ReloadAnswers()
+    {
+        _page = 0;
+        await LoadAnswers();
+    }
+
+    private async Task LoadAnswers()
+    {
+        var resp = await api.GetAnswerTable(new GetAnswerTableQuery
+        {
+            GroupId = GroupId,
+            QuestionnaireId = _formFilter,
+            SearchString = search,
+            Columns = SelectedColumns,
+            Page = _page,
+            PageSize = _pageSize
+        });
+
+        if (resp.IsSuccessful && resp.Content is not null) _table = resp.Content;
+        else snackbar.AddWarning(resp.ErrorText());
+    }
+
+    private async Task OnGroupChanged()
+    {
+        // a selection belongs to the catalog of one group
+        _selectedColumns.Clear();
+        await Reload();
+    }
+
+    private async Task ToggleColumn(CatalogConceptDto concept, bool selected)
+    {
+        if (selected) _selectedColumns.Add(concept.Key);
+        else _selectedColumns.Remove(concept.Key);
+
+        await LoadAnswers();
+    }
+
+    private Task SelectCodedColumns()
+        => SetSelection(_catalog?.Concepts.Where(c => c.HasCode).Select(c => c.Key) ?? []);
+
+    private Task SelectAnsweredColumns()
+        => SetSelection(_catalog?.Concepts.Where(c => c.AnsweredCases > 0).Select(c => c.Key) ?? []);
+
+    private Task ClearColumnSelection() => SetSelection([]);
+
+    private async Task SetSelection(IEnumerable<string> keys)
+    {
+        _selectedColumns.Clear();
+        foreach (var key in keys) _selectedColumns.Add(key);
+
+        await LoadAnswers();
+    }
+
+    private async Task OnFormFilterChanged(string? value)
+    {
+        _formFilter = value;
+        await ReloadAnswers();
+    }
+
+    private async Task PreviousPage()
+    {
+        if (_page > 0)
+        {
+            _page--;
+            await LoadAnswers();
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (HasNextPage)
+        {
+            _page++;
+            await LoadAnswers();
+        }
+    }
+
+    private async Task OnPageSizeChanged()
+    {
+        _page = 0;
+        await LoadAnswers();
     }
 
     private async Task LoadIssues()
     {
+        if (_group is null)
+        {
+            issues = null;
+            return;
+        }
+
         var resp = await api.GetAnswerIssues(GroupId, 200);
         issues = resp.IsSuccessful ? resp.Content ?? new() : new();
     }
@@ -225,6 +505,7 @@ else
             {
                 snackbar.AddWarning(resp.ErrorText());
             }
+
             await Reload();
         }
         finally
@@ -244,16 +525,7 @@ else
         {
             snackbar.AddWarning(resp.ErrorText());
         }
-        await Reload();
-    }
 
-    private async Task ShowCase(ServiceRequestAnswerDto item)
-    {
-        var parameters = new DialogParameters<CaseAnswerRowsDialog>
-        {
-            { x => x.CaseId, item.ServiceRequestId },
-            { x => x.CaseTitle, item.CaseTitle ?? "Untitled" }
-        };
-        await dialog.ShowAsync<CaseAnswerRowsDialog>("Extracted Answers", parameters);
+        await Reload();
     }
 }

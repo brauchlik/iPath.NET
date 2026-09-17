@@ -160,8 +160,14 @@ public class CodingService
 
     public bool InConceptFilter(string code, ConceptFilter filter, bool includeRoot = true)
     {
+        // Without a loaded code system the filter cannot be evaluated. Returning false here made the
+        // caller drop every questionnaire (the form selection then offered nothing at all), so the
+        // filter is ignored instead and the problem is logged.
         if (_lookup == null)
-            return false;
+        {
+            logger.LogWarning("Code system {CodeSystemId} is not loaded - the concept filter is ignored", _codeSystemId);
+            return true;
+        }
 
         // no filter/concepts => true
         if (filter is null || filter.Concetps.IsEmpty())

@@ -337,6 +337,12 @@ public interface IPathApi
     [Post("/api/v1/admin/answers/list")]
     Task<IApiResponse<PagedResultList<ServiceRequestAnswerDto>>> GetAnswersList([Body] GetAnswersByFilterQuery query);
 
+    [Post("/api/v1/admin/answers/table")]
+    Task<IApiResponse<AnswerTableDto>> GetAnswerTable([Body] GetAnswerTableQuery query);
+
+    [Post("/api/v1/admin/answers/catalog")]
+    Task<IApiResponse<AnswerCatalogDto>> GetAnswerCatalog([Body] GetAnswerCatalogQuery query);
+
     [Get("/api/v1/admin/answers/issues")]
     Task<IApiResponse<List<AnswerExtractionStateDto>>> GetAnswerIssues([Query] Guid? groupId = null, [Query] int? max = null);
 

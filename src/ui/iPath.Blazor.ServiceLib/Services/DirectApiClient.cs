@@ -591,6 +591,11 @@ public class DirectApiClient(
         return Respond(await mediator.Send(command, default));
     }
 
+    public async Task<IApiResponse<TranslationImportSummaryDto>> ImportTranslationDefaults(ImportTranslationDefaultsCommand command)
+    {
+        return Respond(await mediator.Send(command, default));
+    }
+
     public async Task<IApiResponse<AiLineageDetailDto>> GetAiLineageDetail(Guid id)
     {
         return Respond(await mediator.Send(new GetAiLineageDetailQuery(id), default));

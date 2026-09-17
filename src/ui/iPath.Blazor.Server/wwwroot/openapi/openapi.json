@@ -676,6 +676,35 @@
         }
       }
     },
+    "/api/v1/admin/translations/import-defaults": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportTranslationDefaultsCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslationImportSummaryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/ai/enqueue/{caseId}": {
       "post": {
         "tags": [
@@ -7700,6 +7729,17 @@
           }
         }
       },
+      "ImportTranslationDefaultsCommand": {
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "iPathClientConfig": {
         "type": "object",
         "properties": {
@@ -10074,6 +10114,68 @@
           }
         }
       },
+      "TranslationImportResultDto": {
+        "required": [
+          "locale",
+          "added",
+          "filled"
+        ],
+        "type": "object",
+        "properties": {
+          "locale": {
+            "type": "string"
+          },
+          "added": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "filled": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "TranslationImportSummaryDto": {
+        "required": [
+          "locales"
+        ],
+        "type": "object",
+        "properties": {
+          "locales": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TranslationImportResultDto"
+            }
+          },
+          "isLiveStoreSeparate": {
+            "type": "boolean"
+          },
+          "totalAdded": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalFilled": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
       "TranslationMetadata": {
         "type": "object",
         "properties": {
@@ -10136,6 +10238,15 @@
             "additionalProperties": {
               "$ref": "#/components/schemas/TranslationMetadata"
             }
+          },
+          "defaults": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "isEditable": {
+            "type": "boolean"
           }
         }
       },

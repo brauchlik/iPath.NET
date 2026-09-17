@@ -29,4 +29,20 @@ public class LocalizationSettings
     public string[] SupportedCultures { get; set; } = [];
 
     public Dictionary<string, string> CultureDisplayNames { get; set; } = new();
+
+    /// <summary>
+    /// True unless <see cref="DefaultsRoot"/> and <see cref="LocalesRoot"/> resolve to the same
+    /// folder. When they are the same, the shipped baseline *is* the live store, so the admin
+    /// editor must stay read-only - writes would modify the shipped files and be lost on redeploy.
+    /// </summary>
+    public bool IsLiveStoreSeparate => !PathsEqual(LocalesRoot, DefaultsRoot);
+
+    private static bool PathsEqual(string? a, string? b)
+    {
+        if (string.IsNullOrWhiteSpace(a) || string.IsNullOrWhiteSpace(b))
+            return false;
+
+        var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        return string.Equals(Path.GetFullPath(a), Path.GetFullPath(b), comparison);
+    }
 }

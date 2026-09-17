@@ -358,6 +358,9 @@ public interface IPathApi
     [Post("/api/v1/admin/ai/translations/update-key")]
     Task<IApiResponse<bool>> UpdateTranslationKey(UpdateTranslationKeyCommand command);
 
+    [Post("/api/v1/admin/translations/import-defaults")]
+    Task<IApiResponse<TranslationImportSummaryDto>> ImportTranslationDefaults(ImportTranslationDefaultsCommand command);
+
     [Post("/api/v1/admin/database/migrate")]
     Task<IApiResponse<DatabaseStatusDto>> ApplyDatabaseMigrations();
 

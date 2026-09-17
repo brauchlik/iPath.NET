@@ -2,6 +2,11 @@
 
 ## 0.3.3
 
+- Admin: the translations page can import shipped defaults (adds keys missing from the live store and fills empty ones, never overwriting a translation) and flags rows whose live translation differs from the shipped text, with the original in the hover and a reset icon in the inline editor to restore the shipped wording
+- Admin: translation editing is disabled and server-enforced when `LocalesRoot` and `DefaultsRoot` point at the same folder, since the shipped files are then the live store; the page says so
+- Fix: the startup default-translation import now runs before the localization preload, so freshly imported keys appear immediately instead of after a second restart
+- Fix: the `translations/{lang}/add-missing` endpoint is no longer anonymous (Admin required) and rejects unsupported locales, closing a path-traversal file write
+- Admin: the translations page can edit rows again - the grid was read-only by default (MudBlazor's `ReadOnly` defaults to true, so the pencil did nothing) and now uses inline row editing, with the English key column read-only and Save/Cancel actions per row
 - Answer extraction (SDC): questionnaire answers are extracted into a new `service_request_answers` table when a case is saved - one row per answered item, keyed by the item's coding (SNOMED CT, then LOINC, then a generated key from the nearest coded ancestor), so one clinical question resolves to the same concept across forms
 - Only answered items are extracted - no row means not observed; `false` is an answer. Extraction failures are logged and recorded per case and never break the save
 - Questionnaires can now be excluded from extraction via `QuestionnaireSettings:ExtractAnswers` - a "Extract answers" checkbox on the questionnaire Settings tab; not configured counts as enabled, so an existing form can never be switched off by accident

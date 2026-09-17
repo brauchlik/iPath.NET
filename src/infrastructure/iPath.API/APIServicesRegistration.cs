@@ -203,6 +203,7 @@ public static class APIServicesRegistration
             }
         });
         services.AddSingleton<LocalizationFileService>();
+        services.AddSingleton<TranslationDefaultsService>();
 
         var locCfg = new LocalizationSettings();
         config.GetSection(LocalizationSettings.ConfigName).Bind(locCfg);

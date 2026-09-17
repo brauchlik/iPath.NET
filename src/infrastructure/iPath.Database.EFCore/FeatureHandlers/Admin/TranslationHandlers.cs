@@ -6,6 +6,7 @@ namespace iPath.EF.Core.FeatureHandlers.Admin;
 
 public class GetTranslationStatusHandler(
     LocalizationFileService localizationFileService,
+    TranslationDefaultsService defaultsService,
     ILogger<GetTranslationStatusHandler> logger)
     : IRequestHandler<GetTranslationStatusQuery, Task<TranslationStatusDto>>
 {
@@ -13,7 +14,8 @@ public class GetTranslationStatusHandler(
     {
         var dto = new TranslationStatusDto
         {
-            Locale = request.Locale
+            Locale = request.Locale,
+            IsEditable = defaultsService.IsLiveStoreSeparate
         };
 
         try
@@ -33,6 +35,10 @@ public class GetTranslationStatusHandler(
                     allKeys.Add(key);
                 }
             }
+
+            // The shipped baseline, so the page can flag where the local translation differs.
+            // Identical to the live values when no separate store is configured, so skip it then.
+            TranslationData? shippedData = dto.IsEditable ? defaultsService.GetDefaults(request.Locale) : null;
 
             dto.TotalKeys = allKeys.Count;
 
@@ -60,6 +66,13 @@ public class GetTranslationStatusHandler(
                 {
                     dto.WordMetadata[key] = meta;
                 }
+
+                if (shippedData?.Words != null &&
+                    shippedData.Words.TryGetValue(key, out var shippedValue) &&
+                    !string.IsNullOrWhiteSpace(shippedValue))
+                {
+                    dto.Defaults[key] = shippedValue;
+                }
             }
         }
         catch (Exception ex)
@@ -73,11 +86,24 @@ public class GetTranslationStatusHandler(
 
 public class UpdateTranslationKeyHandler(
     LocalizationFileService localizationFileService,
+    TranslationDefaultsService defaultsService,
     ILogger<UpdateTranslationKeyHandler> logger)
     : IRequestHandler<UpdateTranslationKeyCommand, Task<bool>>
 {
     public Task<bool> Handle(UpdateTranslationKeyCommand request, CancellationToken ct)
     {
+        if (!defaultsService.IsLiveStoreSeparate)
+        {
+            logger.LogWarning("Refusing translation update for {Locale}: no separate live translation store is configured", request.Locale);
+            return Task.FromResult(false);
+        }
+
+        if (!defaultsService.SupportedCultures.Contains(request.Locale))
+        {
+            logger.LogWarning("Refusing translation update for unsupported locale {Locale}", request.Locale);
+            return Task.FromResult(false);
+        }
+
         try
         {
             var data = localizationFileService.GetTranslationData(request.Locale);
@@ -99,5 +125,21 @@ public class UpdateTranslationKeyHandler(
             logger.LogError(ex, "Error updating translation key '{Key}' for locale '{Locale}'", request.Key, request.Locale);
         }
         return Task.FromResult(false);
+    }
+}
+
+public class ImportTranslationDefaultsHandler(
+    TranslationDefaultsService defaultsService,
+    ILogger<ImportTranslationDefaultsHandler> logger)
+    : IRequestHandler<ImportTranslationDefaultsCommand, Task<TranslationImportSummaryDto>>
+{
+    public Task<TranslationImportSummaryDto> Handle(ImportTranslationDefaultsCommand request, CancellationToken ct)
+    {
+        if (!defaultsService.IsLiveStoreSeparate)
+        {
+            logger.LogWarning("Import of shipped default translations skipped: no separate live translation store is configured");
+        }
+
+        return Task.FromResult(defaultsService.Import(request.Locale));
     }
 }

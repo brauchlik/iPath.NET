@@ -2,7 +2,6 @@
 @attribute [Authorize(Roles = "Admin")]
 @using iPath.Application.Features.Admin
 @using iPath.Application.Localization
-@using Microsoft.Extensions.Options
 
 <IPathHeader Title="Translations Manager" />
 
@@ -38,7 +37,11 @@
                     @if (_translationStatus.MissingKeys > 0)
                     {
                         <MudAlert Severity="Severity.Info" Class="mt-4" Dense="true">
-                            @_translationStatus.MissingKeys phrase(s) still need translation - edit them directly in the table below.
+                            @_translationStatus.MissingKeys phrase(s) still need translation.
+                            @if (CanEdit)
+                            {
+                                <text>Edit them directly in the table below.</text>
+                            }
                         </MudAlert>
                     }
                     else
@@ -50,34 +53,59 @@
         </MudItem>
 
         <MudItem xs="12">
-            <MudDataGrid Items="@_translationRows" T="TranslationRow" EditMode="DataGridEditMode.Form" CommittedItemChanges="@OnRowCommitted" QuickFilter="@_quickFilter" Bordered="true" Dense="true" Striped="true" Hover="true" Class="mt-4" Elevation="1">
+            @if (!CanEdit)
+            {
+                <MudAlert Severity="Severity.Warning" Dense="true" Class="mb-2">
+                    No separate live translation store is configured (<code>LocalizationSettings:LocalesRoot</code>).
+                    Translations are read directly from the shipped files and cannot be edited here.
+                </MudAlert>
+            }
+            <MudDataGrid Items="@_translationRows" T="TranslationRow" ReadOnly="@(!CanEdit)" EditMode="DataGridEditMode.Inline" EditTrigger="DataGridEditTrigger.Manual"
+                         StartedEditingItem="@OnStartedEditingItem" CanceledEditingItem="@OnCanceledEditingItem"
+                         CommittedItemChanges="@OnRowCommitted" QuickFilter="@_quickFilter" Dense="true" Striped="true" Hover="true" Class="mt-4" Elevation="1">
                 <ToolBarContent>
                     <MudText Typo="Typo.h6">Phrase Repository</MudText>
                     <MudSpacer />
                     <MudTextField @bind-Value="_searchString" Placeholder="Search key or translation..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Class="mt-0" Immediate="true" Clearable="true" />
+                    @if (CanEdit)
+                    {
+                        <MudTooltip Text="Add keys missing from this locale and fill empty ones from the shipped defaults (never overwrites a translation)">
+                            <MudButton Variant="Variant.Outlined" Size="Size.Small" Class="ml-4 mt-0" StartIcon="@Icons.Material.Filled.CloudDownload" OnClick="ImportDefaults">Import shipped defaults</MudButton>
+                        </MudTooltip>
+                    }
                 </ToolBarContent>
                 <Columns>
-                    <PropertyColumn Property="x => x.Key" Title="English Key (Source)" ReadOnly="true" />
-                    <PropertyColumn Property="x => x.Translation" Title="Translation" />
-                    <TemplateColumn Title="Status">
+                    <PropertyColumn Property="x => x.Key" Title="English Key (Source)" Editable="false" />
+                    <PropertyColumn Property="x => x.Translation" Title="Translation">
+                        <EditTemplate>
+                            <MudTextField @bind-Value="context.Item.Translation"
+                                          Variant="Variant.Outlined" Margin="Margin.Dense" FullWidth="true"
+                                          Immediate="true" AutoFocus="true" Placeholder="Translation"
+                                          Adornment="@(DiffersFromShipped(context.Item) ? Adornment.End : Adornment.None)"
+                                          AdornmentIcon="@Icons.Material.Filled.Restore"
+                                          OnAdornmentClick="@(() => context.Item.Translation = context.Item.Shipped)" />
+                        </EditTemplate>
+                    </PropertyColumn>
+                    <TemplateColumn CellClass="d-flex justify-end">
                         <CellTemplate>
-                            @if (context.Item.IsHumanModified)
+                            @if (DiffersFromShipped(context.Item))
                             {
-                                <MudChip T="string" Color="Color.Info" Size="Size.Small" Variant="Variant.Filled">Human Modified</MudChip>
+                                <MudTooltip Text="@($"Original: {context.Item.Shipped}")">
+                                    <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Size="Size.Small" Class="mr-2" />
+                                </MudTooltip>
                             }
-                            else if (!string.IsNullOrEmpty(context.Item.ModelUsed))
+                            @if (CanEdit)
                             {
-                                <MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Text">@context.Item.ModelUsed</MudChip>
+                                @if (context.IsEditing)
+                                {
+                                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.Check" Color="Color.Success" aria-label="Save translation" OnClick="@context.Actions.CommitEditingItemAsync" />
+                                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Filled.Close" Color="Color.Error" aria-label="Cancel" OnClick="@context.Actions.CancelEditingItemAsync" />
+                                }
+                                else
+                                {
+                                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" aria-label="Edit translation" OnClick="@context.Actions.StartEditingItemAsync" />
+                                }
                             }
-                            else if (string.IsNullOrEmpty(context.Item.Translation))
-                            {
-                                <MudChip T="string" Color="Color.Default" Size="Size.Small" Variant="Variant.Outlined">Missing</MudChip>
-                            }
-                        </CellTemplate>
-                    </TemplateColumn>
-                    <TemplateColumn CellClass="d-flex justify-end" RequiredToBeEditable="false">
-                        <CellTemplate>
-                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
                         </CellTemplate>
                     </TemplateColumn>
                 </Columns>
@@ -95,15 +123,22 @@
     }
 </MudGrid>
 
-@inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
-@inject Microsoft.Extensions.Options.IOptions<iPath.Application.Localization.LocalizationSettings> localizationOpts
+@inject IPathApi api
+@inject IOptions<LocalizationSettings> localizationOpts
 @inject ITranslationLoader translationLoader
+@inject IDialogService dialog
+@inject ISnackbar snackbar
 
 @code {
     private string _selectedLocale = string.Empty;
     private TranslationStatusDto? _translationStatus;
     private string _searchString = string.Empty;
     private List<TranslationRow> _translationRows = new();
+
+    private bool CanEdit => _translationStatus?.IsEditable == true;
+
+    private static bool DiffersFromShipped(TranslationRow row) =>
+        !string.IsNullOrEmpty(row.Shipped) && row.Translation != row.Shipped;
 
     private Func<TranslationRow, bool> _quickFilter => x =>
     {
@@ -156,21 +191,15 @@
             if (response.IsSuccessful && response.Content is not null)
             {
                 _translationStatus = response.Content;
-                _translationRows = _translationStatus.Words.Select(kvp =>
+                _translationRows = _translationStatus.Words.Select(kvp => new TranslationRow
                 {
-                    _translationStatus.WordMetadata.TryGetValue(kvp.Key, out var meta);
-                    return new TranslationRow
-                    {
-                        Key = kvp.Key,
-                        Translation = kvp.Value,
-                        ModelUsed = meta?.ModelUsed ?? string.Empty,
-                        TranslatedAt = meta?.TranslatedAt,
-                        IsHumanModified = meta?.IsHumanModified ?? false
-                    };
+                    Key = kvp.Key,
+                    Translation = kvp.Value,
+                    Shipped = _translationStatus.Defaults.TryGetValue(kvp.Key, out var shipped) ? shipped ?? string.Empty : string.Empty
                 }).ToList();
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Handle error silently or log
         }
@@ -178,7 +207,31 @@
         StateHasChanged();
     }
 
-    private async Task<MudBlazor.DataGridEditFormAction> OnRowCommitted(TranslationRow row)
+    private void OnStartedEditingItem(TranslationRow row) => StateHasChanged();
+
+    private void OnCanceledEditingItem(TranslationRow row) => StateHasChanged();
+
+    private async Task ImportDefaults()
+    {
+        var confirmed = await dialog.ShowMessageBoxAsync(
+            "Import shipped defaults",
+            $"Add keys missing from {GetLanguageDisplayName(_selectedLocale)} and fill empty ones from the shipped defaults? Existing translations are never overwritten.",
+            yesText: "Import", cancelText: "Cancel");
+        if (confirmed is null) return;
+
+        var response = await api.ImportTranslationDefaults(new ImportTranslationDefaultsCommand(_selectedLocale));
+        if (!response.IsSuccessful || response.Content is null)
+        {
+            snackbar.AddWarning(response.ErrorText());
+            return;
+        }
+
+        snackbar.AddInfo($"{response.Content.TotalAdded} added, {response.Content.TotalFilled} filled");
+        await translationLoader.LoadTranslationData(_selectedLocale, reload: true);
+        await LoadTranslationStatusAsync();
+    }
+
+    private async Task<DataGridEditFormAction> OnRowCommitted(TranslationRow row)
     {
         try
         {
@@ -186,10 +239,6 @@
             var response = await api.UpdateTranslationKey(command);
             if (response.IsSuccessful && response.Content)
             {
-                row.IsHumanModified = true;
-                row.ModelUsed = "Human";
-                row.TranslatedAt = DateTime.UtcNow;
-
                 // Force localizer cache to reload
                 await translationLoader.LoadTranslationData(_selectedLocale, reload: true);
             }
@@ -202,15 +251,14 @@
         {
             await LoadTranslationStatusAsync();
         }
-        return MudBlazor.DataGridEditFormAction.Close;
+        StateHasChanged();
+        return DataGridEditFormAction.Close;
     }
 
     public class TranslationRow
     {
         public string Key { get; set; } = string.Empty;
         public string Translation { get; set; } = string.Empty;
-        public string ModelUsed { get; set; } = string.Empty;
-        public DateTime? TranslatedAt { get; set; }
-        public bool IsHumanModified { get; set; }
+        public string Shipped { get; set; } = string.Empty;
     }
 }

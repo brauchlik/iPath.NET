@@ -81,10 +81,25 @@ translation, or `""` if still untranslated.
 6. **Review and commit** the diff to `Locales/*.json` as its own commit, separate from any other
    release changes.
 
+## Admin page: importing shipped defaults
+
+The **Admin > Translations** page edits the *live* store at runtime. Two things to know:
+
+- **It is read-only unless a separate live store is configured.** When
+  `LocalizationSettings:LocalesRoot` resolves to the same folder as `LocalizationSettings:DefaultsRoot`
+  (the shipped default, `./Locales`), the app reads the shipped files directly and the page disables
+  editing with a warning. UI editing only works when a deployment points `LocalesRoot` at a separate
+  persistent folder (e.g. `./ipath_data/locales`), and the API rejects writes in the other case.
+- **"Import shipped defaults"** performs the same additive push as `UpdateTranslations` does on
+  startup: it adds keys missing from the live store and fills keys that are still `""` from
+  `DefaultsRoot`. It never overwrites a translated value and does **not** translate anything. It is
+  the deployed-instance equivalent of `LocalizationSync --write`; the CLI workflow above is still how
+  the translations themselves get produced.
+
 ## What this is not
 
 Not a substitute for reviewing existing untranslated (`""`) entries already in the backlog before
 a release - the scanner only finds *new* drift since the last sync, it doesn't track how much of
-the existing backlog is still unfinished. Check `TranslatedKeys`/`MissingKeys` counts via the
-Admin > AI Status > Translations Manager UI, or count empty values in the JSON directly, if you
+the existing backlog is still unfinished. Check `TranslatedKeys`/`MissingKeys` counts on the
+Admin > Translations page, or count empty values in the JSON directly, if you
 need that picture too.

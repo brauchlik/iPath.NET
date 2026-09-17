@@ -304,6 +304,11 @@ var localizationOptions = new RequestLocalizationOptions()
 
 app.UseRequestLocalization(localizationOptions);
 
+// Push shipped default translations into the configured live locale store (no-op unless
+// LocalizationSettings:AutoUpdate is set). Must run before the preload below, otherwise the
+// freshly imported keys stay invisible until the next restart.
+await app.UpdateTranslations();
+
 // Preload ALL localization data into the Singleton cache at startup
 var srvLoc = app.Services.GetRequiredService<iPath.Blazor.ServiceLib.Services.StringLocalizerService>();
 foreach (var culture in supportedCultures)
@@ -334,10 +339,6 @@ else
 
 // DB Migrations & Seeding
 await app.UpdateDatabase();
-
-// Push shipped default translations into the configured live locale store (no-op unless
-// LocalizationSettings:AutoUpdate is set)
-await app.UpdateTranslations();
 
 
 // Configure static file caching

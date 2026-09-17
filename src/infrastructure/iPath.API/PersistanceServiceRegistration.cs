@@ -199,40 +199,17 @@ public static class PersistanceServiceRegistration
     /// the configured LocalesRoot live store - additive only, see LocalizationKeyScanner.PushDefaults.
     /// No-op unless LocalizationSettings.AutoUpdate is set (same opt-in shape as DbAutoMigrate).
     /// </summary>
-    public static async Task UpdateTranslations(this IHost host)
+    public static Task UpdateTranslations(this IHost host)
     {
         using var scope = host.Services.CreateScope();
         var opts = scope.ServiceProvider.GetRequiredService<IOptions<LocalizationSettings>>().Value;
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<LocalizationFileService>>();
 
-        if (!opts.AutoUpdate) return;
+        if (!opts.AutoUpdate) return Task.CompletedTask;
 
-        var defaultsService = new LocalizationFileService(
-            Options.Create(new LocalizationSettings { LocalesRoot = opts.DefaultsRoot, SupportedCultures = opts.SupportedCultures }),
-            logger);
-        var targetService = new LocalizationFileService(
-            Options.Create(new LocalizationSettings { LocalesRoot = opts.LocalesRoot, SupportedCultures = opts.SupportedCultures }),
-            logger);
+        var service = scope.ServiceProvider.GetRequiredService<TranslationDefaultsService>();
+        service.Import();
 
-        foreach (var locale in opts.SupportedCultures)
-        {
-            try
-            {
-                var defaults = defaultsService.GetTranslationData(locale);
-                var target = targetService.GetTranslationData(locale);
-                var (added, filled) = LocalizationKeyScanner.PushDefaults(defaults, target);
-
-                if (added.Count > 0 || filled.Count > 0)
-                {
-                    targetService.SaveTranslation(target);
-                    logger.LogInformation("Translations updated for {Locale}: {Added} new, {Filled} filled from shipped defaults", locale, added.Count, filled.Count);
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error pushing shipped default translations for locale {Locale}", locale);
-            }
-        }
+        return Task.CompletedTask;
     }
 }
 

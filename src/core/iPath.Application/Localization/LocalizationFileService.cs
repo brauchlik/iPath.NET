@@ -84,11 +84,20 @@ public class LocalizationFileService
 
     public bool SaveTranslation(TranslationData data)
     {
+        if (data is null || !IsSupportedLocale(data.locale))
+        {
+            _logger.LogWarning("Refusing to save translations for unsupported locale {Locale}", data?.locale);
+            return false;
+        }
+
         lock (_fileLock)
         {
             return SaveTranslationInternal(data);
         }
     }
+
+    private bool IsSupportedLocale(string? locale)
+        => !string.IsNullOrEmpty(locale) && _opts.Value.SupportedCultures.Contains(locale);
 
     private bool SaveTranslationInternal(TranslationData data)
     {

@@ -110,8 +110,18 @@ public static class AdminEndpoints
             .Produces<TranslationData>()
             .WithTags("Localization");
 
-        route.MapPost("translations/{lang}/add-missing", (string lang, List<string> keys, [FromServices] LocalizationFileService srv) =>
+        route.MapPost("translations/{lang}/add-missing", (string lang, List<string> keys,
+            [FromServices] LocalizationFileService srv, [FromServices] TranslationDefaultsService defaultsSrv) =>
         {
+            if (!defaultsSrv.IsLiveStoreSeparate)
+            {
+                return Results.BadRequest("No separate live translation store is configured.");
+            }
+            if (!defaultsSrv.SupportedCultures.Contains(lang))
+            {
+                return Results.BadRequest($"Unsupported locale '{lang}'.");
+            }
+
             var data = srv.GetTranslationData(lang);
             bool updated = false;
             foreach (var key in keys)
@@ -128,7 +138,8 @@ public static class AdminEndpoints
             return Results.Ok(true);
         })
         .Produces<bool>()
-        .WithTags("Localization");
+        .WithTags("Localization")
+        .RequireAuthorization("Admin");
 
 
         #region "-- Database Diagnostics --"
@@ -251,6 +262,15 @@ public static class AdminEndpoints
             return Results.Ok(result);
         })
             .Produces<bool>()
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        route.MapPost("admin/translations/import-defaults", async (ImportTranslationDefaultsCommand command, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Ok(result);
+        })
+            .Produces<TranslationImportSummaryDto>()
             .WithTags("Admin")
             .RequireAuthorization("Admin");
 

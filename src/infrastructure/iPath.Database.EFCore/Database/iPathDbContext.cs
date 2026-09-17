@@ -38,6 +38,7 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<DocumentImport> DocumentImports { get; set; }
 
     public DbSet<QuestionnaireEntity> Questionnaires { get; set; }
+    public DbSet<ServiceRequestAnswer> ServiceRequestAnswers { get; set; }
     public DbSet<WebContent> WebPages { get; set; }
 
     public DbSet<Notification> NotificationQueue { get; set; }

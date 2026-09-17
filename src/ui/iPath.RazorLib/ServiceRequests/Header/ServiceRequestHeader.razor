@@ -89,6 +89,11 @@
                         <IPathToolbarButton Icon="@Icons.Material.Outlined.Preview" OnClick="@(() => vm.ShowPreviewDialog())" />
                     }
 
+                    <MudTooltip Text=@T["Extracted answers"]>
+                        <IPathToolbarButton Icon="@Icons.Material.Outlined.List" OnClick="ShowAnswerRows"
+                                            Disabled="@(vm.SelectedRequest is null)" />
+                    </MudTooltip>
+
                     @if (vm.AiEnabled)
                     {
                         <MudMenu Icon="@Icons.Material.Outlined.Psychology" Style="align-self: auto;">
@@ -267,5 +272,17 @@
             { x => x.CaseTitle, vm.SelectedRequest.Title ?? "Untitled" }
         };
         await dialog.ShowAsync<CaseAiLineageDialog>("AI Responses", parameters);
+    }
+
+    private async Task ShowAnswerRows()
+    {
+        if (vm.SelectedRequest == null) return;
+
+        var parameters = new DialogParameters<CaseAnswerRowsDialog>
+        {
+            { x => x.CaseId, vm.SelectedRequest.Id },
+            { x => x.CaseTitle, vm.SelectedRequest.Title ?? "Untitled" }
+        };
+        await dialog.ShowAsync<CaseAnswerRowsDialog>("Extracted Answers", parameters);
     }
 }

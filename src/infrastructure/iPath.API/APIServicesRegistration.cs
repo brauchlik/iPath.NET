@@ -21,6 +21,7 @@ using iPath.Application.Features.Questionnaires;
 using iPath.Application.Features.TaskAssignments;
 using iPath.EF.Core.FeatureHandlers.TaskAssignments.Services;
 using iPath.Application.Localization;
+using iPath.EF.Core.FeatureHandlers.Questionnaires.Services;
 using iPath.Application.Services;
 using iPath.Google;
 using Microsoft.AspNetCore.Http.Json;
@@ -175,6 +176,10 @@ public static class APIServicesRegistration
 
         // Text preview services - keyed by display name (matches QuestionnaireToTextServiceRegistry)
         services.AddQuestionnaireToTextServices();
+
+        // Answer extraction (SDC) and conformity rules
+        services.AddQuestionnaireAnswerServices();
+        services.AddScoped<ServiceRequestAnswerExtractionService>();
 
         // Caching
         services.AddMemoryCache();

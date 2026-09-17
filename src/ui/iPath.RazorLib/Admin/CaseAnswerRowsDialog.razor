@@ -1,0 +1,196 @@
+@namespace iPath.Blazor.Componenents.Admin
+@using iPath.Application.Features.Questionnaires.Queries
+
+@inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
+
+<style>
+    .answers-dialog-content { min-width: 900px; max-width: 92vw; min-height: 400px; }
+    .answers-code { font-family: var(--mud-typography-default-family); }
+</style>
+
+<MudDialog ContentClass="answers-dialog-content">
+    <TitleContent>
+        <MudText Typo="Typo.h6">Extracted Answers — @CaseTitle</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (Loading)
+        {
+            <MudProgressLinear Indeterminate="true" Class="my-4" />
+        }
+        else if (Error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="my-2">@Error</MudAlert>
+        }
+        else if (Data is null)
+        {
+            <MudText Class="my-4">No data.</MudText>
+        }
+        else
+        {
+            <MudPaper Outlined="true" Class="pa-3 mb-3">
+                <MudText Typo="Typo.body2">
+                    <b>Form:</b> @Data.State.QuestionnaireId
+                    @if (Data.State.QuestionnaireVersion.HasValue)
+                    {
+                        <text> (v@Data.State.QuestionnaireVersion)</text>
+                    }
+                    &nbsp;|&nbsp; <b>Extracted:</b>
+                    @(Data.State.ExtractedOn.HasValue ? Data.State.ExtractedOn.Value.ToString("yyyy-MM-dd HH:mm") : "never")
+                    &nbsp;|&nbsp; <b>Extractor:</b> @(Data.State.ExtractionVersion?.ToString() ?? "-")
+                    &nbsp;|&nbsp; <b>Rows:</b> @Data.Answers.Count
+                </MudText>
+
+                @if (!string.IsNullOrEmpty(Data.State.Error))
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true" Class="mt-2">
+                        Last extraction failed: @Data.State.Error
+                    </MudAlert>
+                }
+                else if (Data.State.ExtractionDisabled)
+                {
+                    <MudAlert Severity="Severity.Info" Dense="true" Class="mt-2">
+                        Answer extraction is switched off for this questionnaire.
+                    </MudAlert>
+                }
+                else if (Data.State.HasResponse && Data.Answers.Count == 0)
+                {
+                    <MudAlert Severity="Severity.Warning" Dense="true" Class="mt-2">
+                        The case has a questionnaire response but no extracted answers — either nothing was
+                        answered or extraction has not run yet.
+                    </MudAlert>
+                }
+                else if (!Data.State.HasResponse)
+                {
+                    <MudAlert Severity="Severity.Info" Dense="true" Class="mt-2">
+                        This case has no questionnaire response.
+                    </MudAlert>
+                }
+            </MudPaper>
+
+            @if (Data.Answers.Count > 0)
+            {
+                <MudTable Items="Data.Answers" Dense="true" Hover="true" Class="mt-2">
+                    <ColGroup>
+                        <col style="width: 26%;" />
+                        <col style="width: 10%;" />
+                        <col style="width: 34%;" />
+                        <col />
+                    </ColGroup>
+                    <HeaderContent>
+                        <MudTh>Question (linkId)</MudTh>
+                        <MudTh>Type</MudTh>
+                        <MudTh>Code</MudTh>
+                        <MudTh>Value</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="linkId">
+                            <span class="answers-code">@context.LinkId</span>
+                        </MudTd>
+                        <MudTd DataLabel="Type">@context.ValueType</MudTd>
+                        <MudTd DataLabel="Code">
+                            @if (!string.IsNullOrEmpty(context.Code))
+                            {
+                                <span class="answers-code">@context.CodeSystem|@context.Code</span>
+                                if (!string.IsNullOrEmpty(context.CodeDisplay))
+                                {
+                                    <div><small>@context.CodeDisplay</small></div>
+                                }
+                                @if (!string.IsNullOrEmpty(context.OtherCodings))
+                                {
+                                    <MudTooltip Text="@context.OtherCodings">
+                                        <MudIcon Icon="@Icons.Material.Filled.MoreHoriz" Size="Size.Small" />
+                                    </MudTooltip>
+                                }
+                            }
+                        </MudTd>
+                        <MudTd DataLabel="Value">
+                            @Value(context)
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="ReExtract" Disabled="Busy || Data is null"
+                   StartIcon="@Icons.Material.Filled.Refresh">Re-extract</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@(() => MudDialog.Close())">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public Guid CaseId { get; set; }
+
+    [Parameter]
+    public string CaseTitle { get; set; } = "";
+
+    private bool Loading = true;
+    private bool Busy;
+    private string? Error;
+    private CaseAnswersDto? Data;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        try
+        {
+            Loading = true;
+            Error = null;
+            var response = await api.GetAnswersByCase(CaseId);
+            if (response.IsSuccessful)
+            {
+                Data = response.Content;
+            }
+            else
+            {
+                Error = response.ErrorText();
+            }
+        }
+        catch (Exception ex)
+        {
+            Error = $"Failed to load extracted answers: {ex.Message}";
+        }
+        finally
+        {
+            Loading = false;
+        }
+    }
+
+    private async Task ReExtract()
+    {
+        try
+        {
+            Busy = true;
+            var response = await api.ReExtractAnswers(CaseId);
+            if (!response.IsSuccessful)
+            {
+                Error = response.ErrorText();
+            }
+            await Load();
+        }
+        finally
+        {
+            Busy = false;
+        }
+    }
+
+    private static string Value(ServiceRequestAnswerDto answer)
+    {
+        if (string.Equals(answer.ValueType, "coding", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.IsNullOrEmpty(answer.ValueDisplay) ? answer.Value ?? "" : answer.ValueDisplay;
+        }
+
+        var value = answer.Value ?? "";
+        if (!string.IsNullOrEmpty(answer.Unit))
+        {
+            value = $"{value} {answer.Unit}";
+        }
+        return value;
+    }
+}

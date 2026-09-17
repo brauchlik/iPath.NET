@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.3
+
+- Answer extraction (SDC): questionnaire answers are extracted into a new `service_request_answers` table when a case is saved - one row per answered item, keyed by the item's coding (SNOMED CT, then LOINC, then a generated key from the nearest coded ancestor), so one clinical question resolves to the same concept across forms
+- Only answered items are extracted - no row means not observed; `false` is an answer. Extraction failures are logged and recorded per case and never break the save
+- Questionnaires can now be excluded from extraction via `QuestionnaireSettings:ExtractAnswers` - a "Extract answers" checkbox on the questionnaire Settings tab; not configured counts as enabled, so an existing form can never be switched off by accident
+- Fix: extraction was silently switched off for every questionnaire stored before that setting existed - a missing member in the settings JSON materialises as `false` rather than as the property's default, so the flag is nullable now and only an explicit `false` disables extraction
+- Fix: a display-only coding (LForms writes answer options such as "Core biopsy" that way) now keeps its display text as the value instead of storing an empty `system|code`
+- Fix: a failure in the answer extraction can no longer fail a case save - the no-response path is inside the same error handling as the rest
+- Extraction state records when a form is switched off, so it is distinguishable from "extracted, nothing answered"; every extraction logs the row and item counts
+- Responses record the definition version they were answered against, which was always null before - that also fixes the text preview being rendered against the currently active questionnaire version instead of the answered one
+- Admin: a toolbar button on a case shows the extracted answers and the extraction state (rows, version, last error) and can re-extract; a new `/admin/answers` page lists answers per group with a questionnaire filter and free-text search, reports cases whose extraction is missing or failed, and can run the backfill
+- Admin: "Check extraction" on the questionnaire page reports conformity problems using the extractor's own rules (duplicate linkIds, uncoded items and the generated key they would get, codings shared by two questions, non-extracted item types)
+- Docs: `docs/superpowers/specs/2026-09-17-sdc-answer-extraction-design.md` records the extraction rules, the data model and what is deliberately left to later sprints
+
 ## 0.3.2
 
 - Removed the built-in AI auto-translate pipeline (`TranslateKeysBatchCommand`/`Handler`, `ITranslationJobQueue`/`TranslationJobWorker`, the `admin/ai/translations/translate` endpoint, the "Auto-Translate" button on Admin > AI Status > Translations Manager, and the now-dead `LocalizationSettings:Active`/`AddMissingStrings` flags): it only ever saw a bare source string with no surrounding context, so it couldn't disambiguate short/generic phrases the way translating with a coding agent (see the `translation-update` skill) does. The manual per-key editor, the status/missing-key display, and the file-based translation store are untouched.

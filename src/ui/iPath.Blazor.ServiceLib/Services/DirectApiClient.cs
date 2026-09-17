@@ -12,6 +12,9 @@ using iPath.Application.Features.CMS;
 using iPath.Application.Features.Documents;
 using iPath.Application.Features.EmailImport;
 using iPath.Application.Features.Notifications;
+using iPath.Application.Features.Questionnaires;
+using iPath.Application.Features.Questionnaires.Commands;
+using iPath.Application.Features.Questionnaires.Queries;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.ServiceRequests.Commands;
 using iPath.Application.Features.SyncImport;
@@ -596,6 +599,36 @@ public class DirectApiClient(
     public async Task<IApiResponse<List<AiLineageDetailDto>>> GetAiLineageByCase(Guid caseId)
     {
         return Respond(await mediator.Send(new GetAiLineageByCaseQuery(caseId), default));
+    }
+
+    public async Task<IApiResponse<CaseAnswersDto>> GetAnswersByCase(Guid caseId)
+    {
+        return Respond(await mediator.Send(new GetAnswersByCaseQuery(caseId), default));
+    }
+
+    public async Task<IApiResponse<PagedResultList<ServiceRequestAnswerDto>>> GetAnswersList(GetAnswersByFilterQuery query)
+    {
+        return Respond(await mediator.Send(query, default));
+    }
+
+    public async Task<IApiResponse<List<AnswerExtractionStateDto>>> GetAnswerIssues(Guid? groupId = null, int? max = null)
+    {
+        return Respond(await mediator.Send(new GetAnswerExtractionIssuesQuery(groupId, max ?? 200), default));
+    }
+
+    public async Task<IApiResponse<int>> ReExtractAnswers(Guid caseId)
+    {
+        return Respond(await mediator.Send(new ReExtractServiceRequestAnswersCommand(caseId), default));
+    }
+
+    public async Task<IApiResponse<BackfillAnswersResult>> BackfillAnswers(BackfillServiceRequestAnswersCommand command)
+    {
+        return Respond(await mediator.Send(command, default));
+    }
+
+    public async Task<IApiResponse<List<ConformityFinding>>> GetQuestionnaireConformity(string questionnaireId, int? version = null)
+    {
+        return Respond(await mediator.Send(new GetQuestionnaireConformityQuery(questionnaireId, version), default));
     }
 
     public async Task<IApiResponse<DatabaseStatusDto>> ApplyDatabaseMigrations()

@@ -94,6 +94,7 @@ public static class RazorLibServiceRegistration
         // the admin page renders the text preview in whichever host it runs, so the
         // preview services must be resolvable here too (shared with the API registration)
         services.AddQuestionnaireToTextServices();
+        services.AddQuestionnaireAnswerServices();
 
         if (WasmClient)
         {

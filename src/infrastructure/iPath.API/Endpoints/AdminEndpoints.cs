@@ -11,6 +11,10 @@ using iPath.Domain.Config;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using iPath.Application.Features.Admin;
+using iPath.Application.Features.Questionnaires;
+using iPath.Application.Features.Questionnaires.Commands;
+using iPath.Application.Features.Questionnaires.Queries;
+using iPath.Application.Querying;
 using iPath.Application.AI;
 using iPath.EF.Core.Database;
 
@@ -366,6 +370,62 @@ public static class AdminEndpoints
         })
             .Produces<CacheSyncResult>()
             .WithTags("Admin")
+            .RequireAuthorization("Admin");
+        #endregion
+
+        #region Answer Extraction (SDC)
+        route.MapGet("admin/answers/by-case/{caseId}", async (Guid caseId, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetAnswersByCaseQuery(caseId), ct);
+            return Results.Ok(result);
+        })
+            .Produces<CaseAnswersDto>()
+            .WithTags("Answers")
+            .RequireAuthorization("Admin");
+
+        route.MapPost("admin/answers/list", async (GetAnswersByFilterQuery request, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(request, ct);
+            return Results.Ok(result);
+        })
+            .Produces<PagedResultList<ServiceRequestAnswerDto>>()
+            .WithTags("Answers")
+            .RequireAuthorization("Admin");
+
+        route.MapGet("admin/answers/issues", async (Guid? groupId, int? max, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetAnswerExtractionIssuesQuery(groupId, max ?? 200), ct);
+            return Results.Ok(result);
+        })
+            .Produces<List<AnswerExtractionStateDto>>()
+            .WithTags("Answers")
+            .RequireAuthorization("Admin");
+
+        route.MapPost("admin/answers/re-extract/{caseId}", async (Guid caseId, IMediator mediator, CancellationToken ct) =>
+        {
+            var count = await mediator.Send(new ReExtractServiceRequestAnswersCommand(caseId), ct);
+            return Results.Ok(count);
+        })
+            .Produces<int>()
+            .WithTags("Answers")
+            .RequireAuthorization("Admin");
+
+        route.MapPost("admin/answers/backfill", async (BackfillServiceRequestAnswersCommand command, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(command, ct);
+            return Results.Ok(result);
+        })
+            .Produces<BackfillAnswersResult>()
+            .WithTags("Answers")
+            .RequireAuthorization("Admin");
+
+        route.MapGet("admin/questionnaires/{questionnaireId}/conformity", async (string questionnaireId, int? version, IMediator mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetQuestionnaireConformityQuery(questionnaireId, version), ct);
+            return Results.Ok(result);
+        })
+            .Produces<List<ConformityFinding>>()
+            .WithTags("Answers")
             .RequireAuthorization("Admin");
         #endregion
 

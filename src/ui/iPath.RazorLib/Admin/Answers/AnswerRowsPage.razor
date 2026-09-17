@@ -1,0 +1,259 @@
+@page "/admin/answers"
+@namespace iPath.Blazor.Componenents.Admin
+@using iPath.Application.Features.Questionnaires.Queries
+@using iPath.Application.Features.Questionnaires.Commands
+
+@inject IPathApi api
+@inject ISnackbar snackbar
+@inject IDialogService dialog
+
+<MudBreadcrumbs Items="BreadCrumbs" Class="mt-0 pt-0"></MudBreadcrumbs>
+
+<MudText Typo="Typo.h6" Class="mb-2">Extracted Questionnaire Answers</MudText>
+<MudText Typo="Typo.body2" Class="mb-4">
+    Direct view of the answer rows (SDC extraction) for reviewing and for deciding what a search or export needs.
+</MudText>
+
+<MudPaper Outlined="true" Class="pa-3 mb-4">
+    <MudGrid Spacing="2" Class="d-flex align-center">
+        <MudItem xs="12" sm="3">
+            <MudTextField @bind-Value="groupIdText" Label="Group Id (optional)" Variant="Variant.Outlined"
+                          Margin="Margin.Dense" Dense="true" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudTextField @bind-Value="questionnaireId" Label="Questionnaire Id (optional)" Variant="Variant.Outlined"
+                          Margin="Margin.Dense" Dense="true" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudTextField @bind-Value="search" Label="Search (linkId, code, value)" Variant="Variant.Outlined"
+                          Margin="Margin.Dense" Dense="true" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Reload"
+                       StartIcon="@Icons.Material.Filled.Search">Load</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+<MudDataGrid T="ServiceRequestAnswerDto" ServerData="GetDataAsync" Dense="true" Hover="true" Striped="true" @ref="grid">
+    <Columns>
+        <PropertyColumn Title="Case" Property="x => x.CaseTitle" Sortable="true">
+            <CellTemplate>
+                <MudLink Href="@($"/request/{context.Item.ServiceRequestId}")">
+                    @(string.IsNullOrEmpty(context.Item.CaseTitle) ? context.Item.ServiceRequestId.ToString() : context.Item.CaseTitle)
+                </MudLink>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Title="Created" Property="x => x.CaseCreatedOn" Format="yyyy-MM-dd" Sortable="true" />
+        <PropertyColumn Title="Question (linkId)" Property="x => x.LinkId" Sortable="true" />
+        <PropertyColumn Title="Code" Property="x => x.Code" Sortable="true">
+            <CellTemplate>
+                @if (!string.IsNullOrEmpty(context.Item.Code))
+                {
+                    <span>@context.Item.CodeSystem|@context.Item.Code</span>
+                    @if (!string.IsNullOrEmpty(context.Item.OtherCodings))
+                    {
+                        <MudTooltip Text="@context.Item.OtherCodings">
+                            <MudIcon Icon="@Icons.Material.Filled.MoreHoriz" Size="Size.Small" />
+                        </MudTooltip>
+                    }
+                }
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Title="Code Display" Property="x => x.CodeDisplay" />
+        <PropertyColumn Title="Type" Property="x => x.ValueType" />
+        <PropertyColumn Title="Value" Property="x => x.Value">
+            <CellTemplate>
+                @if (string.Equals(context.Item.ValueType, "coding", StringComparison.OrdinalIgnoreCase))
+                {
+                    <span>@(context.Item.ValueDisplay ?? context.Item.Value)</span>
+                }
+                else
+                {
+                    <span>@context.Item.Value@(string.IsNullOrEmpty(context.Item.Unit) ? "" : $" {context.Item.Unit}")</span>
+                }
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Title="Form" Property="x => x.QuestionnaireId" />
+        <PropertyColumn Title="v" Property="x => x.QuestionnaireVersion" />
+        <TemplateColumn Title="" Sortable="false">
+            <CellTemplate>
+                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Visibility"
+                               OnClick="@(() => ShowCase(context.Item))" Title="Case answers" />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="ServiceRequestAnswerDto" PageSizeOptions="pageoptions" />
+    </PagerContent>
+</MudDataGrid>
+
+<MudDivider Class="my-6" />
+
+<MudText Typo="Typo.h6" Class="mb-2">Extraction Issues</MudText>
+<MudText Typo="Typo.body2" Class="mb-3">
+    Cases with a questionnaire response whose answers were never extracted or whose last attempt failed.
+</MudText>
+
+<MudGrid Spacing="2" Class="d-flex align-center mb-2">
+    <MudItem xs="12" sm="3">
+        <MudNumericField @bind-Value="backfillMax" Label="Max cases per run" Variant="Variant.Outlined"
+                         Margin="Margin.Dense" Dense="true" Min="0" />
+    </MudItem>
+    <MudItem xs="12" sm="4">
+        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="RunBackfill"
+                   Disabled="backfillRunning" StartIcon="@Icons.Material.Filled.Refresh">
+            @(backfillRunning ? "Extracting ..." : "Run backfill")
+        </MudButton>
+    </MudItem>
+    <MudItem xs="12" sm="3">
+        <MudButton Variant="Variant.Text" OnClick="LoadIssues" StartIcon="@Icons.Material.Filled.Warning">
+            Reload issues
+        </MudButton>
+    </MudItem>
+</MudGrid>
+
+@if (issues is null)
+{
+    <MudText Typo="Typo.body2">Not loaded yet.</MudText>
+}
+else if (issues.Count == 0)
+{
+    <MudAlert Severity="Severity.Success" Dense="true">No extraction issues found.</MudAlert>
+}
+else
+{
+    <MudTable Items="issues" Dense="true" Hover="true">
+        <HeaderContent>
+            <MudTh>Case</MudTh>
+            <MudTh>Form</MudTh>
+            <MudTh>Extracted</MudTh>
+            <MudTh>Rows</MudTh>
+            <MudTh>Error</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Case">
+                <MudLink Href="@($"/request/{context.ServiceRequestId}")">
+                    @(string.IsNullOrEmpty(context.Title) ? context.ServiceRequestId.ToString() : context.Title)
+                </MudLink>
+            </MudTd>
+            <MudTd DataLabel="Form">
+                @context.QuestionnaireId
+                @if (context.QuestionnaireVersion.HasValue)
+                {
+                    <text> (v@context.QuestionnaireVersion)</text>
+                }
+            </MudTd>
+            <MudTd DataLabel="Extracted">
+                @(context.ExtractedOn.HasValue ? context.ExtractedOn.Value.ToString("yyyy-MM-dd HH:mm") : "never")
+            </MudTd>
+            <MudTd DataLabel="Rows">@(context.AnswerCount?.ToString() ?? "-")</MudTd>
+            <MudTd DataLabel="Error">@context.Error</MudTd>
+            <MudTd DataLabel="">
+                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Refresh" Title="Re-extract this case"
+                               OnClick="@(async () => await ReExtract(context.ServiceRequestId))" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    int[] pageoptions = new[] { 25, 50, 100 };
+
+    private MudDataGrid<ServiceRequestAnswerDto>? grid;
+    private string? groupIdText;
+    private string? questionnaireId;
+    private string? search;
+    private List<AnswerExtractionStateDto>? issues;
+    private int backfillMax = 100;
+    private bool backfillRunning;
+
+    public List<BreadcrumbItem> BreadCrumbs
+    {
+        get
+        {
+            var ret = new List<BreadcrumbItem> { new("Administration", href: "admin") };
+            ret.Add(new("Extracted Answers", href: null, disabled: true));
+            return ret;
+        }
+    }
+
+    protected override async Task OnInitializedAsync() => await LoadIssues();
+
+    private Guid? GroupId => Guid.TryParse(groupIdText, out var g) ? g : null;
+
+    private async Task<GridData<ServiceRequestAnswerDto>> GetDataAsync(GridState<ServiceRequestAnswerDto> state, CancellationToken ct)
+    {
+        var query = state.BuildQuery(new GetAnswersByFilterQuery
+        {
+            GroupId = GroupId,
+            QuestionnaireId = string.IsNullOrWhiteSpace(questionnaireId) ? null : questionnaireId.Trim(),
+            SearchString = search
+        });
+
+        var resp = await api.GetAnswersList(query);
+        if (resp.IsSuccessful && resp.Content is not null) return resp.Content.ToGridData();
+
+        snackbar.AddWarning(resp.ErrorText());
+        return new GridData<ServiceRequestAnswerDto>();
+    }
+
+    private async Task Reload()
+    {
+        if (grid is not null) await grid.ReloadServerData();
+        await LoadIssues();
+    }
+
+    private async Task LoadIssues()
+    {
+        var resp = await api.GetAnswerIssues(GroupId, 200);
+        issues = resp.IsSuccessful ? resp.Content ?? new() : new();
+    }
+
+    private async Task RunBackfill()
+    {
+        try
+        {
+            backfillRunning = true;
+            var resp = await api.BackfillAnswers(new BackfillServiceRequestAnswersCommand(100, backfillMax));
+            if (resp.IsSuccessful && resp.Content is not null)
+            {
+                snackbar.Add($"Scanned {resp.Content.CasesScanned}, extracted {resp.Content.CasesExtracted}, wrote {resp.Content.AnswersWritten} answers", Severity.Success);
+            }
+            else
+            {
+                snackbar.AddWarning(resp.ErrorText());
+            }
+            await Reload();
+        }
+        finally
+        {
+            backfillRunning = false;
+        }
+    }
+
+    private async Task ReExtract(Guid caseId)
+    {
+        var resp = await api.ReExtractAnswers(caseId);
+        if (resp.IsSuccessful)
+        {
+            snackbar.Add($"{resp.Content} answers extracted", Severity.Success);
+        }
+        else
+        {
+            snackbar.AddWarning(resp.ErrorText());
+        }
+        await Reload();
+    }
+
+    private async Task ShowCase(ServiceRequestAnswerDto item)
+    {
+        var parameters = new DialogParameters<CaseAnswerRowsDialog>
+        {
+            { x => x.CaseId, item.ServiceRequestId },
+            { x => x.CaseTitle, item.CaseTitle ?? "Untitled" }
+        };
+        await dialog.ShowAsync<CaseAnswerRowsDialog>("Extracted Answers", parameters);
+    }
+}

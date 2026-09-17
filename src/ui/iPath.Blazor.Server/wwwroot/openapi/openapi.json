@@ -937,6 +937,217 @@
         }
       }
     },
+    "/api/v1/admin/answers/by-case/{caseId}": {
+      "get": {
+        "tags": [
+          "Answers"
+        ],
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseAnswersDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/answers/list": {
+      "post": {
+        "tags": [
+          "Answers"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetAnswersByFilterQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultListOfServiceRequestAnswerDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/answers/issues": {
+      "get": {
+        "tags": [
+          "Answers"
+        ],
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "max",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnswerExtractionStateDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/answers/re-extract/{caseId}": {
+      "post": {
+        "tags": [
+          "Answers"
+        ],
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "pattern": "^-?(?:0|[1-9]\\d*)$",
+                  "type": [
+                    "integer",
+                    "string"
+                  ],
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/answers/backfill": {
+      "post": {
+        "tags": [
+          "Answers"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BackfillServiceRequestAnswersCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackfillAnswersResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/questionnaires/{questionnaireId}/conformity": {
+      "get": {
+        "tags": [
+          "Answers"
+        ],
+        "parameters": [
+          {
+            "name": "questionnaireId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConformityFinding"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/events/stream": {
       "get": {
         "tags": [
@@ -4461,6 +4672,85 @@
           }
         }
       },
+      "AnswerExtractionStateDto": {
+        "required": [
+          "serviceRequestId",
+          "title",
+          "hasResponse",
+          "questionnaireId",
+          "questionnaireVersion",
+          "extractedOn",
+          "extractionVersion",
+          "answerCount",
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "serviceRequestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "hasResponse": {
+            "type": "boolean"
+          },
+          "questionnaireId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "questionnaireVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "extractedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "extractionVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "answerCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "extractionDisabled": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
       "AppSettings": {
         "type": "object",
         "properties": {
@@ -4595,6 +4885,63 @@
           }
         }
       },
+      "BackfillAnswersResult": {
+        "required": [
+          "casesScanned",
+          "casesExtracted",
+          "answersWritten"
+        ],
+        "type": "object",
+        "properties": {
+          "casesScanned": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "casesExtracted": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "answersWritten": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "BackfillServiceRequestAnswersCommand": {
+        "type": "object",
+        "properties": {
+          "batchSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 100
+          },
+          "maxCases": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 0
+          }
+        }
+      },
       "CacheOverviewDto": {
         "type": "object",
         "properties": {
@@ -4685,6 +5032,24 @@
             "type": "array",
             "items": {
               "type": "string"
+            }
+          }
+        }
+      },
+      "CaseAnswersDto": {
+        "required": [
+          "state",
+          "answers"
+        ],
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/AnswerExtractionStateDto"
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceRequestAnswerDto"
             }
           }
         }
@@ -5074,6 +5439,28 @@
             "items": {
               "$ref": "#/components/schemas/CodedConcept"
             }
+          }
+        }
+      },
+      "ConformityFinding": {
+        "required": [
+          "severity",
+          "linkId",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "severity": {
+            "type": "string"
+          },
+          "linkId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "message": {
+            "type": "string"
           }
         }
       },
@@ -5890,6 +6277,67 @@
           },
           "query": {
             "$ref": "#/components/schemas/GetServiceRequestsQueryBase"
+          }
+        }
+      },
+      "GetAnswersByFilterQuery": {
+        "type": "object",
+        "properties": {
+          "groupId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "questionnaireId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "searchString": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "sorting": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "filter": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 0
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 10
           }
         }
       },
@@ -7856,6 +8304,29 @@
           }
         }
       },
+      "PagedResultListOfServiceRequestAnswerDto": {
+        "required": [
+          "totalItems",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "totalItems": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceRequestAnswerDto"
+            }
+          }
+        }
+      },
       "PagedResultListOfServiceRequestListDto": {
         "required": [
           "totalItems",
@@ -8445,6 +8916,40 @@
               "null",
               "string"
             ]
+          },
+          "extractedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "extractionVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "extractedAnswerCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "extractionError": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "extractionDisabled": {
+            "type": "boolean"
           }
         }
       },
@@ -8471,6 +8976,12 @@
             "type": [
               "null",
               "string"
+            ]
+          },
+          "extractAnswers": {
+            "type": [
+              "null",
+              "boolean"
             ]
           }
         }
@@ -8669,6 +9180,118 @@
         }
       },
       "ServiceRequest": { },
+      "ServiceRequestAnswerDto": {
+        "required": [
+          "id",
+          "serviceRequestId",
+          "caseTitle",
+          "caseCreatedOn",
+          "questionnaireId",
+          "questionnaireVersion",
+          "linkId",
+          "codeSystem",
+          "code",
+          "codeDisplay",
+          "otherCodings",
+          "valueType",
+          "value",
+          "valueDisplay",
+          "unit",
+          "extractionVersion"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "serviceRequestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseTitle": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "caseCreatedOn": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "questionnaireId": {
+            "type": "string"
+          },
+          "questionnaireVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "linkId": {
+            "type": "string"
+          },
+          "codeSystem": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "codeDisplay": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "otherCodings": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "valueType": {
+            "type": "string"
+          },
+          "value": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "valueDisplay": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "unit": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "extractionVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
       "ServiceRequestDeletedEvent": {
         "type": "object",
         "properties": {
@@ -10681,6 +11304,9 @@
     },
     {
       "name": "Localization"
+    },
+    {
+      "name": "Answers"
     },
     {
       "name": "Users"

@@ -184,6 +184,36 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
     public string PreviewText { get; private set; } = string.Empty;
     public string PreviewResponseJson { get; private set; } = string.Empty;
 
+    public List<ConformityFinding> ConformityFindings { get; private set; } = new();
+    public bool ConformityChecked { get; private set; }
+
+    /// <summary>
+    /// Runs the extraction conformity rules against the selected questionnaire definition. The rules
+    /// live with the extractor on the server, so the checker reports exactly what extraction would do.
+    /// </summary>
+    public async Task CheckConformity()
+    {
+        ConformityFindings = new();
+        if (SelectedQuestionnaire is null) return;
+
+        try
+        {
+            var resp = await api.GetQuestionnaireConformity(SelectedQuestionnaire.QuestionnaireId, SelectedQuestionnaire.Version);
+            if (resp.IsSuccessful && resp.Content is not null)
+            {
+                ConformityFindings = resp.Content;
+            }
+            else
+            {
+                snackbar.AddWarning(resp.ErrorText());
+            }
+        }
+        finally
+        {
+            ConformityChecked = true;
+        }
+    }
+
     public async Task<string> GetPreviewText()
     {
         try
@@ -284,6 +314,15 @@ public class EditQuestionnaireModel
     // never null: the page renders a default model while the entity is still loading, and the
     // tabs read Model.Settings directly
     public QuestionnaireSettings Settings { get; set; } = new();
+
+    // The settings flag is nullable so that a questionnaire stored before the property existed
+    // counts as enabled. A checkbox cannot express that, so it is surfaced as a plain bool with
+    // null meaning "on" - otherwise opening and saving a form would silently switch extraction off.
+    public bool ExtractAnswersEnabled
+    {
+        get => Settings.ExtractAnswers ?? true;
+        set => Settings.ExtractAnswers = value;
+    }
 
     public EditQuestionnaireModel()
     {

@@ -4,6 +4,7 @@ using iPath.Application.Features.Questionnaires;
 using iPath.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 using iPath.EF.Core.FeatureHandlers.Users;
+using iPath.EF.Core.FeatureHandlers.Questionnaires.Services;
 using System.Text.Json;
 
 namespace iPath.EF.Core.FeatureHandlers.ServiceRequests.Commands;
@@ -13,6 +14,8 @@ public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator,
     IServiceProvider sp,
     QuestionnaireCacheServer cache,
     IQuestionnaireToTextServiceRegistry previewRegistry,
+    ServiceRequestAnswerExtractionService answerExtraction,
+    ILogger<UpdateServiceRequestHandler> logger,
     IUserSession sess)
     : IRequestHandler<UpdateServiceRequestCommand, Task<bool>>
 {
@@ -36,32 +39,52 @@ public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator,
 
         node.UpdateNode(request, sess.User.Id);
 
-        // Questionnaire to Text
+        // Questionnaire to Text and answer extraction
         var qr = request.Description?.Questionnaire;
         if (qr is not null && !string.IsNullOrEmpty(qr.Resource))
         {
+            QuestionnaireResponse? response = null;
+            Questionnaire? definition = null;
+            var loadFailed = false;
+
             try
             {
-                var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector);
-                var r = JsonSerializer.Deserialize<QuestionnaireResponse>(qr.Resource, options);
+                // pin the answered definition version before anything resolves against it
+                await answerExtraction.ResolveVersionAsync(qr, ct);
 
-                var q = await cache.GetQuestionnaireAsync(qr.QuestionnaireId);
-                if (q is not null)
+                var options = new JsonSerializerOptions().ForFhir(ModelInfo.ModelInspector);
+                response = JsonSerializer.Deserialize<QuestionnaireResponse>(qr.Resource, options);
+                definition = await cache.GetQuestionnaireAsync(qr.QuestionnaireId, qr.Version);
+            }
+            catch (Exception ex)
+            {
+                loadFailed = true;
+                logger.LogError(ex, "Reading questionnaire response failed for {ServiceRequestId}", request.ServiceRequestId);
+            }
+
+            if (definition is not null && response is not null)
+            {
+                try
                 {
-                    var settings = await cache.GetSettingsAsync(qr.QuestionnaireId);
+                    var settings = await cache.GetSettingsAsync(qr.QuestionnaireId, qr.Version);
                     var serviceKey = settings?.TextPreviewService;
                     var fallbackKey = previewRegistry.GetDefault().Key;
                     var q2t = (string.IsNullOrEmpty(serviceKey) ? null : sp.GetKeyedService<IQuestionnaireToTextService>(serviceKey))
                               ?? sp.GetRequiredKeyedService<IQuestionnaireToTextService>(fallbackKey);
 
-                    request.Description.Questionnaire.GeneratedText = q2t.CreateText(r, q);
+                    request.Description.Questionnaire.GeneratedText = q2t.CreateText(response, definition);
+                }
+                catch (Exception)
+                {
+                    qr.GeneratedText = "";
                 }
             }
-            catch (Exception ex) 
+            else if (loadFailed)
             {
                 qr.GeneratedText = "";
             }
 
+            await answerExtraction.ExtractAsync(node, response, ct);
         }
 
 

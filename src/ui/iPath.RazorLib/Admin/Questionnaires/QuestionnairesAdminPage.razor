@@ -68,10 +68,10 @@ else
                 </MudStack>
 
                 <MudStack Row AlignItems="AlignItems.Center">
-                    <MudText>@T["Text Preview Mode"]</MudText>
-
                     <MudSelect T="string" @bind-Value="Model.Settings.TextPreviewService"
                                Variant="Variant.Outlined"
+                               Label=@T["Text Preview Mode"]
+                               ShrinkLabel="true"
                                Margin="Margin.Dense">
                         @foreach (var svc in _previewServices)
                         {
@@ -79,13 +79,10 @@ else
                         }
                     </MudSelect>
 
-                    @if (string.IsNullOrEmpty(Model.Settings.TextPreviewService))
-                    {
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                            @T["not selected - the configured default applies ({0})", previewRegistry.GetDefault().DisplayName]
-                        </MudText>
-                    }
+                    <MudCheckBox T="bool" @bind-Value="Model.ExtractAnswersEnabled" Color="Color.Primary"
+                                 Label=@T["Extract answers"] />
                 </MudStack>
+
 
                 <MudDivider Class="mt-4" />
                 @* The FHIR source is rarely interesting, so it lives behind a collapsed panel.
@@ -135,7 +132,40 @@ else
                     }
                 </MudSelect>
                 <MudButton OnClick="CreateText" Variant="Variant.Filled" Color="Color.Primary">Generate text</MudButton>
+                <MudButton OnClick="CheckExtraction" Variant="Variant.Outlined" Color="Color.Secondary">Check extraction</MudButton>
             </MudStack>
+
+            @if (vm.ConformityChecked)
+            {
+                <MudPaper Outlined="true" Class="pa-3 mb-3">
+                    <MudText Typo="Typo.subtitle1" Class="mb-2">Extraction Check</MudText>
+                    @if (vm.ConformityFindings.Count == 0)
+                    {
+                        <MudAlert Severity="Severity.Success" Dense="true">
+                            No extraction problems found.
+                        </MudAlert>
+                    }
+                    else
+                    {
+                        <MudTable Items="vm.ConformityFindings" Dense="true" Hover="true">
+                            <HeaderContent>
+                                <MudTh>Severity</MudTh>
+                                <MudTh>Question (linkId)</MudTh>
+                                <MudTh>Finding</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Severity">
+                                    <MudChip T="string" Size="Size.Small" Color="@SeverityColor(context.Severity)">
+                                        @context.Severity
+                                    </MudChip>
+                                </MudTd>
+                                <MudTd DataLabel="linkId">@context.LinkId</MudTd>
+                                <MudTd DataLabel="Finding">@context.Message</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                </MudPaper>
+            }
 
             <MudButtonGroup Class="mb-2">
                 <MudButton Variant="previewMode == PreviewMode.Text ? Variant.Filled : Variant.Outlined"
@@ -291,4 +321,17 @@ else
         await vm.GetPreviewText();
         StateHasChanged();
     }
+
+    private async Task CheckExtraction()
+    {
+        await vm.CheckConformity();
+        StateHasChanged();
+    }
+
+    private static Color SeverityColor(string? severity) => severity switch
+    {
+        "error" => Color.Error,
+        "warning" => Color.Warning,
+        _ => Color.Info
+    };
 }

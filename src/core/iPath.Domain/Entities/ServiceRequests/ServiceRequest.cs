@@ -35,6 +35,8 @@ public class ServiceRequest : AuditableEntityWithEvents
 
     public ICollection<QuestionnaireResponseEntity> QuestionnaireResponses { get; set; } = [];
 
+    public ICollection<ServiceRequestAnswer> Answers { get; set; } = [];
+
     public ICollection<ServiceRequestUploadFolder> UploadFolders { get; set; } = [];
 }
 

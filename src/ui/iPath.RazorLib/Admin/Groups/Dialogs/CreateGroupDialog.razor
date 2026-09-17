@@ -1,6 +1,7 @@
 ﻿@namespace iPath.Blazor.Componenents.Admin.Groups
 
 @inject IStringLocalizer T
+@inject AppState appState
 
 <MudDialog Style="min-width: 500px;">
     <TitleContent>
@@ -47,6 +48,14 @@
     MudForm frm;
     string ErrorMessage = string.Empty;
 
+    protected override void OnInitialized()
+    {
+        if (Model.Owner is null && appState.IsAuthenticated && appState.User is not null)
+        {
+            Model.Owner = new OwnerDto(appState.User.Id, appState.User.Username, appState.User.Email);
+        }
+    }
+
     private void Cancel() => MudDialog.Cancel();
 
 
@@ -62,7 +71,7 @@
             ErrorMessage = T["please select a groups owner."];
             return;
         }
-        if (Model.Name.Length < 4)
+        if (string.IsNullOrWhiteSpace(Model.Name) || Model.Name.Length < 3)
         {
             ErrorMessage = T["Name must have 3 or more characters."];
             return;

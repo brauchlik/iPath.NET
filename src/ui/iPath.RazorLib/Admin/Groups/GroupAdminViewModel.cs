@@ -506,7 +506,7 @@ public class CreateGroupCommandModel : CreateGroupCommand
         set
         {
             field = value;
-            CommunityId = value.Id;
+            CommunityId = value is not null ? value.Id : Guid.Empty;
         }
     }
 

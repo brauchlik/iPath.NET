@@ -189,6 +189,7 @@ public class GroupService(iPathDbContext db, IUserSession sess, IMediator mediat
         Guard.Against.NotFound(cmd.CommunityId, community);
 
         var group = Group.Create(Name: cmd.Name, Owner: owner, community);
+        group.AddMember(owner.Id, eMemberRole.Moderator);
         group.Settings = cmd.Settings;
         group.Visibility = cmd.Visibility ?? eGroupVisibility.MembersOnly;
 

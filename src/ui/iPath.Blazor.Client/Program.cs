@@ -45,6 +45,19 @@ try
     using var cultureStream = await cultureResp.Content.ReadAsStreamAsync();
     var cultureData = await JsonSerializer.DeserializeAsync<CultureResponse>(cultureStream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
     currentCulture = cultureData?.CurrentCulture ?? "en";
+
+    // LocalizationSettings is server-only config (bound from appsettings.json), never pushed to
+    // WASM - LanguageMenu/LanguageSelect inject IOptions<LocalizationSettings> for SupportedCultures/
+    // CultureDisplayNames, so without this they'd resolve an all-defaults instance (empty menu).
+    // /api/localization/current already returns both alongside the current culture; wire them through.
+    if (cultureData is not null)
+    {
+        builder.Services.Configure<LocalizationSettings>(opts =>
+        {
+            opts.SupportedCultures = cultureData.SupportedCultures ?? [];
+            opts.CultureDisplayNames = cultureData.CultureDisplayNames ?? new();
+        });
+    }
 }
 catch (Exception ex)
 {

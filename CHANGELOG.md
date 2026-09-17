@@ -10,6 +10,11 @@
 - Docs: AGENTS.md records that `openapi.json` is build-generated and committed, and `.gitignore` now covers CodeRush's `.cr/` folder and the `data/` scratch directory
 - Fix: `GET /api/v1/translations/{lang}` returned HTTP 500 whenever `LocalizationSettings` was missing from a server's appsettings (because `SupportedCultures` then binds empty) - an unknown culture, an unconfigured `LocalesRoot` and an unreadable locale file now log a warning and return empty data instead of throwing, and an empty `SupportedCultures` falls back to `["en"]` with a warning
 - Locale files are no longer seeded with the `Test`/`Test2` placeholder words when a missing file is auto-saved
+- Locale files (`src/ui/iPath.Blazor.Server/Locales/{en,de,fr,it}.json`) are now tracked in the repo instead of living in the gitignored local data folder, and DE/FR/IT translations are complete for all 373 strings currently wrapped in `@T[...]`/`T[...]`
+- Added `tools/iPath.LocalizationSync`, a CLI that statically scans the UI source for `@T[...]`/`T[...]` call sites and diffs them against the locale files (`sync`, `--write`, `--purge`), so drift can be found without running the app or clicking through every page in every language
+- `LocalizationSettings:AutoUpdate` (default off) pushes new/updated keys from the shipped baseline locale files into a deployment's own configured `LocalesRoot` on startup, filling gaps without ever overwriting a translation already made there
+- Fix: the admin mailbox compose dialog's ambiguous `T["Body"]` label is now `T["Message Body"]`
+- Docs: added a `translation-update` skill (`.claude/skills/translation-update/`) documenting how to keep translations in sync before a release
 
 ## 0.3
 

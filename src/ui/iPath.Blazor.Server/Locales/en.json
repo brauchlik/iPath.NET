@@ -1,5 +1,5 @@
-﻿{
-  "ModifiedOn": "2026-09-17T09:06:53.1118196+02:00",
+{
+  "ModifiedOn": "2026-09-17T09:37:36.210950+02:00",
   "locale": "en",
   "Words": {
     "Edit communiy": "Edit communiy",
@@ -26,7 +26,7 @@
     "New Annotations": "New Annotations",
     "About": "About",
     "Guest": "Guest",
-    "Address \u0026 Contact": "Address \u0026 Contact",
+    "Address & Contact": "Address & Contact",
     "New Cases": "New Cases",
     "New notification": "New notification",
     "Error:": "Error:",
@@ -82,7 +82,7 @@
     "and the": "and the",
     "View all": "View all",
     "clear filter": "clear filter",
-    "Show deleted data (documents \u0026 annotations)": "Show deleted data (documents \u0026 annotations)",
+    "Show deleted data (documents & annotations)": "Show deleted data (documents & annotations)",
     "Questionnaire deleted": "Questionnaire deleted",
     "Name must have 3 or more characters.": "Name must have 3 or more characters.",
     "News and Pages": "News and Pages",
@@ -212,12 +212,12 @@
     "Save": "Save",
     "please select a community owner.": "please select a community owner.",
     "Users": "Users",
-    "You\u0027ve successfully authenticated with {0}. Please enter a username that you want to use for this site and click the Register button to finish the registration": "You\u0027ve successfully authenticated with {0}. Please enter a username that you want to use for this site and click the Register button to finish the registration",
+    "You've successfully authenticated with {0}. Please enter a username that you want to use for this site and click the Register button to finish the registration": "You've successfully authenticated with {0}. Please enter a username that you want to use for this site and click the Register button to finish the registration",
     "Event Type": "Event Type",
     "assign tasks": "assign tasks",
     "Delete": "Delete",
     "updated a case": "updated a case",
-    "View Events \u0026 Notifications": "View Events \u0026 Notifications",
+    "View Events & Notifications": "View Events & Notifications",
     "Is Consultant": "Is Consultant",
     "Create a new user": "Create a new user",
     "edits": "edits",
@@ -331,7 +331,6 @@
     "auto-select ON": "auto-select ON",
     "Are you sure that you want to delete this annotation permanently?": "Are you sure that you want to delete this annotation permanently?",
     "iPath.NET is an open source software written in .NET": "iPath.NET is an open source software written in .NET",
-    "Body": "Body",
     "Enable AI extraction for this group": "Enable AI extraction for this group",
     "Clinical History": "Clinical History",
     "please select a group owner.": "please select a group owner.",
@@ -374,7 +373,8 @@
     "deleted": "deleted",
     "New cases in group": "New cases in group",
     "In App": "In App",
-    "Notification Settings for {0}": "Notification Settings for {0}"
+    "Notification Settings for {0}": "Notification Settings for {0}",
+    "Message Body": "Message Body"
   },
   "WordMetadata": {}
 }

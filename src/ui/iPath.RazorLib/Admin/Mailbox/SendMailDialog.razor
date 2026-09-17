@@ -14,7 +14,7 @@
             <DataAnnotationsValidator />
             <MudTextField @bind-Value="@Model.Address" Label=@T["To"] For="(() => Model.Address)" Variant="Variant.Outlined" />
             <MudTextField @bind-Value="@Model.Subject" Label=@T["Subject"] For="(() => Model.Subject)" Variant="Variant.Outlined" />
-            <MudTextField @bind-Value="@Model.Body" Label=@T["Body"] For="(() => Model.Body)" Variant="Variant.Outlined" Lines="10" />
+            <MudTextField @bind-Value="@Model.Body" Label=@T["Message Body"] For="(() => Model.Body)" Variant="Variant.Outlined" Lines="10" />
         </MudForm>
     </DialogContent>
     <DialogActions>

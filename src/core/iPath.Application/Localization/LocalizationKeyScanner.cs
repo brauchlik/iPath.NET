@@ -89,4 +89,43 @@ public static class LocalizationKeyScanner
             }
         }
     }
+
+    /// <summary>
+    /// Pushes content from a read-only baseline into a live translation store: adds any key
+    /// missing from <paramref name="target"/> entirely, and fills any key that's present but
+    /// still "" if the baseline now has a real value for it. Never touches a key that already
+    /// has a non-empty value in <paramref name="target"/> - that's the signal someone already
+    /// translated or edited it. Carries the baseline's WordMetadata along for any key it
+    /// adds/fills, so provenance (e.g. a hand-translated baseline entry) isn't lost.
+    /// </summary>
+    public static (List<string> Added, List<string> Filled) PushDefaults(TranslationData defaults, TranslationData target)
+    {
+        var added = new List<string>();
+        var filled = new List<string>();
+
+        foreach (var (key, defaultValue) in defaults.Words)
+        {
+            if (!target.Words.TryGetValue(key, out var existing))
+            {
+                target.Words[key] = defaultValue;
+                added.Add(key);
+            }
+            else if (string.IsNullOrEmpty(existing) && !string.IsNullOrEmpty(defaultValue))
+            {
+                target.Words[key] = defaultValue;
+                filled.Add(key);
+            }
+            else
+            {
+                continue;
+            }
+
+            if (defaults.WordMetadata.TryGetValue(key, out var meta))
+            {
+                target.WordMetadata[key] = meta;
+            }
+        }
+
+        return (added, filled);
+    }
 }

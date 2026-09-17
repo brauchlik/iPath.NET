@@ -1,380 +1,380 @@
-﻿{
-  "ModifiedOn": "2026-09-17T09:06:53.1241002+02:00",
+{
+  "ModifiedOn": "2026-09-17T09:37:36.210950+02:00",
   "locale": "it",
   "Words": {
-    "Edit communiy": "",
-    "Open request": "",
-    "Desciption": "",
-    "Github Repository": "",
-    "select exiting group": "",
-    "Notification Settings": "",
-    "Accept": "",
-    "Communities": "",
-    "Street": "",
-    "Notes / Further Requests": "",
-    "Group Owner": "",
-    "City": "",
-    "To": "",
-    "Paste Case Note / Clinical History": "",
-    "External logins": "",
-    "Group Settings": "",
-    "Case": "",
-    "Are you sure you want to permanently delete group {0} and ALL its data (service requests, documents, members, ...)? This cannot be undone!": "",
-    "new comment by": "",
-    "Assign Follow-Up Task": "",
-    "PhoneNr": "",
-    "New Annotations": "",
-    "About": "",
-    "Guest": "",
-    "Address \u0026 Contact": "",
-    "New Cases": "",
-    "New notification": "",
-    "Error:": "",
-    "create a new group": "",
-    "Type": "",
-    "Default Group for Email Import": "",
-    "published a new case": "",
-    "Owner": "",
-    "New annotations in group": "",
+    "Edit communiy": "Modifica comunità",
+    "Open request": "Richiesta aperta",
+    "Desciption": "Descrizione",
+    "Github Repository": "Repository GitHub",
+    "select exiting group": "seleziona un gruppo esistente",
+    "Notification Settings": "Impostazioni notifiche",
+    "Accept": "Accetta",
+    "Communities": "Comunità",
+    "Street": "Via",
+    "Notes / Further Requests": "Note / Ulteriori richieste",
+    "Group Owner": "Proprietario del gruppo",
+    "City": "Città",
+    "To": "A",
+    "Paste Case Note / Clinical History": "Incolla nota del caso / anamnesi clinica",
+    "External logins": "Accessi esterni",
+    "Group Settings": "Impostazioni del gruppo",
+    "Case": "Caso",
+    "Are you sure you want to permanently delete group {0} and ALL its data (service requests, documents, members, ...)? This cannot be undone!": "Sei sicuro di voler eliminare definitivamente il gruppo {0} e TUTTI i suoi dati (richieste, documenti, membri, ...)? Questa azione è irreversibile!",
+    "new comment by": "nuovo commento di",
+    "Assign Follow-Up Task": "Assegna attività di follow-up",
+    "PhoneNr": "Numero di telefono",
+    "New Annotations": "Nuove annotazioni",
+    "About": "Informazioni",
+    "Guest": "Ospite",
+    "Address & Contact": "Indirizzo e contatto",
+    "New Cases": "Nuovi casi",
+    "New notification": "Nuova notifica",
+    "Error:": "Errore:",
+    "create a new group": "crea un nuovo gruppo",
+    "Type": "Tipo",
+    "Default Group for Email Import": "Gruppo predefinito per l'importazione e-mail",
+    "published a new case": "ha pubblicato un nuovo caso",
+    "Owner": "Proprietario",
+    "New annotations in group": "Nuove annotazioni nel gruppo",
     "no service request selected": "nessuna richiesta di servizio selezionata",
-    "Password": "",
-    "create a new case": "",
-    "Create a new questionnaire": "",
-    "Case display": "",
-    "Email Import": "",
-    "Group Sync": "",
-    "New Case": "",
-    "Delete all drafts in this group": "",
-    "Chose a username": "",
-    "New case": "",
-    "Subtitle": "",
-    "Admin": "",
-    "My Cases": "",
-    "New requests": "",
-    "Sender reference no": "",
-    "Verify Body Site": "",
-    "Back to list": "",
+    "Password": "Password",
+    "create a new case": "crea un nuovo caso",
+    "Create a new questionnaire": "Crea un nuovo questionario",
+    "Case display": "Visualizzazione del caso",
+    "Email Import": "Importazione e-mail",
+    "Group Sync": "Sincronizzazione del gruppo",
+    "New Case": "Nuovo caso",
+    "Delete all drafts in this group": "Elimina tutte le bozze di questo gruppo",
+    "Chose a username": "Scegli un nome utente",
+    "New case": "Nuovo caso",
+    "Subtitle": "Sottotitolo",
+    "Admin": "Amministrazione",
+    "My Cases": "I miei casi",
+    "New requests": "Nuove richieste",
+    "Sender reference no": "Numero di riferimento del mittente",
+    "Verify Body Site": "Verifica sede anatomica",
+    "Back to list": "Torna all'elenco",
     "ServiceRequest not found": "Richiesta di servizio non trovata",
-    "Settings": "",
-    "Roles": "",
-    "Are you sure that you want to delete all drafts in this group !": "",
-    "Create another request": "",
-    "Reveiver": "",
-    "Case type active": "",
-    "Show provisional diagnosis": "",
-    "can access all groups of this community as normal user": "",
-    "Home": "",
-    "You have not yet completed your Profile. Please fill in your data": "",
-    "Recent activity": "",
-    "Dimensions": "",
-    "Personal data": "",
-    "The content provided is not a valid FHIR Quesionnaire": "",
-    "Delete this version permanently, or just deactivate it? Deactivating keeps its history and any existing cases that already used it are unaffected.": "",
-    "please make sure it does not contain any sensitive patient details like name or exact date of birth": "",
-    "My Groups": "",
-    "Are you sure that you want to delete the document {0}": "",
-    "add a comment": "",
-    "Enqueue for Transcription": "",
-    "Event Log": "",
-    "Server Config": "",
-    "Task Completed": "",
+    "Settings": "Impostazioni",
+    "Roles": "Ruoli",
+    "Are you sure that you want to delete all drafts in this group !": "Sei sicuro di voler eliminare tutte le bozze di questo gruppo!",
+    "Create another request": "Crea un'altra richiesta",
+    "Reveiver": "Destinatario",
+    "Case type active": "Tipo di caso attivo",
+    "Show provisional diagnosis": "Mostra diagnosi provvisoria",
+    "can access all groups of this community as normal user": "può accedere a tutti i gruppi di questa comunità come utente normale",
+    "Home": "Home",
+    "You have not yet completed your Profile. Please fill in your data": "Non hai ancora completato il tuo profilo. Inserisci i tuoi dati",
+    "Recent activity": "Attività recente",
+    "Dimensions": "Dimensioni",
+    "Personal data": "Dati personali",
+    "The content provided is not a valid FHIR Quesionnaire": "Il contenuto fornito non è un questionario FHIR valido",
+    "Delete this version permanently, or just deactivate it? Deactivating keeps its history and any existing cases that already used it are unaffected.": "Eliminare definitivamente questa versione o disattivarla soltanto? La disattivazione conserva la cronologia e i casi esistenti che la utilizzavano già non ne risentono.",
+    "please make sure it does not contain any sensitive patient details like name or exact date of birth": "assicurati che non contenga dati sensibili del paziente come nome o data di nascita esatta",
+    "My Groups": "I miei gruppi",
+    "Are you sure that you want to delete the document {0}": "Sei sicuro di voler eliminare il documento {0}",
+    "add a comment": "aggiungi un commento",
+    "Enqueue for Transcription": "Accoda per la trascrizione",
+    "Event Log": "Registro eventi",
+    "Server Config": "Configurazione del server",
+    "Task Completed": "Attività completata",
     "not implemented": "non implementato",
-    "and the": "",
-    "View all": "",
-    "clear filter": "",
-    "Show deleted data (documents \u0026 annotations)": "",
-    "Questionnaire deleted": "",
-    "Name must have 3 or more characters.": "",
-    "News and Pages": "",
-    "Schedule daily email at": "",
-    "Patient information": "",
-    "Task cancelled": "",
-    "A diagnostic task already exists for this case": "",
-    "Filename": "",
-    "Type your reply...": "",
-    "AI Status": "",
-    "Body site filter (icd-o)": "",
-    "Body Site / Topography": "",
-    "You are not member of any group yet. Please contect a group or community moderator to join a collaboration group": "",
-    "Task accepted": "",
-    "About iPath": "",
-    "Questionnaires": "",
-    "No matching records found": "",
-    "Gender": "",
-    "Case Type": "",
-    "move to another group": "",
-    "Status": "",
-    "Sender": "",
-    "Consultant": "",
-    "Name": "",
-    "Delete Annotation": "",
+    "and the": "e il",
+    "View all": "Visualizza tutto",
+    "clear filter": "cancella filtro",
+    "Show deleted data (documents & annotations)": "Mostra dati eliminati (documenti e annotazioni)",
+    "Questionnaire deleted": "Questionario eliminato",
+    "Name must have 3 or more characters.": "Il nome deve contenere almeno 3 caratteri.",
+    "News and Pages": "Notizie e pagine",
+    "Schedule daily email at": "Pianifica e-mail giornaliera alle",
+    "Patient information": "Informazioni sul paziente",
+    "Task cancelled": "Attività annullata",
+    "A diagnostic task already exists for this case": "Esiste già un'attività diagnostica per questo caso",
+    "Filename": "Nome del file",
+    "Type your reply...": "Digita la tua risposta...",
+    "AI Status": "Stato IA",
+    "Body site filter (icd-o)": "Filtro sede anatomica (ICD-O)",
+    "Body Site / Topography": "Sede anatomica / Topografia",
+    "You are not member of any group yet. Please contect a group or community moderator to join a collaboration group": "Non sei ancora membro di alcun gruppo. Contatta un moderatore di gruppo o di comunità per unirti a un gruppo di collaborazione",
+    "Task accepted": "Attività accettata",
+    "About iPath": "Informazioni su iPath",
+    "Questionnaires": "Questionari",
+    "No matching records found": "Nessun record corrispondente trovato",
+    "Gender": "Sesso",
+    "Case Type": "Tipo di caso",
+    "move to another group": "sposta in un altro gruppo",
+    "Status": "Stato",
+    "Sender": "Mittente",
+    "Consultant": "Consulente",
+    "Name": "Nome",
+    "Delete Annotation": "Elimina annotazione",
     "File is larger than {0}": "Il file è più grande di {0}",
-    "Filter by community": "",
-    "AI Suggested Body Site": "",
-    "Edit": "",
-    "Notification settings saved": "",
-    "Questionnaire Administration": "",
-    "Subject": "",
-    "Service Request:": "",
-    "Case sub-title active": "",
-    "Specialisation": "",
-    "Annotation on any case": "",
-    "Register": "",
-    "Main communit": "",
+    "Filter by community": "Filtra per comunità",
+    "AI Suggested Body Site": "Sede anatomica suggerita dall'IA",
+    "Edit": "Modifica",
+    "Notification settings saved": "Impostazioni notifiche salvate",
+    "Questionnaire Administration": "Amministrazione questionari",
+    "Subject": "Oggetto",
+    "Service Request:": "Richiesta:",
+    "Case sub-title active": "Sottotitolo del caso attivo",
+    "Specialisation": "Specializzazione",
+    "Annotation on any case": "Annotazione su qualsiasi caso",
+    "Register": "Registrati",
+    "Main communit": "Comunità principale",
     "Applied {0} migration(s) successfully.": "{0} migrazione/i applicata/e con successo.",
-    "Failed to assign task": "",
-    "sync data with external storage": "",
-    "Web Content": "",
-    "Version Information": "",
-    "read only access all groups of this community": "",
-    "Body Region / Organ": "",
-    "active memberships only": "",
-    "Confirm Body Site": "",
-    "Document Properties": "",
-    "Search consultant": "",
-    "Edit questionnaire": "",
-    "Community Administration": "",
-    "active": "",
-    "Database": "",
-    "Reply": "",
-    "select questionnaire": "",
-    "Search Cases": "",
-    "Preview": "",
-    "A follow-up task (Status: {0}) already exists for this case. Create another one?": "",
-    "Uploaded files": "",
-    "Description": "",
-    "Comment on: ": "",
-    "Username": "",
-    "No body site filter set": "",
-    "Community": "",
-    "Active": "",
-    "My requests": "",
-    "Message": "",
-    "Custom body site filter": "",
-    "optional username to display in the system. email will be used when empty": "",
-    "Groups": "",
-    "Task Already Exists": "",
-    "Submit": "",
-    "No new notifications": "",
-    "New Comment on {0}": "",
-    "Decline": "",
-    "Storage Info": "",
-    "Community groups": "",
-    "added a new annotation": "",
-    "Group Membership: {0}": "",
-    "LHC-Forms Widget from NLM": "",
-    "processing ...": "",
-    "Notification Type": "",
-    "Sign Up": "",
-    "Case title active": "",
-    "Are you sure that you want to delete !": "",
-    "Version": "",
-    "Initials": "",
-    "The file could not be read": "",
-    "new case by": "",
-    "New Comment": "",
-    "add to community": "",
-    "Organisation": "",
-    "Clinical Note Intake": "",
-    "please select a body region": "",
-    "About iPath-NET": "",
-    "Task returned for reassignment": "",
-    "Coding ValueSets": "",
-    "Group Tasks": "",
-    "System": "",
-    "Continue directly to patient info when body site is selected.": "",
-    "Search user": "",
-    "Preferred AI model": "",
-    "Edit group": "",
-    "Do you really want to delete all notifications?": "",
-    "Allow HTML in case description": "",
-    "Body Site": "",
-    "no content uploaded": "",
-    "data will be lost when changing the questionnaire form": "",
-    "Error applying migrations: API returned unsuccessful status.": "Errore durante l\u0027applicazione delle migrazioni: l\u0027API ha restituito uno stato di errore.",
-    "Case Title": "",
-    "Resource is not valid: {0}": "",
-    "Clinical information": "",
-    "DocumentType": "",
-    "Login": "",
-    "PostalCode": "",
-    "not selected - the configured default applies ({0})": "",
-    "My Tasks": "",
-    "Comments / Assessment": "",
-    "Follow-Up": "",
-    "Banned": "",
+    "Failed to assign task": "Impossibile assegnare l'attività",
+    "sync data with external storage": "sincronizza i dati con l'archiviazione esterna",
+    "Web Content": "Contenuto web",
+    "Version Information": "Informazioni sulla versione",
+    "read only access all groups of this community": "accesso in sola lettura a tutti i gruppi di questa comunità",
+    "Body Region / Organ": "Regione corporea / Organo",
+    "active memberships only": "solo appartenenze attive",
+    "Confirm Body Site": "Conferma sede anatomica",
+    "Document Properties": "Proprietà del documento",
+    "Search consultant": "Cerca consulente",
+    "Edit questionnaire": "Modifica questionario",
+    "Community Administration": "Amministrazione della comunità",
+    "active": "attivo",
+    "Database": "Database",
+    "Reply": "Rispondi",
+    "select questionnaire": "seleziona questionario",
+    "Search Cases": "Cerca casi",
+    "Preview": "Anteprima",
+    "A follow-up task (Status: {0}) already exists for this case. Create another one?": "Esiste già un'attività di follow-up (stato: {0}) per questo caso. Crearne un'altra?",
+    "Uploaded files": "File caricati",
+    "Description": "Descrizione",
+    "Comment on: ": "Commento su: ",
+    "Username": "Nome utente",
+    "No body site filter set": "Nessun filtro sede anatomica impostato",
+    "Community": "Comunità",
+    "Active": "Attivo",
+    "My requests": "Le mie richieste",
+    "Message": "Messaggio",
+    "Custom body site filter": "Filtro sede anatomica personalizzato",
+    "optional username to display in the system. email will be used when empty": "nome utente facoltativo da visualizzare nel sistema. Se vuoto, verrà utilizzata l'e-mail",
+    "Groups": "Gruppi",
+    "Task Already Exists": "L'attività esiste già",
+    "Submit": "Invia",
+    "No new notifications": "Nessuna nuova notifica",
+    "New Comment on {0}": "Nuovo commento su {0}",
+    "Decline": "Rifiuta",
+    "Storage Info": "Informazioni sull'archiviazione",
+    "Community groups": "Gruppi della comunità",
+    "added a new annotation": "ha aggiunto una nuova annotazione",
+    "Group Membership: {0}": "Appartenenza al gruppo: {0}",
+    "LHC-Forms Widget from NLM": "Widget LHC-Forms di NLM",
+    "processing ...": "elaborazione in corso ...",
+    "Notification Type": "Tipo di notifica",
+    "Sign Up": "Iscriviti",
+    "Case title active": "Titolo del caso attivo",
+    "Are you sure that you want to delete !": "Sei sicuro di voler eliminare!",
+    "Version": "Versione",
+    "Initials": "Iniziali",
+    "The file could not be read": "Impossibile leggere il file",
+    "new case by": "nuovo caso di",
+    "New Comment": "Nuovo commento",
+    "add to community": "aggiungi alla comunità",
+    "Organisation": "Organizzazione",
+    "Clinical Note Intake": "Acquisizione nota clinica",
+    "please select a body region": "seleziona una regione corporea",
+    "About iPath-NET": "Informazioni su iPath-NET",
+    "Task returned for reassignment": "Attività restituita per la riassegnazione",
+    "Coding ValueSets": "ValueSet di codifica",
+    "Group Tasks": "Attività del gruppo",
+    "System": "Sistema",
+    "Continue directly to patient info when body site is selected.": "Passa direttamente alle informazioni del paziente dopo aver selezionato la sede anatomica.",
+    "Search user": "Cerca utente",
+    "Preferred AI model": "Modello IA preferito",
+    "Edit group": "Modifica gruppo",
+    "Do you really want to delete all notifications?": "Vuoi davvero eliminare tutte le notifiche?",
+    "Allow HTML in case description": "Consenti HTML nella descrizione del caso",
+    "Body Site": "Sede anatomica",
+    "no content uploaded": "nessun contenuto caricato",
+    "data will be lost when changing the questionnaire form": "I dati andranno persi cambiando il modulo del questionario",
+    "Error applying migrations: API returned unsuccessful status.": "Errore durante l'applicazione delle migrazioni: l'API ha restituito uno stato di errore.",
+    "Case Title": "Titolo del caso",
+    "Resource is not valid: {0}": "La risorsa non è valida: {0}",
+    "Clinical information": "Informazioni cliniche",
+    "DocumentType": "Tipo di documento",
+    "Login": "Accedi",
+    "PostalCode": "Codice postale",
+    "not selected - the configured default applies ({0})": "non selezionato - si applica il valore predefinito configurato ({0})",
+    "My Tasks": "I miei compiti",
+    "Comments / Assessment": "Commenti / Valutazione",
+    "Follow-Up": "Follow-up",
+    "Banned": "Bandito",
     "No upload folder has been created for your account yet": "Non è stata ancora creata una cartella di caricamento per il tuo account",
-    "{0} by {1}": "",
-    "try again": "",
-    "delete": "",
-    "Members": "",
-    "Next steps": "",
-    "Save": "",
-    "please select a community owner.": "",
-    "Users": "",
-    "You\u0027ve successfully authenticated with {0}. Please enter a username that you want to use for this site and click the Register button to finish the registration": "",
-    "Event Type": "",
-    "assign tasks": "",
-    "Delete": "",
-    "updated a case": "",
-    "View Events \u0026 Notifications": "",
-    "Is Consultant": "",
-    "Create a new user": "",
-    "edits": "",
-    "Save as Draft (not published in group yet)": "",
-    "Profile": "",
-    "Questionnaire": "",
-    "# Cases": "",
-    "Quesiotnnaire File": "",
-    "Daily Summary by Email": "",
-    "Mailbox": "",
-    "Warning": "",
-    "Case Types": "",
-    "Moderator": "",
-    "Task completed": "",
-    "Login with an external account": "",
-    "Assigned to": "",
-    "Update Community": "",
-    "You have a pending task": "",
-    "Error applying migrations: {0}": "Errore durante l\u0027applicazione delle migrazioni: {0}",
-    "Extra Community groups": "",
-    "Draft": "",
-    "Questionnaire deactivated": "",
-    "A new case has been published": "",
-    "Assign Diagnostic Task": "",
-    "Provisional Diagnosis / Extracted Questions": "",
-    "please select a groups owner.": "",
-    "Community Owner": "",
-    "Requests with new annotations": "",
-    "Case types": "",
-    "Assignment strategy": "",
-    "Title": "",
-    "Administration": "",
-    "Please specify a FHIR Resource.": "",
-    "AI Extraction": "",
-    "About iPath.NET": "",
-    "FHIR Resource": "",
-    "saving ...": "",
-    "User Registration": "",
-    "Hide annotations": "",
-    "more to come here ....": "",
-    "Clinical Form": "",
-    "Age (years)": "",
-    "Properties": "",
-    "Use case description wizzard": "",
-    "Send email notifications as daily summany": "",
-    "Are you sure you want to deactivate group {0}?": "",
-    "Task Assignments": "",
-    "Notifications": "",
-    "Show images in fullscreen mode": "",
-    "Morphology ValueSet (override)": "",
-    "Upload Files": "",
-    "Do you want to mark all notifications as read?": "",
-    "MimeType": "",
-    "Auto-assign timeout (hours)": "",
-    "Two-factor authentication": "",
-    "Reply to": "",
-    "This iPath.NET software was written in .NET 10 Framework with the help of": "",
-    "A Follow-Up Task has been created.": "",
-    "Notify as": "",
-    "Language": "",
-    "Create a new group": "",
-    "Logout": "",
-    "Patient": "",
-    "Edit Case": "",
-    "your reference- or lab-number": "",
-    "Create a new account": "",
-    "email to {0} has been queued": "",
-    "Country": "",
-    "Id Must habe 4 ore more characters": "",
-    "FamilyName": "",
-    "Mark all as read": "",
-    "loading ...": "",
-    "Email": "",
-    "Register with an external account": "",
-    "OK": "",
-    "Filter by status": "",
-    "auto-select OFF": "",
-    "API": "",
-    "Accession No": "",
-    "Back": "",
-    "Questionnaire uploaded": "",
-    "Medical specialist available for consultations": "",
-    "User": "",
-    "no access at all": "",
-    "automatically generated text": "",
-    "add a new group": "",
-    "Confirmed": "",
-    "Match BodySite Filter": "",
-    "Source Code published under MIT License on GitHub:": "",
-    "Create a new community": "",
-    "Created": "",
-    "Are you sure that you want to delete {0} items !": "",
-    "Date": "",
-    "Personal Info": "",
-    "Actions": "",
-    "Topography ValueSet (Body Sites)": "",
-    "Notify on": "",
-    "Body site filter from User-Profile active": "",
-    "FirstName": "",
-    "Group": "",
-    "My Profile": "",
-    "Deactivate": "",
-    "Are you sure that you want to delete user {0} completely?": "",
-    "Admin User: {0}": "",
-    "Task declined": "",
-    "Make the group visible in this community": "",
-    "Extra Communities": "",
-    "Filter": "",
-    "Annotation on my case": "",
-    "Community admin": "",
-    "auto-select ON": "",
-    "Are you sure that you want to delete this annotation permanently?": "",
-    "iPath.NET is an open source software written in .NET": "",
-    "Body": "",
-    "Enable AI extraction for this group": "",
-    "Clinical History": "",
-    "please select a group owner.": "",
-    "Topography ValueSet (override)": "",
-    "Annotations of other users will become visible only after writing your own annotation on this case": "",
-    "Template for case description": "",
-    "Provisional Diagnosis": "",
-    "Developers": "",
-    "Body Site Filter": "",
+    "{0} by {1}": "{0} da {1}",
+    "try again": "riprova",
+    "delete": "elimina",
+    "Members": "Membri",
+    "Next steps": "Prossimi passi",
+    "Save": "Salva",
+    "please select a community owner.": "seleziona un proprietario della comunità.",
+    "Users": "Utenti",
+    "You've successfully authenticated with {0}. Please enter a username that you want to use for this site and click the Register button to finish the registration": "Ti sei autenticato con successo tramite {0}. Inserisci un nome utente che desideri utilizzare per questo sito e fai clic sul pulsante Registrati per completare la registrazione",
+    "Event Type": "Tipo di evento",
+    "assign tasks": "assegna attività",
+    "Delete": "Elimina",
+    "updated a case": "ha aggiornato un caso",
+    "View Events & Notifications": "Visualizza eventi e notifiche",
+    "Is Consultant": "È consulente",
+    "Create a new user": "Crea un nuovo utente",
+    "edits": "modifiche",
+    "Save as Draft (not published in group yet)": "Salva come bozza (non ancora pubblicato nel gruppo)",
+    "Profile": "Profilo",
+    "Questionnaire": "Questionario",
+    "# Cases": "# Casi",
+    "Quesiotnnaire File": "File del questionario",
+    "Daily Summary by Email": "Riepilogo giornaliero via e-mail",
+    "Mailbox": "Casella di posta",
+    "Warning": "Avviso",
+    "Case Types": "Tipi di caso",
+    "Moderator": "Moderatore",
+    "Task completed": "Attività completata",
+    "Login with an external account": "Accedi con un account esterno",
+    "Assigned to": "Assegnato a",
+    "Update Community": "Aggiorna comunità",
+    "You have a pending task": "Hai un'attività in sospeso",
+    "Error applying migrations: {0}": "Errore durante l'applicazione delle migrazioni: {0}",
+    "Extra Community groups": "Gruppi comunitari aggiuntivi",
+    "Draft": "Bozza",
+    "Questionnaire deactivated": "Questionario disattivato",
+    "A new case has been published": "È stato pubblicato un nuovo caso",
+    "Assign Diagnostic Task": "Assegna attività diagnostica",
+    "Provisional Diagnosis / Extracted Questions": "Diagnosi provvisoria / Domande estratte",
+    "please select a groups owner.": "seleziona un proprietario del gruppo.",
+    "Community Owner": "Proprietario della comunità",
+    "Requests with new annotations": "Richieste con nuove annotazioni",
+    "Case types": "Tipi di caso",
+    "Assignment strategy": "Strategia di assegnazione",
+    "Title": "Titolo",
+    "Administration": "Amministrazione",
+    "Please specify a FHIR Resource.": "Specifica una risorsa FHIR.",
+    "AI Extraction": "Estrazione IA",
+    "About iPath.NET": "Informazioni su iPath.NET",
+    "FHIR Resource": "Risorsa FHIR",
+    "saving ...": "salvataggio in corso ...",
+    "User Registration": "Registrazione utente",
+    "Hide annotations": "Nascondi annotazioni",
+    "more to come here ....": "altro in arrivo qui ....",
+    "Clinical Form": "Modulo clinico",
+    "Age (years)": "Età (anni)",
+    "Properties": "Proprietà",
+    "Use case description wizzard": "Usa la procedura guidata per la descrizione del caso",
+    "Send email notifications as daily summany": "Invia notifiche e-mail come riepilogo giornaliero",
+    "Are you sure you want to deactivate group {0}?": "Sei sicuro di voler disattivare il gruppo {0}?",
+    "Task Assignments": "Assegnazioni delle attività",
+    "Notifications": "Notifiche",
+    "Show images in fullscreen mode": "Mostra immagini a schermo intero",
+    "Morphology ValueSet (override)": "ValueSet di morfologia (override)",
+    "Upload Files": "Carica file",
+    "Do you want to mark all notifications as read?": "Vuoi contrassegnare tutte le notifiche come lette?",
+    "MimeType": "Tipo MIME",
+    "Auto-assign timeout (hours)": "Timeout di assegnazione automatica (ore)",
+    "Two-factor authentication": "Autenticazione a due fattori",
+    "Reply to": "Rispondi a",
+    "This iPath.NET software was written in .NET 10 Framework with the help of": "Questo software iPath.NET è stato scritto nel framework .NET 10 con l'aiuto di:",
+    "A Follow-Up Task has been created.": "È stata creata un'attività di follow-up.",
+    "Notify as": "Notifica come",
+    "Language": "Lingua",
+    "Create a new group": "Crea un nuovo gruppo",
+    "Logout": "Esci",
+    "Patient": "Paziente",
+    "Edit Case": "Modifica caso",
+    "your reference- or lab-number": "il tuo numero di riferimento o di laboratorio",
+    "Create a new account": "Crea un nuovo account",
+    "email to {0} has been queued": "L'e-mail a {0} è stata messa in coda",
+    "Country": "Paese",
+    "Id Must habe 4 ore more characters": "L'ID deve contenere almeno 4 caratteri",
+    "FamilyName": "Cognome",
+    "Mark all as read": "Segna tutto come letto",
+    "loading ...": "caricamento in corso ...",
+    "Email": "E-mail",
+    "Register with an external account": "Registrati con un account esterno",
+    "OK": "OK",
+    "Filter by status": "Filtra per stato",
+    "auto-select OFF": "Selezione automatica DISATTIVATA",
+    "API": "API",
+    "Accession No": "Numero di accettazione",
+    "Back": "Indietro",
+    "Questionnaire uploaded": "Questionario caricato",
+    "Medical specialist available for consultations": "Specialista medico disponibile per consulti",
+    "User": "Utente",
+    "no access at all": "nessun accesso",
+    "automatically generated text": "testo generato automaticamente",
+    "add a new group": "aggiungi un nuovo gruppo",
+    "Confirmed": "Confermato",
+    "Match BodySite Filter": "Corrispondenza filtro sede anatomica",
+    "Source Code published under MIT License on GitHub:": "Codice sorgente pubblicato con licenza MIT su GitHub:",
+    "Create a new community": "Crea una nuova comunità",
+    "Created": "Creato",
+    "Are you sure that you want to delete {0} items !": "Sei sicuro di voler eliminare {0} elementi!",
+    "Date": "Data",
+    "Personal Info": "Informazioni personali",
+    "Actions": "Azioni",
+    "Topography ValueSet (Body Sites)": "ValueSet di topografia (sedi anatomiche)",
+    "Notify on": "Notifica per",
+    "Body site filter from User-Profile active": "Filtro sede anatomica dal profilo utente attivo",
+    "FirstName": "Nome",
+    "Group": "Gruppo",
+    "My Profile": "Il mio profilo",
+    "Deactivate": "Disattiva",
+    "Are you sure that you want to delete user {0} completely?": "Sei sicuro di voler eliminare completamente l'utente {0}?",
+    "Admin User: {0}": "Amministratore: {0}",
+    "Task declined": "Attività rifiutata",
+    "Make the group visible in this community": "Rendi il gruppo visibile in questa comunità",
+    "Extra Communities": "Comunità aggiuntive",
+    "Filter": "Filtro",
+    "Annotation on my case": "Annotazione sul mio caso",
+    "Community admin": "Amministratore della comunità",
+    "auto-select ON": "Selezione automatica ATTIVATA",
+    "Are you sure that you want to delete this annotation permanently?": "Sei sicuro di voler eliminare definitivamente questa annotazione?",
+    "iPath.NET is an open source software written in .NET": "iPath.NET è un software open source scritto in .NET",
+    "Enable AI extraction for this group": "Abilita l'estrazione IA per questo gruppo",
+    "Clinical History": "Anamnesi clinica",
+    "please select a group owner.": "seleziona un proprietario del gruppo.",
+    "Topography ValueSet (override)": "ValueSet di topografia (override)",
+    "Annotations of other users will become visible only after writing your own annotation on this case": "Le annotazioni degli altri utenti diventeranno visibili solo dopo aver scritto la propria annotazione su questo caso",
+    "Template for case description": "Modello per la descrizione del caso",
+    "Provisional Diagnosis": "Diagnosi provvisoria",
+    "Developers": "Sviluppatori",
+    "Body Site Filter": "Filtro sede anatomica",
     "not implemented yet": "non ancora implementato",
-    "AI Responses": "",
-    "User Administration": "",
+    "AI Responses": "Risposte IA",
+    "User Administration": "Amministrazione utenti",
     "not allowed": "non consentito",
-    "A new annotation has been added": "",
-    "yes": "",
-    "Auto Select": "",
-    "Id": "",
-    "cancel": "",
-    "Assign": "",
-    "MudBlazor UI components": "",
-    "Body Sites": "",
-    "export data": "",
-    "Documents deleted": "",
-    "Yes": "",
-    "Please fill all required fields.": "",
-    "warning": "",
-    "Annotations": "",
-    "Cancel": "",
-    "Download original": "",
-    "Annotations with morphology code": "",
-    "Purpose": "",
-    "Body Site input active": "",
-    "Profile has been saved": "",
-    "Delete all": "",
-    "select user": "",
-    "next steps": "",
-    "Delete Questionnaire": "",
-    "Text Preview Mode": "",
-    "Morphology ValueSet": "",
-    "deleted": "",
-    "New cases in group": "",
-    "In App": "",
-    "Notification Settings for {0}": ""
+    "A new annotation has been added": "È stata aggiunta una nuova annotazione",
+    "yes": "sì",
+    "Auto Select": "Selezione automatica",
+    "Id": "ID",
+    "cancel": "annulla",
+    "Assign": "Assegna",
+    "MudBlazor UI components": "Componenti UI MudBlazor",
+    "Body Sites": "Sedi anatomiche",
+    "export data": "esporta dati",
+    "Documents deleted": "Documenti eliminati",
+    "Yes": "Sì",
+    "Please fill all required fields.": "Compila tutti i campi obbligatori.",
+    "warning": "avviso",
+    "Annotations": "Annotazioni",
+    "Cancel": "Annulla",
+    "Download original": "Scarica originale",
+    "Annotations with morphology code": "Annotazioni con codice di morfologia",
+    "Purpose": "Scopo",
+    "Body Site input active": "Inserimento sede anatomica attivo",
+    "Profile has been saved": "Il profilo è stato salvato",
+    "Delete all": "Elimina tutto",
+    "select user": "seleziona utente",
+    "next steps": "prossimi passi",
+    "Delete Questionnaire": "Elimina questionario",
+    "Text Preview Mode": "Modalità anteprima testo",
+    "Morphology ValueSet": "ValueSet di morfologia",
+    "deleted": "eliminato",
+    "New cases in group": "Nuovi casi nel gruppo",
+    "In App": "Nell'app",
+    "Notification Settings for {0}": "Impostazioni notifiche per {0}",
+    "Message Body": "Corpo del messaggio"
   },
   "WordMetadata": {
     "ServiceRequest not found": {
@@ -425,6 +425,1821 @@
     "Error applying migrations: API returned unsuccessful status.": {
       "ModelUsed": "Human",
       "TranslatedAt": "2026-09-17T12:00:00+02:00",
+      "IsHumanModified": true
+    },
+    "Edit communiy": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Open request": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Desciption": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Github Repository": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "select exiting group": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Notification Settings": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Accept": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Communities": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Street": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Notes / Further Requests": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Group Owner": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "City": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "To": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Paste Case Note / Clinical History": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "External logins": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Group Settings": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Case": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Are you sure you want to permanently delete group {0} and ALL its data (service requests, documents, members, ...)? This cannot be undone!": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "new comment by": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Assign Follow-Up Task": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "PhoneNr": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "New Annotations": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "About": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Guest": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Address & Contact": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "New Cases": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "New notification": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Error:": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "create a new group": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Type": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Default Group for Email Import": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "published a new case": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Owner": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "New annotations in group": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Password": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "create a new case": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Create a new questionnaire": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Case display": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Email Import": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Group Sync": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "New Case": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Delete all drafts in this group": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Chose a username": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "New case": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Subtitle": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Admin": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "My Cases": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "New requests": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Sender reference no": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Verify Body Site": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Back to list": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Settings": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Roles": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Are you sure that you want to delete all drafts in this group !": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Create another request": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Reveiver": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Case type active": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Show provisional diagnosis": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "can access all groups of this community as normal user": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Home": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "You have not yet completed your Profile. Please fill in your data": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Recent activity": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Dimensions": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Personal data": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "The content provided is not a valid FHIR Quesionnaire": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Delete this version permanently, or just deactivate it? Deactivating keeps its history and any existing cases that already used it are unaffected.": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "please make sure it does not contain any sensitive patient details like name or exact date of birth": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "My Groups": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Are you sure that you want to delete the document {0}": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "add a comment": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Enqueue for Transcription": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Event Log": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Server Config": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Task Completed": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "and the": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "View all": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "clear filter": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Show deleted data (documents & annotations)": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Questionnaire deleted": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Name must have 3 or more characters.": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "News and Pages": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Schedule daily email at": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Patient information": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Task cancelled": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "A diagnostic task already exists for this case": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Filename": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Type your reply...": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "AI Status": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Body site filter (icd-o)": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Body Site / Topography": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "You are not member of any group yet. Please contect a group or community moderator to join a collaboration group": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Task accepted": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "About iPath": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Questionnaires": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "No matching records found": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Gender": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Case Type": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "move to another group": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Status": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Sender": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Consultant": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Name": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Delete Annotation": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Filter by community": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "AI Suggested Body Site": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Edit": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Notification settings saved": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Questionnaire Administration": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Subject": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Service Request:": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Case sub-title active": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Specialisation": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Annotation on any case": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Register": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Main communit": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Failed to assign task": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "sync data with external storage": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Web Content": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Version Information": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "read only access all groups of this community": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Body Region / Organ": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "active memberships only": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Confirm Body Site": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Document Properties": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Search consultant": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Edit questionnaire": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Community Administration": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "active": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Database": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Reply": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "select questionnaire": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Search Cases": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Preview": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "A follow-up task (Status: {0}) already exists for this case. Create another one?": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Uploaded files": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Description": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Comment on: ": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Username": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "No body site filter set": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Community": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Active": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "My requests": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Message": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Custom body site filter": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "optional username to display in the system. email will be used when empty": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Groups": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Task Already Exists": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Submit": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "No new notifications": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "New Comment on {0}": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Decline": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Storage Info": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Community groups": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "added a new annotation": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Group Membership: {0}": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "LHC-Forms Widget from NLM": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "processing ...": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Notification Type": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Sign Up": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Case title active": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Are you sure that you want to delete !": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Version": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Initials": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "The file could not be read": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "new case by": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "New Comment": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "add to community": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Organisation": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Clinical Note Intake": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "please select a body region": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "About iPath-NET": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Task returned for reassignment": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Coding ValueSets": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Group Tasks": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "System": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Continue directly to patient info when body site is selected.": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Search user": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Preferred AI model": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Edit group": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Do you really want to delete all notifications?": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Allow HTML in case description": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Body Site": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "no content uploaded": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "data will be lost when changing the questionnaire form": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Case Title": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Resource is not valid: {0}": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Clinical information": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "DocumentType": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Login": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "PostalCode": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "not selected - the configured default applies ({0})": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "My Tasks": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Comments / Assessment": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Follow-Up": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Banned": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "{0} by {1}": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "try again": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "delete": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Members": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Next steps": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Save": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "please select a community owner.": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Users": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "You've successfully authenticated with {0}. Please enter a username that you want to use for this site and click the Register button to finish the registration": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Event Type": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "assign tasks": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Delete": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "updated a case": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "View Events & Notifications": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Is Consultant": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Create a new user": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "edits": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Save as Draft (not published in group yet)": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Profile": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Questionnaire": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "# Cases": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Quesiotnnaire File": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Daily Summary by Email": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Mailbox": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Warning": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Case Types": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Moderator": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Task completed": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Login with an external account": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Assigned to": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Update Community": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "You have a pending task": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Extra Community groups": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Draft": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Questionnaire deactivated": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "A new case has been published": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Assign Diagnostic Task": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Provisional Diagnosis / Extracted Questions": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "please select a groups owner.": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Community Owner": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Requests with new annotations": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Case types": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Assignment strategy": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Title": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Administration": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Please specify a FHIR Resource.": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "AI Extraction": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "About iPath.NET": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "FHIR Resource": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "saving ...": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "User Registration": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Hide annotations": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "more to come here ....": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Clinical Form": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Age (years)": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Properties": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Use case description wizzard": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Send email notifications as daily summany": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Are you sure you want to deactivate group {0}?": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Task Assignments": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Notifications": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Show images in fullscreen mode": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Morphology ValueSet (override)": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Upload Files": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Do you want to mark all notifications as read?": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "MimeType": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Auto-assign timeout (hours)": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Two-factor authentication": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Reply to": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "This iPath.NET software was written in .NET 10 Framework with the help of": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "A Follow-Up Task has been created.": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Notify as": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Language": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Create a new group": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Logout": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Patient": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Edit Case": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "your reference- or lab-number": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Create a new account": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "email to {0} has been queued": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Country": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Id Must habe 4 ore more characters": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "FamilyName": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Mark all as read": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "loading ...": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Email": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Register with an external account": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "OK": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Filter by status": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "auto-select OFF": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "API": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Accession No": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Back": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Questionnaire uploaded": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Medical specialist available for consultations": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "User": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "no access at all": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "automatically generated text": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "add a new group": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Confirmed": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Match BodySite Filter": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Source Code published under MIT License on GitHub:": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Create a new community": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Created": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Are you sure that you want to delete {0} items !": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Date": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Personal Info": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Actions": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Topography ValueSet (Body Sites)": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Notify on": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Body site filter from User-Profile active": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "FirstName": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Group": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "My Profile": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Deactivate": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Are you sure that you want to delete user {0} completely?": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Admin User: {0}": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Task declined": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Make the group visible in this community": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Extra Communities": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Filter": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Annotation on my case": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Community admin": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "auto-select ON": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Are you sure that you want to delete this annotation permanently?": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "iPath.NET is an open source software written in .NET": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Enable AI extraction for this group": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Clinical History": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "please select a group owner.": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Topography ValueSet (override)": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Annotations of other users will become visible only after writing your own annotation on this case": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Template for case description": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Provisional Diagnosis": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Developers": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Body Site Filter": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "AI Responses": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "User Administration": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "A new annotation has been added": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "yes": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Auto Select": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Id": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "cancel": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Assign": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "MudBlazor UI components": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Body Sites": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "export data": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Documents deleted": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Yes": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Please fill all required fields.": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "warning": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Annotations": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Cancel": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Download original": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Annotations with morphology code": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Purpose": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Body Site input active": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Profile has been saved": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Delete all": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "select user": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "next steps": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Delete Questionnaire": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Text Preview Mode": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Morphology ValueSet": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "deleted": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "New cases in group": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "In App": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Notification Settings for {0}": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
+      "IsHumanModified": true
+    },
+    "Message Body": {
+      "ModelUsed": "Claude (agent, context-reviewed)",
+      "TranslatedAt": "2026-09-17T09:30:48.914232+02:00",
       "IsHumanModified": true
     }
   }

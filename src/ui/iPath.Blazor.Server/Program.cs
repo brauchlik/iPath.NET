@@ -311,6 +311,10 @@ else
 // DB Migrations & Seeding
 await app.UpdateDatabase();
 
+// Push shipped default translations into the configured live locale store (no-op unless
+// LocalizationSettings:AutoUpdate is set)
+await app.UpdateTranslations();
+
 
 // Configure static file caching
 app.UseStaticFiles(new StaticFileOptions

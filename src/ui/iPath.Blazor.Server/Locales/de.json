@@ -1,5 +1,5 @@
 {
-  "ModifiedOn": "2026-09-17T14:30:41.670401+02:00",
+  "ModifiedOn": "2026-09-17T16:07:37.078284+02:00",
   "locale": "de",
   "Words": {
     "Edit communiy": "Gemeinschaft bearbeiten",
@@ -113,7 +113,7 @@
     "AI Suggested Body Site": "Von der KI vorgeschlagene Körperregion",
     "Edit": "Bearbeiten",
     "Notification settings saved": "Benachrichtigungseinstellungen gespeichert",
-    "Questionnaire Administration": "Questionnaire Verwaltung",
+    "Questionnaire Administration": "Questionnaire-Verwaltung",
     "Subject": "Betreff",
     "Service Request:": "Anfrage:",
     "Case sub-title active": "Fall-Untertitel aktiv",
@@ -190,7 +190,7 @@
     "Allow HTML in case description": "HTML in der Fallbeschreibung zulassen",
     "Body Site": "Körperregion",
     "no content uploaded": "kein Inhalt hochgeladen",
-    "data will be lost when changing the questionnaire form": "Beim Ändern des Questionnaires gehen Daten verloren",
+    "data will be lost when changing the questionnaire form": "Beim Ändern des Questionnaire-Formulars gehen Daten verloren",
     "Error applying migrations: API returned unsuccessful status.": "Fehler beim Anwenden der Migrationen: Die API hat einen Fehlerstatus zurückgegeben.",
     "Case Title": "Falltitel",
     "Resource is not valid: {0}": "Ressource ist ungültig: {0}",
@@ -225,7 +225,7 @@
     "Profile": "Profil",
     "Questionnaire": "Questionnaire",
     "# Cases": "# Fälle",
-    "Quesiotnnaire File": "Questionnaire Datei",
+    "Quesiotnnaire File": "Questionnaire-Datei",
     "Daily Summary by Email": "Tägliche Zusammenfassung per E-Mail",
     "Mailbox": "Postfach",
     "Warning": "Warnung",

@@ -18,6 +18,7 @@
 - Docs: `docs/superpowers/specs/2026-09-17-sdc-answer-extraction-design.md` records the extraction rules, the data model and what is deliberately left to later sprints
 - Cleared the per-key `WordMetadata` (`ModelUsed`/`TranslatedAt`/`IsHumanModified`) this session's own translation pass had stamped onto every entry in `Locales/*.json` - it was provenance for the removed AI pipeline, not something worth shipping as committed data; only genuine admin-UI edits populate it now. The Translations Manager status chip no longer mislabels a translated-but-unattributed entry as "Missing"
 - Admin: split the "Translations Manager" tab out of the AI Status page into its own `/admin/translations` page with a permanent nav entry - it has nothing to do with AI, and living inside a tab gated behind `iPathClientConfig:AiEnabled` made it unreachable on any deployment without the case-intake AI feature turned on
+- The FHIR resource name "Questionnaire" is now used as-is in every language instead of being translated (`Fragebogen` in German, `questionario` in Italian) - it's a fixed technical term, not prose; German compounds now hyphenate it (`Questionnaire-Verwaltung`) instead of splitting into two words
 
 ## 0.3.2
 

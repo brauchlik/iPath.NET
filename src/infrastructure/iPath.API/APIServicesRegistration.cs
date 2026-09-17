@@ -22,6 +22,7 @@ using iPath.Application.Features.TaskAssignments;
 using iPath.EF.Core.FeatureHandlers.TaskAssignments.Services;
 using iPath.Application.Localization;
 using iPath.EF.Core.FeatureHandlers.Questionnaires.Services;
+using iPath.API.Services.Diagnostics;
 using iPath.Application.Services;
 using iPath.Google;
 using Microsoft.AspNetCore.Http.Json;
@@ -176,6 +177,10 @@ public static class APIServicesRegistration
 
         // Text preview services - keyed by display name (matches QuestionnaireToTextServiceRegistry)
         services.AddQuestionnaireToTextServices();
+
+        // Logs circuit open/close and connection up/down - the only server-side trace of a dropped
+        // interactive session, which otherwise shows up as a page frozen on its last render.
+        services.AddSingleton<Microsoft.AspNetCore.Components.Server.Circuits.CircuitHandler, CircuitDiagnostics>();
 
         // Answer extraction (SDC) and conformity rules
         services.AddQuestionnaireAnswerServices();

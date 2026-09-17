@@ -8,18 +8,18 @@
 <MudForm Model="Model" Class="@Class" @ref="frm">
     <MudGrid>
         <MudItem xs="12" sm="8">
-            @if (vm.ActiveGroup.Settings.UseCaseTitleField)
+            @if (vm.ActiveGroup?.Settings?.UseCaseTitleField == true)
             {
                 <MudTextField Label=@T["Title"] @bind-Value="Model.Title" For="@(() => Model.Title)" Variant="Variant" Margin="@Margin" AutoFocus="true" />
             }
 
-            @if (vm.ActiveGroup.Settings.UseCaseSubTitleField)
+            @if (vm.ActiveGroup?.Settings?.UseCaseSubTitleField == true)
             {
                 <MudTextField Label=@T["Subtitle"] @bind-Value="Model.Subtitle" Variant="Variant" Margin="@Margin" ShrinkLabel="true" />
             }
 
             <MudPaper Elevation="0" Class="mb-2">
-                @if (vm.ActiveGroup.Settings.ShowProvisionalDiagnosis || !string.IsNullOrEmpty(Model.ProvisionalDiagnosis))
+                @if (vm.ActiveGroup?.Settings?.ShowProvisionalDiagnosis == true || !string.IsNullOrEmpty(Model.ProvisionalDiagnosis))
                 {
                     <MudTextField @bind-Value="Model.ProvisionalDiagnosis" Label=@T["Provisional Diagnosis"]
                                   Variant="Variant" ShrinkLabel="true" Margin="Margin.Dense"/>                
@@ -66,9 +66,9 @@
             <MudTextField Label=@T["Accession No"] Placeholder=@T["Sender reference no"] @bind-Value="Model.AccessionNo"
                           Variant="@Variant" Margin="@Margin" ShrinkLabel="true" />
 
-            @if (vm.ActiveGroup.CaseTypeActive)
+            @if (vm.ActiveGroup?.CaseTypeActive == true)
             {
-                @if (vm.ActiveGroup.Settings.CaseTypes.IsEmpty())
+                @if (vm.ActiveGroup?.Settings?.CaseTypes.IsEmpty() ?? true)
                 {
                     <MudTextField Label=@T["Case Type"] @bind-Value="Model.CaseType" Variant="@Variant" Margin="@Margin" ShrinkLabel="true" />
                 }
@@ -79,7 +79,7 @@
                 }
             }
 
-            @if (vm.ActiveGroup.Settings.DescriptionWithBodySite)
+            @if (vm.ActiveGroup?.Settings?.DescriptionWithBodySite == true)
             {
                 <TopoLookup Label="Body Site" @bind-Concept="Model.BodySite" ValueSetId="@vm.TopograhyValueSet"
                             Clearable="true" Variant="Variant.Outlined" Dense="true" ShrinkLabel="true" Margin="@Margin" />

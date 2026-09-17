@@ -220,13 +220,20 @@
     {
         get
         {
+            // No case at all. This used to be the only condition, so a case that was loaded but has
+            // no title also read as "loading ..." - which made a missing form look like a slow load.
+            if (vm.SelectedRequest is null && vm.SelectedRequestHeader is null)
+            {
+                return T["loading ..."];
+            }
+
             var isDraft = vm.SelectedRequest?.IsDraft ?? vm.SelectedRequestHeader?.IsDraft ?? false;
             var title = vm.SelectedRequest?.Title ?? vm.SelectedRequestHeader?.Title;
 
-            if (title is null)
-                return T["loading ..."];
-            else if (isDraft)
+            if (isDraft)
                 return T["New Case"];
+            else if (string.IsNullOrWhiteSpace(title))
+                return T["(untitled case)"];
 
             var ret = title;
 

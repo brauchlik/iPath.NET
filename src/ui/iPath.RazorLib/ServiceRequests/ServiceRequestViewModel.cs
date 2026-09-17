@@ -56,9 +56,9 @@ public class ServiceRequestViewModel(IPathApi api,
 
     public GroupDto? ActiveGroup { get; private set; }
 
-    public string TopograhyValueSet => ActiveGroup.TopographyValueSet;
+    public string TopograhyValueSet => ActiveGroup?.TopographyValueSet ?? string.Empty;
 
-    public string MorphologyValueSet => ActiveGroup.MorphologyValueSet;
+    public string MorphologyValueSet => ActiveGroup?.MorphologyValueSet ?? string.Empty;
 
 
     public bool IsRootNodeSelected
@@ -114,12 +114,33 @@ public class ServiceRequestViewModel(IPathApi api,
 
 
 
+    // Bumped whenever a case load starts on this (scoped, per-circuit) view model. Pages that clear
+    // it on dispose compare against the value they saw, so an outgoing page cannot wipe a case that
+    // a newly navigated-to page has loaded in the meantime.
+    public int LoadVersion { get; private set; }
+
+
     public void ClearData()
     {
+        // A case is only ever dropped here while a page is still using it if something else drives
+        // the same scoped view model, which is how an edit page can lose its case mid-flight. The
+        // caller is logged so that shows up in the log instead of as a page stuck on "loading ...".
+        if (SelectedRequest is not null)
+        {
+            var caller = new System.Diagnostics.StackTrace(1, false).GetFrame(0)?.GetMethod();
+            logger.LogInformation("ClearData: dropping case {CaseId} (called from {Caller}.{Method})",
+                SelectedRequest.Id, caller?.DeclaringType?.Name, caller?.Name);
+        }
+
         SelectedRequest = null;
         SelectedRequestHeader = null;
         SelectedDocument = null;
         RequestOwner = null;
+
+        // admin-only "show deleted data" is per visit: leaving it set made the next case (or the
+        // edit page) load deleted documents and annotations without anyone asking for it
+        _showDeleted = false;
+
         NotifyStateChanged();
     }
 
@@ -174,14 +195,23 @@ public class ServiceRequestViewModel(IPathApi api,
                 {
                     ActiveGroup = respG.Content;
                 }
+                else
+                {
+                    // never keep another case's group: the edit form reads its settings
+                    ActiveGroup = null;
+                    logger.LogWarning("Could not load group {GroupId} for case {CaseId}: {Error}",
+                        SelectedRequest.GroupId.Value, SelectedRequest.Id, respG.ErrorText());
+                }
             }
         }
         else
         {
+            logger.LogWarning("Loading case {CaseId} failed: {Error}", id, respN.ErrorText());
             snackbar.AddWarning(respN.ErrorText());
             nm.NavigateTo("/");
         }
         OnLoadingFinished?.Invoke();
+        LoadVersion++;
         NotifyStateChanged();
     }
 
@@ -194,6 +224,10 @@ public class ServiceRequestViewModel(IPathApi api,
             if (respN.IsSuccessful)
             {
                 SelectedRequest = respN.Content;
+            }
+            else
+            {
+                logger.LogWarning("Reloading case {CaseId} failed: {Error}", SelectedRequest.Id, respN.ErrorText());
             }
             NotifyStateChanged();
         }
@@ -625,6 +659,14 @@ public class ServiceRequestViewModel(IPathApi api,
                 snackbar.AddError(resp.ErrorText());
                 return;
             }
+
+            // Parts of the case are derived on the server - the questionnaire's GeneratedText and the
+            // pinned definition version. This client copy does not have them, and the view page reuses
+            // this copy (LoadNode with forceReload: false), so without re-reading it would keep showing
+            // the previous preview. Only the in-process Server mode hides that, because there the DTO
+            // shares the entity instance the handler mutates.
+            await ReloadNode();
+
             NotifyStateChanged();
 
             if (finishEditing)
@@ -650,6 +692,11 @@ public class ServiceRequestViewModel(IPathApi api,
             if (!resp.IsSuccessful)
             {
                 snackbar.AddError(resp.ErrorText());
+            }
+            else
+            {
+                // same reason as in Save: pick up the server derived fields
+                await ReloadNode();
             }
             NotifyStateChanged();
         }
@@ -827,7 +874,8 @@ public class ServiceRequestViewModel(IPathApi api,
         get
         {
             var ret = new List<eAnnotationType>() { eAnnotationType.Comment };
-            var gm = appState.User.groups.FirstOrDefault(x => x.GroupId == ActiveGroup.Id);
+            var groupId = ActiveGroup?.Id;
+            var gm = appState.User.groups.FirstOrDefault(x => x.GroupId == groupId);
             if (gm is not null && gm.IsConsultant)
             {
                 ret.Add(eAnnotationType.FinalAssesment);
@@ -914,7 +962,7 @@ public class ServiceRequestViewModel(IPathApi api,
                 Id = dto.Id,
                 ServiceRequestId = SelectedRequest.Id,
                 Data = dto.Data,
-                AskMorphology = ActiveGroup.Settings.AnnotationHasMoprhoogy
+                AskMorphology = ActiveGroup?.Settings.AnnotationHasMoprhoogy ?? false
             };
             return model;
         }

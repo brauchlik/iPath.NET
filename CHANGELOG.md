@@ -12,6 +12,9 @@
 - Responses record the definition version they were answered against, which was always null before - that also fixes the text preview being rendered against the currently active questionnaire version instead of the answered one
 - Admin: a toolbar button on a case shows the extracted answers and the extraction state (rows, version, last error) and can re-extract; a new `/admin/answers` page lists answers per group with a questionnaire filter and free-text search, reports cases whose extraction is missing or failed, and can run the backfill
 - Admin: "Check extraction" on the questionnaire page reports conformity problems using the extractor's own rules (duplicate linkIds, uncoded items and the generated key they would get, codings shared by two questions, non-extracted item types)
+- Fix: the case edit page could sit on "loading ..." forever - the page being navigated away from cleared the shared (per-circuit) view model *after* the new page had already loaded its case. Only the page that owns the current load clears it now
+- Fix: under WebAssembly the text preview kept the previous text after saving - the server derives the preview text and the pinned questionnaire version, and the client reused its own copy instead of re-reading the case after a successful save. Server mode only appeared to work because the in-process DTO is the instance the handler mutates
+- Development: Blazor circuit timeouts raised (client 300 s, JS interop 300 s, disconnected retention 600 s, configurable via `CircuitTimeouts`) so that pausing at a debugger breakpoint no longer cancels a pending navigation and tears the circuit down; circuit open/close and connection state are now logged, as is the reason a case page failed to load
 - Docs: `docs/superpowers/specs/2026-09-17-sdc-answer-extraction-design.md` records the extraction rules, the data model and what is deliberately left to later sprints
 
 ## 0.3.2

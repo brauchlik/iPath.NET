@@ -5,6 +5,7 @@
 @attribute [Authorize]
 
 <ServiceRequestHeader />
+
 @if (vm.SelectedRequest != null)
 {
     <ServiceRequestEditForm Model="vm.SelectedRequest.Description" @bind-Owner="vm.RequestOwner" @ref="frm"
@@ -20,16 +21,40 @@
         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete">Delete</MudButton>
     </MudStack>
 }
+else if (_loadFailed)
+{
+    @* The load produced no case. Saying so is important: without this the page kept the header's
+       "loading ..." placeholder forever and looked like it was still working. *@
+    <MudAlert Severity="Severity.Warning" Class="my-8">
+        <MudText>@T["The case could not be loaded."]</MudText>
+        @if (!string.IsNullOrEmpty(_loadError))
+        {
+            <MudText Typo="Typo.caption" Class="mt-1">@_loadError</MudText>
+        }
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-3"
+                   StartIcon="@Icons.Material.Filled.Refresh" OnClick="ReloadPage">@T["reload"]</MudButton>
+    </MudAlert>
+}
 
 @code {
 
     [Parameter]
     public string id { get; set; }
 
+    [Inject]
+    private ILogger<EditServiceRequestPage> Logger { get; set; } = null!;
+
+    [Inject]
+    private NavigationManager Nav { get; set; } = null!;
+
     ServiceRequestEditForm frm;
 
     string SaveText = "Save";
     string Title = "New Case";
+
+    private bool _loadFailed;
+    private string? _loadError;
+    private Guid? _lastRenderedRequest;
 
 
     protected override void OnInitialized()
@@ -45,13 +70,58 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if (Guid.TryParse(id, out var nodeId))
+        if (!Guid.TryParse(id, out var nodeId))
+        {
+            _loadFailed = true;
+            _loadError = $"invalid case id '{id}'";
+            return;
+        }
+
+        try
         {
             await vm.LoadNode(nodeId);
-            SaveText = T["Save"];
-            Title = T["Edit Case"] + ": " + vm.SelectedRequest.Title;
         }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Loading case {CaseId} for editing failed", nodeId);
+            _loadFailed = true;
+            _loadError = ex.Message;
+        }
+
+        if (vm.SelectedRequest is null)
+        {
+            // group loaded: {GroupLoaded} - a null group would break the edit form's settings reads
+            Logger.LogWarning("Case {CaseId} could not be loaded for editing (group loaded: {GroupLoaded})",
+                nodeId, vm.ActiveGroup is not null);
+
+            _loadFailed = true;
+            _loadError ??= "no data received";
+            vm.IsEditing = false;
+            return;
+        }
+
+        _loadFailed = false;
+        _loadError = null;
+        SaveText = T["Save"];
+        Title = T["Edit Case"] + ": " + (vm.SelectedRequest.Title ?? T["(untitled case)"].ToString());
         vm.IsEditing = true;
+    }
+
+    private void ReloadPage() => Nav.NavigateTo($"request/edit/{id}", forceLoad: true);
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        // Paint #2 - the one after OnParametersSetAsync completes - is the one that has to show the
+        // form. Logging whenever the case changes makes a missing repaint visible in the log instead
+        // of it just looking like the page never loaded.
+        if (firstRender || _lastRenderedRequest != vm.SelectedRequest?.Id)
+        {
+            _lastRenderedRequest = vm.SelectedRequest?.Id;
+            Logger.LogInformation("Edit page rendered: first={First}, case={CaseId}, loadFailed={LoadFailed}, groupLoaded={GroupLoaded}",
+                firstRender, vm.SelectedRequest?.Id, _loadFailed, vm.ActiveGroup is not null);
+        }
+
+        base.OnAfterRender(firstRender);
     }
 
     async Task OnBeforeSaveEventHandler(object sender)

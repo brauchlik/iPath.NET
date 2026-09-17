@@ -6,6 +6,8 @@ using iPath.Blazor.Server.Components.Account;
 using iPath.Domain.Config;
 using iPath.RazorLib;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -125,6 +127,25 @@ builder.Services.Configure<iPathClientConfig>(builder.Configuration.GetSection(i
 var clcfg = new iPathClientConfig();
 builder.Configuration.GetSection(iPathClientConfig.ConfigName).Bind(clcfg);
 
+// Circuit timeouts - see CircuitTimeoutConfig for why the framework defaults are too tight
+var circuitTimeouts = new CircuitTimeoutConfig();
+builder.Configuration.GetSection(CircuitTimeoutConfig.ConfigName).Bind(circuitTimeouts);
+
+builder.Services.Configure<CircuitOptions>(o =>
+{
+    if (circuitTimeouts.JSInteropCallTimeoutSeconds > 0)
+        o.JSInteropDefaultCallTimeout = TimeSpan.FromSeconds(circuitTimeouts.JSInteropCallTimeoutSeconds);
+    if (circuitTimeouts.DisconnectedCircuitRetentionSeconds > 0)
+        o.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(circuitTimeouts.DisconnectedCircuitRetentionSeconds);
+});
+
+if (circuitTimeouts.ClientTimeoutSeconds > 0)
+{
+    // the client timeout is a SignalR hub option; the circuit hub inherits the global values
+    var clientTimeout = TimeSpan.FromSeconds(circuitTimeouts.ClientTimeoutSeconds);
+    builder.Services.Configure<HubOptions>(o => o.ClientTimeoutInterval = clientTimeout);
+}
+
 
 var baseAddress = clcfg.BaseAddress ?? "http://localhost:5000/";
 await builder.Services.AddRazorLibServices(baseAddress, false);
@@ -203,6 +224,9 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+app.Logger.LogInformation("Circuit timeouts: client={ClientTimeout}s, jsInterop={JsTimeout}s, retention={Retention}s",
+    circuitTimeouts.ClientTimeoutSeconds, circuitTimeouts.JSInteropCallTimeoutSeconds, circuitTimeouts.DisconnectedCircuitRetentionSeconds);
 
 // Soft-prune expired DataProtection keys on startup. Microsoft's default key lifetime is 90 days
 // and old keys stay around to decrypt in-flight cookies - which is exactly what we want. Disk usage is

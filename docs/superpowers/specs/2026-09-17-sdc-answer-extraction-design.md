@@ -1,7 +1,7 @@
-# SDC Answer Extraction — Design and Implementation (Sprints 1–2)
+# SDC Answer Extraction — Design and Implementation (Sprints 1–3)
 
-Status: implemented on `main`, version 0.3.3
-Scope: extract questionnaire answers at input time, and give admins a direct view of the result.
+Status: Sprints 1–2 implemented, Sprint 3 partly (catalog and column picker; CSV export open), version 0.3.3
+Scope: extract questionnaire answers at input time, and give developers and admins a direct, export-oriented view of the result.
 
 ## 1. Purpose
 
@@ -91,9 +91,10 @@ rows of those cases are removed, so an excluded form contributes nothing.
 | `ServiceRequestAnswerExtractionService` | `iPath.Database.EFCore/FeatureHandlers/Questionnaires/Services/` — single implementation used by both the save path and the backfill; does not call `SaveChanges` |
 | write at save | `UpdateServiceRequestHandler` — beside `GeneratedText`, where the definition is already loaded; one unit of work for rows and description |
 | re-extract / backfill | `ReExtractServiceRequestAnswersCommand`, `BackfillServiceRequestAnswersCommand` |
-| queries | `GetAnswersByCaseQuery`, `GetAnswersByFilterQuery`, `GetAnswerExtractionIssuesQuery`, `GetQuestionnaireConformityQuery` |
-| endpoints | `api/v1/admin/answers/*` and `api/v1/admin/questionnaires/{id}/conformity`, all `RequireAuthorization("Admin")` |
-| admin UI | per-case dialog (opened from the admin toolbar beside the mail preview), `/admin/answers` review page, "Check extraction" on the questionnaire admin page |
+| queries | Sprint 2: `GetAnswersByCaseQuery`, `GetAnswersByFilterQuery`, `GetAnswerExtractionIssuesQuery`, `GetQuestionnaireConformityQuery`. Sprint 3: `GetAnswerCatalogQuery` (the group catalog) and `GetAnswerTableQuery` (the pivot, whose `Columns` carries an explicit, ordered selection) |
+| catalog and selection | `AnswerCatalogBuilder` (merges the group's forms by concept key, pure), `AnswerConcept` (the single key/rank authority, shared by extractor, builder and handlers), `AnswerCellFormatter` (one cell per case and concept, shared by pivot and dialog) |
+| endpoints | `api/v1/admin/answers/*` and `api/v1/admin/questionnaires/{id}/conformity`, all `RequireAuthorization("Developer")` |
+| admin UI | per-case dialog (opened from the admin toolbar beside the mail preview), `/admin/answers` — group first: forms, catalog (which doubles as the column picker), answers pivot, extraction issues and backfill; "Check extraction" on the questionnaire admin page; reachable from the Developers menu as *Data Export* |
 
 ## 5. Delivered in this iteration
 
@@ -101,11 +102,20 @@ Sprint 1: version pinning (which also fixes `GeneratedText` being rendered again
 definition), extractor, table, save-time extraction, extraction state, the `ExtractAnswers` flag,
 failure policy, re-extract/backfill, unit tests.
 
-Sprint 2: the two direct views of the rows — an admin-only per-case dialog showing the extraction
-state and rows with a re-extract action, and a paged group-level list at `/admin/answers` with a
-questionnaire filter, free-text search and an **extraction issues** section (cases whose response
-was never extracted or whose attempt failed, with a backfill trigger). Plus the conformity checker
-output on the questionnaire admin page.
+Sprint 2: the two direct views of the rows — a per-case dialog (Developer-gated, like the answers
+API) showing the extraction state and rows with a re-extract action, and a paged group-level list at
+`/admin/answers` with a questionnaire filter, free-text search and an **extraction issues** section
+(cases whose response was never extracted or whose attempt failed, with a backfill trigger). Plus the
+conformity checker output on the questionnaire admin page.
+
+Sprint 3 (partly): the catalog is written from real data rather than from theory —
+`AnswerCatalogBuilder` merges the group's case-description forms by concept key, so which concepts
+actually occur, which are noise and which collide is read off the answers themselves. On top of that
+`/admin/answers` was rebuilt group first (forms with a per-form conformity summary → catalog →
+answers pivot, the long per-answer list is gone) and the catalog doubles as a column picker: a ticked
+selection is rendered as sent, in order, **including columns no case answered**, which is what makes
+two exports comparable, with a caption reporting how many concepts in the data are outside the
+selection. Still open from this sprint: the CSV export.
 
 Two signals the review depends on: *response present but zero rows*, and *dummy-key rows* (items
 that still need a real coding).
@@ -118,16 +128,31 @@ that still need a real coding).
   the dummy system, coded answer keeping its own code, null/empty input, an answer without a
   definition, plus four conformity-checker cases.
 - Solution builds clean; `openapi.json` regenerated and committed because new endpoints were added.
+- Sprint 3: catalog and column selection verified against the live Sqlite database (one group: 3
+  cases, 2 forms, 67 concepts of which 11 have no code; an explicit 4-column selection came back in
+  the order sent, with never-answered and unknown columns empty, and `conceptsOutsideColumns`
+  consistent with the observed columns). Full suite green (153 passing, 9 skipped).
 - Not yet verified at runtime: whether LForms emits an explicit `false` for an answered "no" and
   omits untouched items. Rule 1 depends on it. It is observable from the review views
   (`ExtractedAnswerCount` per case), so the first filled form will confirm or refute it.
 
-## 7. Deliberately out of scope
+## 7. Roadmap and what remains
 
-Catalog of concepts, column picker, CSV export (Sprint 3) · cohort filters by period, form or answer
-value (Sprint 4) · annotation responses · FHIR `Observation` projection · numeric typing of values
-(typed columns come when a query needs `> x`) · permissions beyond reusing case visibility ·
-de-identification and compliance review.
+| sprint | scope | state |
+|---|---|---|
+| Sprint 1 | extractor, `service_request_answers`, version pinning, re-extract/backfill | done |
+| Sprint 2 | the two review views (per-case dialog, group list), conformity checker | done |
+| Sprint 3 | catalog, column picker, CSV export | catalog and picker done, **CSV export open** |
+| Sprint 4 | cohort filters: period, form, answer value | form done, **period and answer value open** |
+| then | governance; questionnaire version-deletion policy | not started |
+
+The three open items are one coherent piece of work: a saved export profile is the cohort plus the
+column selection, and the CSV export is what applies it. Captured in
+`2026-09-17-export-profiles-design.md`, with the decisions that piece needs.
+
+Still deliberately out of scope: annotation responses · FHIR `Observation` projection · numeric
+typing of values (typed columns come when a filter needs `> x` — the export capture decides against
+them for now) · permissions beyond reusing case visibility · de-identification and compliance review.
 
 Separate sprint: questionnaire lifecycle — refuse deletion of a version referenced by any response,
 and close the "new version on every save" TODO. Extracting at input is what makes deferring this

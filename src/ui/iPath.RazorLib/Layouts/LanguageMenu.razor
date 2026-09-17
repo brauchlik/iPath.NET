@@ -1,4 +1,4 @@
-@inject IOptions<iPath.Application.Localization.LocalizationSettings> locOpts
+@inject IOptions<iPath.Domain.Config.iPathClientConfig> clientCfg
 @inject NavigationManager nm
 @inject iPath.Blazor.Componenents.Shared.AppState appState
 @inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
@@ -24,12 +24,12 @@
 
     protected override void OnInitialized()
     {
-        var cultures = locOpts?.Value?.SupportedCultures;
+        var cultures = clientCfg?.Value?.SupportedCultures;
         if (cultures != null)
         {
             _menuItems = cultures
                 .Distinct()
-                .Select(c => new MenuItem(c, locOpts.Value.CultureDisplayNames.TryGetValue(c, out var n) ? n : c))
+                .Select(c => new MenuItem(c, clientCfg.Value.CultureDisplayNames.TryGetValue(c, out var n) ? n : c))
                 .ToArray();
         }
     }

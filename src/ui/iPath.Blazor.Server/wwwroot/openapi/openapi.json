@@ -7315,6 +7315,18 @@
           },
           "defaultTextPreviewService": {
             "type": "string"
+          },
+          "supportedCultures": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cultureDisplayNames": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
           }
         }
       },

@@ -64,4 +64,12 @@ public class iPathClientConfig
     /// QuestionnaireToTextServiceRegistry; an unknown value falls back to the first entry.
     /// </summary>
     public string DefaultTextPreviewService { get; set; } = "Default List";
+
+    /// <summary>
+    /// Mirrors LocalizationSettings.SupportedCultures/CultureDisplayNames (server-only config) so
+    /// WASM-hosted components like the language menu can read them too - see APIServicesRegistration's
+    /// PostConfigure&lt;iPathClientConfig&gt; block.
+    /// </summary>
+    public string[] SupportedCultures { get; set; } = [];
+    public Dictionary<string, string> CultureDisplayNames { get; set; } = new();
 }

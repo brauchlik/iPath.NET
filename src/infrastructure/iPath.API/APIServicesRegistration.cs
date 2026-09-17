@@ -194,6 +194,13 @@ public static class APIServicesRegistration
         });
         services.AddSingleton<LocalizationFileService>();
 
+        var locCfg = new LocalizationSettings();
+        config.GetSection(LocalizationSettings.ConfigName).Bind(locCfg);
+        if (locCfg.SupportedCultures is null || locCfg.SupportedCultures.Length == 0)
+        {
+            locCfg.SupportedCultures = ["en"];
+        }
+
         // Google Workspace
         services.AddGoogleServices(config);
 
@@ -209,6 +216,8 @@ public static class APIServicesRegistration
         services.PostConfigure<iPathClientConfig>(c => c.SyncImportEnabled = !string.IsNullOrEmpty(syncCs));
         services.PostConfigure<iPathClientConfig>(c => c.AiEnabled = aiCfg.IsEnabled);
         services.PostConfigure<iPathClientConfig>(c => c.WsiConversionEnabled = wsiCfg.Enabled);
+        services.PostConfigure<iPathClientConfig>(c => c.SupportedCultures = locCfg.SupportedCultures);
+        services.PostConfigure<iPathClientConfig>(c => c.CultureDisplayNames = locCfg.CultureDisplayNames);
 
         // Configure JSON options for OpenAPI schema generation
         // Build-time OpenAPI generation needs higher MaxDepth for complex domain models

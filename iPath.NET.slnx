@@ -27,6 +27,9 @@
   <Folder Name="/Test/">
     <Project Path="test/iPath.Test.xUnit2/iPath.Test.xUnit2.csproj" />
   </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="tools/iPath.LocalizationSync/iPath.LocalizationSync.csproj" />
+  </Folder>
   <Folder Name="/UI/">
     <Project Path="aspire/iPath.NET.AppHost/iPath.NET.AppHost.csproj" />
     <Project Path="src/ui/iPath.Blazor.Client/iPath.Blazor.Client.csproj" />

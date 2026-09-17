@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2
+
+- Removed the built-in AI auto-translate pipeline (`TranslateKeysBatchCommand`/`Handler`, `ITranslationJobQueue`/`TranslationJobWorker`, the `admin/ai/translations/translate` endpoint, the "Auto-Translate" button on Admin > AI Status > Translations Manager, and the now-dead `LocalizationSettings:Active`/`AddMissingStrings` flags): it only ever saw a bare source string with no surrounding context, so it couldn't disambiguate short/generic phrases the way translating with a coding agent (see the `translation-update` skill) does. The manual per-key editor, the status/missing-key display, and the file-based translation store are untouched.
+- Removed `src/ui/iPath.RazorLib/Localization/LocalizationService.cs`, an unused, unreferenced second `IStringLocalizer` implementation superseded by `StringLocalizerService`
+
 ## 0.3.1
 
 - Removed the CodeBeam.MudBlazor.Extensions dependency: the JSON panels are plain read-only text fields again and the preview-mode selects use MudBlazor's own MudSelect. Two of its components had caused failures - MudSelectExtended needs a service that was registered server-side only, and MudCodeViewer's JS helper dereferences an unresolved element reference without a null check

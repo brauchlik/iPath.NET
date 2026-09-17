@@ -37,7 +37,6 @@ public class GetAiStatusHandler(
 
             // Set models
             dto.ChatModel = aiSection.GetValue<string>($"{provider}:ChatModel") ?? "";
-            dto.TranslationModel = aiSection.GetValue<string>($"{provider}:TranslationModel") ?? dto.ChatModel;
             dto.EmbeddingModel = aiSection.GetValue<string>($"{provider}:EmbeddingModel") ?? "";
 
             if (request.CheckConnection)

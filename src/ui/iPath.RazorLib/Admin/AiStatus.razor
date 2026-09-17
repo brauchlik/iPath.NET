@@ -1,6 +1,5 @@
 @page "/admin/ai"
 @attribute [Authorize(Roles = "Admin")]
-@implements IDisposable
 @using iPath.Application.Features.Admin
 @using iPath.Application.Localization
 @using iPath.Blazor.Componenents.Admin
@@ -51,7 +50,6 @@ else
                             <MudText><b>Global Status:</b> @(status.IsEnabled ? "Enabled" : "Disabled")</MudText>
                             <MudText><b>Active Provider:</b> @status.Provider</MudText>
                             <MudText><b>Chat Model:</b> @(string.IsNullOrEmpty(status.ChatModel) ? "N/A" : status.ChatModel)</MudText>
-                            <MudText><b>Translation Model:</b> @(string.IsNullOrEmpty(status.TranslationModel) ? "N/A" : status.TranslationModel)</MudText>
                             <MudText><b>Embedding Model:</b> @(string.IsNullOrEmpty(status.EmbeddingModel) ? "N/A" : status.EmbeddingModel)</MudText>
                         </MudCardContent>
                     </MudCard>
@@ -166,37 +164,12 @@ else
         <MudTabPanel Text="Translations Manager" OnClick="LoadTranslationStatusAsync">
             <MudGrid Class="mt-2">
                 <MudItem xs="12" md="6">
-                    <MudSelect T="string" Label="Select Target Language" Value="@_selectedLocale" ValueChanged="OnLocaleChangedAsync" Disabled="@_isTranslating" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelect T="string" Label="Select Target Language" Value="@_selectedLocale" ValueChanged="OnLocaleChangedAsync" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
                         @foreach (var locale in localizationOpts.Value.SupportedCultures.Where(c => c != "en"))
                         {
                             <MudSelectItem Value="@locale">@GetLanguageDisplayName(locale)</MudSelectItem>
                         }
                     </MudSelect>
-
-                    @if (status != null)
-                    {
-                        <div class="d-flex align-center mt-4">
-                            <MudText Typo="Typo.body1" Class="mr-2"><b>AI Translate Engine:</b> @status.Provider (@(string.IsNullOrEmpty(status.TranslationModel) ? "N/A" : status.TranslationModel))</MudText>
-                            @if (status.IsEnabled && status.IsLlmOnline == true)
-                            {
-                                <MudChip T="string" Color="Color.Success" Size="Size.Small">ONLINE</MudChip>
-                            }
-                            else
-                            {
-                                <MudChip T="string" Color="Color.Error" Size="Size.Small">OFFLINE</MudChip>
-                            }
-                        </div>
-                        @if (status.IsEnabled && status.IsLlmOnline != true)
-                        {
-                            <MudAlert Severity="Severity.Warning" Class="mt-2" Dense="true">
-                                Auto-translation is disabled because the AI model connection is offline.
-                            </MudAlert>
-                        }
-                        
-                        <MudAlert Severity="Severity.Info" Class="mt-2" Dense="true" Icon="@Icons.Material.Filled.Info">
-                            Note: The batch translation engine uses XML-tag formatted prompts optimized for Tencent's Hunyuan HY-MT1.5 model family, with automatic JSON array and JSON dictionary fallbacks.
-                        </MudAlert>
-                    }
                 </MudItem>
 
                 @if (_translationStatus != null)
@@ -217,30 +190,12 @@ else
                                     <MudText>Missing Keys:</MudText>
                                     <MudText><b>@_translationStatus.MissingKeys</b></MudText>
                                 </div>
-                                
+
                                 @if (_translationStatus.MissingKeys > 0)
                                 {
-                                    @if (translationJobQueue.IsManualJobRunning && !_isTranslating)
-                                    {
-                                        <MudAlert Severity="Severity.Warning" Class="mt-4" Dense="true">
-                                            Another translation job is currently running from another session.
-                                        </MudAlert>
-                                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="true" Class="mt-4" FullWidth="true">
-                                            Auto-Translate @(_translationStatus.MissingKeys) Missing Keys
-                                        </MudButton>
-                                    }
-                                    else if (_isTranslating)
-                                    {
-                                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="CancelTranslation" Class="mt-4" FullWidth="true">
-                                            Cancel Translation Job
-                                        </MudButton>
-                                    }
-                                    else
-                                    {
-                                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="StartTranslationAsync" Disabled="@(status?.IsLlmOnline != true)" Class="mt-4" FullWidth="true">
-                                            Auto-Translate @(_translationStatus.MissingKeys) Missing Keys
-                                        </MudButton>
-                                    }
+                                    <MudAlert Severity="Severity.Info" Class="mt-4" Dense="true">
+                                        @_translationStatus.MissingKeys phrase(s) still need translation - edit them directly in the table below.
+                                    </MudAlert>
                                 }
                                 else
                                 {
@@ -250,36 +205,8 @@ else
                         </MudCard>
                     </MudItem>
 
-                    @if (_isTranslating)
-                    {
-                        <MudItem xs="12">
-                            <MudCard Outlined="true" Class="pa-4">
-                                <MudText Typo="Typo.subtitle1" Class="mb-2">Translating phrases... (@_currentProgress% completed)</MudText>
-                                <MudText Typo="Typo.body2" Class="mud-text-secondary mb-2">@_progressMessage</MudText>
-                                <MudProgressLinear Color="Color.Primary" Value="@_currentProgress" Class="my-2" Size="Size.Medium" Striped="true" />
-                            </MudCard>
-                        </MudItem>
-                    }
-
-                    @if (_jobLog.Any())
-                    {
-                        <MudItem xs="12">
-                            <MudCard Outlined="true" Class="pa-4">
-                                <MudText Typo="Typo.subtitle2" Class="mb-2">Translation Activity Log</MudText>
-                                <div style="max-height: 250px; overflow-y: auto; background-color: #1e1e1e; color: #d4d4d4; font-family: monospace; font-size: 0.85rem; padding: 12px; border-radius: 4px; border: 1px solid #333;">
-                                    @foreach (var logLine in _jobLog)
-                                    {
-                                        <div style="white-space: pre-wrap; margin-bottom: 4px; @(logLine.Contains("Failed") || logLine.Contains("Error") ? "color: #f44336;" : logLine.Contains("Success") ? "color: #4caf50;" : "")">
-                                            @logLine
-                                        </div>
-                                    }
-                                </div>
-                            </MudCard>
-                        </MudItem>
-                    }
-
                     <MudItem xs="12">
-                        <MudDataGrid Items="@_translationRows" T="TranslationRow" ReadOnly="@translationJobQueue.IsManualJobRunning" EditMode="DataGridEditMode.Form" CommittedItemChanges="@OnRowCommitted" QuickFilter="@_quickFilter" Bordered="true" Dense="true" Striped="true" Hover="true" Class="mt-4" Elevation="1">
+                        <MudDataGrid Items="@_translationRows" T="TranslationRow" EditMode="DataGridEditMode.Form" CommittedItemChanges="@OnRowCommitted" QuickFilter="@_quickFilter" Bordered="true" Dense="true" Striped="true" Hover="true" Class="mt-4" Elevation="1">
                             <ToolBarContent>
                                 <MudText Typo="Typo.h6">Phrase Repository</MudText>
                                 <MudSpacer />
@@ -296,7 +223,7 @@ else
                                         }
                                         else if (!string.IsNullOrEmpty(context.Item.ModelUsed))
                                         {
-                                            <MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Text">AI (@context.Item.ModelUsed)</MudChip>
+                                            <MudChip T="string" Color="Color.Success" Size="Size.Small" Variant="Variant.Text">@context.Item.ModelUsed</MudChip>
                                         }
                                         else
                                         {
@@ -306,7 +233,7 @@ else
                                 </TemplateColumn>
                                 <TemplateColumn CellClass="d-flex justify-end" RequiredToBeEditable="false">
                                     <CellTemplate>
-                                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" Disabled="@translationJobQueue.IsManualJobRunning" />
+                                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
                                     </CellTemplate>
                                 </TemplateColumn>
                             </Columns>
@@ -330,20 +257,14 @@ else
 @inject iPath.Blazor.ServiceLib.ApiClient.IPathApi api
 @inject Microsoft.Extensions.Options.IOptions<iPath.Application.Localization.LocalizationSettings> localizationOpts
 @inject ITranslationLoader translationLoader
-@inject ITranslationJobQueue translationJobQueue
 @inject IDialogService dialog
 
 @code {
     private AiStatusDto? status;
     private string _selectedLocale = string.Empty;
     private TranslationStatusDto? _translationStatus;
-    private bool _isTranslating = false;
-    private int _currentProgress = 0;
-    private string _progressMessage = string.Empty;
     private string _searchString = string.Empty;
     private List<TranslationRow> _translationRows = new();
-    private bool _isCancellationRequested = false;
-    private List<string> _jobLog = new();
 
     private Func<TranslationRow, bool> _quickFilter => x =>
     {
@@ -457,106 +378,6 @@ else
         StateHasChanged();
     }
 
-    private async Task StartTranslationAsync()
-    {
-        if (_translationStatus == null || _translationStatus.UntranslatedKeys.Count == 0 || _isTranslating || translationJobQueue.IsManualJobRunning)
-            return;
-
-        _isTranslating = true;
-        translationJobQueue.IsManualJobRunning = true;
-        translationJobQueue.IsPaused = true;
-        _isCancellationRequested = false;
-        _currentProgress = 0;
-        _progressMessage = "Preparing translation batches...";
-        
-        var missingKeys = _translationStatus.UntranslatedKeys.ToList();
-        int totalKeys = missingKeys.Count;
-        int batchSize = 10;
-        int totalBatches = (int)Math.Ceiling((double)totalKeys / batchSize);
-        int successfullyTranslatedCount = 0;
-
-        _jobLog.Clear();
-        StateHasChanged();
-
-        try
-        {
-            for (int i = 0; i < totalBatches; i++)
-            {
-                if (_isCancellationRequested)
-                {
-                    _progressMessage = "Translation cancelled by user.";
-                    _jobLog.Add($"[{DateTime.Now:HH:mm:ss}] Job cancelled by user.");
-                    break;
-                }
-
-                var batchKeys = missingKeys.Skip(i * batchSize).Take(batchSize).ToList();
-                _progressMessage = $"Translating batch {i + 1} of {totalBatches} ({batchKeys.Count} keys)...";
-                StateHasChanged();
-
-                var command = new TranslateKeysBatchCommand(_selectedLocale, batchKeys);
-                var response = await api.TranslateKeysBatch(command);
-
-                if (response.IsSuccessful && response.Content != null && response.Content.IsSuccess)
-                {
-                    var res = response.Content;
-                    successfullyTranslatedCount += res.TranslatedCount;
-                    
-                    if (res.FailedKeys != null && res.FailedKeys.Any())
-                    {
-                        _jobLog.Add($"[{DateTime.Now:HH:mm:ss}] Batch {i + 1}: {res.FailedKeys.Count} keys skipped or unmatched: {string.Join(", ", res.FailedKeys.Select(k => $"\"{k}\""))}");
-                    }
-                }
-                else
-                {
-                    var errMsg = response.Content?.ErrorMessage ?? "API returned error status";
-                    _jobLog.Add($"[{DateTime.Now:HH:mm:ss}] Batch {i + 1} Failed: {errMsg}");
-                }
-
-                _currentProgress = (int)(((double)(i + 1) / totalBatches) * 100);
-                
-                // Dynamically reload translation status and refresh the grid in real-time
-                await LoadTranslationStatusAsync();
-                StateHasChanged();
-            }
-
-            if (!_isCancellationRequested)
-            {
-                _progressMessage = $"Translation completed! Successfully translated {successfullyTranslatedCount} keys.";
-                await Task.Delay(1500);
-            }
-        }
-        catch (Exception ex)
-        {
-            _progressMessage = $"An error occurred during translation: {ex.Message}";
-            _jobLog.Add($"[{DateTime.Now:HH:mm:ss}] Error in job: {ex.Message}");
-        }
-        finally
-        {
-            _isTranslating = false;
-            translationJobQueue.IsManualJobRunning = false;
-            translationJobQueue.IsPaused = false;
-            _isCancellationRequested = false;
-
-            try
-            {
-                await translationLoader.LoadTranslationData(_selectedLocale, reload: true);
-            }
-            catch (Exception ex)
-            {
-                _jobLog.Add($"[{DateTime.Now:HH:mm:ss}] Error reloading localizer cache: {ex.Message}");
-            }
-
-            await LoadTranslationStatusAsync();
-            StateHasChanged();
-        }
-    }
-
-    private void CancelTranslation()
-    {
-        _isCancellationRequested = true;
-        _progressMessage = "Cancellation requested...";
-    }
-
     private async Task<MudBlazor.DataGridEditFormAction> OnRowCommitted(TranslationRow row)
     {
         try
@@ -582,15 +403,6 @@ else
             await LoadTranslationStatusAsync();
         }
         return MudBlazor.DataGridEditFormAction.Close;
-    }
-
-    public void Dispose()
-    {
-        if (_isTranslating)
-        {
-            translationJobQueue.IsManualJobRunning = false;
-            translationJobQueue.IsPaused = false;
-        }
     }
 
     private async Task OpenDetailDialogAsync(TableRowClickEventArgs<AiActivityDto> args)

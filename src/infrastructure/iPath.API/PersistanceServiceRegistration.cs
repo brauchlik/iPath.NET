@@ -83,10 +83,6 @@ public static class PersistanceServiceRegistration
         services.AddHostedService<AiExtractionWorker>();
         services.AddHostedService<AiExtractionBackfill>();
 
-        // Translation job queue for auto-translating newly discovered keys
-        services.AddSingleton<ITranslationJobQueue, TranslationJobQueue>();
-        services.AddHostedService<TranslationJobWorker>();
-
         // Register dynamic IChatClient and IEmbeddingGenerator based on configured provider
         var aiSection = config.GetSection(AiSettingsConfig.ConfigName);
         var aiCfg = new AiSettingsConfig();

@@ -583,11 +583,6 @@ public class DirectApiClient(
         return Respond(await mediator.Send(new GetTranslationStatusQuery(locale), default));
     }
 
-    public async Task<IApiResponse<TranslationResultDto>> TranslateKeysBatch(TranslateKeysBatchCommand command)
-    {
-        return Respond(await mediator.Send(command, default));
-    }
-
     public async Task<IApiResponse<bool>> UpdateTranslationKey(UpdateTranslationKeyCommand command)
     {
         return Respond(await mediator.Send(command, default));

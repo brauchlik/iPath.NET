@@ -647,35 +647,6 @@
         }
       }
     },
-    "/api/v1/admin/ai/translations/translate": {
-      "post": {
-        "tags": [
-          "Admin"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TranslateKeysBatchCommand"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TranslationResultDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/admin/ai/translations/update-key": {
       "post": {
         "tags": [
@@ -4343,9 +4314,6 @@
             "type": "string"
           },
           "chatModel": {
-            "type": "string"
-          },
-          "translationModel": {
             "type": "string"
           },
           "embeddingModel": {
@@ -9444,24 +9412,6 @@
           }
         }
       },
-      "TranslateKeysBatchCommand": {
-        "required": [
-          "locale",
-          "keys"
-        ],
-        "type": "object",
-        "properties": {
-          "locale": {
-            "type": "string"
-          },
-          "keys": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
       "TranslationData": {
         "type": "object",
         "properties": {
@@ -9501,40 +9451,6 @@
           },
           "isHumanModified": {
             "type": "boolean"
-          }
-        }
-      },
-      "TranslationResultDto": {
-        "type": "object",
-        "properties": {
-          "locale": {
-            "type": "string"
-          },
-          "translatedCount": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
-            "format": "int32"
-          },
-          "isSuccess": {
-            "type": "boolean"
-          },
-          "errorMessage": {
-            "type": "string"
-          },
-          "successfulKeys": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "failedKeys": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         }
       },

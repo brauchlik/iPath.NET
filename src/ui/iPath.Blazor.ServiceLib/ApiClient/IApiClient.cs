@@ -334,9 +334,6 @@ public interface IPathApi
     [Get("/api/v1/admin/ai/translations/status")]
     Task<IApiResponse<TranslationStatusDto>> GetTranslationStatus([Query] string locale);
 
-    [Post("/api/v1/admin/ai/translations/translate")]
-    Task<IApiResponse<TranslationResultDto>> TranslateKeysBatch(TranslateKeysBatchCommand command);
-
     [Post("/api/v1/admin/ai/translations/update-key")]
     Task<IApiResponse<bool>> UpdateTranslationKey(UpdateTranslationKeyCommand command);
 

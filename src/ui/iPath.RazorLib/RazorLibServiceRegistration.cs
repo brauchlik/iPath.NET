@@ -73,15 +73,14 @@ public static class RazorLibServiceRegistration
 
         if (WasmClient)
         {
-            // WASM: lightweight client-side lookup — no auto-translate queue
+            // WASM: lightweight client-side lookup
             services.AddSingleton<ClientStringLocalizerService>();
             services.AddSingleton<IStringLocalizer>(p => p.GetRequiredService<ClientStringLocalizerService>());
             services.AddSingleton<ITranslationLoader>(p => p.GetRequiredService<ClientStringLocalizerService>());
-            services.AddSingleton<ITranslationJobQueue, NoOpTranslationJobQueue>();
         }
         else
         {
-            // Server: full localization with auto-translate queue
+            // Server: file-based localization
             services.AddSingleton<StringLocalizerService>();
             services.AddSingleton<IStringLocalizer>(p => p.GetRequiredService<StringLocalizerService>());
             services.AddSingleton<ITranslationLoader>(p => p.GetRequiredService<StringLocalizerService>());

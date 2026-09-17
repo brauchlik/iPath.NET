@@ -12,20 +12,17 @@ public class StringLocalizerService : IStringLocalizer, ITranslationLoader
     private readonly ILocalizationDataProvider _provider;
     private readonly IOptions<LocalizationSettings> _opts;
     private readonly ILogger<StringLocalizerService> _logger;
-    private readonly ITranslationJobQueue _translationJobQueue;
     private readonly ConcurrentDictionary<string, TranslationData> _translationsData = new();
 
     public StringLocalizerService(
-        ILocalizationDataProvider provider, 
-        IOptions<LocalizationSettings> opts, 
-        ILogger<StringLocalizerService> logger,
-        ITranslationJobQueue translationJobQueue) 
+        ILocalizationDataProvider provider,
+        IOptions<LocalizationSettings> opts,
+        ILogger<StringLocalizerService> logger)
     {
         _provider = provider;
         _opts = opts;
         _logger = logger;
-        _translationJobQueue = translationJobQueue;
-        
+
         _provider.TranslationDataSaved += async locale =>
         {
             try
@@ -38,9 +35,6 @@ public class StringLocalizerService : IStringLocalizer, ITranslationLoader
             }
         };
     }
-
-    public bool AddMissingTranslations { get; set; } = true;
-    public bool IsModified { get; private set; }
 
     public async Task<TranslationData> LoadTranslationData(string locale, bool reload = false)
     {
@@ -121,31 +115,6 @@ public class StringLocalizerService : IStringLocalizer, ITranslationLoader
                 {
                     string trans = string.IsNullOrEmpty(value) ? key : value;
                     return new LocalizedString(key, trans, false);
-                }
-                else if (_opts.Value.Active && _opts.Value.AddMissingStrings)
-                {
-                    try
-                    {
-                        data.Words.TryAdd(key, "");
-                        IsModified = true;
-                        
-                        if (_opts.Value.AutoSave)
-                        {
-                            // Backfill English master key list so all locales see this key for translation
-                            if (_translationsData.TryGetValue("en", out var enData))
-                            {
-                                if (enData.Words.TryAdd(key, key))
-                                {
-                                    _translationJobQueue.EnqueueKey(key);
-                                    _ = _provider.SaveTranslationDataAsync(enData);
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error adding/saving missing translation key '{Key}' for locale '{Locale}'", key, currentLocale);
-                    }
                 }
             }
             else

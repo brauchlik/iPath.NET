@@ -8,7 +8,6 @@ public class AiStatusDto
     public bool IsEnabled { get; set; }
     public string Provider { get; set; } = string.Empty;
     public string ChatModel { get; set; } = string.Empty;
-    public string TranslationModel { get; set; } = string.Empty;
     public string EmbeddingModel { get; set; } = string.Empty;
     public bool? IsLlmOnline { get; set; }
     public int QueueLength { get; set; }

@@ -241,15 +241,6 @@ public static class AdminEndpoints
             .WithTags("Admin")
             .RequireAuthorization("Admin");
 
-        route.MapPost("admin/ai/translations/translate", async (TranslateKeysBatchCommand command, IMediator mediator, CancellationToken ct) =>
-        {
-            var result = await mediator.Send(command, ct);
-            return Results.Ok(result);
-        })
-            .Produces<TranslationResultDto>()
-            .WithTags("Admin")
-            .RequireAuthorization("Admin");
-
         route.MapPost("admin/ai/translations/update-key", async (UpdateTranslationKeyCommand command, IMediator mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(command, ct);

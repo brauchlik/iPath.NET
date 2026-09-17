@@ -1,0 +1,17 @@
+{
+  "ModifiedOn": "2026-09-17T12:00:00+02:00",
+  "locale": "en",
+  "Words": {
+    "Applied {0} migration(s) successfully.": "Applied {0} migration(s) successfully.",
+    "Error applying migrations: API returned unsuccessful status.": "Error applying migrations: API returned unsuccessful status.",
+    "Error applying migrations: {0}": "Error applying migrations: {0}",
+    "ServiceRequest not found": "ServiceRequest not found",
+    "not implemented yet": "not implemented yet",
+    "not implemented": "not implemented",
+    "no service request selected": "no service request selected",
+    "File is larger than {0}": "File is larger than {0}",
+    "not allowed": "not allowed",
+    "No upload folder has been created for your account yet": "No upload folder has been created for your account yet"
+  },
+  "WordMetadata": {}
+}

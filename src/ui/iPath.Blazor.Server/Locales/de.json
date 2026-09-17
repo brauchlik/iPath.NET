@@ -1,0 +1,28 @@
+{
+  "ModifiedOn": "2026-09-17T12:00:00+02:00",
+  "locale": "de",
+  "Words": {
+    "Applied {0} migration(s) successfully.": "{0} Migration(en) erfolgreich angewendet.",
+    "Error applying migrations: API returned unsuccessful status.": "Fehler beim Anwenden der Migrationen: Die API hat einen Fehlerstatus zurückgegeben.",
+    "Error applying migrations: {0}": "Fehler beim Anwenden der Migrationen: {0}",
+    "ServiceRequest not found": "Serviceanfrage nicht gefunden",
+    "not implemented yet": "noch nicht implementiert",
+    "not implemented": "nicht implementiert",
+    "no service request selected": "keine Serviceanfrage ausgewählt",
+    "File is larger than {0}": "Datei ist größer als {0}",
+    "not allowed": "nicht erlaubt",
+    "No upload folder has been created for your account yet": "Für Ihr Konto wurde noch kein Upload-Ordner erstellt"
+  },
+  "WordMetadata": {
+    "Applied {0} migration(s) successfully.": { "ModelUsed": "Human", "TranslatedAt": "2026-09-17T12:00:00+02:00", "IsHumanModified": true },
+    "Error applying migrations: API returned unsuccessful status.": { "ModelUsed": "Human", "TranslatedAt": "2026-09-17T12:00:00+02:00", "IsHumanModified": true },
+    "Error applying migrations: {0}": { "ModelUsed": "Human", "TranslatedAt": "2026-09-17T12:00:00+02:00", "IsHumanModified": true },
+    "ServiceRequest not found": { "ModelUsed": "Human", "TranslatedAt": "2026-09-17T12:00:00+02:00", "IsHumanModified": true },
+    "not implemented yet": { "ModelUsed": "Human", "TranslatedAt": "2026-09-17T12:00:00+02:00", "IsHumanModified": true },
+    "not implemented": { "ModelUsed": "Human", "TranslatedAt": "2026-09-17T12:00:00+02:00", "IsHumanModified": true },
+    "no service request selected": { "ModelUsed": "Human", "TranslatedAt": "2026-09-17T12:00:00+02:00", "IsHumanModified": true },
+    "File is larger than {0}": { "ModelUsed": "Human", "TranslatedAt": "2026-09-17T12:00:00+02:00", "IsHumanModified": true },
+    "not allowed": { "ModelUsed": "Human", "TranslatedAt": "2026-09-17T12:00:00+02:00", "IsHumanModified": true },
+    "No upload folder has been created for your account yet": { "ModelUsed": "Human", "TranslatedAt": "2026-09-17T12:00:00+02:00", "IsHumanModified": true }
+  }
+}

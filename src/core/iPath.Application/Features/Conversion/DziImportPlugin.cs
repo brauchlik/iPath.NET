@@ -53,7 +53,7 @@ public class DziImportPlugin(
             Directory.CreateDirectory(extractTempDir);
 
             logger.LogInformation("Extracting pre-converted DZI zip {Path} to temp extraction dir {Temp}", inputPath, extractTempDir);
-            ZipFile.ExtractToDirectory(inputPath, extractTempDir, overwriteFiles: true);
+            ZipExtraction.ExtractNormalized(inputPath, extractTempDir);
 
             // 2. Find the .dzi file inside the extracted structure
             var dziFiles = Directory.GetFiles(extractTempDir, "*.dzi", SearchOption.AllDirectories)
@@ -125,7 +125,7 @@ public class DziImportPlugin(
             var thumbContext = new ThumbnailContext(ctx.DocumentId, canonicalZipPath, tempPath, 100, ctx.Document);
             await CreateThumbnailAsync(thumbContext, ct);
 
-            ctx.Document.File.Filename = Path.ChangeExtension(ctx.Document.File.Filename, ".dzi");
+            ctx.Document.File.Filename = ToDziFileName(ctx.Document.File.Filename);
             ctx.Document.File.ConversionStatus = DocumentConversionStatus.Completed;
             return ConversionResult.Ok();
         }
@@ -140,6 +140,16 @@ public class DziImportPlugin(
             catch { }
             return ConversionResult.Fail($"Failed to import DZI: {ex.Message}");
         }
+    }
+
+    private static string ToDziFileName(string? filename)
+    {
+        var name = string.IsNullOrWhiteSpace(filename) ? "slide" : filename;
+        if (name.EndsWith(".dzi.zip", StringComparison.OrdinalIgnoreCase))
+            return name[..^8] + ".dzi";
+        if (name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+            return name[..^4] + ".dzi";
+        return Path.ChangeExtension(name, ".dzi");
     }
 
     private void AddDirectoryToArchive(ZipArchive archive, string sourceDir, string archivePath, CompressionLevel level)

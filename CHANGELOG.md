@@ -2,6 +2,7 @@
 
 ## 0.3.3
 
+- Fix: zipped DZI imports failed with "DZI files folder ... not found" - the VsiConverter zip carried backslash separators, which extract as literal filenames on Linux. Import now normalizes separators, and the tool writes forward slashes and fails instead of producing a descriptor-only zip when vips made no tiles
 - Fix: the translations admin page was unusable in WebAssembly - it read the target languages from `LocalizationSettings`, a server-only options type that is never bound in the WASM client, so the picker had no entries and nothing loaded. It now reads the same `iPathClientConfig` mirror that the language menu uses, and says so when no target language is configured
 - Admin: the translations page can import shipped defaults (adds keys missing from the live store and fills empty ones, never overwriting a translation) and flags rows whose live translation differs from the shipped text, with the original in the hover and a reset icon in the inline editor to restore the shipped wording
 - Admin: translation editing is disabled and server-enforced when `LocalesRoot` and `DefaultsRoot` point at the same folder, since the shipped files are then the live store; the page says so
@@ -33,6 +34,11 @@
 - Cleared the per-key `WordMetadata` (`ModelUsed`/`TranslatedAt`/`IsHumanModified`) this session's own translation pass had stamped onto every entry in `Locales/*.json` - it was provenance for the removed AI pipeline, not something worth shipping as committed data; only genuine admin-UI edits populate it now. The Translations Manager status chip no longer mislabels a translated-but-unattributed entry as "Missing"
 - Admin: split the "Translations Manager" tab out of the AI Status page into its own `/admin/translations` page with a permanent nav entry - it has nothing to do with AI, and living inside a tab gated behind `iPathClientConfig:AiEnabled` made it unreachable on any deployment without the case-intake AI feature turned on
 - The FHIR resource name "Questionnaire" is now used as-is in every language instead of being translated (`Fragebogen` in German, `questionario` in Italian) - it's a fixed technical term, not prose; German compounds now hyphenate it (`Questionnaire-Verwaltung`) instead of splitting into two words
+- Uploads that are processed asynchronously on the server (WSI conversion, zipped DZI import) now refresh the case view on their own: while any document is still pending or converting the client reloads the case every 5 seconds, so the gallery spinner gives way to the viewer without a manual reload
+- Fix: reloading a case re-points the selected document at the freshly loaded instance, so its conversion status - and the gallery viewer that keys off it - stops showing the stale one
+- Fix: WSI import from a server path deleted the `.vsi` but not its companion `_<name>_` folder, because the delete path looked for the wrong folder name and left the slide data on disk
+- Fix: WSI import from a server path reported a wrong imported count - files skipped for a missing companion folder and per-file failures were subtracted although they were never counted as imported, so the count could go negative; cleanup failures are now reported as warnings without affecting it
+- Fix: deleting the open image left it on screen and sent next/previous to the wrong one - the selection still pointed at the deleted node. Deleting the selected document now reloads the case and moves up one level, to the parent document or back to the case overview for a top-level image
 
 ## 0.3.2
 

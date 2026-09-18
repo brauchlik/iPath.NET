@@ -12,6 +12,7 @@ public class WsiImportCommandHandler(
     {
         var importedFiles = new List<string>();
         var errors = new List<string>();
+        var cleanupWarnings = new List<string>();
 
         IEnumerable<string> vsiPaths = [];
 
@@ -21,32 +22,28 @@ public class WsiImportCommandHandler(
             var validPaths = new List<string>();
             foreach (var file in files)
             {
-                var baseName = Path.GetFileNameWithoutExtension(file);
-                var companion = Path.Combine(Path.GetDirectoryName(file)!, $"_{baseName}_");
-                if (Directory.Exists(companion))
+                if (Directory.Exists(CompanionFolder(file)))
                 {
                     validPaths.Add(file);
                 }
                 else
                 {
-                    errors.Add($"Companion folder '{companion}' not found for VSI slide: {file}");
-                    logger.LogWarning("VSI import skipped: Companion folder '{Companion}' not found for '{File}'", companion, file);
+                    errors.Add($"Companion folder '{CompanionFolder(file)}' not found for VSI slide: {file}");
+                    logger.LogWarning("VSI import skipped: Companion folder '{Companion}' not found for '{File}'", CompanionFolder(file), file);
                 }
             }
             vsiPaths = validPaths;
         }
         else if (File.Exists(request.Path) && Path.GetExtension(request.Path).Equals(".vsi", StringComparison.OrdinalIgnoreCase))
         {
-            var baseName = Path.GetFileNameWithoutExtension(request.Path);
-            var companion = Path.Combine(Path.GetDirectoryName(request.Path)!, $"_{baseName}_");
-            if (Directory.Exists(companion))
+            if (Directory.Exists(CompanionFolder(request.Path)))
             {
                 vsiPaths = [request.Path];
             }
             else
             {
-                logger.LogWarning("VSI import failed: Companion folder '{Companion}' not found for '{File}'", companion, request.Path);
-                return new WsiImportResponse(0, [], [$"Companion folder '{companion}' not found for VSI slide: {request.Path}"]);
+                logger.LogWarning("VSI import failed: Companion folder '{Companion}' not found for '{File}'", CompanionFolder(request.Path), request.Path);
+                return new WsiImportResponse(0, [], [$"Companion folder '{CompanionFolder(request.Path)}' not found for VSI slide: {request.Path}"]);
             }
         }
         else
@@ -75,12 +72,11 @@ public class WsiImportCommandHandler(
 
                 if (request.DeleteAfterImport)
                 {
-                    var baseName = Path.GetFileNameWithoutExtension(vsiPath);
-                    var companionDir = Path.Combine(Path.GetDirectoryName(vsiPath)!, baseName);
-
                     try
                     {
                         File.Delete(vsiPath);
+
+                        var companionDir = CompanionFolder(vsiPath);
                         if (Directory.Exists(companionDir))
                         {
                             Directory.Delete(companionDir, true);
@@ -89,7 +85,7 @@ public class WsiImportCommandHandler(
                     }
                     catch (Exception ex)
                     {
-                        errors.Add($"{vsiPath} (delete failed): {ex.Message}");
+                        cleanupWarnings.Add($"cleanup: {vsiPath} (delete failed): {ex.Message}");
                         logger.LogWarning(ex, "Failed to delete {Path} after import", vsiPath);
                     }
                 }
@@ -101,9 +97,17 @@ public class WsiImportCommandHandler(
             }
         }
 
-        return new WsiImportResponse(
-            importedFiles.Count - errors.Count(e => !e.Contains("delete")),
-            importedFiles,
-            errors);
+        errors.AddRange(cleanupWarnings);
+
+        return new WsiImportResponse(importedFiles.Count, importedFiles, errors);
+    }
+
+    // CellSens stores the slide data in a sibling folder named _<basename>_. The same convention
+    // is used by VsiConversionPlugin.GetRequiredCompanions, so it lives in one place here.
+    private static string CompanionFolder(string vsiPath)
+    {
+        var dir = Path.GetDirectoryName(vsiPath)!;
+        var baseName = Path.GetFileNameWithoutExtension(vsiPath);
+        return Path.Combine(dir, $"_{baseName}_");
     }
 }

@@ -103,24 +103,33 @@ public class PipelineRunner
             var outputZip = Path.Combine(vsiDir, $"{baseName}.dzi.zip");
             progress.Report(new ConversionProgress("Zipping DZI", 90, null));
 
+            var dziFile = dziBase + ".dzi";
+            if (!File.Exists(dziFile))
+            {
+                return new ConversionResult(false, null, $"vips dzsave did not produce a descriptor: '{dziFile}' not found.");
+            }
+
+            var filesDir = dziBase + "_files";
+            var tileFiles = Directory.Exists(filesDir)
+                ? Directory.GetFiles(filesDir, "*", SearchOption.AllDirectories)
+                : Array.Empty<string>();
+
+            if (tileFiles.Length == 0)
+            {
+                return new ConversionResult(false, null, $"vips dzsave produced no tile files in '{filesDir}'.");
+            }
+
             if (File.Exists(outputZip)) File.Delete(outputZip);
 
             using (var zip = ZipFile.Open(outputZip, ZipArchiveMode.Create))
             {
-                var dziFile = dziBase + ".dzi";
-                if (File.Exists(dziFile))
-                {
-                    zip.CreateEntryFromFile(dziFile, $"{baseName}.dzi", CompressionLevel.NoCompression);
-                }
+                zip.CreateEntryFromFile(dziFile, $"{baseName}.dzi", CompressionLevel.NoCompression);
 
-                var filesDir = dziBase + "_files";
-                if (Directory.Exists(filesDir))
+                foreach (var file in tileFiles)
                 {
-                    foreach (var file in Directory.GetFiles(filesDir, "*", SearchOption.AllDirectories))
-                    {
-                        var relativePath = Path.GetRelativePath(tempDir, file);
-                        zip.CreateEntryFromFile(file, relativePath, CompressionLevel.NoCompression);
-                    }
+                    // Zip entry names must use '/' as separator regardless of the OS that created them.
+                    var relativePath = Path.GetRelativePath(tempDir, file).Replace('\\', '/');
+                    zip.CreateEntryFromFile(file, relativePath, CompressionLevel.NoCompression);
                 }
             }
 

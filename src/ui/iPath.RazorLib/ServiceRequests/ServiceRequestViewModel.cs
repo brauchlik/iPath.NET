@@ -9,6 +9,7 @@ using iPath.Blazor.Componenents.ServiceRequests.Dialogs;
 using iPath.Blazor.Componenents.Shared;
 using iPath.Blazor.Componenents.TaskAssignments;
 using iPath.Domain.Config;
+using iPath.Domain.Entities;
 using Refit;
 using System.Data;
 
@@ -25,11 +26,27 @@ public class ServiceRequestViewModel(IPathApi api,
     IOptions<iPathClientConfig> opts,
     IEnumerable<IServiceRequestHtmlPreview> previews,
     ILogger<ServiceRequestViewModel> logger)
-    : IViewModel
+    : IViewModel, IDisposable
 {
     // Signal State Changes to Views
     public event Action OnChange;
     private void NotifyStateChanged() => OnChange?.Invoke();
+
+    // Polls while any document in the open case is still being processed server-side (WSI
+    // conversion, zipped DZI import). One loop covers all parallel uploads; it stops by itself
+    // once nothing is pending.
+    private readonly ConversionStatusPoller _statusPoller = new(TimeSpan.FromSeconds(5));
+
+    // Serializes full reloads against the upload-append so a reload response cannot overwrite a
+    // just-appended document.
+    private readonly SemaphoreSlim _reloadLock = new(1, 1);
+
+    private static bool HasPendingConversions(ServiceRequestDto? request) =>
+        request is not null && request.Documents.Any(d =>
+            d.File?.ConversionStatus is DocumentConversionStatus.Pending or DocumentConversionStatus.Converting);
+
+    private void EnsureStatusPolling() =>
+        _statusPoller.Start(() => HasPendingConversions(SelectedRequest), ReloadNode);
 
     public event Action OnLoadingStarted;
     public event Action OnLoadingFinished;
@@ -137,6 +154,8 @@ public class ServiceRequestViewModel(IPathApi api,
         SelectedDocument = null;
         RequestOwner = null;
 
+        _statusPoller.Stop();
+
         // admin-only "show deleted data" is per visit: leaving it set made the next case (or the
         // edit page) load deleted documents and annotations without anyone asking for it
         _showDeleted = false;
@@ -213,24 +232,43 @@ public class ServiceRequestViewModel(IPathApi api,
         OnLoadingFinished?.Invoke();
         LoadVersion++;
         NotifyStateChanged();
+        EnsureStatusPolling();
     }
 
 
     public async Task ReloadNode()
     {
-        if (SelectedRequest != null)
+        if (SelectedRequest is null) return;
+
+        await _reloadLock.WaitAsync();
+        try
         {
             var respN = await api.GetRequestById(SelectedRequest.Id, ShowDeleted);
             if (respN.IsSuccessful)
             {
+                // SelectedDocument holds its own reference. Without re-pointing it at the freshly
+                // loaded instance, components that read the selected document (gallery viewer,
+                // slideshow) keep seeing the pre-reload object and its stale ConversionStatus
+                // even though SelectedRequest was replaced.
+                var selectedId = SelectedDocument?.Id;
                 SelectedRequest = respN.Content;
+                if (selectedId.HasValue)
+                {
+                    SelectedDocument = SelectedRequest.Documents?.FirstOrDefault(d => d.Id == selectedId.Value);
+                }
             }
             else
             {
                 logger.LogWarning("Reloading case {CaseId} failed: {Error}", SelectedRequest.Id, respN.ErrorText());
             }
-            NotifyStateChanged();
         }
+        finally
+        {
+            _reloadLock.Release();
+        }
+
+        NotifyStateChanged();
+        EnsureStatusPolling();
     }
 
 
@@ -590,6 +628,13 @@ public class ServiceRequestViewModel(IPathApi api,
         }
 
 
+        // Remember whether the open document is among the deletions, and where "up" is, so that
+        // after the reload we can select its parent instead of leaving a dangling selection that
+        // still renders the deleted image.
+        var selectedId = SelectedDocument?.Id;
+        var selectedParentId = SelectedDocument?.ParentNodeId;
+        var selectedRemoved = false;
+
         var errors = new List<string>();
         foreach (var id in ids)
         {
@@ -600,6 +645,7 @@ public class ServiceRequestViewModel(IPathApi api,
                 if (resp.IsSuccessful)
                 {
                     SelectedRequest.Documents.Remove(doc);
+                    if (id == selectedId) selectedRemoved = true;
                 }
                 else
                 {
@@ -617,7 +663,20 @@ public class ServiceRequestViewModel(IPathApi api,
             snackbar.Add(T["Documents deleted"], Severity.Success);
         }
 
-        NotifyStateChanged();
+        if (selectedRemoved)
+        {
+            // Reload first so the deleted node is gone from the list, then move up one level:
+            // to the parent document if there is one, otherwise back to the case overview.
+            await ReloadNode();
+            if (selectedParentId.HasValue)
+                SelectDocument(selectedParentId.Value);
+            else
+                SelectDocument(null);
+        }
+        else
+        {
+            NotifyStateChanged();
+        }
     }
 
 
@@ -775,8 +834,17 @@ public class ServiceRequestViewModel(IPathApi api,
                 if (t.IsSuccessful)
                 {
                     // append to child nodes
-                    SelectedRequest.Documents.Add(t.Result);
+                    await _reloadLock.WaitAsync();
+                    try
+                    {
+                        SelectedRequest.Documents.Add(t.Result);
+                    }
+                    finally
+                    {
+                        _reloadLock.Release();
+                    }
                     NotifyStateChanged();
+                    EnsureStatusPolling();
 
                     if (t.Result.File?.ConversionSkipped == true)
                     {
@@ -1222,5 +1290,12 @@ public class ServiceRequestViewModel(IPathApi api,
     }
 
     public bool AiEnabled => opts.Value.AiEnabled;
+
+    public void Dispose()
+    {
+        // The poller's loop owns disposal of its own loop resources; disposing _reloadLock here
+        // would race an in-flight ReloadNode at circuit teardown.
+        _statusPoller.Dispose();
+    }
 }
 

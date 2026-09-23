@@ -22,7 +22,7 @@ and dedupe identical canonical questions.
 {
   "resourceType": "Questionnaire",
   "id": "jundt-hematology-lymph",
-  "url": "http://ipath.kantonsspital.net/fhir/Questionnaire/jundt-hematology-lymph",
+  "url": "http://ipathnetwork.org/fhir/Questionnaire/jundt-hematology-lymph",
   "status": "draft",
   "title": "Hematology and Lymph nodes",
   "subjectType": ["Patient"],
@@ -63,6 +63,34 @@ and dedupe identical canonical questions.
 - Coded answers -> `answerOption.valueCoding` with the same system.
 - If no clean concept exists, use plain text answers or a local code
   (e.g. `system: "http://ipath.local"`). Never invent SNOMED codes.
+
+## Choice presentation (radio buttons)
+
+A single-select `choice` renders as **radio buttons** when it carries the SDC control
+extension; with `repeats: true` the same layout renders as checkboxes.
+
+- LHC-Forms' FHIR importer (`lformsFHIR.min.js`, `_processDisplayControl`) switches on
+  `valueCodeableConcept.coding[0].code` and accepts `Radio` / `radio-button`
+  (**case-sensitive**) → `answerLayout = RADIO_CHECKBOX`. Use `radio-button`, which is
+  what LHC-Forms itself exports.
+- Leave `repeats` off: the layout then follows the answer cardinality (max 1 → radio,
+  max > 1 → checkbox).
+- Layout can be forced with
+  `http://hl7.org/fhir/StructureDefinition/questionnaire-choiceOrientation`
+  (`vertical` → one option per line, `horizontal` → one row).
+
+```json
+"extension": [
+  { "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+    "valueCodeableConcept": {
+      "coding": [
+        { "system": "http://hl7.org/fhir/questionnaire-item-control",
+          "code": "radio-button", "display": "Radio Button" }
+      ]
+    }
+  }
+]
+```
 
 ## Lab values (quantity + selectable unit + LOINC)
 

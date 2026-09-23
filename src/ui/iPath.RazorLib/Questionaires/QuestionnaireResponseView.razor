@@ -2,13 +2,14 @@
 
 @inject ServiceRequestViewModel vm
 
-<iPath.LHCForms.LhcForm ReadOnly="true"  @ref="frm" />
+<QuestionnaireFormHost ReadOnly="true" Renderer="renderer" @ref="frm" />
 
 @code {
     [Parameter, EditorRequired]
     public QuestionnaireResponseData Data { get; set; }
 
-    iPath.LHCForms.LhcForm frm;
+    QuestionnaireFormHost frm;
+    QuestionnaireRenderer renderer = QuestionnaireRenderer.LForms;
     string? q;
 
     protected override async Task OnInitializedAsync()
@@ -21,6 +22,7 @@
         if (frm is not null)
         {
             q = await vm.GetQuesiotnnaireResource(Data.QuestionnaireId, Data.Version);
+            renderer = await vm.GetQuestionnaireRenderer(Data.QuestionnaireId, Data.Version);
             await frm.LoadFormAsync(q, Data.Resource);
         }
     }

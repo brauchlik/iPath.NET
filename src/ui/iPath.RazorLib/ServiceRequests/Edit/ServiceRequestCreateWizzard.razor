@@ -151,7 +151,7 @@
 
                     @if (@wizzardVM.UseQuestionnaire)
                     {
-                        <iPath.LHCForms.LhcForm @ref="qrForm" ReadOnly="false" OnAfterRendered="wizzardVM.LoadQuestionnaireForm" />
+                        <QuestionnaireFormHost @ref="qrForm" Renderer="wizzardVM.Renderer" ReadOnly="false" OnAfterRendered="wizzardVM.LoadQuestionnaireForm" />
                     }
                 }
 
@@ -271,7 +271,7 @@
         await stepper.ResetAsync();
     }
 
-    iPath.LHCForms.LhcForm qrForm
+    QuestionnaireFormHost qrForm
     {
         get => field;
         set

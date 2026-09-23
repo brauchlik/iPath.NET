@@ -47,16 +47,18 @@ function guardCodingComparison(componentId, attemptsLeft = 20) {
 
     if (!form) {
         if (attemptsLeft > 0) {
-            setTimeout(() => guardCodingComparison(componentId, attemptsLeft - 1), 100);
+            return new Promise(resolve =>
+                setTimeout(() => resolve(guardCodingComparison(componentId, attemptsLeft - 1)), 100));
         }
-        return;
+        return Promise.resolve(false);
     }
 
     const owner = Object.prototype.hasOwnProperty.call(form, '_codingsEqual')
         ? form
         : Object.getPrototypeOf(form);
 
-    if (!owner || typeof owner._codingsEqual !== 'function' || owner.__ipathCodingGuard) return;
+    if (!owner || typeof owner._codingsEqual !== 'function') return Promise.resolve(false);
+    if (owner.__ipathCodingGuard) return Promise.resolve(true);
 
     const original = owner._codingsEqual;
     owner._codingsEqual = function (a, b) {
@@ -64,6 +66,7 @@ function guardCodingComparison(componentId, attemptsLeft = 20) {
         return original.call(this, a, b);
     };
     owner.__ipathCodingGuard = true;
+    return Promise.resolve(true);
 }
 
 // Load a Questionnaire, optionally with an existing QuestionnaireResponse.
@@ -72,14 +75,24 @@ export async function loadData(questionnaireJson, responseJson, componentId, asR
 
     const qData = JSON.parse(questionnaireJson);
     const qrData = responseJson ? JSON.parse(responseJson) : null;
+    const options = { fhirVersion: 'R4', questionnaireResponse: qrData, readonlyMode: asReadonly };
 
-    await LForms.Util.addFormToPage(qData, componentId, {
-        fhirVersion: 'R4',
-        questionnaireResponse: qrData,
-        readonlyMode: asReadonly
-    });
+    try {
+        await LForms.Util.addFormToPage(qData, componentId, options);
+    } catch (err) {
+        // The same unguarded _codingsEqual null-dereference guardCodingComparison patches
+        // below can also fire synchronously during addFormToPage's own initial skip-logic
+        // evaluation, before there has been any mounted form to patch. Angular has usually
+        // still created the underlying element by the time this throws, so patch now and
+        // retry once instead of surfacing the error - a second unrelated failure propagates
+        // normally.
+        if (!/reading 'system'/.test(err?.message ?? '') || !(await guardCodingComparison(componentId))) {
+            throw err;
+        }
+        await LForms.Util.addFormToPage(qData, componentId, options);
+    }
 
-    guardCodingComparison(componentId);
+    await guardCodingComparison(componentId);
 }
 
 // Read what the user entered back out as a QuestionnaireResponse.

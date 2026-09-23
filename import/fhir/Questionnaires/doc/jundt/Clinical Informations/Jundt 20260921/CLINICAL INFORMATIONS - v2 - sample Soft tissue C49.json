@@ -1,0 +1,379 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "jundt-c49-soft-tissue-sample",
+  "url": "http://ipathnetwork.org/fhir/Questionnaire/jundt-c49-soft-tissue-sample",
+  "status": "draft",
+  "title": "Case Description - Soft tissue (C49) - review sample",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "material",
+      "type": "group",
+      "text": "Material for examination",
+      "item": [
+        {
+          "linkId": "cytology",
+          "type": "boolean",
+          "text": "Cytology",
+          "item": [
+            {
+              "linkId": "cytology.types",
+              "type": "choice",
+              "repeats": true,
+              "text": "Cytology material",
+              "enableWhen": [
+                {
+                  "question": "cytology",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ],
+              "answerOption": [
+                {
+                  "valueString": "Pap smear"
+                },
+                {
+                  "valueString": "Smear cytology (eg Bronchus)"
+                },
+                {
+                  "valueString": "Sputum"
+                },
+                {
+                  "valueString": "Exfoliative cytology"
+                },
+                {
+                  "valueString": "Fine needle aspiration"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "cytology.exfoliative",
+          "type": "choice",
+          "repeats": true,
+          "text": "Exfoliative cytology — site",
+          "enableWhen": [
+            {
+              "question": "cytology.types",
+              "operator": "=",
+              "answerString": "Exfoliative cytology"
+            }
+          ],
+          "answerOption": [
+            {
+              "valueString": "Liquor"
+            },
+            {
+              "valueString": "Pleural effusion"
+            },
+            {
+              "valueString": "Ascites"
+            },
+            {
+              "valueString": "Urine"
+            },
+            {
+              "valueString": "Lavage"
+            }
+          ]
+        },
+        {
+          "linkId": "histology",
+          "type": "boolean",
+          "text": "Histology",
+          "item": [
+            {
+              "linkId": "histology.types",
+              "type": "choice",
+              "repeats": true,
+              "text": "Histology material",
+              "enableWhen": [
+                {
+                  "question": "histology",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ],
+              "answerOption": [
+                {
+                  "valueString": "Core biopsy"
+                },
+                {
+                  "valueString": "Open biopsy"
+                },
+                {
+                  "valueString": "Excisional biopsy"
+                },
+                {
+                  "valueString": "Resection"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "linkId": "clinical",
+      "type": "group",
+      "text": "Clinical history, symptoms and findings",
+      "item": [
+        {
+          "linkId": "pain",
+          "type": "boolean",
+          "text": "Pain",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "22253000",
+              "display": "Pain"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "pain.duration",
+              "type": "quantity",
+              "text": "Duration",
+              "code": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "162442009",
+                  "display": "Time symptom lasts"
+                }
+              ],
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "d",
+                    "display": "days"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "wk",
+                    "display": "weeks"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mo",
+                    "display": "months"
+                  }
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption",
+                  "valueCoding": {
+                    "system": "http://unitsofmeasure.org",
+                    "code": "a",
+                    "display": "years"
+                  }
+                }
+              ],
+              "enableWhen": [
+                {
+                  "question": "pain",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "swelling",
+          "type": "boolean",
+          "text": "Swelling",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "65124004",
+              "display": "Swelling"
+            }
+          ],
+          "item": [
+            {
+              "linkId": "swelling.size",
+              "type": "choice",
+              "text": "Size",
+              "enableWhen": [
+                {
+                  "question": "swelling",
+                  "operator": "=",
+                  "answerBoolean": true
+                }
+              ],
+              "answerOption": [
+                {
+                  "valueString": "< 5 cm"
+                },
+                {
+                  "valueString": "> 10 cm"
+                },
+                {
+                  "valueString": "other"
+                },
+                {
+                  "valueString": "No data"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "c49.depth",
+          "type": "choice",
+          "text": "Depth",
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-choiceOrientation",
+              "valueCode": "vertical"
+            }
+          ],
+          "answerOption": [
+            {
+              "valueString": "Superficial (above fascia)"
+            },
+            {
+              "valueString": "Deep (below fascia / intramuscular)"
+            },
+            {
+              "valueString": "unknown"
+            }
+          ]
+        },
+        {
+          "linkId": "radiation.history",
+          "type": "choice",
+          "text": "Previous radiation therapy to the area now affected",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "416237000",
+              "display": "History of radiation therapy"
+            }
+          ],
+          "answerOption": [
+            {
+              "valueString": "Yes"
+            },
+            {
+              "valueString": "No"
+            },
+            {
+              "valueString": "No data"
+            }
+          ],
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "radio-button",
+                    "display": "Radio Button"
+                  }
+                ]
+              }
+            }
+          ],
+          "item": [
+            {
+              "linkId": "radiation.history.period",
+              "type": "string",
+              "text": "Time period",
+              "enableWhen": [
+                {
+                  "question": "radiation.history",
+                  "operator": "=",
+                  "answerString": "Yes"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "linkId": "clinical.other",
+          "type": "string",
+          "text": "Other clinical information (please specify)"
+        }
+      ]
+    },
+    {
+      "linkId": "imaging",
+      "type": "group",
+      "text": "Imaging (optional)",
+      "item": [
+        {
+          "linkId": "sonography",
+          "type": "boolean",
+          "text": "Sonography",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "16310003",
+              "display": "Ultrasonography"
+            }
+          ]
+        },
+        {
+          "linkId": "ct",
+          "type": "boolean",
+          "text": "CT scan",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "77477000",
+              "display": "Computed tomography"
+            }
+          ]
+        },
+        {
+          "linkId": "mri",
+          "type": "boolean",
+          "text": "MRI",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "113091000",
+              "display": "Magnetic resonance imaging"
+            }
+          ]
+        },
+        {
+          "linkId": "petct",
+          "type": "boolean",
+          "text": "PET CT",
+          "code": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "450436003",
+              "display": "Positron emission tomography with computed tomography"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

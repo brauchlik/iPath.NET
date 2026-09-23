@@ -216,6 +216,7 @@ public class ServiceRequestCreateAiWizzardViewModel
     #region "-- Questionnaire Handling --"
 
     public IQuestionnaireForm QuestionnaireViewer { get; set; }
+    public QuestionnaireRenderer Renderer { get; private set; } = QuestionnaireRenderer.LForms;
     public IReadOnlyCollection<QuestionnaireForGroupDto> validForms { get; private set; } = new List<QuestionnaireForGroupDto>();
     public bool UseQuestionnaire { get; set; }
     public QuestionnaireForGroupDto? SelectedQ { get; set; }
@@ -245,8 +246,9 @@ public class ServiceRequestCreateAiWizzardViewModel
     {
         if (SelectedQ is not null && QuestionnaireViewer is not null)
         {
-            var q = await _cache.GetQuestionnaireResourceAsync(SelectedQ.QuestinnaireId);
-            await QuestionnaireViewer.LoadFormAsync(q, Data.Questionnaire?.Resource!);
+            var entity = await _cache.GetQuestionnaireAsync(SelectedQ.QuestinnaireId);
+            Renderer = entity?.Settings?.PreferredRenderer ?? QuestionnaireRenderer.LForms;
+            await QuestionnaireViewer.LoadFormAsync(entity?.Resource, Data.Questionnaire?.Resource!);
         }
     }
 

@@ -1,0 +1,61 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "clinical.history",
+  "status": "draft",
+  "title": "Clinical information — previous treatment",
+  "subjectType": [
+    "Patient"
+  ],
+  "item": [
+    {
+      "linkId": "radiation.history",
+      "type": "choice",
+      "text": "Previous radiation therapy to the area now affected",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "429479009",
+          "display": "H/O: radiation therapy"
+        }
+      ],
+      "answerOption": [
+        { "valueString": "Yes" },
+        { "valueString": "No" },
+        { "valueString": "Unknown" }
+      ]
+    },
+    {
+      "linkId": "radiation.history.specify",
+      "type": "string",
+      "text": "Time period and protocol",
+      "enableWhen": [
+        { "question": "radiation.history", "operator": "=", "answerString": "Yes" }
+      ]
+    },
+    {
+      "linkId": "chemotherapy.history",
+      "type": "choice",
+      "text": "Previous chemotherapy",
+      "code": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "161653008",
+          "display": "H/O: chemotherapy"
+        }
+      ],
+      "answerOption": [
+        { "valueString": "Yes" },
+        { "valueString": "No" },
+        { "valueString": "Unknown" }
+      ]
+    },
+    {
+      "linkId": "chemotherapy.history.specify",
+      "type": "string",
+      "text": "Time period and protocol",
+      "enableWhen": [
+        { "question": "chemotherapy.history", "operator": "=", "answerString": "Yes" }
+      ]
+    }
+  ]
+}

@@ -173,7 +173,7 @@ public class QuestionnaireAdminViewModel(ISnackbar snackbar, IDialogService dial
 
 
 
-    public iPath.LHCForms.LhcForm PreviewForm;
+    public QuestionnaireFormHost PreviewForm;
     public async Task RenderPreview()
     {
         if (PreviewForm is not null && SelectedQuestionnaire is not null)
@@ -322,6 +322,15 @@ public class EditQuestionnaireModel
     {
         get => Settings.ExtractAnswers ?? true;
         set => Settings.ExtractAnswers = value;
+    }
+
+    // Same nullable-default pattern as ExtractAnswersEnabled: Settings.PreferredRenderer is
+    // nullable so a questionnaire stored before this setting existed keeps using LForms. The
+    // dropdown needs a concrete value, so null surfaces as LForms here.
+    public QuestionnaireRenderer PreviewRenderer
+    {
+        get => Settings.PreferredRenderer ?? QuestionnaireRenderer.LForms;
+        set => Settings.PreferredRenderer = value;
     }
 
     public EditQuestionnaireModel()

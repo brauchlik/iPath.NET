@@ -13,4 +13,10 @@ public class QuestionnaireSettings
     public bool? ExtractAnswers { get; set; }
 
     public bool ShouldExtractAnswers() => ExtractAnswers != false;
+
+    /// <summary>
+    /// Which viewer renders this questionnaire. null (not configured) means LForms, so
+    /// questionnaires stored before this setting existed keep their current behavior.
+    /// </summary>
+    public QuestionnaireRenderer? PreferredRenderer { get; set; }
 }

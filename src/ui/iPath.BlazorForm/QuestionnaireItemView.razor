@@ -1,0 +1,416 @@
+@using Hl7.Fhir.Model
+@using Task = System.Threading.Tasks.Task
+
+@if (State.IsEnabled(Item))
+{
+    <div class="ipath-q-item">
+        @if (Item.Type == Questionnaire.QuestionnaireItemType.Group)
+        {
+            <MudText Typo="Typo.subtitle2" Class="px-2 py-1"
+                     Style="background-color: var(--mud-palette-primary-hover, rgba(0,0,0,0.06)); border-radius: 4px;">@Item.Text</MudText>
+        }
+        else if (!State.ReadOnly && IsWideChoice())
+        {
+            @* A checkbox group needs more horizontal room than the value column leaves to wrap
+               freely, so it's the one case that breaks out of the two-column grid entirely. *@
+            <div class="px-2">
+                <MudText Typo="Typo.body2" Class="mb-1">@Item.Text</MudText>
+                @RenderInput()
+            </div>
+        }
+        else
+        {
+            @* Every item keeps the two-column grid so all values line up in the same column
+               regardless of nesting depth. Nested sub-questions (e.g. "Location"/"Duration"
+               under "Abdominal pain") right-align their label to read as a sub-field of the
+               row above, instead of repeating a left-aligned label at every indent level. *@
+            <div class="d-flex px-2" style="align-items: center; gap: 8px;">
+                <div style="flex: 0 0 42%; text-align: @(Nested ? "right" : "left");">
+                    <MudText Typo="Typo.body2">@Item.Text</MudText>
+                </div>
+                <div style="flex: 1 1 auto; min-width: 0;">
+                    @if (State.ReadOnly)
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Primary">@AnswerText()</MudText>
+                    }
+                    else
+                    {
+                        @RenderInput()
+                    }
+                </div>
+            </div>
+        }
+
+        @if (Item.Item is { Count: > 0 })
+        {
+            <MudStack Class="ml-4" Spacing="0">
+                @foreach (var child in Item.Item)
+                {
+                    <QuestionnaireItemView Item="child" State="State" Nested="true" />
+                }
+            </MudStack>
+        }
+    </div>
+}
+
+@code {
+    const string ItemControlUrl = "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl";
+    const string UnitOptionUrl = "http://hl7.org/fhir/StructureDefinition/questionnaire-unitOption";
+
+    [Parameter, EditorRequired] public Questionnaire.ItemComponent Item { get; set; } = default!;
+    [Parameter, EditorRequired] public NativeFormState State { get; set; } = default!;
+    [Parameter] public bool Nested { get; set; }
+
+    RenderFragment RenderInput() => Item.Type switch
+    {
+        Questionnaire.QuestionnaireItemType.Boolean => BooleanInput(),
+        Questionnaire.QuestionnaireItemType.Integer => IntegerInput(),
+        Questionnaire.QuestionnaireItemType.Decimal => DecimalInput(),
+        Questionnaire.QuestionnaireItemType.Date => DateInput(),
+        Questionnaire.QuestionnaireItemType.DateTime => DateTimeInput(),
+        Questionnaire.QuestionnaireItemType.Quantity => QuantityInput(),
+        Questionnaire.QuestionnaireItemType.String => TextInput(multiline: false),
+        Questionnaire.QuestionnaireItemType.Text => TextInput(multiline: true),
+        Questionnaire.QuestionnaireItemType.Choice => ChoiceInput(),
+        // Native is deliberately a lower tier than LForms: a type outside the set above
+        // (dateTime, attachment, reference, display, ...) means this form belongs on LForms.
+        // Failing visibly here beats silently writing a wrong-typed answer (e.g. a quantity
+        // saved as a FhirString) that only surfaces later as a mismatched export.
+        _ => UnsupportedInput(),
+    };
+
+    RenderFragment UnsupportedInput() => @<MudAlert Severity="Severity.Warning" Dense="true">
+        Unsupported item type "@Item.Type": this form needs the LForms viewer.
+    </MudAlert>;
+
+    // Answers are optional (bool?), not bool: an item that has never been touched is "unknown",
+    // which is a distinct, meaningful state from an explicit "No" - a plain checkbox can't tell
+    // those apart, so this needs a real tri-state control.
+    RenderFragment BooleanInput() => @<MudRadioGroup T="bool?" @bind-Value="BoolValue">
+        <MudStack Row Spacing="3">
+            <MudRadio T="bool?" Value="true" Dense="true" Color="Color.Primary">Yes</MudRadio>
+            <MudRadio T="bool?" Value="false" Dense="true" Color="Color.Primary">No</MudRadio>
+            <MudRadio T="bool?" Value="@((bool?)null)" Dense="true" Color="Color.Secondary">Unknown</MudRadio>
+        </MudStack>
+    </MudRadioGroup>;
+
+    RenderFragment TextInput(bool multiline) => @<MudTextField T="string" @bind-Value="StringValue"
+                                                                 Lines="@(multiline ? 3 : 1)" Immediate="true" Variant="Variant.Outlined" Margin="Margin.Dense" />;
+
+    RenderFragment IntegerInput() => @<MudNumericField T="int?" @bind-Value="IntValue" Variant="Variant.Outlined" Margin="Margin.Dense" />;
+
+    RenderFragment DecimalInput() => @<MudNumericField T="decimal?" @bind-Value="DecimalValue" Variant="Variant.Outlined" Margin="Margin.Dense" />;
+
+    RenderFragment DateInput() => @<MudDatePicker @bind-Date="DateValue" Variant="Variant.Outlined" Margin="Margin.Dense" />;
+
+    // MudBlazor has no single date+time control, so this follows the same pattern as
+    // QuantityInput: two purpose-built pickers side by side, combined into one FhirDateTime answer.
+    RenderFragment DateTimeInput() => @<MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+        <MudDatePicker @bind-Date="DateTimeDatePart" Variant="Variant.Outlined" Margin="Margin.Dense" Style="max-width: 160px;" />
+        <MudTimePicker @bind-Time="DateTimeTimePart" Variant="Variant.Outlined" Margin="Margin.Dense" Style="max-width: 130px;" />
+    </MudStack>;
+
+    // Generic value+unit control: the unit list comes from the item's own questionnaire-unitOption
+    // extensions (standard FHIR SDC), so this works for any quantity item, not just "Duration".
+    RenderFragment QuantityInput()
+    {
+        var units = GetUnitOptions();
+        return @<MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+            <MudNumericField T="decimal?" @bind-Value="QuantityValue" Variant="Variant.Outlined" Margin="Margin.Dense" Style="max-width: 130px;" />
+            @if (units.Count > 0)
+            {
+                <MudSelect T="string" @bind-Value="QuantityUnit" Label="Unit" Variant="Variant.Outlined" Margin="Margin.Dense" Style="max-width: 140px;">
+                    @foreach (var u in units)
+                    {
+                        <MudSelectItem Value="@u.Code">@u.Display</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+        </MudStack>;
+    }
+
+    RenderFragment ChoiceInput()
+    {
+        var options = Item.AnswerOption ?? [];
+        var control = GetItemControlCode();
+        var multi = Item.Repeats == true;
+
+        // check-box is an explicit opt-in now (via itemControl) rather than the untagged
+        // default - it's the one rendering that genuinely needs to wrap freely, so it's also
+        // the one case IsWideChoice() breaks out of the two-column grid for.
+        if (control == "check-box")
+        {
+            return @<MudStack Row Wrap="Wrap.Wrap" AlignItems="AlignItems.Center" Spacing="2" Class="ipath-q-choice-wrap">
+                @foreach (var opt in options)
+                {
+                    var o = opt;
+                    <MudCheckBox T="bool" Value="@IsSelected(o)" ValueChanged="@((bool v) => OnChoiceToggled(o, v))"
+                                 Label="@OptionText(o)" Color="Color.Primary" Dense="true" Typo="Typo.body2" Class="ma-0" />
+                }
+            </MudStack>;
+        }
+
+        if (control == "radio-button")
+        {
+            return @<MudRadioGroup T="string" @bind-Value="SingleSelected">
+                <MudStack Row Wrap="Wrap.Wrap" AlignItems="AlignItems.Center" Spacing="2" Class="ipath-q-choice-wrap">
+                    @foreach (var opt in options)
+                    {
+                        <MudRadio T="string" Value="@OptionText(opt)" Color="Color.Primary" Class="ma-0">
+                            <MudText Typo="Typo.body2">@OptionText(opt)</MudText>
+                        </MudRadio>
+                    }
+                </MudStack>
+            </MudRadioGroup>;
+        }
+
+        // MudAutocomplete has no built-in multi-select, so it's reserved for genuinely long,
+        // search-worthy single-select lists - not used here since nothing in real data needs it yet.
+        if (control == "autocomplete" || control == "lookup")
+        {
+            return @<MudAutocomplete T="string" @bind-Value="SingleSelected" SearchFunc="SearchOptions"
+                                      Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense" />;
+        }
+
+        // Default (no itemControl needed): MudSelect's own MultiSelection covers both single-
+        // and multi-select natively (SelectedValues), fitting the standard two-column layout -
+        // the right fit for short-to-medium option lists (roughly 3-99 items) without requiring
+        // any per-item FHIR authoring.
+        if (multi)
+        {
+            return @<MudSelect T="string" MultiSelection="true" @bind-SelectedValues="MultiSelected" Variant="Variant.Outlined" Margin="Margin.Dense">
+                @foreach (var opt in options)
+                {
+                    <MudSelectItem Value="@OptionText(opt)">@OptionText(opt)</MudSelectItem>
+                }
+            </MudSelect>;
+        }
+
+        return @<MudSelect T="string" @bind-Value="SingleSelected" Variant="Variant.Outlined" Margin="Margin.Dense">
+            @foreach (var opt in options)
+            {
+                <MudSelectItem Value="@OptionText(opt)">@OptionText(opt)</MudSelectItem>
+            }
+        </MudSelect>;
+    }
+
+    string? GetItemControlCode()
+    {
+        var cc = Item.Extension?.FirstOrDefault(e => e.Url == ItemControlUrl)?.Value as CodeableConcept;
+        return cc?.Coding?.FirstOrDefault()?.Code;
+    }
+
+    List<(string Code, string Display)> GetUnitOptions() =>
+        (Item.Extension ?? [])
+            .Where(e => e.Url == UnitOptionUrl)
+            .Select(e => e.Value as Coding)
+            .Where(c => c is not null)
+            .Select(c => (c!.Code ?? "", c.Display ?? c.Code ?? ""))
+            .ToList();
+
+    // Only the checkbox rendering needs to break out of the two-column grid to wrap freely -
+    // the default MultiSelection dropdown fits the value column like any other input.
+    bool IsWideChoice() =>
+        Item.Type == Questionnaire.QuestionnaireItemType.Choice
+        && Item.Repeats == true
+        && GetItemControlCode() == "check-box";
+
+    Task<IEnumerable<string>> SearchOptions(string value, CancellationToken ct)
+    {
+        var options = (Item.AnswerOption ?? []).Select(OptionText);
+        var filtered = string.IsNullOrEmpty(value) ? options : options.Where(o => o.Contains(value, StringComparison.OrdinalIgnoreCase));
+        return Task.FromResult(filtered);
+    }
+
+    static string OptionText(Questionnaire.AnswerOptionComponent opt) => opt.Value switch
+    {
+        FhirString s => s.Value,
+        Coding c => c.Display ?? c.Code ?? "",
+        _ => opt.Value?.ToString() ?? ""
+    };
+
+    static DataType CloneValue(DataType v) => (DataType)v.DeepCopy();
+
+    static bool OptionMatchesValue(DataType a, string text) => a switch
+    {
+        FhirString s => s.Value == text,
+        Coding c => (c.Display ?? c.Code) == text,
+        _ => false
+    };
+
+    bool IsSelected(Questionnaire.AnswerOptionComponent opt) =>
+        State.GetAnswers(Item.LinkId).Any(a => OptionMatchesValue(a, OptionText(opt)));
+
+    void OnChoiceToggled(Questionnaire.AnswerOptionComponent opt, bool @checked)
+    {
+        var current = new List<DataType>(State.GetAnswers(Item.LinkId));
+        var text = OptionText(opt);
+        if (@checked)
+        {
+            if (!current.Any(a => OptionMatchesValue(a, text))) current.Add(CloneValue(opt.Value));
+        }
+        else
+        {
+            current.RemoveAll(a => OptionMatchesValue(a, text));
+        }
+        State.SetAnswers(Item.LinkId, current);
+    }
+
+    string? SingleSelected
+    {
+        get => State.GetAnswers(Item.LinkId).FirstOrDefault() is { } v
+            ? (Item.AnswerOption ?? []).Select(OptionText).FirstOrDefault(t => OptionMatchesValue(v, t))
+            : null;
+        set
+        {
+            var opt = (Item.AnswerOption ?? []).FirstOrDefault(o => OptionText(o) == value);
+            State.SetAnswers(Item.LinkId, opt is not null ? [CloneValue(opt.Value)] : []);
+        }
+    }
+
+    IReadOnlyCollection<string> MultiSelected
+    {
+        get => (Item.AnswerOption ?? [])
+            .Select(OptionText)
+            .Where(t => State.GetAnswers(Item.LinkId).Any(a => OptionMatchesValue(a, t)))
+            .ToList();
+        set
+        {
+            var opts = (Item.AnswerOption ?? [])
+                .Where(o => value.Contains(OptionText(o)))
+                .Select(o => CloneValue(o.Value))
+                .ToList();
+            State.SetAnswers(Item.LinkId, opts);
+        }
+    }
+
+    bool? BoolValue
+    {
+        get => (State.GetAnswers(Item.LinkId).FirstOrDefault() as FhirBoolean)?.Value;
+        set => State.SetAnswers(Item.LinkId, value.HasValue ? [new FhirBoolean(value)] : []);
+    }
+
+    string StringValue
+    {
+        get => (State.GetAnswers(Item.LinkId).FirstOrDefault() as FhirString)?.Value ?? "";
+        set => State.SetAnswers(Item.LinkId, string.IsNullOrEmpty(value) ? [] : [new FhirString(value)]);
+    }
+
+    int? IntValue
+    {
+        get => (State.GetAnswers(Item.LinkId).FirstOrDefault() as Integer)?.Value;
+        set => State.SetAnswers(Item.LinkId, value.HasValue ? [new Integer(value)] : []);
+    }
+
+    decimal? DecimalValue
+    {
+        get => (State.GetAnswers(Item.LinkId).FirstOrDefault() as FhirDecimal)?.Value;
+        set => State.SetAnswers(Item.LinkId, value.HasValue ? [new FhirDecimal(value)] : []);
+    }
+
+    DateTime? DateValue
+    {
+        get => DateTime.TryParse((State.GetAnswers(Item.LinkId).FirstOrDefault() as Date)?.Value, out var d) ? d : null;
+        set => State.SetAnswers(Item.LinkId, value.HasValue ? [new Date(value.Value.ToString("yyyy-MM-dd"))] : []);
+    }
+
+    DateTime? ParseDateTime() =>
+        DateTime.TryParse((State.GetAnswers(Item.LinkId).FirstOrDefault() as FhirDateTime)?.Value, out var d) ? d : null;
+
+    void SetDateTime(DateTime? date, TimeSpan? time)
+    {
+        if (!date.HasValue && !time.HasValue)
+        {
+            State.SetAnswers(Item.LinkId, []);
+            return;
+        }
+        var combined = (date ?? DateTime.Today).Date + (time ?? TimeSpan.Zero);
+        State.SetAnswers(Item.LinkId, [new FhirDateTime(combined.ToString("yyyy-MM-ddTHH:mm:ss"))]);
+    }
+
+    DateTime? DateTimeDatePart
+    {
+        get => ParseDateTime()?.Date;
+        set => SetDateTime(value, ParseDateTime()?.TimeOfDay);
+    }
+
+    TimeSpan? DateTimeTimePart
+    {
+        get => ParseDateTime()?.TimeOfDay;
+        set => SetDateTime(ParseDateTime()?.Date, value);
+    }
+
+    decimal? QuantityValue
+    {
+        get => (State.GetAnswers(Item.LinkId).FirstOrDefault() as Quantity)?.Value;
+        set
+        {
+            var q = (Quantity?)(State.GetAnswers(Item.LinkId).FirstOrDefault() as Quantity)?.DeepCopy() ?? new Quantity();
+            q.Value = value;
+            // The Questionnaire itself defines no default unit, but leaving one entered value
+            // unitless would be worse than assuming the first listed option - bake it in now
+            // so what gets saved always matches what the Unit dropdown is showing.
+            if (string.IsNullOrEmpty(q.Code) && GetUnitOptions() is [var firstUnit, ..])
+            {
+                ApplyUnit(q, firstUnit);
+            }
+            State.SetAnswers(Item.LinkId, value.HasValue || !string.IsNullOrEmpty(q.Code) ? [q] : []);
+        }
+    }
+
+    string? QuantityUnit
+    {
+        get
+        {
+            var code = (State.GetAnswers(Item.LinkId).FirstOrDefault() as Quantity)?.Code;
+            if (!string.IsNullOrEmpty(code)) return code;
+            return GetUnitOptions() is [var firstUnit, ..] ? firstUnit.Code : null;
+        }
+        set
+        {
+            var q = (Quantity?)(State.GetAnswers(Item.LinkId).FirstOrDefault() as Quantity)?.DeepCopy() ?? new Quantity();
+            if (string.IsNullOrEmpty(value))
+            {
+                q.Code = null;
+                q.Unit = null;
+                q.System = null;
+            }
+            else
+            {
+                var unit = GetUnitOptions().FirstOrDefault(u => u.Code == value);
+                ApplyUnit(q, (value, unit.Display));
+            }
+            State.SetAnswers(Item.LinkId, q.Value.HasValue || !string.IsNullOrEmpty(value) ? [q] : []);
+        }
+    }
+
+    static void ApplyUnit(Quantity q, (string Code, string Display) unit)
+    {
+        q.Code = unit.Code;
+        q.Unit = unit.Display;
+        q.System = "http://unitsofmeasure.org";
+    }
+
+    string AnswerText()
+    {
+        var answers = State.GetAnswers(Item.LinkId);
+        if (Item.Type == Questionnaire.QuestionnaireItemType.Boolean)
+        {
+            return BoolValue switch { true => "Yes", false => "No", null => "Unknown" };
+        }
+        return answers.Count == 0 ? "-" : string.Join(", ", answers.Select(DisplayOf));
+    }
+
+    static string DisplayOf(DataType d) => d switch
+    {
+        FhirBoolean b => b.Value == true ? "Yes" : "No",
+        FhirString s => s.Value,
+        Integer i => i.Value?.ToString() ?? "",
+        FhirDecimal dec => dec.Value?.ToString() ?? "",
+        Date dt => dt.Value ?? "",
+        FhirDateTime dtm => dtm.Value ?? "",
+        Quantity q => $"{q.Value} {q.Unit ?? q.Code}".Trim(),
+        Coding c => c.Display ?? c.Code ?? "",
+        _ => d.ToString() ?? ""
+    };
+}

@@ -1126,6 +1126,9 @@ public class ServiceRequestViewModel(IPathApi api,
     public async Task<string?> GetQuesiotnnaireResource(string questionnaireId, int? version = null)
         => await qCache.GetQuestionnaireResourceAsync(questionnaireId, version);
 
+    public async Task<QuestionnaireRenderer> GetQuestionnaireRenderer(string questionnaireId, int? version = null)
+        => (await qCache.GetQuestionnaireAsync(questionnaireId, version))?.Settings?.PreferredRenderer ?? QuestionnaireRenderer.LForms;
+
     public async Task<string?> QuestionnaireName(string id, int? version = null)
         => await qCache.GetQuestionnaireNameAsync(id, version);
 

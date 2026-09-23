@@ -1,7 +1,7 @@
 {
   "resourceType": "Questionnaire",
   "id": "jundt-case-digestive",
-  "url": "http://ipath.kantonsspital.net/fhir/Questionnaire/jundt-case-digestive",
+  "url": "http://ipathnetwork.org/fhir/Questionnaire/jundt-case-digestive",
   "status": "draft",
   "title": "Case Description — Digestive Organs",
   "subjectType": ["Patient"],

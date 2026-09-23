@@ -12,7 +12,9 @@ proper form type.
 ### CaseDescription (value: 2)
 
 **When:** Case creation (Wizard Step 1)
-**Who fills it:** Referring physician / intake staff
+**Who fills it:** the **requesting (primary) pathologist**. iPath is a second-opinion
+platform: the sender is usually the less experienced pathologist seeking a remote
+specialist's view — *not* a referring clinician.
 **Purpose:** Capture the initial clinical picture
 
 **Content belongs here if it's:**
@@ -20,20 +22,34 @@ proper form type.
 - Symptoms (pain, swelling, weight loss, fatigue, bleeding, etc.)
 - Imaging available at intake (X-ray, CT, MRI, PET — if the patient arrives with results)
 - Lab values (blood count, basic chemistry — if available at intake)
-- Clinical history relevant to the presenting complaint (steroid treatment, previous radiation, comorbidities)
+- Clinical history relevant to the presenting complaint — previous radiation therapy,
+  previous chemotherapy, previous steroid treatment, comorbidities
 - Disease type / clinical diagnosis (CML, CLL, MDS, etc.) — this is clinical info, not pathological assessment
+- **The requester's own findings** — see the note below
 
 **Content does NOT belong here if it's:**
-- Margin status (R0/R1/R2) — that's Diagnostic Assessment
-- Tumor staging (pTNM) — that's Diagnostic Assessment
-- Histological grading — that's Diagnostic Assessment
+- Margin status (R0/R1/R2) — that's the specialist's Diagnostic Assessment
+- Tumor staging (pTNM) — that's the specialist's Diagnostic Assessment
+- Histological grading — that's the specialist's Diagnostic Assessment
 - Age, gender, ICD-O topography, submitting institute — those are wizard-managed fields
 - Treatment response — that's Follow-Up
+
+> **Requester's findings vs the specialist's assessment.** Because the requester is a
+> pathologist, they legitimately report their *own* observations at submission — tumour size,
+> depth, node distribution, lesion character, efflorescence type. Those are **Case
+> Description**, not assessment. What belongs to `FinalAssessment` is the **remote
+> specialist's** conclusion (margins, pTNM, grading). Two different pathologists, at two
+> different times — the words "assessment" and "staging" apply to both, which is exactly how
+> items get mis-filed.
+
+> **Beware section position.** Jundt's "Previous radiation therapy" was filed as Diagnostic
+> Assessment for months purely because he wrote it *inside* his "Soft tissue Tumours" block.
+> A row's position in the source document is not a semantic classification.
 
 **Composition pattern:**
 ```
 Material (always)
-+ Symptoms (always, organ-specific block)
++ Clinical information (always, organ-specific block)  ← symptoms + clinical history + the requester's findings
 + Imaging (optional)
 + Lab (optional)
 ```

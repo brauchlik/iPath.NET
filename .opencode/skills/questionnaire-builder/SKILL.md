@@ -102,7 +102,7 @@ import/fhir/Questionnaires/
 ├── blocks/
 │   ├── blocks.json        # manifest (id, category, topography, source, file, status)
 │   ├── coding-registry.json  # canonical coded question defs — alignment enforcement
-│   └── 01 Material|02 Symptoms|03 Imaging|04 Lab/<id>.json
+│   └── 01 Material|02 Clinical Information|03 Imaging|04 Lab/<id>.json
 │                          # each block IS a minimal FHIR R4 Questionnaire
 ├── registry.json          # memory/TOC of composed questionnaires + status
 ├── staging/
@@ -115,7 +115,16 @@ Reference files in this skill:
 - `reference/block-schema.md`  — block = minimal FHIR Questionnaire + manifest + registry contract
 - `reference/fhir-conventions.md` — FHIR R4 output conventions (iPath/LHC-Forms compatible)
 - `reference/form-types.md` — iPath form types, content classification, decomposition rules
-- `reference/snowstorm.md`      — Snowstorm endpoint patterns
+- `reference/snowstorm.md`      — Snowstorm endpoint patterns. Superseded as a client by
+  `docs/superpowers/specs/2026-09-17-basys-terminology-design.md` (C# `Basys.Terminology`).
+  Note: the local Snowstorm **search index has been degraded** (search endpoints hang; only
+  by-code `$lookup` answers). Current workaround is the `snomed-ct` MCP with
+  `SNOMED_BACKEND=remote` (Ontoserver, **Australian** edition) — stamp every code with the
+  edition it was verified against.
+- `reference/specialist-elicitation.md` — **how to work with a specialist**: how to ask, how
+  to receive, the interpretation traps, reconciliation against the library + SNOMED,
+  mediation, churn handling, and the communication format that works. Read this before any
+  intake round.
 
 Pathologist design decisions / open questions for the jundt docs live in
 `import/fhir/Questionnaires/doc/jundt/FEEDBACK.md` (index: `doc/jundt/README.md`).
@@ -205,7 +214,7 @@ Run the phases in order. Never skip ahead.
 ### Phase 3 — Composition
 
 1. Compose target questionnaires by form type:
-   - **Case Description:** Material + Symptoms + optional Imaging + optional Lab
+   - **Case Description:** Material + Clinical information (region-specific) + optional Imaging + optional Lab
    - **Final Assessment:** Margin status, tumor size, staging, histological details + follow-up recommendations
    - **Follow-Up:** Treatment response, recurrence monitoring
 2. Inline blocks with a per-questionnaire `linkId` prefix (e.g. `lab.blood-count.erythrocytes`).

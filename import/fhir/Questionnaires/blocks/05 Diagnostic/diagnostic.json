@@ -85,23 +85,6 @@
       ]
     },
     {
-      "linkId": "radiation.history",
-      "type": "choice",
-      "text": "Previous radiation therapy to the area now affected",
-      "code": [
-        {
-          "system": "http://snomed.info/sct",
-          "code": "416237000",
-          "display": "History of radiation therapy"
-        }
-      ],
-      "answerOption": [
-        { "valueString": "Yes" },
-        { "valueString": "No" },
-        { "valueString": "No data" }
-      ]
-    },
-    {
       "linkId": "breast.familyhistory",
       "type": "choice",
       "text": "Family history of breast or ovarian cancer [esp. Breast C50]",

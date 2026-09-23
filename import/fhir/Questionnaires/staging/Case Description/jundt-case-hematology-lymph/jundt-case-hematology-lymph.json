@@ -1,7 +1,7 @@
 {
   "resourceType": "Questionnaire",
   "id": "jundt-case-hematology-lymph",
-  "url": "http://ipath.kantonsspital.net/fhir/Questionnaire/jundt-case-hematology-lymph",
+  "url": "http://ipathnetwork.org/fhir/Questionnaire/jundt-case-hematology-lymph",
   "status": "draft",
   "title": "Case Description — Hematology and Lymph Nodes",
   "subjectType": ["Patient"],

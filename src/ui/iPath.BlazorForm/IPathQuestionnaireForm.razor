@@ -1,0 +1,114 @@
+@using Hl7.Fhir.Model
+@using Hl7.Fhir.Serialization
+@using Task = System.Threading.Tasks.Task
+@implements iPath.LHCForms.IQuestionnaireForm
+
+<MudPaper Elevation="2" Class="pa-0">
+    @if (ErrorMessage is not null)
+    {
+        <div class="error">@ErrorMessage</div>
+    }
+    else if (_questionnaire is null)
+    {
+        <span>loading ...</span>
+    }
+    else
+    {
+        <MudText Typo="Typo.subtitle2" Class="px-2 py-1 mb-1"
+                 Style="background-color: var(--mud-palette-primary-hover, rgba(0,0,0,0.06)); border-radius: 4px;">
+            @(string.IsNullOrEmpty(_questionnaire.Title) ? "iPath native viewer (experimental)" : _questionnaire.Title)
+        </MudText>
+        @foreach (var item in _questionnaire.Item ?? [])
+        {
+            <QuestionnaireItemView Item="item" State="_state" />
+        }
+    }
+</MudPaper>
+
+@code {
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public bool ShowTitle { get; set; }
+    [Parameter] public EventCallback OnAfterRendered { get; set; }
+
+    static readonly FhirJsonParser Parser = new();
+    static readonly FhirJsonSerializer Serializer = new();
+
+    readonly NativeFormState _state = new();
+    Questionnaire? _questionnaire;
+    string? ErrorMessage;
+
+    protected override void OnInitialized()
+    {
+        _state.OnChanged = () => InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await OnAfterRendered.InvokeAsync();
+        }
+    }
+
+    // Real, editable rendering for boolean/string/text/integer/decimal/date/choice, with basic
+    // enableWhen show/hide (see NativeFormState). Still not full SDC: no FHIRPath expressions,
+    // no validation, no repeating groups, no quantity/attachment/reference.
+    public Task LoadFormAsync(string questionnaire, string questionnaireResponse = "")
+    {
+        try
+        {
+            ErrorMessage = null;
+            _state.ReadOnly = ReadOnly;
+            _questionnaire = Parser.Parse<Questionnaire>(questionnaire);
+            _state.Answers.Clear();
+            if (!string.IsNullOrEmpty(questionnaireResponse))
+            {
+                CollectAnswers(Parser.Parse<QuestionnaireResponse>(questionnaireResponse).Item);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    public Task<string?> GetDataAsync()
+    {
+        if (_questionnaire is null) return Task.FromResult<string?>(null);
+        var response = new QuestionnaireResponse
+        {
+            Questionnaire = _questionnaire.Url,
+            Status = QuestionnaireResponse.QuestionnaireResponseStatus.InProgress,
+            Item = BuildResponseItems(_questionnaire.Item)
+        };
+        return Task.FromResult<string?>(Serializer.SerializeToString(response));
+    }
+
+    // Merges both nesting conventions a saved response might use: children as siblings under
+    // item.Item, or nested under a specific answer's answer.Item (the FHIR SDC convention for
+    // "sub-items relevant only to this answer"). Either way ends up in the same flat lookup.
+    void CollectAnswers(IEnumerable<QuestionnaireResponse.ItemComponent>? items)
+    {
+        if (items is null) return;
+        foreach (var item in items)
+        {
+            if (item.Answer is { Count: > 0 })
+            {
+                _state.Answers[item.LinkId] = item.Answer.Select(a => a.Value).Where(v => v is not null).ToList()!;
+                foreach (var answer in item.Answer) CollectAnswers(answer.Item);
+            }
+            CollectAnswers(item.Item);
+        }
+    }
+
+    List<QuestionnaireResponse.ItemComponent> BuildResponseItems(IEnumerable<Questionnaire.ItemComponent>? items) =>
+        (items ?? []).Select(item => new QuestionnaireResponse.ItemComponent
+        {
+            LinkId = item.LinkId,
+            Text = item.Text,
+            Answer = _state.GetAnswers(item.LinkId).Select(v => new QuestionnaireResponse.AnswerComponent { Value = v }).ToList(),
+            Item = item.Item is { Count: > 0 } ? BuildResponseItems(item.Item) : null
+        }).ToList();
+}

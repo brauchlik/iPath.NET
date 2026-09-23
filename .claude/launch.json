@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "mobile-mock",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "C:\\Users\\kurt\\source\\git\\iPath-mobile-mock", "--urls", "http://localhost:5062"],
+      "port": 5062
+    },
+    {
+      "name": "ipath-server",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/ui/iPath.Blazor.Server", "--launch-profile", "https"],
+      "port": 5000,
+      "url": "https://localhost:5000"
+    }
+  ]
+}

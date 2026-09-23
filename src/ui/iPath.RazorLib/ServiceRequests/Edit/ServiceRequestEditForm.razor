@@ -30,7 +30,7 @@
                 {
                     <MudTextField @bind-Value="Model.Text" Label=@T["Clinical information"]
                                   Lines="4" Variant="Variant" ShrinkLabel="true" Margin="Margin.Dense" />
-                    <iPath.LHCForms.LhcForm @ref="lhcForm" ReadOnly="false" />
+                    <QuestionnaireFormHost @ref="lhcForm" Renderer="renderer" ReadOnly="false" />
 
                     @if (validForms.Count > 1)
                     {
@@ -110,7 +110,8 @@
     [Parameter]
     public Margin Margin { get; set; } = Margin.Dense;
 
-    private iPath.LHCForms.LhcForm lhcForm;
+    private QuestionnaireFormHost lhcForm;
+    private QuestionnaireRenderer renderer = QuestionnaireRenderer.LForms;
 
     bool useQuestionnaire => Model?.Questionnaire != null;
     bool useHtmlEditor => false; // vm.ActiveGroup.Settings.DescriptionAllowHtml;
@@ -157,6 +158,11 @@
         var qResource = await vm.GetQuesiotnnaire(Model);
         if (!string.IsNullOrEmpty(qResource))
         {
+            // Runs from OnAfterRenderAsync, i.e. after the host already mounted with the old
+            // Renderer value - StateHasChanged pushes the new one down; the host's own
+            // reload-on-swap logic then re-loads into whichever branch ends up mounted.
+            renderer = await vm.GetQuestionnaireRenderer(Model.Questionnaire.QuestionnaireId, Model.Questionnaire.Version);
+            StateHasChanged();
             await lhcForm.LoadFormAsync(qResource, Model.Questionnaire.Resource);
         }
     }

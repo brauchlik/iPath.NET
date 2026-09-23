@@ -1,0 +1,62 @@
+@namespace iPath.Blazor.Componenents.Questionaires
+@implements iPath.LHCForms.IQuestionnaireForm
+
+@if (Renderer == QuestionnaireRenderer.LForms)
+{
+    <iPath.LHCForms.LhcForm @ref="_impl" ReadOnly="ReadOnly" ShowTitle="ShowTitle" OnAfterRendered="OnAfterRendered" />
+}
+else
+{
+    <iPath.BlazorForm.IPathQuestionnaireForm @ref="_impl" ReadOnly="ReadOnly" ShowTitle="ShowTitle" OnAfterRendered="OnAfterRendered" />
+}
+
+@code {
+    [Parameter] public QuestionnaireRenderer Renderer { get; set; } = QuestionnaireRenderer.LForms;
+    [Parameter, EditorRequired] public bool ReadOnly { get; set; }
+    [Parameter] public bool ShowTitle { get; set; }
+    [Parameter] public EventCallback OnAfterRendered { get; set; }
+
+    // Declarative alternative to calling LoadFormAsync imperatively, for consumers (e.g. the
+    // admin preview page) that just bind a Questionnaire string. Routed through LoadFormAsync
+    // itself so both branches support it and it benefits from the same renderer-swap reload
+    // tracking below - neither branch component needs its own Questionnaire parameter.
+    [Parameter] public string? Questionnaire { get; set; }
+
+    // Both branches implement IQuestionnaireForm, so @ref on either one assigns into
+    // this single interface-typed field regardless of which branch actually rendered.
+    iPath.LHCForms.IQuestionnaireForm? _impl;
+
+    // Switching Renderer mounts a brand-new inner component instance, which starts empty.
+    // _reloadedFor tracks which instance we last pushed data into, so a renderer swap (or the
+    // Questionnaire parameter arriving before the first render even captured _impl) re-loads
+    // the current data into the instance that's actually mounted, without reloading on every
+    // unrelated re-render.
+    iPath.LHCForms.IQuestionnaireForm? _reloadedFor;
+    string? _lastQuestionnaire;
+    string? _lastResponseJson;
+
+    protected override Task OnParametersSetAsync() =>
+        Questionnaire is not null && Questionnaire != _lastQuestionnaire
+            ? LoadFormAsync(Questionnaire)
+            : Task.CompletedTask;
+
+    public Task LoadFormAsync(string questionnaire, string questionnaireResponse = "")
+    {
+        _lastQuestionnaire = questionnaire;
+        _lastResponseJson = questionnaireResponse;
+        _reloadedFor = _impl;
+        return _impl?.LoadFormAsync(questionnaire, questionnaireResponse) ?? Task.CompletedTask;
+    }
+
+    public Task<string?> GetDataAsync() => _impl!.GetDataAsync();
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_lastQuestionnaire is not null && !ReferenceEquals(_impl, _reloadedFor))
+        {
+            _reloadedFor = _impl;
+            return _impl!.LoadFormAsync(_lastQuestionnaire, _lastResponseJson ?? "");
+        }
+        return Task.CompletedTask;
+    }
+}

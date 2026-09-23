@@ -79,6 +79,15 @@ else
                         }
                     </MudSelect>
 
+                    <MudSelect T="QuestionnaireRenderer" @bind-Value="Model.PreviewRenderer"
+                               Variant="Variant.Outlined"
+                               Label=@T["Form Viewer"]
+                               ShrinkLabel="true"
+                               Margin="Margin.Dense">
+                        <MudSelectItem Value="QuestionnaireRenderer.LForms">LForms</MudSelectItem>
+                        <MudSelectItem Value="QuestionnaireRenderer.Native">@T["Native (experimental)"]</MudSelectItem>
+                    </MudSelect>
+
                     <MudCheckBox T="bool" @bind-Value="Model.ExtractAnswersEnabled" Color="Color.Primary"
                                  Label=@T["Extract answers"] />
                 </MudStack>
@@ -112,7 +121,8 @@ else
             <TopoTreeFilter @bind-Filter="@Model.Settings.BodySiteFilter" @ref="_topoTree" />
         </MudTabPanel>
         <MudTabPanel Text=@T["Preview"] Icon="@Icons.Material.Filled.Preview">
-            <iPath.LHCForms.LhcForm @ref="vm.PreviewForm" ReadOnly="false"
+            <QuestionnaireFormHost @ref="vm.PreviewForm" ReadOnly="false"
+                                    Renderer="Model.PreviewRenderer"
                                     Questionnaire="@Model.Resource" />
 
             <MudDivider Class="mt-8" />

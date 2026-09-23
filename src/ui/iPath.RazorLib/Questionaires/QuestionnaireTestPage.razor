@@ -5,11 +5,17 @@
 
 <h3>QuestionnaireTestPage</h3>
 
-<iPath.LHCForms.LhcForm @ref="form"/>
+<MudToggleGroup T="QuestionnaireRenderer" @bind-Value="renderer">
+    <MudToggleItem Value="QuestionnaireRenderer.LForms" Text="LForms" />
+    <MudToggleItem Value="QuestionnaireRenderer.Native" Text="Native (iPath.BlazorForm)" />
+</MudToggleGroup>
+
+<QuestionnaireFormHost @ref="form" Renderer="renderer" ReadOnly="false" />
 
 
 @code {
-    iPath.LHCForms.LhcForm form;
+    QuestionnaireFormHost form;
+    QuestionnaireRenderer renderer = QuestionnaireRenderer.LForms;
 
     protected override async Task OnInitializedAsync()
     {

@@ -5,7 +5,7 @@
 {
     @if (useQuestionnaire)
     {
-        <iPath.LHCForms.LhcForm @ref="lhcForm" ReadOnly="false" />
+        <QuestionnaireFormHost @ref="lhcForm" ReadOnly="false" />
 
         <MudTextField Label="Comment" @bind-Value="Model.Data.Text" Immediate="true"
                       AutoGrow="true" Lines="3" Variant="Variant.Outlined" Style="width: 100%;" />
@@ -35,7 +35,7 @@
     public AnnotationEditModel? Model { get; set; }
 
     private bool useQuestionnaire => Model?.Data.Questionnaire is not null;
-    iPath.LHCForms.LhcForm lhcForm;
+    QuestionnaireFormHost lhcForm;
 
     [Parameter]
     public EventCallback EditDone { get; set; }

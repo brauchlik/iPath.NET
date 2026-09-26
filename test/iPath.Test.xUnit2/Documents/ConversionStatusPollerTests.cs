@@ -38,10 +38,12 @@ public class ConversionStatusPollerTests
     {
         var concurrency = 0;
         var maxConcurrency = 0;
+        var ticks = 0;
         using var poller = new ConversionStatusPoller(TimeSpan.FromMilliseconds(10));
 
         async Task Tick()
         {
+            Interlocked.Increment(ref ticks);
             var current = Interlocked.Increment(ref concurrency);
             maxConcurrency = Math.Max(maxConcurrency, current);
             await Task.Delay(5);
@@ -51,7 +53,9 @@ public class ConversionStatusPollerTests
         poller.Start(() => true, Tick);
         poller.Start(() => true, Tick);
 
-        await Task.Delay(80);
+        // Wait for real ticks rather than a fixed time: on a cold (just built) run the first
+        // tick can take longer than a fixed delay, which left maxConcurrency at 0.
+        await WaitUntilAsync(() => Volatile.Read(ref ticks) >= 3, TimeSpan.FromSeconds(5));
         poller.Stop();
         await WaitUntilAsync(() => !poller.IsRunning, TimeSpan.FromSeconds(2));
 

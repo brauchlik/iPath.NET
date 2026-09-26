@@ -110,6 +110,11 @@ public class PipelineRunner
             }
 
             var filesDir = dziBase + "_files";
+
+            // dzsave writes the source image's metadata (scanner properties, file names, dates) next
+            // to the tiles; it is not needed for viewing and must not travel with the slide.
+            var properties = Path.Combine(filesDir, "vips-properties.xml");
+            if (File.Exists(properties)) File.Delete(properties);
             var tileFiles = Directory.Exists(filesDir)
                 ? Directory.GetFiles(filesDir, "*", SearchOption.AllDirectories)
                 : Array.Empty<string>();

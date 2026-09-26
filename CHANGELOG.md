@@ -2,6 +2,8 @@
 
 ## 0.4.1
 
+- VsiConverter: the scanner metadata file `vips-properties.xml` is no longer packed into the `.dzi.zip`
+- Tests: the conversion poller test waits for real ticks instead of a fixed delay, which failed intermittently on the first run after a build
 - CaseRoom: unconverted SVS/TIFF slides open in the shared viewer (GeoTIFF tile source), and guest links may read and download a case's original files
 ## 0.4.0
 

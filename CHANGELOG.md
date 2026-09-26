@@ -2,6 +2,7 @@
 
 ## 0.4.1
 
+- UI: one document dialog instead of two - the admin "Storage Info" dialog is merged into Document Properties: admins see location, cache state and the community's storage (with a warning if the file is not there yet) when they open the Storage panel; the storage info API now requires the admin role also for in-process calls
 - Storage: Google Drive as a storage instance (`Type: GoogleDrive` with service-account key, optional impersonated user and root folder) - usable per community and in storage migrations like local and S3 storage; files land in readable folders (Community/Group/Case/File, each with a short id), slides are fetched into the temp cache once (single download per document) and originals are range-read from Drive
 - UI: storage admin labels (System page Storage tab, community storage box) go through the localizer
 - VsiConverter: the scanner metadata file `vips-properties.xml` is no longer packed into the `.dzi.zip`

@@ -48,11 +48,6 @@
             <div class="mt-2 d-flex align-center justify-center">
                 <strong class="mr-1">@T["Download original"]:</strong>
                 <MudLink Target="_blank" Href="@vm.SelectedDocument.PreviewFileUrl">@vm.SelectedDocument.GalleryCaption.ShortenTo(50)</MudLink>
-                @if (vm.IsAdmin)
-                {
-                    <MudIconButton Icon="@Icons.Material.Filled.Info" Size="Size.Small" Color="Color.Info"
-                                   OnClick="@(() => ShowStorageInfoDialog(vm.SelectedDocument!))" />
-                }
             </div>
         </div>
     }
@@ -134,10 +129,4 @@
         StateHasChanged();
     }
 
-    private async Task ShowStorageInfoDialog(DocumentDto doc)
-    {
-        var parameters = new DialogParameters { ["Model"] = doc };
-        var dialog = await srvDialog.ShowAsync<DocumentStorageInfoDialog>(T["Storage Info"], parameters);
-        await dialog.Result;
-    }
 }

@@ -11,11 +11,16 @@ namespace iPath.EF.Core.FeatureHandlers.Admin;
 public class GetDocumentStorageInfoHandler(
     iPathDbContext db,
     IOptions<iPathConfig> opts,
-    IStorageRegistry storage)
+    IStorageRegistry storage,
+    IUserSession sess)
     : IRequestHandler<GetDocumentStorageInfoQuery, Task<DocumentStorageInfoDto?>>
 {
     public async Task<DocumentStorageInfoDto?> Handle(GetDocumentStorageInfoQuery request, CancellationToken ct)
     {
+        // Storage locations are admin information; the in-process API client does not pass the
+        // endpoint's admin policy, so the handler checks it too.
+        sess.AssertInRole("Admin");
+
         var doc = await db.Documents
             .Include(d => d.ServiceRequest).ThenInclude(r => r.Group).ThenInclude(g => g.Community)
             .AsNoTracking()

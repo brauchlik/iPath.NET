@@ -11,14 +11,13 @@ namespace iPath.EF.Core.FeatureHandlers.Admin;
 public class GetDocumentStorageInfoHandler(
     iPathDbContext db,
     IOptions<iPathConfig> opts,
-    IStorageRegistry storage,
-    IRemoteStorageService srvStorage)
+    IStorageRegistry storage)
     : IRequestHandler<GetDocumentStorageInfoQuery, Task<DocumentStorageInfoDto?>>
 {
     public async Task<DocumentStorageInfoDto?> Handle(GetDocumentStorageInfoQuery request, CancellationToken ct)
     {
         var doc = await db.Documents
-            .Include(d => d.ServiceRequest)
+            .Include(d => d.ServiceRequest).ThenInclude(r => r.Group).ThenInclude(g => g.Community)
             .AsNoTracking()
             .FirstOrDefaultAsync(d => d.Id == request.DocumentId, ct);
 
@@ -26,6 +25,7 @@ public class GetDocumentStorageInfoHandler(
 
         var tempFile = Path.Combine(opts.Value.TempDataPath, doc.Id.ToString());
 
+        var expected = storage.ForCommunity(doc.ServiceRequest?.Group?.Community?.Settings.StorageInstance);
         string? remotePath = null;
         var provider = storage.Resolve(doc.File.Storage?.ProviderName);
         if (provider is not null && doc.ServiceRequest is not null)
@@ -47,8 +47,9 @@ public class GetDocumentStorageInfoHandler(
             ImageWidth = doc.File.ImageWidth,
             ImageHeight = doc.File.ImageHeight,
             ConversionStatus = doc.File.ConversionStatus?.ToString(),
+            ExpectedStorage = expected.InstanceName,
             StorageProviderMismatch = doc.File.Storage is not null
-                && (provider?.InstanceName ?? doc.File.Storage.ProviderName) != srvStorage.ProviderName
+                && (provider?.InstanceName ?? doc.File.Storage.ProviderName) != expected.InstanceName
         };
     }
 }

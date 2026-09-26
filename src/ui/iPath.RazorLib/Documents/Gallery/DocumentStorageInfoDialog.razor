@@ -19,8 +19,9 @@
             @if (_storageInfo.StorageProviderMismatch == true)
             {
                 <MudAlert Severity="Severity.Warning" Class="mb-4" Dismissible="false">
-                    Storage provider mismatch: document is stored on <strong>@_storageInfo.StorageProvider</strong>,
-                    but the system is currently using a different storage provider. The file may not be accessible.
+                    This file is stored on <strong>@_storageInfo.StorageProvider</strong>, but its community uses
+                    <strong>@_storageInfo.ExpectedStorage</strong>. It stays readable; a storage migration moves it
+                    (see System → Storage).
                 </MudAlert>
             }
 

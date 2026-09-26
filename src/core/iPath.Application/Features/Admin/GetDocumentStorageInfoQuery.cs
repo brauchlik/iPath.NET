@@ -16,5 +16,8 @@ public class DocumentStorageInfoDto
     public int? ImageWidth { get; set; }
     public int? ImageHeight { get; set; }
     public string? ConversionStatus { get; set; }
+    /// <summary>The storage instance the document's community uses.</summary>
+    public string? ExpectedStorage { get; set; }
+    /// <summary>The file is not on its community's storage (yet): a migration is due or running.</summary>
     public bool? StorageProviderMismatch { get; set; }
 }

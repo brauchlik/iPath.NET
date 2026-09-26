@@ -17,7 +17,7 @@ public record GroupDto(Guid Id, string Name, eGroupVisibility Visibility,
     QuestionnaireForGroupDto[]? Questionnaires);
 
 
-public record UserGroupMemberDto(Guid GroupId, string Groupname, eMemberRole Role, bool IsConsultant);
+public record UserGroupMemberDto(Guid GroupId, string Groupname, eMemberRole Role, bool IsConsultant, Guid? CommunityId = null);
 
 public record GroupMemberDto(Guid UserId, string Username, eMemberRole Role, bool IsConsultant);
 

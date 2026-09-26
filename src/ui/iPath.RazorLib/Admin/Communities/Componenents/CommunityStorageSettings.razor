@@ -6,23 +6,33 @@
 @inject ISnackbar snackbar
 @inject IDialogService dialogs
 
-<MudText Typo="Typo.h6" Class="mt-8">Storage</MudText>
-<MudText Typo="Typo.body2" Class="mb-2">
-    Files of this community are stored in <b>@CurrentLabel</b>.
-    Changing it moves all existing files in the background; they stay readable until each is moved.
-</MudText>
+<MudPaper Outlined="true" Class="pa-4 mt-8">
+    <MudText Typo="Typo.h6">Storage</MudText>
+    <MudText Typo="Typo.body2" Class="mb-3">
+        Files of this community are stored in <b>@CurrentLabel</b>.
+        Changing it moves all existing files in the background; they stay readable until each is moved.
+        This is separate from <i>Save</i> below, which never changes the storage.
+    </MudText>
 
-<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-    <MudSelect T="string" Label="Storage instance" @bind-Value="_selected" Variant="Variant.Outlined" Margin="Margin.Dense" Style="max-width:360px">
-        @foreach (var instance in _instances)
-        {
-            <MudSelectItem Value="@instance.Name">@instance.Name (@instance.Type@(instance.IsDefault ? ", default" : ""))</MudSelectItem>
-        }
-    </MudSelect>
-    <MudButton Variant="Variant.Filled" Color="Color.Warning" Disabled="@(_busy || _selected is null || _selected == Current)" OnClick="ChangeAsync">
-        Change storage and migrate
-    </MudButton>
-</MudStack>
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+        <MudSelect T="string" Label="Storage instance" @bind-Value="_selected" Variant="Variant.Outlined" Margin="Margin.Dense" Style="max-width:360px">
+            @foreach (var instance in _instances)
+            {
+                <MudSelectItem Value="@instance.Name">@instance.Name (@instance.Type@(instance.IsDefault ? ", default" : ""))</MudSelectItem>
+            }
+        </MudSelect>
+        <MudButton Variant="Variant.Filled" Color="Color.Warning" Disabled="@(_busy || _selected is null || _selected == Current)" OnClick="ChangeAsync">
+            Change storage and migrate
+        </MudButton>
+    </MudStack>
+
+    @if (_selected is not null && _selected != Current)
+    {
+        <MudAlert Severity="Severity.Warning" Dense="true" Class="mt-3">
+            Not applied yet: click <b>Change storage and migrate</b> to move this community to @_selected.
+        </MudAlert>
+    }
+</MudPaper>
 
 @code {
     [Parameter, EditorRequired] public Guid CommunityId { get; set; }

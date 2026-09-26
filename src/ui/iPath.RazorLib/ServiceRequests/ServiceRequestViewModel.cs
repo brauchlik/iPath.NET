@@ -880,8 +880,22 @@ public class ServiceRequestViewModel(IPathApi api,
             if (res?.Data is Guid groupId)
             {
                 var cmd = new UpdateServiceRequestCommand(ServiceRequestId: SelectedRequest.Id, NewGroupId: groupId);
-                var resp = await api.UpdateRequest(cmd);
-                snackbar.CheckSuccess(resp);
+                string? error;
+                try
+                {
+                    var resp = await api.UpdateRequest(cmd);
+                    error = resp.IsSuccessful ? null : resp.ErrorText();
+                }
+                catch (Exception ex)
+                {
+                    error = ex.Message;
+                }
+
+                if (error is not null)
+                {
+                    await srvDialog.ShowMessageBoxAsync("Case not moved", error);
+                    return;
+                }
                 nm.NavigateTo($"groups/{cmd.NewGroupId}");
             }
         }

@@ -6,16 +6,26 @@
     <DialogContent>
         @if (user is not null)
         {
-            <MudList T="UserGroupMemberDto" SelectionMode="SelectionMode.SingleSelection" @bind-SelectedValue="selection">
-                @foreach (var m in user.GroupMembership)
-                {
-                    <MudListItem Value="m" Text="@m.Groupname" />
-                }
-            </MudList>
+            @if (targets.Count == 0)
+            {
+                <MudAlert Severity="Severity.Info" Dense="true">
+                    The case owner is not a member of another group in this community. A case can only be moved within its community.
+                </MudAlert>
+            }
+            else
+            {
+                <MudText Typo="Typo.body2" Class="mb-2">Groups of the same community the case owner belongs to:</MudText>
+                <MudList T="UserGroupMemberDto" SelectionMode="SelectionMode.SingleSelection" @bind-SelectedValue="selection">
+                    @foreach (var m in targets)
+                    {
+                        <MudListItem Value="m" Text="@m.Groupname" />
+                    }
+                </MudList>
+            }
         }
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="OnMove" Color="Color.Primary" Variant="Variant.Filled">Move</MudButton>
+        <MudButton OnClick="OnMove" Color="Color.Primary" Variant="Variant.Filled" Disabled="@(selection is null)">Move</MudButton>
         <MudButton OnClick="@MudDialog.Cancel" Variant="Variant.Filled">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
@@ -27,19 +37,27 @@
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; }
 
-    private UserGroupMemberDto selection;
+    private UserGroupMemberDto? selection;
     private UserDto user;
+    private List<UserGroupMemberDto> targets = [];
 
     protected override async Task OnInitializedAsync()
     {
         if (vm.SelectedRequest is not null)
         {
-            user = await uvm.GetUserAsync(vm.SelectedRequest.Owner.Id);            
+            user = await uvm.GetUserAsync(vm.SelectedRequest.Owner.Id);
+            // A community is a tenant: only its own groups are offered (the server enforces it too).
+            var currentGroupId = vm.SelectedRequest.GroupId;
+            var community = user?.GroupMembership.FirstOrDefault(m => m.GroupId == currentGroupId)?.CommunityId;
+            targets = user?.GroupMembership
+                .Where(m => m.GroupId != currentGroupId && m.CommunityId == community)
+                .ToList() ?? [];
         }
     }
 
     protected void OnMove()
     {
-        MudDialog.Close(selection.GroupId);
+        if (selection is not null)
+            MudDialog.Close(selection.GroupId);
     }
 }

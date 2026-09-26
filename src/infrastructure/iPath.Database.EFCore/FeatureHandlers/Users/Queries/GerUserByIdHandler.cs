@@ -19,7 +19,7 @@ public class GetUserByIdHandler(iPathDbContext db, IUserSession sess)
                 HasGoogleAccount = u.Logins != null && u.Logins.Any(x => x.LoginProvider == "Google"),
                 UploadFolderId = u.UploadFolders.FirstOrDefault().Id,
                 GroupMembership = u.GroupMembership.Select(m => new UserGroupMemberDto(GroupId: m.Group.Id, Groupname: m.Group.Name, 
-                    Role: m.Role, IsConsultant: m.IsConsultant)).ToArray(),
+                    Role: m.Role, IsConsultant: m.IsConsultant, CommunityId: m.Group.CommunityId)).ToArray(),
                 CommunityMembership = u.CommunityMembership.Select(m => new CommunityMemberDto(CommunityId: m.Community.Id, UserId: m.UserId, 
                     Role: m.Role, IsConsultant: m.IsConsultant, Communityname: m.Community.Name)).ToArray()
             })

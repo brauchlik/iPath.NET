@@ -196,8 +196,6 @@ public class VsiConversionPlugin(
                 {
                     var bytes = await File.ReadAllBytesAsync(thumbOutput, ct);
                     ctx.Document.File.ThumbData = Convert.ToBase64String(bytes);
-                    ctx.Document.File.ImageWidth = ctx.ThumbSize;
-                    ctx.Document.File.ImageHeight = ctx.ThumbSize;
                 }
                 else
                 {

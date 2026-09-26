@@ -1,53 +1,55 @@
-﻿@namespace iPath.Blazor.Componenents.Documents
+@namespace iPath.Blazor.Componenents.Documents
 @using iPath.Application.Features.Admin
 @using iPath.Blazor.Componenents.Shared
 @using iPath.Blazor.ServiceLib.ApiClient
 
 <MudDialog ContentStyle="width: min(640px, 90vw)">
     <TitleContent>
-        <MudText Typo="Typo.h6">@T["Document Properties"]</MudText>
+        <MudText Typo="Typo.h6">@T["Document Properties"]: @Model.File?.Filename</MudText>
     </TitleContent>
     <DialogContent>
-        <MudStack>
-            <MudTextField Label=@T["Filename"] @bind-Value="Model.File.Filename" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
-            <MudTextField Label=@T["DocumentType"] Value="Model.DocumentType" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
-            <MudTextField Label=@T["MimeType"] @bind-Value="Model.File.MimeType" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
-            <MudTextField Label=@T["Dimensions"] Value="Model.Dimensions" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
-            <MudExpansionPanels Outlined="true" Dense="true" Elevation="2">
-                <MudExpansionPanel Text="@($"{T["Storage"]}: {Model.File?.Storage?.ProviderName ?? T["not stored yet"]}")" ExpandedChanged="OnStorageExpanded">
-                    <MudStack Spacing="2">
-                        <MudTextField Label=@T["File size"] Value="FileSize" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
-                        @if (Model.File?.Storage is { } storage)
+        @if (_info is { StorageProviderMismatch: true })
+        {
+            <MudAlert Severity="Severity.Warning" Dense="true" Class="mb-3">
+                @T["This file is stored on"] <b>@_info.StorageProvider</b>, @T["but its community uses"] <b>@_info.ExpectedStorage</b>.
+                @T["It stays readable; a storage migration moves it (System → Storage)."]
+            </MudAlert>
+        }
+
+        <MudText Typo="Typo.caption">
+            <table class="ipath-debug-table">
+                <tbody>
+                    <tr><td class="pr-3">@T["Filename"]</td><td style="@Wrap">@Model.File?.Filename</td></tr>
+                    <tr><td class="pr-3">@T["DocumentType"]</td><td>@Model.DocumentType</td></tr>
+                    <tr><td class="pr-3">@T["MimeType"]</td><td>@(_info?.MimeType ?? Model.File?.MimeType)</td></tr>
+                    @if (Model.Dimensions is { } size)
+                    {
+                        <tr><td class="pr-3">@T["Dimensions"]</td><td>@size.Width × @size.Height</td></tr>
+                    }
+                    <tr><td class="pr-3">@T["File size"]</td><td>@FileSize</td></tr>
+                    @if (_info is not null)
+                    {
+                        <tr><td class="pr-3">@T["Storage"]</td><td>@(_info.StorageProvider ?? T["not stored yet"])</td></tr>
+                        <tr><td class="pr-3">@T["Community storage"]</td><td>@_info.ExpectedStorage</td></tr>
+                        <tr><td class="pr-3">@T["Storage key"]</td><td style="@Wrap">@_info.StorageId</td></tr>
+                        @if (_info.RemotePath is not null && _info.RemotePath != _info.StorageId)
                         {
-                            <MudTextField Label=@T["Storage key"] Value="storage.StorageId" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" Lines="2" />
+                            <tr><td class="pr-3">@T["Location"]</td><td style="@Wrap">@_info.RemotePath</td></tr>
                         }
-                        @if (_info is { StorageProviderMismatch: true })
+                        <tr><td class="pr-3">@T["Stored on"]</td><td>@(_info.LastStorageExportDate?.ToLocalTime().ToString("g") ?? "-")</td></tr>
+                        <tr><td class="pr-3">@T["In cache"]</td><td>@(_info.IsInCache ? T["yes"] : T["no"])</td></tr>
+                        @if (_info.ConversionStatus is not null)
                         {
-                            <MudAlert Severity="Severity.Warning" Dense="true">
-                                @T["This file is stored on"] <b>@_info.StorageProvider</b>, @T["but its community uses"] <b>@_info.ExpectedStorage</b>.
-                                @T["It stays readable; a storage migration moves it (System → Storage)."]
-                            </MudAlert>
+                            <tr><td class="pr-3">@T["Conversion"]</td><td>@_info.ConversionStatus</td></tr>
                         }
-                        @if (_info is not null)
+                        @foreach (var old in Model.File?.RetiredLocations ?? [])
                         {
-                            <MudTextField Label=@T["Location"] Value="_info.RemotePath" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" Lines="2" />
-                            <MudText Typo="Typo.caption">
-                                @T["In cache"]: @(_info.IsInCache ? T["yes"] : T["no"]) ·
-                                @T["Community storage"]: @_info.ExpectedStorage ·
-                                @T["Stored on"]: @(_info.LastStorageExportDate?.ToLocalTime().ToString("g") ?? "-")
-                                @if (_info.ConversionStatus is not null) { <text> · @T["Conversion"]: @_info.ConversionStatus</text> }
-                            </MudText>
+                            <tr><td class="pr-3">@T["Old copy"]</td><td style="@Wrap">@old.ProviderName: @old.StorageId</td></tr>
                         }
-                        @if (Model.File?.RetiredLocations is { Count: > 0 } retired)
-                        {
-                            <MudTextField Label=@T["Old copies (until the migration is purged)"]
-                                          Value="@string.Join(Environment.NewLine, retired.Select(r => $"{r.ProviderName}: {r.StorageId}"))"
-                                          Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" Lines="@Math.Min(4, retired.Count + 1)" />
-                        }
-                    </MudStack>
-                </MudExpansionPanel>
-            </MudExpansionPanels>
-        </MudStack>
+                    }
+                </tbody>
+            </table>
+        </MudText>
     </DialogContent>
     <DialogActions>
         <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick=@(() => MudDialog.Close())>Close</MudButton>
@@ -60,6 +62,8 @@
 @inject AppState appState
 
 @code {
+    private const string Wrap = "word-break:break-all";
+
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; }
 
@@ -68,17 +72,16 @@
 
     private DocumentStorageInfoDto? _info;
 
-    // Admins get the server-side details (location, cache, community storage) when they open the panel.
-    private async Task OnStorageExpanded(bool expanded)
+    protected override async Task OnInitializedAsync()
     {
-        if (!expanded || _info is not null || !appState.IsAdmin)
+        if (!appState.IsAdmin)
             return;
         var res = await api.GetDocumentStorageInfo(Model.Id);
         if (res.IsSuccessStatusCode)
             _info = res.Content;
     }
 
-    private string FileSize => Model.File?.FileSize is not { } bytes ? "-" : bytes switch
+    private string FileSize => (_info?.FileSize ?? Model.File?.FileSize) is not { } bytes ? "-" : bytes switch
     {
         >= 1L << 30 => $"{bytes / (double)(1L << 30):0.0} GB",
         >= 1L << 20 => $"{bytes / (double)(1L << 20):0.0} MB",

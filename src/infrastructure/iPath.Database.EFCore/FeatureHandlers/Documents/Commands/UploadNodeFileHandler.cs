@@ -54,7 +54,7 @@ public class UploadDocumentFileCommandHandler(iPathDbContext db,
         {
             Filename = request.filename,
             FileSize = request.fileSize,
-            MimeType = request.contenttype ?? srvMime.GetMimeType(request.filename),
+            MimeType = string.IsNullOrEmpty(request.contenttype) ? srvMime.GetMimeType(request.filename) : request.contenttype,
         };
 
         var ext = Path.GetExtension(request.filename);
@@ -101,7 +101,7 @@ public class UploadDocumentFileCommandHandler(iPathDbContext db,
             if (activePlugin != null && activePlugin.RequiresConversion && !wsiConfig.Value.Enabled)
             {
                 logger.LogWarning("WSI conversion disabled, saving {File} as regular file", request.filename);
-                document.File.ConversionSkipped = true;
+                document.File.ConversionSkipped = !WsiFormats.IsNativelyViewable(request.filename);
                 activePlugin = null;
             }
 

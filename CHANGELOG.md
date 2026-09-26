@@ -2,7 +2,9 @@
 
 ## 0.4.1
 
-- UI: one document dialog instead of two - the admin "Storage Info" dialog is merged into Document Properties: admins see location, cache state and the community's storage (with a warning if the file is not there yet) when they open the Storage panel; the storage info API now requires the admin role also for in-process calls
+- UI: one document dialog instead of two - the admin "Storage Info" dialog is merged into Document Properties, a compact table for everyone (name, type, MIME type, dimensions, size); admins also see storage, key, location, cache state and the community's storage (with a warning if the file is not there yet); the storage info API now requires the admin role also for in-process calls
+- Fix: in Server mode a freshly uploaded file could lose its storage location - the upload's DTO shared the tracked entity's file record with the UI, so a UI change to it was saved back later with the location still empty and the file was uploaded again at the next start; document DTOs now carry a copy
+- WSI: uploading an `.svs`/`.tif` while conversion is disabled no longer warns "saved as-is" (the viewer reads these natively), slides no longer report the 100×100 thumbnail size as their dimensions, and uploads the browser sends without a content type get the MIME type from the file extension
 - Storage: Google Drive as a storage instance (`Type: GoogleDrive` with service-account key, optional impersonated user and root folder) - usable per community and in storage migrations like local and S3 storage; files land in readable folders (Community/Group/Case/File, each with a short id), slides are fetched into the temp cache once (single download per document) and originals are range-read from Drive
 - UI: storage admin labels (System page Storage tab, community storage box) go through the localizer
 - VsiConverter: the scanner metadata file `vips-properties.xml` is no longer packed into the `.dzi.zip`

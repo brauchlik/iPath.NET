@@ -64,8 +64,7 @@ public static class DocumentExtensions
         {
             get
             {
-                var ext = Path.GetExtension(document.File?.Filename ?? "").ToLowerInvariant();
-                var nativeTiff = ext is ".svs" or ".tif" or ".tiff"
+                var nativeTiff = WsiFormats.IsNativelyViewable(document.File?.Filename)
                     && document.File?.ConversionStatus != DocumentConversionStatus.Completed;
                 return nativeTiff
                     ? $"/api/v1/documents/{document.Id}/{Uri.EscapeDataString(document.File!.Filename!)}"

@@ -6502,6 +6502,12 @@
               "string"
             ]
           },
+          "expectedStorage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "storageProviderMismatch": {
             "type": [
               "null",
@@ -11857,6 +11863,13 @@
           },
           "isConsultant": {
             "type": "boolean"
+          },
+          "communityId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },

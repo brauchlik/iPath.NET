@@ -15,7 +15,9 @@ public static class DocumentExtensions
             Owner = document.Owner.ToOwnerDto(),
             ServiceRequestId = document.ServiceRequestId,
             ParentNodeId = document.ParentNodeId,
-            File = document.File,
+            // A copy: in Server mode the DTO reaches the UI in-process, and UI edits to the tracked
+            // entity's file would be written back by the next save of that DbContext.
+            File = document.File?.Clone(),
             ipath2_id = document.ipath2_id
         };
     }

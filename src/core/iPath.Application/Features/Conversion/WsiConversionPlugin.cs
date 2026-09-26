@@ -78,8 +78,6 @@ public class WsiConversionPlugin(
             {
                 var bytes = await File.ReadAllBytesAsync(thumbOutput, ct);
                 ctx.Document.File.ThumbData = Convert.ToBase64String(bytes);
-                ctx.Document.File.ImageWidth = ctx.ThumbSize;
-                ctx.Document.File.ImageHeight = ctx.ThumbSize;
                 return ThumbnailResult.Ok();
             }
         }
@@ -117,8 +115,6 @@ public class WsiConversionPlugin(
             {
                 var bytes = await File.ReadAllBytesAsync(thumbOutput, ct);
                 ctx.Document.File.ThumbData = Convert.ToBase64String(bytes);
-                ctx.Document.File.ImageWidth = ctx.ThumbSize;
-                ctx.Document.File.ImageHeight = ctx.ThumbSize;
             }
         }
         finally { try { File.Delete(thumbOutput); } catch { } }

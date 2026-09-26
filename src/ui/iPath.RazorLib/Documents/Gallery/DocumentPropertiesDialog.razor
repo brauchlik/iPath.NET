@@ -10,7 +10,7 @@
             <MudTextField Label=@T["DocumentType"] Value="Model.DocumentType" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
             <MudTextField Label=@T["MimeType"] @bind-Value="Model.File.MimeType" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
             <MudTextField Label=@T["Dimensions"] Value="Model.Dimensions" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
-            <MudExpansionPanels Outlined="true" Dense="true" Elevation="0">
+            <MudExpansionPanels Outlined="true" Dense="true" Elevation="2">
                 <MudExpansionPanel Text="@($"{T["Storage"]}: {Model.File?.Storage?.ProviderName ?? T["not stored yet"]}")">
                     <MudStack Spacing="2">
                         <MudTextField Label=@T["File size"] Value="FileSize" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />

@@ -2,6 +2,7 @@
 
 ## 0.4.0
 
+- WSI: unconverted TIFF-based slides (`.svs`, `.tif`) open in the viewer again - the gallery and slide show pass the original file to OpenSeadragon's GeoTIFF tile source, which reads it tile by tile through range requests (from local storage, the cache or S3)
 - Fix: storage migrations failed on files stored before 0.4.0 (their JSON has no retired-location list, which loaded as null), and moving a case to another group of its community broke its older local files, whose path was derived from the case's current group - a move now first pins their full storage key under the old group
 - UI: document properties show the file size, where the file is stored (storage instance and key) and any old copies a storage migration has not purged yet
 - UI: the move-case dialog only offers groups of the case's own community (a refused move now shows a message dialog instead of an unhandled error), and the community storage setting sits in its own box with a warning while a different instance is selected but not yet applied - the page's Save button never changes the storage

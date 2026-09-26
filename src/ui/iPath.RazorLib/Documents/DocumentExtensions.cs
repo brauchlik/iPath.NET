@@ -55,6 +55,24 @@ public static class DocumentExtensions
 
         public string BinarayDataUrl => $"/api/v1/documents/files/{document.Id}";
 
+        /// <summary>
+        /// Tile source for the slide viewer: the DZI descriptor, or — for a TIFF-based slide that was
+        /// not converted — the original file, which the viewer reads tile by tile with range requests
+        /// (GeoTIFF tile source).
+        /// </summary>
+        public string WsiViewerUrl
+        {
+            get
+            {
+                var ext = Path.GetExtension(document.File?.Filename ?? "").ToLowerInvariant();
+                var nativeTiff = ext is ".svs" or ".tif" or ".tiff"
+                    && document.File?.ConversionStatus != DocumentConversionStatus.Completed;
+                return nativeTiff
+                    ? $"/api/v1/documents/{document.Id}/{Uri.EscapeDataString(document.File!.Filename!)}"
+                    : $"/api/v1/documents/files/{document.Id}.dzi";
+            }
+        }
+
         public string PreviewFileUrl
         {
             get

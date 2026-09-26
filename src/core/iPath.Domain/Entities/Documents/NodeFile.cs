@@ -35,7 +35,14 @@ public class NodeFile
     /// <summary>
     /// Earlier locations left behind by a storage migration; deleted by the migration's purge.
     /// </summary>
-    public List<StorageInfo> RetiredLocations { get; set; } = [];
+    // Files stored before this list existed have no such JSON property and load it as null. The
+    // field name deliberately avoids EF's backing-field convention, so EF goes through the accessors.
+    public List<StorageInfo> RetiredLocations
+    {
+        get => retired ??= [];
+        set => retired = value ?? [];
+    }
+    private List<StorageInfo>? retired;
 
     public NodeFile Clone()
     {

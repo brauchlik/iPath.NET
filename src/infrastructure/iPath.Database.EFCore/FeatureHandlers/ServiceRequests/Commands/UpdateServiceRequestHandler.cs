@@ -1,5 +1,6 @@
 ﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
+using iPath.Application.Contracts.Storage;
 using iPath.Application.Features.Questionnaires;
 using iPath.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -126,6 +127,16 @@ public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator,
             var to = communities.FirstOrDefault(g => g.Id == request.NewGroupId.Value)?.CommunityId;
             if (from != to)
                 throw new ArgumentException("A case can only be moved to a group of the same community.");
+
+            // Old records locate their file through the case's current group; pin their full key
+            // (still under the old group) before the group changes, so the move breaks no file.
+            var documents = await db.Documents.Where(d => d.ServiceRequestId == node.Id).ToListAsync(ct);
+            foreach (var document in documents.Where(d => d.File?.Storage is { } s && StorageKeys.IsLegacy(s)))
+            {
+                var file = document.File.Clone();
+                file.Storage = new StorageInfo(file.Storage!.ProviderName, StorageKeys.Resolve(file.Storage, node.GroupId, node.Id));
+                document.File = file;
+            }
 
             node.GroupId = request.NewGroupId.Value;
         }

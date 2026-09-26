@@ -2,6 +2,7 @@
 
 ## 0.4.0
 
+- Fix: storage migrations failed on files stored before 0.4.0 (their JSON has no retired-location list, which loaded as null), and moving a case to another group of its community broke its older local files, whose path was derived from the case's current group - a move now first pins their full storage key under the old group
 - UI: document properties show the file size, where the file is stored (storage instance and key) and any old copies a storage migration has not purged yet
 - UI: the move-case dialog only offers groups of the case's own community (a refused move now shows a message dialog instead of an unhandled error), and the community storage setting sits in its own box with a warning while a different instance is selected but not yet applied - the page's Save button never changes the storage
 - Database: Sqlite migration `StorageMigrations` - tables `storage_migrations` and `storage_migration_items`; the model snapshot also records the JSON shape changes (community storage instance, retired file locations, `PublicUrl` removed) and catches up questionnaire settings that earlier migrations had not recorded

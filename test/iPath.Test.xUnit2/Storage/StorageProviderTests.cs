@@ -260,3 +260,23 @@ public class S3StorageProviderTests
         }
     }
 }
+
+public class NodeFileRetiredLocationsTests
+{
+    [Fact]
+    public void RetiredLocations_SetToNull_ReadsAsEmptyAndClones()
+    {
+        // Files stored before RetiredLocations existed load the list as null from their JSON.
+        var file = new NodeFile { RetiredLocations = null! };
+
+        file.RetiredLocations.Should().BeEmpty();
+        file.Clone().RetiredLocations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void IsLegacy_FileNameOnly_IsLegacy()
+    {
+        StorageKeys.IsLegacy(new StorageInfo("LocalFiles", "abc")).Should().BeTrue();
+        StorageKeys.IsLegacy(new StorageInfo("local-main", "g/r/d/original")).Should().BeFalse();
+    }
+}

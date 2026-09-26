@@ -20,5 +20,8 @@ public static class StorageKeys
     /// name, stored under the case folder of the group at that time.
     /// </summary>
     public static string Resolve(StorageInfo storage, Guid groupId, Guid requestId) =>
-        storage.StorageId.Contains('/') ? storage.StorageId : $"{groupId}/{requestId}/{storage.StorageId}";
+        IsLegacy(storage) ? $"{groupId}/{requestId}/{storage.StorageId}" : storage.StorageId;
+
+    /// <summary>A record written before full keys were stored: only a file name, located by the case's group.</summary>
+    public static bool IsLegacy(StorageInfo storage) => !storage.StorageId.Contains('/');
 }

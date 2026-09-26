@@ -1,0 +1,165 @@
+@using iPath.Blazor.ServiceLib.ApiClient
+@implements IDisposable
+@inject IPathApi api
+
+<MudText Typo="Typo.h6" Class="mb-2 mt-4">Storage Instances</MudText>
+<MudSimpleTable Dense="true" Striped="true" Class="mb-6">
+    <thead>
+        <tr><th>Name</th><th>Type</th><th>Location</th><th></th></tr>
+    </thead>
+    <tbody>
+        @foreach (var instance in _instances)
+        {
+            <tr>
+                <td>@instance.Name</td>
+                <td>@instance.Type</td>
+                <td style="word-break:break-all">@instance.Description</td>
+                <td>@if (instance.IsDefault) { <MudChip T="string" Size="Size.Small" Color="Color.Primary">Default</MudChip> }</td>
+            </tr>
+        }
+    </tbody>
+</MudSimpleTable>
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
+    <MudText Typo="Typo.h6">Storage Migrations</MudText>
+    <MudSpacer />
+    <MudIconButton Icon="@Icons.Material.Filled.Refresh" Title="Refresh" OnClick="LoadAsync" />
+</MudStack>
+
+<MudDataGrid Items="_migrations" T="StorageMigrationDto" Dense="true" Striped="true" Hover="true">
+    <Columns>
+        <PropertyColumn Property="x => x.CreatedOn" Title="Created" Format="g" />
+        <PropertyColumn Property="x => x.Description" Title="Migration" />
+        <TemplateColumn Title="Status">
+            <CellTemplate>
+                <MudChip T="string" Size="Size.Small" Color="@StatusColor(context.Item.Status)">@context.Item.Status</MudChip>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Progress">
+            <CellTemplate>
+                @{ var m = context.Item; var done = m.Switched + m.Failed + m.Skipped; }
+                <MudStack Spacing="0" Style="min-width:160px">
+                    <MudProgressLinear Value="@(m.Total == 0 ? 100 : done * 100.0 / m.Total)" Color="@(m.Failed > 0 ? Color.Warning : Color.Success)" />
+                    <MudText Typo="Typo.caption">@m.Switched moved, @m.Failed failed, @m.Skipped skipped of @m.Total · @FormatSize(m.Bytes)</MudText>
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="">
+            <CellTemplate>
+                @{ var m = context.Item; }
+                <MudStack Row="true" Spacing="1">
+                    @if (m.Failed > 0)
+                    {
+                        <MudButton Size="Size.Small" Variant="Variant.Text" OnClick="() => ShowFailedAsync(m)">Failed items</MudButton>
+                    }
+                    @if (m.Status is "Pending" or "Running")
+                    {
+                        <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Warning" OnClick="() => RunAsync(api.CancelStorageMigration(m.Id), m)">Cancel</MudButton>
+                    }
+                    @if (m.Status is "CompletedWithErrors" or "Cancelled")
+                    {
+                        <MudButton Size="Size.Small" Variant="Variant.Outlined" OnClick="() => RunAsync(api.RetryStorageMigration(m.Id), m)">Resume</MudButton>
+                    }
+                    @if (m.Status is "Completed" or "CompletedWithErrors" or "Cancelled")
+                    {
+                        <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Error" OnClick="() => RunAsync(api.PurgeStorageMigration(m.Id), m)"
+                                   Title="Delete the retired source copies and the local backup">Purge</MudButton>
+                    }
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <NoRecordsContent>
+        <MudText Typo="Typo.body2">No storage migrations yet.</MudText>
+    </NoRecordsContent>
+</MudDataGrid>
+
+@if (_failedFor is not null)
+{
+    <MudText Typo="Typo.subtitle1" Class="mt-4">Failed items of "@_failedFor.Description"</MudText>
+    <MudSimpleTable Dense="true" Striped="true">
+        <thead><tr><th>Document</th><th>Source</th><th>Target</th><th>Attempts</th><th>Error</th></tr></thead>
+        <tbody>
+            @foreach (var item in _failedItems)
+            {
+                <tr>
+                    <td>@item.DocumentId</td>
+                    <td style="word-break:break-all">@item.SourceInstance:@item.SourceKey</td>
+                    <td style="word-break:break-all">@item.TargetInstance:@item.TargetKey</td>
+                    <td>@item.Attempts</td>
+                    <td>@item.ErrorMessage</td>
+                </tr>
+            }
+        </tbody>
+    </MudSimpleTable>
+}
+
+@code {
+    List<StorageInstanceDto> _instances = [];
+    List<StorageMigrationDto> _migrations = [];
+    StorageMigrationDto? _failedFor;
+    List<StorageMigrationItemDto> _failedItems = [];
+    Timer? _refresh;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var instances = await api.GetStorageInstances();
+        if (instances.IsSuccessStatusCode && instances.Content is not null)
+            _instances = instances.Content;
+        await LoadAsync();
+
+        // Running migrations move files in the background; refresh while any is active.
+        _refresh = new Timer(async _ =>
+        {
+            if (_migrations.Any(m => m.Status is "Pending" or "Running"))
+            {
+                await LoadAsync();
+                await InvokeAsync(StateHasChanged);
+            }
+        }, null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(3));
+    }
+
+    private async Task LoadAsync()
+    {
+        var res = await api.GetStorageMigrations();
+        if (res.IsSuccessStatusCode && res.Content is not null)
+            _migrations = res.Content;
+    }
+
+    private async Task RunAsync(Task<Refit.IApiResponse<StorageMigrationDto>> action, StorageMigrationDto migration)
+    {
+        var res = await action;
+        if (!res.IsSuccessStatusCode)
+            snackbar.Add(res.ErrorText(), Severity.Warning);
+        await LoadAsync();
+        if (_failedFor?.Id == migration.Id)
+            _failedFor = null;
+    }
+
+    private async Task ShowFailedAsync(StorageMigrationDto migration)
+    {
+        var res = await api.GetStorageMigrationItems(migration.Id, failedOnly: true);
+        _failedItems = res.Content ?? [];
+        _failedFor = migration;
+    }
+
+    private static Color StatusColor(string status) => status switch
+    {
+        "Completed" => Color.Success,
+        "CompletedWithErrors" => Color.Warning,
+        "Running" => Color.Info,
+        "Cancelled" => Color.Default,
+        "Purged" => Color.Dark,
+        _ => Color.Default,
+    };
+
+    private static string FormatSize(long bytes) => bytes switch
+    {
+        >= 1L << 30 => $"{bytes / (double)(1L << 30):0.0} GB",
+        >= 1L << 20 => $"{bytes / (double)(1L << 20):0.0} MB",
+        >= 1L << 10 => $"{bytes / 1024.0:0} KB",
+        _ => $"{bytes} B",
+    };
+
+    public void Dispose() => _refresh?.Dispose();
+}

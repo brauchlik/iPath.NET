@@ -115,6 +115,18 @@ public class UpdateServiceRequestHandler(iPathDbContext db, IMediator mediator,
                 .SingleOrDefaultAsync(ct);
 
             Guard.Against.Null(newOwner, "NewGroupId", "Request owner is not member of the new group");
+
+            // A community is a tenant: its cases never leave it. Within the community the stored
+            // keys stay valid, so the move changes nothing in storage.
+            var communities = await db.Groups.AsNoTracking()
+                .Where(g => g.Id == node.GroupId || g.Id == request.NewGroupId.Value)
+                .Select(g => new { g.Id, g.CommunityId })
+                .ToListAsync(ct);
+            var from = communities.FirstOrDefault(g => g.Id == node.GroupId)?.CommunityId;
+            var to = communities.FirstOrDefault(g => g.Id == request.NewGroupId.Value)?.CommunityId;
+            if (from != to)
+                throw new ArgumentException("A case can only be moved to a group of the same community.");
+
             node.GroupId = request.NewGroupId.Value;
         }
 

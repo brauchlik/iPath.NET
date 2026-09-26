@@ -1,6 +1,7 @@
 using iPath.API.Services.Cache;
 using iPath.Application.Contracts;
 using iPath.Application.Features.Notifications;
+using iPath.Application.Features.Storage;
 using iPath.Application.Features.Users;
 using iPath.Application.Localization;
 using System.ComponentModel;
@@ -160,6 +161,38 @@ public static class AdminEndpoints
             .Produces<List<TableRowCountDto>>()
             .WithTags("Admin")
             .RequireAuthorization("Admin");
+
+        var storage = route.MapGroup("admin/storage")
+            .WithTags("Admin")
+            .RequireAuthorization("Admin");
+
+        storage.MapGet("instances", async (IMediator mediator, CancellationToken ct)
+            => Results.Ok(await mediator.Send(new GetStorageInstancesQuery(), ct)))
+            .Produces<List<StorageInstanceDto>>();
+
+        storage.MapPost("community", async ([FromBody] ChangeCommunityStorageCommand command, IMediator mediator, CancellationToken ct)
+            => Results.Ok(await mediator.Send(command, ct)))
+            .Produces<StorageMigrationDto>();
+
+        storage.MapGet("migrations", async (IMediator mediator, CancellationToken ct)
+            => Results.Ok(await mediator.Send(new GetStorageMigrationsQuery(), ct)))
+            .Produces<List<StorageMigrationDto>>();
+
+        storage.MapGet("migrations/{id:guid}/items", async (Guid id, bool? failedOnly, IMediator mediator, CancellationToken ct)
+            => Results.Ok(await mediator.Send(new GetStorageMigrationItemsQuery(id, failedOnly ?? false), ct)))
+            .Produces<List<StorageMigrationItemDto>>();
+
+        storage.MapPost("migrations/{id:guid}/retry", async (Guid id, IMediator mediator, CancellationToken ct)
+            => Results.Ok(await mediator.Send(new RetryStorageMigrationCommand(id), ct)))
+            .Produces<StorageMigrationDto>();
+
+        storage.MapPost("migrations/{id:guid}/cancel", async (Guid id, IMediator mediator, CancellationToken ct)
+            => Results.Ok(await mediator.Send(new CancelStorageMigrationCommand(id), ct)))
+            .Produces<StorageMigrationDto>();
+
+        storage.MapPost("migrations/{id:guid}/purge", async (Guid id, IMediator mediator, CancellationToken ct)
+            => Results.Ok(await mediator.Send(new PurgeStorageMigrationCommand(id), ct)))
+            .Produces<StorageMigrationDto>();
 
         route.MapGet("admin/vsi/jobs", async (IMediator mediator, CancellationToken ct) =>
         {

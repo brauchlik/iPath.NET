@@ -18,6 +18,7 @@ using iPath.Application.Features.Questionnaires.Queries;
 using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.ServiceRequests.Commands;
 using iPath.Application.Features.SyncImport;
+using iPath.Application.Features.Storage;
 using iPath.Application.Features.TaskAssignments;
 using iPath.Application.Features.Users;
 using iPath.Application.Features.Users.Commands;
@@ -549,6 +550,41 @@ public class DirectApiClient(
     public async Task<IApiResponse<List<WsiConversionJobDto>>> GetWsiConversionJobs()
     {
         return Respond(await mediator.Send(new GetWsiConversionJobsQuery(), default));
+    }
+
+    public Task<IApiResponse<List<StorageInstanceDto>>> GetStorageInstances() =>
+        Try(() => mediator.Send(new GetStorageInstancesQuery(), default));
+
+    public Task<IApiResponse<StorageMigrationDto?>> ChangeCommunityStorage(ChangeCommunityStorageCommand command) =>
+        Try(() => mediator.Send(command, default));
+
+    public Task<IApiResponse<List<StorageMigrationDto>>> GetStorageMigrations() =>
+        Try(() => mediator.Send(new GetStorageMigrationsQuery(), default));
+
+    public Task<IApiResponse<List<StorageMigrationItemDto>>> GetStorageMigrationItems(Guid id, bool failedOnly = false) =>
+        Try(() => mediator.Send(new GetStorageMigrationItemsQuery(id, failedOnly), default));
+
+    public Task<IApiResponse<StorageMigrationDto>> RetryStorageMigration(Guid id) =>
+        Try(() => mediator.Send(new RetryStorageMigrationCommand(id), default));
+
+    public Task<IApiResponse<StorageMigrationDto>> CancelStorageMigration(Guid id) =>
+        Try(() => mediator.Send(new CancelStorageMigrationCommand(id), default));
+
+    public Task<IApiResponse<StorageMigrationDto>> PurgeStorageMigration(Guid id) =>
+        Try(() => mediator.Send(new PurgeStorageMigrationCommand(id), default));
+
+    // Storage actions report their refusals (running migration, unknown instance, ...) to the UI
+    // instead of throwing into the component.
+    private static async Task<IApiResponse<T>> Try<T>(Func<Task<T>> action)
+    {
+        try
+        {
+            return Respond(await action());
+        }
+        catch (Exception ex)
+        {
+            return RespondError<T>(ex);
+        }
     }
 
     public async Task<IApiResponse<List<PurgeDocumentFileDto>>> GetDeletedDocumentsWithFiles()

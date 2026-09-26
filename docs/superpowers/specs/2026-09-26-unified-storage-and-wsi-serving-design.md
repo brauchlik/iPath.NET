@@ -194,32 +194,21 @@ Performance comes from, in order:
 
 ## 6. Location records and migration
 
-### 6.1 Every stored object records where it lives
+### 6.1 Every document records where it lives (as built)
 
-Each document records each stored object with its instance and status. This is a **location
-history**, not a set of replicas: at most one `Active` location per variant; `Retired` entries are
-source copies left behind by a migration.
+Decided 2026-09-26, replacing the location list first sketched here:
 
-```csharp
-public class StorageLocation
-{
-    public string Instance { get; set; }                  // configured instance name
-    public string Key { get; set; }                       // written once, never re-derived
-    public string Variant { get; set; } = "Original";     // Original | DziZip | TileIndex
-    public StorageLocationStatus Status { get; set; }     // Pending | Active | Retired | Purged
-    public long? Size { get; set; }
-    public string? Sha256 { get; set; }                   // verification during migration
-    public DateTime? UpdatedOn { get; set; }
-}
-```
-
-- Reads use the `Active` location of the requested variant.
-- A document whose `Active` instance differs from its community's instance is either an unfinished
-  migration or a bug — the admin consistency check reports it (today's `StorageProviderMismatch`
-  flag is the seed of this).
-- Storage: `NodeFile` holds `List<StorageLocation>` inside the JSON column `file`, replacing
-  `Storage` outright (not in production → no data conversion). EF model migration; the developer
-  runs `dotnet ef` per provider (AGENTS.md).
+- `NodeFile.Storage` is the **active** location (instance name + key). Every read follows it.
+- `NodeFile.RetiredLocations` holds the locations a storage migration left behind; the migration's
+  purge deletes those objects and clears the entries.
+- **Pending** is not stored on the document: a file in `temp` whose document has no active location
+  is an upload in progress. The upload worker re-queues these at startup, and cache cleanup never
+  deletes them — the in-memory queue no longer loses uploads on restart.
+- The tile index is not a separate record: it always sits at `key + ".tileindex"`.
+- Migration details (source, target, status, SHA-256, attempts) live on the migration's per-document
+  item (§6.3), not on the document.
+- Storage fields are **server-owned**: updates of documents, cases, groups and communities keep the
+  stored values and ignore the client's copy.
 
 ### 6.2 Keys and human readability
 
@@ -251,33 +240,37 @@ Drive instance.
 - Native originals (`.svs`) open in QuPath/ImageScope; a `.dzi.zip` does not — on Drive,
   readability is served by the original variant.
 
-### 6.3 Migration: rare, manual, complete
+### 6.3 Migration: background job with one task per document (as built)
 
-Migration is an **admin tool** (console command or hidden admin action) run in a maintenance
-window — no UI workflow, no background scheduling.
+**Only a change of storage instance migrates files.** A case moved to another group of its
+community, or a group moved to a community on the same instance, keeps its stored keys — nothing is
+copied. A case can never leave its community (a community is a tenant; the server refuses it).
 
 Triggers:
 
-- changing a community's storage instance;
-- **moving a group into, out of, or between main communities** — always a migration, never just a
-  DB update. Even with the same instance on both sides the tool runs, because the human-readable
-  layout (Community/Group/…) changes; on Drive that is a cheap in-Drive folder move.
+- an admin changes a community's storage instance (community admin → Storage);
+- a group is moved to a main community on another instance (group admin; assigning the *first*
+  main community stays open to moderators, moving is admin-only).
 
-Steps, per community or group:
+Model: `StorageMigration` (job: kind, scope, status, backup path) with one `StorageMigrationItem`
+per document (source/target instance and key, status `Pending → Copied → Switched | Failed |
+Skipped`, SHA-256, attempts, error).
 
-1. Block writes for the scope (maintenance).
-2. For each object: add target location `Pending` → copy through the server → verify size + hash →
-   target `Active`, source `Retired`. Resumable per object.
-3. **Always write a local backup** of every object passing through:
-   `{BackupRoot}/{groupId}/{requestId}/{documentId}/{variant}` — a self-contained per-group copy,
-   whatever the source and target instance (Drive → S3 cannot copy server-side anyway, so the
-   bytes pass the server regardless).
-4. Switch the community's instance (or the group's `CommunityId`).
-5. Consistency check: no `Active` location outside the scope's instance.
-6. Later, separately and manually: purge `Retired` source objects **and** the backup → `Purged`.
+Flow:
 
-Safety net: until step 6, rolling back is a status flip on the location records (no data copy),
-and the backup folder is an independent copy of the group.
+1. **The relation switches at once** (community instance / group's community). New uploads go to
+   the target immediately; existing documents stay readable from their recorded location. No scope
+   lock is needed.
+2. `StorageMigrationWorker` (one job at a time, resumed after restart) processes the items: source →
+   local backup `{MigrationBackupPath or DataRoot/storage-backup}/{migrationId}/{key}` (hashed) →
+   target → re-read and compare SHA-256; the tile index is copied the same way.
+3. **Switch in one save:** `Storage` = target, old location → `RetiredLocations`, item `Switched`.
+4. Up to 3 attempts per item with back-off, then `Failed`; the job ends `Completed` or
+   `CompletedWithErrors`. **Resume** retries failed items, **Cancel** stops (switched documents stay
+   on the target, the rest on the source — all readable).
+5. **Purge** (manual, per finished job): delete the retired source objects and the backup.
+
+Progress, failed items and the actions are on the System page, Storage tab.
 
 ## 7. Comparing approaches during development
 

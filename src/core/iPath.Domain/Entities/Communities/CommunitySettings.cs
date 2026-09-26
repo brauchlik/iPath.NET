@@ -21,7 +21,14 @@ public class CommunitySettings
     public string? TopographyValueSet { get; set; }
 
 
+    /// <summary>Provider-internal location of the community (e.g. its Google Drive folder).</summary>
     public StorageInfo? Storage { get; set; }
+
+    /// <summary>
+    /// Storage instance for the files of this community's groups; null uses Storage:Default.
+    /// Server-owned: only a storage migration changes it.
+    /// </summary>
+    public string? StorageInstance { get; set; }
 
     private AiConfig _aiSettings = new();
     public AiConfig AiSettings

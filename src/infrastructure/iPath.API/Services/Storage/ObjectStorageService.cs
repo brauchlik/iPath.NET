@@ -50,7 +50,7 @@ public class ObjectStorageService(
         try
         {
             var document = await db.Documents
-                .Include(n => n.ServiceRequest)
+                .Include(n => n.ServiceRequest).ThenInclude(r => r.Group).ThenInclude(g => g.Community)
                 .FirstOrDefaultAsync(n => n.Id == documentId, ct);
             Guard.Against.NotFound(documentId, document);
             if (document.ServiceRequest is null)
@@ -60,7 +60,7 @@ public class ObjectStorageService(
             if (!File.Exists(localFile))
                 return StorageRepsonse.Fail($"Local file not found: {localFile}");
 
-            var provider = registry.Default;
+            var provider = registry.ForCommunity(document.ServiceRequest.Group?.Community?.Settings.StorageInstance);
             var key = document.File.Storage is { } existing && registry.Resolve(existing.ProviderName) == provider
                 ? StorageKeys.Resolve(existing, document.ServiceRequest.GroupId, document.ServiceRequestId)
                 : StorageKeys.ForDocument(document.ServiceRequest.GroupId, document.ServiceRequestId, documentId);

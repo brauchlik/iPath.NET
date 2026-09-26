@@ -26,8 +26,14 @@ public class UpdateCommunityHandler(iPathDbContext db, IUserSession sess)
             community.Owner = Guard.Against.NotFound(request.OwnerId.Value.ToString(), user);
         }
 
-        if (request.Settings is not null) 
-            community.Settings = request.Settings;
+        if (request.Settings is not null)
+        {
+            // Storage fields are server-owned: only a storage migration changes them.
+            var settings = request.Settings.Clone();
+            settings.Storage = community.Settings.Storage;
+            settings.StorageInstance = community.Settings.StorageInstance;
+            community.Settings = settings;
+        }
 
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
 

@@ -57,6 +57,8 @@ public class iPathDbContext : IdentityDbContext<User, Role, Guid>
     public DbSet<CaseEmbedding> CaseEmbeddings { get; set; }
 
     public DbSet<WsiConversionJob> WsiConversionJobs { get; set; }
+    public DbSet<StorageMigration> StorageMigrations => Set<StorageMigration>();
+    public DbSet<StorageMigrationItem> StorageMigrationItems => Set<StorageMigrationItem>();
     public DbSet<DocumentCacheEntry> DocumentCacheEntries => Set<DocumentCacheEntry>();
 
 

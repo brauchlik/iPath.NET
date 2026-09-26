@@ -22,7 +22,11 @@ public static partial class ServiceRequestCommandExtensions
             isPublishEvent = true;
 
         if (request.Description is not null)
+        {
+            // The case's storage folder id is server-owned; the client's copy is ignored.
+            request.Description.Storage = sr.Description?.Storage;
             sr.Description = request.Description;
+        }
 
         if (request.IsDraft.HasValue)
             sr.IsDraft = request.IsDraft.Value;

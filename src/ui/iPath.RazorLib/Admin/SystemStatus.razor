@@ -7,6 +7,9 @@
 <IPathHeader Title="System Status" />
 
 <MudTabs Position="Position.Top" Class="mt-4">
+    <MudTabPanel Text="Storage">
+        <StorageMigrationsPanel />
+    </MudTabPanel>
     <MudTabPanel Text="System Status">
         <MudText Typo="Typo.h6" Class="mb-4 mt-4">WSI Conversion Jobs (Last 10)</MudText>
         <MudDataGrid Items="conversionJobs" T="WsiConversionJobDto" Dense="true" Striped="true" Hover="true">

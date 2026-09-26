@@ -158,6 +158,10 @@ public static class APIServicesRegistration
         config.GetSection(StorageConfig.ConfigName).Bind(storageCfg);
         services.AddSingleton<IStorageRegistry>(sp =>
             StorageRegistry.Create(storageCfg, cfg, sp.GetRequiredService<ILoggerFactory>()));
+        services.AddScoped<IStorageMigrationPlanner, iPath.EF.Core.FeatureHandlers.Storage.StorageMigrationPlanner>();
+        services.AddSingleton<IStorageMigrationQueue, iPath.API.Services.Storage.Migration.StorageMigrationQueue>();
+        services.AddScoped<iPath.API.Services.Storage.Migration.StorageMigrationProcessor>();
+        services.AddHostedService<iPath.API.Services.Storage.Migration.StorageMigrationWorker>();
         if (!services.AddGoogleDriveServices(config))
         {
             // LocalFiles / S3 instances when Google Drive is not configured

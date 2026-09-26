@@ -22,6 +22,7 @@ internal class DocumentNodeConfiguration : IEntityTypeConfiguration<DocumentNode
         b.ComplexProperty(x => x.File, pb =>
         {
             pb.ToJson("file");
+            pb.ComplexCollection(f => f.RetiredLocations);
             pb.Property(f => f.ConversionStatus)
                 .HasConversion(
                     v => v.HasValue ? v.Value.ToString().ToLower() : (string?)null,

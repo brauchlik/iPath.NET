@@ -12,6 +12,12 @@ public class StorageConfig
     public string? Default { get; set; }
 
     public Dictionary<string, StorageInstanceConfig> Instances { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Where storage migrations keep a local copy of every moved file until the migration is
+    /// purged. Defaults to {DataRoot}/storage-backup.
+    /// </summary>
+    public string? MigrationBackupPath { get; set; }
 }
 
 public enum StorageInstanceType

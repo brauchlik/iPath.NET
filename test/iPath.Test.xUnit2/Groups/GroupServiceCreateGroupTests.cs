@@ -31,7 +31,9 @@ public class GroupServiceCreateGroupTests
         _db.Communities.Add(community);
         await _db.SaveChangesAsync();
 
-        var svc = new GroupService(_db, _sess, Substitute.For<IMediator>(), NullLogger<GroupService>.Instance);
+        var svc = new GroupService(_db, _sess, Substitute.For<IMediator>(), NullLogger<GroupService>.Instance,
+            Substitute.For<iPath.Application.Contracts.Storage.IStorageMigrationPlanner>(),
+            Substitute.For<iPath.Application.Contracts.Storage.IStorageMigrationQueue>());
 
         var dto = await svc.CreateGroupAsync(new CreateGroupCommand
         {

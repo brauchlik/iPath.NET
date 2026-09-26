@@ -29,6 +29,8 @@ public class CleanStaleCacheFilesHandler(
             var name = fi.Name;
             if (name.EndsWith(".dzi", StringComparison.OrdinalIgnoreCase))
                 name = name[..^4];
+            else if (name.EndsWith(".tileindex", StringComparison.OrdinalIgnoreCase))
+                name = name[..^10];
 
             if (Guid.TryParse(name, out var docId) && fi.CreationTimeUtc < cutoff)
                 candidates.TryAdd(docId, fi);
@@ -55,6 +57,7 @@ public class CleanStaleCacheFilesHandler(
             .Select(d => new
             {
                 d.Id,
+                d.File,
                 LastSrVisit = d.ServiceRequest.LastVisits
                     .Max(v => (DateTime?)v.Date)
             })
@@ -73,6 +76,9 @@ public class CleanStaleCacheFilesHandler(
         {
             if (doc.LastSrVisit.HasValue && doc.LastSrVisit.Value >= cutoff)
                 continue;
+            // Not stored yet: the temp file is the only copy and waits for its upload.
+            if (doc.File?.Storage is null)
+                continue;
             idsToDelete.Add(doc.Id);
         }
 
@@ -83,6 +89,16 @@ public class CleanStaleCacheFilesHandler(
             var tempFile = Path.Combine(_tempPath, idStr);
             var dziFolder = Path.Combine(_tempPath, $"{idStr}_files");
             var dziDescFile = Path.Combine(_tempPath, $"{idStr}.dzi");
+            var tileIndexFile = Path.Combine(_tempPath, $"{idStr}.tileindex");
+            try
+            {
+                if (File.Exists(tileIndexFile))
+                    File.Delete(tileIndexFile);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Cache hygiene: failed to delete {Path}", tileIndexFile);
+            }
 
             try
             {

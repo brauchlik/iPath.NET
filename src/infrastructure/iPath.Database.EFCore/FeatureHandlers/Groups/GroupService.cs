@@ -1,9 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using iPath.Application.Contracts.Storage;
+using Microsoft.Extensions.Logging;
 using EFunc = Microsoft.EntityFrameworkCore.EF;
 
 namespace iPath.EF.Core.FeatureHandlers.Groups;
 
-public class GroupService(iPathDbContext db, IUserSession sess, IMediator mediator, ILogger<GroupService> logger)
+public class GroupService(iPathDbContext db, IUserSession sess, IMediator mediator, ILogger<GroupService> logger,
+    IStorageMigrationPlanner migrationPlanner, IStorageMigrationQueue migrationQueue)
     : IGroupService
 {
     #region "-- Queries --"
@@ -190,7 +192,8 @@ public class GroupService(iPathDbContext db, IUserSession sess, IMediator mediat
 
         var group = Group.Create(Name: cmd.Name, Owner: owner, community);
         group.AddMember(owner.Id, eMemberRole.Moderator);
-        group.Settings = cmd.Settings;
+        group.Settings = (cmd.Settings ?? new()).Clone();
+        group.Settings.Storage = null;
         group.Visibility = cmd.Visibility ?? eGroupVisibility.MembersOnly;
 
         await db.Groups.AddAsync(group, ct);
@@ -224,12 +227,39 @@ public class GroupService(iPathDbContext db, IUserSession sess, IMediator mediat
             group.RenameGroup(cmd.Name);
         }
 
-        if (cmd.Settings != null) group.Settings = cmd.Settings;
+        if (cmd.Settings != null)
+        {
+            // The Drive folder id is server-owned; a client's copy of the settings must not change it.
+            var settings = cmd.Settings.Clone();
+            settings.Storage = group.Settings?.Storage;
+            group.Settings = settings;
+        }
         if (cmd.Visibility.HasValue) group.Visibility = cmd.Visibility.Value;
         if (cmd.OwnerId.HasValue) group.OwnerId = cmd.OwnerId.Value;
-        if (cmd.CommunityId.HasValue) group.CommunityId = cmd.CommunityId.Value;
+
+        StorageMigration? migration = null;
+        if (cmd.CommunityId.HasValue && cmd.CommunityId != group.CommunityId)
+        {
+            // Assigning the first main community stays open to moderators (as before);
+            // moving a group between communities is an admin action.
+            if (group.CommunityId.HasValue)
+                sess.AssertInRole("Admin");
+            var target = await db.Communities.AsNoTracking().FirstOrDefaultAsync(c => c.Id == cmd.CommunityId.Value, ct);
+            Guard.Against.NotFound(cmd.CommunityId.Value, target);
+
+            // The group moves now; its files follow in the background if the new community uses
+            // another storage instance, and stay readable where they are until then.
+            group.CommunityId = cmd.CommunityId.Value;
+            await db.SaveChangesAsync(ct);
+            migration = await migrationPlanner.PlanGroupAsync(group.Id, StorageMigrationKind.GroupMove,
+                $"Group '{group.Name}' → community '{target.Name}'", ct);
+            if (migration is not null)
+                db.StorageMigrations.Add(migration);
+        }
 
         await db.SaveChangesAsync(ct);
+        if (migration is not null)
+            await migrationQueue.EnqueueAsync(migration.Id, ct);
         await mediator.Publish(new GroupCacheClearedEvent(group.Id), ct);
     }
 

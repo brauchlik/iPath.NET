@@ -18,10 +18,6 @@ public class NodeFile
     public string? MimeType { get; set; }
     public string? ThumbData { get; set; }
 
-    // No longer read or written; removed together with the StorageLocation migration so this
-    // change does not need a model migration of its own.
-    public string? PublicUrl { get; set; }
-
     public long? FileSize { get; set; }
 
     public int? ImageWidth { get; set; }
@@ -33,9 +29,20 @@ public class NodeFile
 
     public int ThumbRetryCount { get; set; }
 
+    /// <summary>Where the file is read from.</summary>
     public StorageInfo? Storage { get; set; }
 
-    public NodeFile Clone() => (NodeFile)MemberwiseClone();
+    /// <summary>
+    /// Earlier locations left behind by a storage migration; deleted by the migration's purge.
+    /// </summary>
+    public List<StorageInfo> RetiredLocations { get; set; } = [];
+
+    public NodeFile Clone()
+    {
+        var clone = (NodeFile)MemberwiseClone();
+        clone.RetiredLocations = [.. RetiredLocations];
+        return clone;
+    }
 }
 
 

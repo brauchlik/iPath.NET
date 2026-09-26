@@ -22,7 +22,14 @@ public class UpdateDocumentHandler(iPathDbContext db, IUserSession sess)
         }
 
         if (request.Description is not null)
-            document.File = request.Description;
+        {
+            // Where the file is stored is server-owned: a client's (possibly stale) copy must never
+            // undo a storage migration or point the document at another object.
+            var file = request.Description.Clone();
+            file.Storage = document.File.Storage;
+            file.RetiredLocations = [.. document.File.RetiredLocations];
+            document.File = file;
+        }
 
         await db.SaveChangesAsync(ct);
     }

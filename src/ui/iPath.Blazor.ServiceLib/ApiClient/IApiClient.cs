@@ -16,6 +16,7 @@ using iPath.Application.Features.ServiceRequests;
 using iPath.Application.Features.ServiceRequests.Commands;
 using iPath.Application.Features.Users;
 using iPath.Application.Features.SyncImport;
+using iPath.Application.Features.Storage;
 using iPath.Application.Localization;
 using iPath.Application.Querying;
 using iPath.Domain.Config;
@@ -309,6 +310,27 @@ public interface IPathApi
 
     [Get("/api/v1/admin/vsi/jobs")]
     Task<IApiResponse<List<WsiConversionJobDto>>> GetWsiConversionJobs();
+
+    [Get("/api/v1/admin/storage/instances")]
+    Task<IApiResponse<List<StorageInstanceDto>>> GetStorageInstances();
+
+    [Post("/api/v1/admin/storage/community")]
+    Task<IApiResponse<StorageMigrationDto?>> ChangeCommunityStorage([Body] ChangeCommunityStorageCommand command);
+
+    [Get("/api/v1/admin/storage/migrations")]
+    Task<IApiResponse<List<StorageMigrationDto>>> GetStorageMigrations();
+
+    [Get("/api/v1/admin/storage/migrations/{id}/items")]
+    Task<IApiResponse<List<StorageMigrationItemDto>>> GetStorageMigrationItems(Guid id, [Query] bool failedOnly = false);
+
+    [Post("/api/v1/admin/storage/migrations/{id}/retry")]
+    Task<IApiResponse<StorageMigrationDto>> RetryStorageMigration(Guid id);
+
+    [Post("/api/v1/admin/storage/migrations/{id}/cancel")]
+    Task<IApiResponse<StorageMigrationDto>> CancelStorageMigration(Guid id);
+
+    [Post("/api/v1/admin/storage/migrations/{id}/purge")]
+    Task<IApiResponse<StorageMigrationDto>> PurgeStorageMigration(Guid id);
 
     [Get("/api/v1/admin/purge/deleted-documents")]
     Task<IApiResponse<List<PurgeDocumentFileDto>>> GetDeletedDocumentsWithFiles();

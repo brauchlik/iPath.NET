@@ -2,6 +2,7 @@
 
 ## 0.3.3
 
+- Docs: design for the remote storage overhaul (`docs/superpowers/specs/2026-09-26-unified-storage-and-wsi-serving-design.md`) - named storage instances with a server default and a per-community override, a location record per stored object, manual migrations with a local per-group backup, everything served through the app (public Drive links go), DZI tiles range-read from the stored zip via an import-time index, the external VsiConverter as the WSI entry point, and the application/UI impact survey
 - Fix: zipped DZI imports failed with "DZI files folder ... not found" - the VsiConverter zip carried backslash separators, which extract as literal filenames on Linux. Import now normalizes separators, and the tool writes forward slashes and fails instead of producing a descriptor-only zip when vips made no tiles
 - Fix: the translations admin page was unusable in WebAssembly - it read the target languages from `LocalizationSettings`, a server-only options type that is never bound in the WASM client, so the picker had no entries and nothing loaded. It now reads the same `iPathClientConfig` mirror that the language menu uses, and says so when no target language is configured
 - Admin: the translations page can import shipped defaults (adds keys missing from the live store and fills empty ones, never overwriting a translation) and flags rows whose live translation differs from the shipped text, with the original in the hover and a reset icon in the inline editor to restore the shipped wording

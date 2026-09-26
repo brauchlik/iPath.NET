@@ -281,19 +281,21 @@ public static class APIServicesRegistration
 
     private static void CreateDataRoot(iPathConfig cfg)
     {
-        if (!string.IsNullOrEmpty(cfg.DataRoot) && !System.IO.Directory.Exists(cfg.DataRoot))
+        if (!string.IsNullOrEmpty(cfg.DataRoot))
         {
             try
             {
                 var root = new System.IO.DirectoryInfo(cfg.DataRoot);
                 root.Create();
 
+                // Only folders directly under DataRoot are created: a data or temp path elsewhere
+                // (e.g. an unmounted share) must fail instead of silently becoming a local folder.
                 var data = new System.IO.DirectoryInfo(cfg.LocalDataPath);
-                if (root.FullName == data.Parent.FullName)
+                if (root.FullName == data.Parent?.FullName)
                     data.Create();
 
                 var temp = new System.IO.DirectoryInfo(cfg.TempDataPath);
-                if (root.FullName == temp.Parent.FullName)
+                if (root.FullName == temp.Parent?.FullName)
                     temp.Create();
             }
             catch (Exception ex)

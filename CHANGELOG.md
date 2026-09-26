@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.1
+
+- CaseRoom: unconverted SVS/TIFF slides open in the shared viewer (GeoTIFF tile source), and guest links may read and download a case's original files
 ## 0.4.0
 
 - Fix: changes to a user's roles, group or community memberships and bans did not reach an active user's session - the session cache was stored under the user id as a string but `ReloadUser` removed the Guid, so it never invalidated, and the 5-minute sliding expiry never ran out while the user kept working. `ReloadUser` now uses the same key (and also clears the current request's copy), sessions are refreshed at least every 10 minutes regardless, and community membership changes, group creation (owner), group destruction (all members), user deletion and the iPath2 sync import now reload the affected sessions

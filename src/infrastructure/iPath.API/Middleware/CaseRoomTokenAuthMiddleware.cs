@@ -89,6 +89,23 @@ public class CaseRoomTokenAuthMiddleware(RequestDelegate next)
                 }
             }
         }
+        else if (path.StartsWith("/api/v1/documents/", StringComparison.OrdinalIgnoreCase))
+        {
+            // Original file (documents/{id}/{filename}): guests may download it and the viewer reads
+            // unconverted SVS/TIFF slides from it.
+            var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length == 5 && Guid.TryParse(segments[3], out var docId))
+            {
+                var db = context.RequestServices.GetService<iPathDbContext>();
+                if (db != null)
+                {
+                    requestId = await db.Documents
+                        .Where(d => d.Id == docId)
+                        .Select(d => d.ServiceRequestId)
+                        .FirstOrDefaultAsync();
+                }
+            }
+        }
         else if (path.StartsWith("/api/v1/events/stream", StringComparison.OrdinalIgnoreCase))
         {
             if (Guid.TryParse(context.Request.Query["requestId"].ToString(), out var id))

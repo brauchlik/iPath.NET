@@ -438,8 +438,9 @@ public partial class CaseRoomPage
     private string GetTileSourceUrl(Guid? docId, bool? isWSI)
     {
         if (docId is null) return string.Empty;
+        var document = vm.SelectedRequest?.Documents.FirstOrDefault(d => d.Id == docId);
         var baseUrl = isWSI == true
-            ? $"/api/v1/documents/files/{docId}.dzi"
+            ? document?.WsiViewerUrl ?? $"/api/v1/documents/files/{docId}.dzi"
             : $"/api/v1/documents/files/{docId}";
 
         return string.IsNullOrEmpty(token) ? baseUrl : $"{baseUrl}?token={token}";

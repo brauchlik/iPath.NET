@@ -53,9 +53,16 @@ export function openTileSource(url) {
     if (!viewer) return;
     isApplyingRemote = true;
     if (url) {
-        const cleanUrl = url.split('?')[0];
-        if (cleanUrl.toLowerCase().endsWith('.dzi')) {
+        const cleanUrl = url.split('?')[0].toLowerCase();
+        if (cleanUrl.endsWith('.dzi')) {
             viewer.open(url);
+        } else if (/\.(svs|tiff?)$/.test(cleanUrl)) {
+            // Unconverted TIFF-based slide: read tile by tile with range requests, as the gallery viewer does.
+            const opened = viewer;
+            import('https://cdn.jsdelivr.net/gh/episphere/GeoTIFFTileSource-JPEG2k/GeoTIFFTileSource.js')
+                .then(() => OpenSeadragon.GeoTIFFTileSource.getAllTileSources(url, { logLatency: false, cache: true, slideOnly: true }))
+                .then(tileSources => { if (viewer === opened) viewer.open(tileSources); })
+                .catch(err => console.error('[CaseRoom] GeoTIFF open failed:', err));
         } else {
             viewer.open({ type: 'image', url: url, buildPyramid: false });
         }

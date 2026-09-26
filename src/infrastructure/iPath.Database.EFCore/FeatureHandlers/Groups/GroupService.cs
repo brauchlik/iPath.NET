@@ -195,6 +195,7 @@ public class GroupService(iPathDbContext db, IUserSession sess, IMediator mediat
 
         await db.Groups.AddAsync(group, ct);
         await db.SaveChangesAsync(ct);
+        sess.ReloadUser(owner.Id);
 
         return group.ToListDto();
     }
@@ -240,6 +241,11 @@ public class GroupService(iPathDbContext db, IUserSession sess, IMediator mediat
         var groupId = cmd.Id;
 
         Guard.Against.NotFound(groupId, await db.Groups.AnyAsync(g => g.Id == groupId, ct));
+
+        var memberIds = await db.Set<GroupMember>()
+            .Where(m => m.GroupId == groupId)
+            .Select(m => m.UserId)
+            .ToListAsync(ct);
 
         // Delete in FK-safe reverse order — SQLite ignores OnDelete(Cascade)
 
@@ -307,6 +313,9 @@ public class GroupService(iPathDbContext db, IUserSession sess, IMediator mediat
         await db.Groups
             .Where(g => g.Id == groupId)
             .ExecuteDeleteAsync(ct);
+
+        foreach (var memberId in memberIds)
+            sess.ReloadUser(memberId);
 
         logger.LogInformation("Group {GroupId} permanently deleted by {User}", groupId, sess.Username);
     }

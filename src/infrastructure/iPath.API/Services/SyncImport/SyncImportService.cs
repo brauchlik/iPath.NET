@@ -14,6 +14,7 @@ public class SyncImportRunner(
     iPathDbContext newDb,
     UserManager<User> um,
     RoleManager<Role> rm,
+    IUserSession sess,
     ILogger<SyncImportRunner> logger) : ISyncImportRunner
 {
     private readonly Dictionary<int, Guid> _userIds = [];
@@ -308,6 +309,7 @@ public class SyncImportRunner(
         var oldMembers = await oldDb.GetGroupMembersAsync(ct);
         var grouped = oldMembers.GroupBy(m => m.Group_id).ToDictionary(g => g.Key);
         var memberCount = 0;
+        var memberIds = new HashSet<Guid>();
 
         foreach (var (oldGroupId, members) in grouped)
         {
@@ -323,11 +325,14 @@ public class SyncImportRunner(
                 if ((m.Status & 2) != 0) role = eMemberRole.Banned;
                 if ((m.Status & 8) != 0) role = eMemberRole.Guest;
                 grp.AddMember(uid, role);
+                memberIds.Add(uid);
                 memberCount++;
             }
         }
 
         await newDb.SaveChangesAsync(ct);
+        foreach (var uid in memberIds)
+            sess.ReloadUser(uid);
         logger.LogInformation("Imported {Count} group members", memberCount);
     }
 
@@ -491,6 +496,9 @@ public class SyncImportRunner(
         }
 
         await SaveWithDiagnosticsAsync(ct);
+        foreach (var m in members)
+            if (_userIds.TryGetValue(m.User_id, out var uid))
+                sess.ReloadUser(uid);
         logger.LogInformation("Imported group {Name} (id={Id}) with {Members} members",
             oldGroup.Name, groupId, members.Count);
     }
@@ -671,6 +679,7 @@ public class SyncImportRunner(
         {
             grp.AddMember(userId, eMemberRole.User);
             await SaveWithDiagnosticsAsync(ct);
+            sess.ReloadUser(userId);
             logger.LogInformation("Added user {UserId} as member of group {GroupId}", userId, groupId);
         }
     }

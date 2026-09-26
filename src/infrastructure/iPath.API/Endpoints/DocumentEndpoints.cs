@@ -1,5 +1,5 @@
 using Ardalis.GuardClauses;
-using Google.Apis.Drive.v3.Data;
+using iPath.API.Services.Wsi;
 using iPath.Application.Features.Documents;
 using iPath.Application.Features.ServiceRequests.Commands;
 using Microsoft.AspNetCore.Mvc;
@@ -36,127 +36,54 @@ public static class DocumentEndpoints
             .RequireAuthorization();
 
 
-        grp.MapGet("{id}/{filename}", async (string id, string? filename, [FromServices] IMediator mediator, HttpContext ctx, CancellationToken ct) =>
+        grp.MapGet("{id}/{filename}", async (string id, string? filename, [FromServices] IMediator mediator, CancellationToken ct) =>
         {
-            if (Guid.TryParse(id, out var nodeId))
-            {
-                var res = await mediator.Send(new GetDocumentFileQuery(nodeId), ct);
+            if (!Guid.TryParse(id, out var nodeId))
+                return Results.BadRequest();
 
-                if (res.NotFound || !System.IO.File.Exists(res.TempFile))
-                {
-                    return Results.NotFound();
-                }
-                else if (res.AccessDenied)
-                {
-                    return Results.Unauthorized();
-                }
-                else
-                {
-                    var stream = new FileStream(res.TempFile, FileMode.Open, FileAccess.Read, FileShare.Read);
-                    return Results.File(stream, contentType: res.Info.MimeType, fileDownloadName: res.Info.Filename);
-                }
-            }
+            var res = await mediator.Send(new GetDocumentFileQuery(nodeId), ct);
+            if (res.AccessDenied) return Results.Unauthorized();
 
-            return Results.BadRequest();
+            var path = res.ServePath;
+            if (res.NotFound || path is null) return Results.NotFound();
+
+            return Results.File(path, contentType: res.Info?.MimeType, fileDownloadName: res.Info?.Filename, enableRangeProcessing: true);
         })
            .RequireAuthorization()
            .Produces(StatusCodes.Status200OK)
            .Produces(StatusCodes.Status404NotFound);
 
-        grp.MapGet("files/{*filepath}", async Task<IResult> (string filepath, [FromServices] IMediator mediator, [FromServices] IOptions<iPath.Domain.Config.iPathConfig> opts, HttpContext ctx, CancellationToken ct) =>
+        grp.MapGet("files/{*filepath}", async Task<IResult> (string filepath, [FromServices] IMediator mediator,
+            [FromServices] DziTileIndexCache tileIndexes, [FromServices] IOptions<iPath.Domain.Config.iPathConfig> opts,
+            HttpContext ctx, CancellationToken ct) =>
         {
-            var parts = filepath.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 0) return Results.BadRequest();
+            var request = DziFileRequest.Parse(filepath);
+            if (request is null) return Results.BadRequest();
 
-            var target = parts[0];
-            Guid? docId = null;
-            if (target.EndsWith(".dzi", StringComparison.OrdinalIgnoreCase) && Guid.TryParse(target[..^4], out var id1))
-            {
-                docId = id1;
-            }
-            else if (target.EndsWith("_files", StringComparison.OrdinalIgnoreCase) && Guid.TryParse(target[..^6], out var id2))
-            {
-                docId = id2;
-            }
-            else if (Guid.TryParse(target, out var id3))
-            {
-                docId = id3;
-            }
-
-            if (!docId.HasValue) return Results.BadRequest();
-
-            var res = await mediator.Send(new GetDocumentFileQuery(docId.Value), ct);
-            if (res == null || res.NotFound) return Results.NotFound();
+            var res = await mediator.Send(new GetDocumentFileQuery(request.DocumentId), ct);
             if (res.AccessDenied) return Results.Unauthorized();
 
-            var externalFilesPath = opts.Value.TempDataPath;
-            if (string.IsNullOrWhiteSpace(externalFilesPath)) return Results.NotFound();
+            var path = res.ServePath;
+            if (res.NotFound || path is null) return Results.NotFound();
 
-            var physicalPath = Path.Combine(externalFilesPath, filepath);
+            if (request.Kind == DziFileKind.Raw)
+                return Results.File(path, contentType: res.Info?.MimeType ?? "application/octet-stream", enableRangeProcessing: true);
 
-            if (!System.IO.File.Exists(physicalPath))
+            var index = await tileIndexes.GetAsync(path, ct);
+            if (index is null)
+                return ServeLooseDzi(opts.Value.TempDataPath, request, ctx);
+
+            if (request.Kind == DziFileKind.Descriptor)
             {
-                var filename = res.Info?.Filename;
-                var isZip = filename?.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) == true
-                            || filename?.EndsWith(".dzi", StringComparison.OrdinalIgnoreCase) == true
-                            || filename?.EndsWith(".vsi", StringComparison.OrdinalIgnoreCase) == true;
-
-                if (isZip)
-                {
-                    // Determine source: use storage file path if available (LocalStorage direct access),
-                    // otherwise use the temp cache file (downloaded from GDrive)
-                    var sourceZip = !string.IsNullOrEmpty(res.StorageFilePath) ? res.StorageFilePath : res.TempFile;
-
-                    if (!string.IsNullOrEmpty(sourceZip) && System.IO.File.Exists(sourceZip))
-                    {
-                        try
-                        {
-                            System.IO.Compression.ZipFile.ExtractToDirectory(sourceZip, externalFilesPath, overwriteFiles: true);
-
-                            // Clean up: delete zip from temp cache after extraction.
-                            // On next request the temp file will be re-downloaded from storage.
-                            if (System.IO.File.Exists(res.TempFile))
-                            {
-                                System.IO.File.Delete(res.TempFile);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            var logger = ctx.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("DocumentEndpoints");
-                            logger.LogError(ex, "Failed to unzip cache file {Path} to {Temp}", sourceZip, externalFilesPath);
-                        }
-                    }
-                }
+                SetNoCache(ctx);
+                return new FileRangeResult(path, index.Descriptor.Offset, index.Descriptor.Length, "application/xml");
             }
 
-            if (System.IO.File.Exists(physicalPath))
-            {
-                var contentTypeProvider = new Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider();
-                if (!contentTypeProvider.TryGetContentType(physicalPath, out var contentType))
-                {
-                    contentType = "application/octet-stream";
-                }
+            if (!index.TryGetTile(request.Level, request.Column, request.Row, out var tile))
+                return Results.NotFound();
 
-                if (physicalPath.EndsWith(".dzi", StringComparison.OrdinalIgnoreCase))
-                {
-                    contentType = "application/xml";
-                }
-
-                if (filepath.Contains("_files", StringComparison.OrdinalIgnoreCase))
-                {
-                    ctx.Response.Headers.Append("Cache-Control", "public, max-age=31536000");
-                }
-                else
-                {
-                    ctx.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
-                    ctx.Response.Headers.Append("Pragma", "no-cache");
-                    ctx.Response.Headers.Append("Expires", "0");
-                }
-
-                return Results.File(physicalPath, contentType);
-            }
-
-            return Results.NotFound();
+            SetTileCache(ctx);
+            return new FileRangeResult(path, tile.Offset, tile.Length, TileContentType(index.TileExtension));
         })
         .RequireAuthorization()
         .Produces(StatusCodes.Status200OK)
@@ -200,4 +127,40 @@ public static class DocumentEndpoints
 
         return builder;
     }
+
+    // WsiConversionPlugin still writes its dzsave output unzipped into TempDataPath.
+    private static IResult ServeLooseDzi(string tempDataPath, DziFileRequest request, HttpContext ctx)
+    {
+        var path = request.LoosePath(tempDataPath);
+        if (!System.IO.File.Exists(path))
+            return Results.NotFound();
+
+        if (request.Kind == DziFileKind.Descriptor)
+        {
+            SetNoCache(ctx);
+            return Results.File(path, "application/xml");
+        }
+
+        SetTileCache(ctx);
+        return Results.File(path, TileContentType(request.Extension!));
+    }
+
+    private static void SetNoCache(HttpContext ctx)
+    {
+        ctx.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+        ctx.Response.Headers.Pragma = "no-cache";
+        ctx.Response.Headers.Expires = "0";
+    }
+
+    // Tiles never change for a document id, so the browser keeps them. "private": they are
+    // access-controlled patient data and must not be stored by shared proxies.
+    private static void SetTileCache(HttpContext ctx) =>
+        ctx.Response.Headers.CacheControl = "private, max-age=31536000, immutable";
+
+    private static string TileContentType(string extension) => extension switch
+    {
+        "webp" => "image/webp",
+        "png" => "image/png",
+        _ => "image/jpeg",
+    };
 }

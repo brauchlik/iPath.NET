@@ -189,6 +189,7 @@ public static class APIServicesRegistration
         // Caching
         services.AddMemoryCache();
         services.AddScoped<ICacheManager, CacheManager>();
+        services.AddSingleton<iPath.API.Services.Wsi.DziTileIndexCache>();
         services.AddScoped<IUserSession, UserSession>();
         services.AddScoped<IAssignmentCandidateService, AssignmentCandidateService>();
 

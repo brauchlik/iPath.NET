@@ -37,15 +37,6 @@ public class GetDocumentFileHandler(iPathDbContext db,
 
         var fn = Path.Combine(opts.Value.TempDataPath, document.Id.ToString());
 
-        // get file form store if no local copy exists
-        if (!System.IO.File.Exists(fn))
-        {
-            await srvStorage.GetFileAsync(document.Id, cancellationToken);
-        }
-
-        if (!System.IO.File.Exists(fn))
-            return new FetchFileResponse(NotFound: true);
-
         string? storagePath = null;
         if (document.File?.Storage?.ProviderName == "LocalFiles" && !string.IsNullOrEmpty(document.File.Storage.StorageId))
         {
@@ -54,6 +45,15 @@ public class GetDocumentFileHandler(iPathDbContext db,
             if (!System.IO.File.Exists(storagePath))
                 storagePath = null;
         }
+
+        // A local storage file is served in place; only remote files are fetched into the temp cache.
+        if (storagePath is null && !System.IO.File.Exists(fn))
+        {
+            await srvStorage.GetFileAsync(document.Id, cancellationToken);
+        }
+
+        if (storagePath is null && !System.IO.File.Exists(fn))
+            return new FetchFileResponse(NotFound: true);
 
         return new FetchFileResponse(TempFile: fn, Info: document.File, StorageFilePath: storagePath);
     }

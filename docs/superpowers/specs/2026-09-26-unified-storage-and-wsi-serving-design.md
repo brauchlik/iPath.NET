@@ -484,8 +484,12 @@ VsiConverter (desktop, tools/VsiConverter)  →  {name}.dzi.zip (stored entries)
    permission and `PUBLIC_API_KEY`; serve through the cache. The `NodeFile.PublicUrl` property
    itself stays unused until the step-7 migration, so step 0 needs no model migration. ✅
 1. **DZI import as-is + tile index** — `DziImportPlugin` validates and indexes the uploaded
-   `.dzi.zip` (tile entries only) and stores it unchanged; converter tool strips metadata.
-2. **Range serving** from the stored zip for local storage; remove extraction to `TempDataPath`.
+   `.dzi.zip` (tile entries only) and stores it unchanged. ✅ (converter-tool metadata strip still open)
+2. **Range serving** from the stored zip for local storage; remove extraction to `TempDataPath`. ✅
+   Until the `TileIndex` variant exists (step 6), the index is built on first view from the local zip
+   (57k tiles: well under a second) and kept in memory (`DziTileIndexCache`, sliding 20 min,
+   single build per zip). Measured through Kestrel on a real slide: tile p50 0.37 ms, p95 0.5 ms
+   without the per-tile access check. `WsiConversionPlugin`'s loose output is still served as files.
 3. **Cache** access decision and tile index (`HybridCache`).
 4. **Split the storage layers** (§4.1): `IStorageProvider` per instance, document storage service,
    instance registry from config. Local + current single Drive first.

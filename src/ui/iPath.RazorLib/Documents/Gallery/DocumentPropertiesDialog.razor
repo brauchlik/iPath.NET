@@ -10,6 +10,18 @@
             <MudTextField Label=@T["DocumentType"] Value="Model.DocumentType" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
             <MudTextField Label=@T["MimeType"] @bind-Value="Model.File.MimeType" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
             <MudTextField Label=@T["Dimensions"] Value="Model.Dimensions" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
+            <MudTextField Label=@T["File size"] Value="FileSize" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
+            <MudTextField Label=@T["Storage"] Value="@(Model.File?.Storage?.ProviderName ?? T["not stored yet"])" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
+            @if (Model.File?.Storage is { } storage)
+            {
+                <MudTextField Label=@T["Storage key"] Value="storage.StorageId" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" Lines="2" />
+            }
+            @if (Model.File?.RetiredLocations is { Count: > 0 } retired)
+            {
+                <MudTextField Label=@T["Old copies (until the migration is purged)"]
+                              Value="@string.Join(Environment.NewLine, retired.Select(r => $"{r.ProviderName}: {r.StorageId}"))"
+                              Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" Lines="@Math.Min(4, retired.Count + 1)" />
+            }
         </MudStack>
     </DialogContent>
     <DialogActions>
@@ -26,4 +38,12 @@
 
     [Parameter]
     public DocumentDto Model { get; set; }
+
+    private string FileSize => Model.File?.FileSize is not { } bytes ? "-" : bytes switch
+    {
+        >= 1L << 30 => $"{bytes / (double)(1L << 30):0.0} GB",
+        >= 1L << 20 => $"{bytes / (double)(1L << 20):0.0} MB",
+        >= 1L << 10 => $"{bytes / 1024.0:0} KB",
+        _ => $"{bytes} B",
+    };
 }

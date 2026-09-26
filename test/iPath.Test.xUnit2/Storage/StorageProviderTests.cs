@@ -280,3 +280,19 @@ public class NodeFileRetiredLocationsTests
         StorageKeys.IsLegacy(new StorageInfo("local-main", "g/r/d/original")).Should().BeFalse();
     }
 }
+
+public class ReadableKeyTests
+{
+    [Fact]
+    public void Readable_BuildsNamedFoldersWithShortIds()
+    {
+        var community = Guid.Parse("0192f3a4-0000-7000-8000-0000000000c1");
+        var group = Guid.Parse("0192f3a4-0000-7000-8000-0000000000a1");
+        var request = Guid.Parse("0192f3a4-0000-7000-8000-0000000000b1");
+        var document = Guid.Parse("0192f3a4-0000-7000-8000-0000000000d1");
+
+        var key = StorageKeys.Readable("AGKT", community, "AGKT/1", group, "Case: lung", request, "slide.dzi.zip", document);
+
+        key.Should().Be("AGKT__000000c1/AGKT-1__000000a1/Case: lung__000000b1/slide.dzi__000000d1.zip");
+    }
+}

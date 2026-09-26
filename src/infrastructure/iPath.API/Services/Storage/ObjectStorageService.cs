@@ -63,7 +63,7 @@ public class ObjectStorageService(
             var provider = registry.ForCommunity(document.ServiceRequest.Group?.Community?.Settings.StorageInstance);
             var key = document.File.Storage is { } existing && registry.Resolve(existing.ProviderName) == provider
                 ? StorageKeys.Resolve(existing, document.ServiceRequest.GroupId, document.ServiceRequestId)
-                : StorageKeys.ForDocument(document.ServiceRequest.GroupId, document.ServiceRequestId, documentId);
+                : StorageKeys.ForNewFile(provider, document);
 
             await provider.PutFileAsync(key, localFile, document.File.MimeType, ct);
 
@@ -85,10 +85,18 @@ public class ObjectStorageService(
         }
     }
 
+    // Remote instances like Google Drive are fetched whole into the temp cache; several tile
+    // requests arriving together must not start the same download twice.
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Guid, SemaphoreSlim> Downloads = new();
+
     public async Task<StorageRepsonse> GetFileAsync(Guid documentId, CancellationToken ct = default)
     {
+        var gate = Downloads.GetOrAdd(documentId, _ => new SemaphoreSlim(1, 1));
+        await gate.WaitAsync(ct);
         try
         {
+            if (File.Exists(TempPath(documentId)))
+                return new StorageRepsonse(true);
             var (document, provider, key) = await LocateAsync(documentId, ignoreDeleted: false, ct);
             if (provider is null || key is null)
                 return StorageRepsonse.Fail($"Document {documentId} is not in a configured storage instance");
@@ -109,7 +117,12 @@ public class ObjectStorageService(
             logger.LogError(ex, "Error fetching document {DocumentId} from storage", documentId);
             return StorageRepsonse.Fail($"Error fetching document {documentId}: {ex.Message}");
         }
+        finally
+        {
+            gate.Release();
+        }
     }
+
 
     public async Task<StorageRepsonse> DeleteFileAsync(Guid documentId, CancellationToken ct = default)
     {

@@ -2,6 +2,7 @@
 
 ## 0.4.1
 
+- Storage: Google Drive as a storage instance (`Type: GoogleDrive` with service-account key, optional impersonated user and root folder) - usable per community and in storage migrations like local and S3 storage; files land in readable folders (Community/Group/Case/File, each with a short id), slides are fetched into the temp cache once (single download per document) and originals are range-read from Drive
 - UI: storage admin labels (System page Storage tab, community storage box) go through the localizer
 - VsiConverter: the scanner metadata file `vips-properties.xml` is no longer packed into the `.dzi.zip`
 - Tests: the conversion poller test waits for real ticks instead of a fixed delay, which failed intermittently on the first run after a build

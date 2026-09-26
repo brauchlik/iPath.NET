@@ -48,6 +48,7 @@ public sealed class StorageRegistry : IStorageRegistry, IDisposable
                 StorageInstanceType.LocalFiles => new LocalFileStorageProvider(name,
                     Required(cfg.Path ?? ipath.LocalDataPath, name, nameof(cfg.Path))),
                 StorageInstanceType.S3 => CreateS3(name, cfg, loggers),
+                StorageInstanceType.GoogleDrive => CreateGoogleDrive(name, cfg, loggers),
                 _ => throw new InvalidOperationException($"Storage instance '{name}': unknown type {cfg.Type}."),
             };
         }
@@ -71,6 +72,14 @@ public sealed class StorageRegistry : IStorageRegistry, IDisposable
         Required(cfg.AccessKey, name, nameof(cfg.AccessKey));
         Required(cfg.SecretKey, name, nameof(cfg.SecretKey));
         return new S3StorageProvider(name, cfg, loggers.CreateLogger<S3StorageProvider>());
+    }
+
+    private static iPath.Google.Storage.GoogleDriveStorageProvider CreateGoogleDrive(string name, StorageInstanceConfig cfg, ILoggerFactory loggers)
+    {
+        Required(cfg.RootFolderId, name, nameof(cfg.RootFolderId));
+        if (!File.Exists(Required(cfg.ClientSecretPath, name, nameof(cfg.ClientSecretPath))))
+            throw new InvalidOperationException($"Storage instance '{name}': ClientSecretPath '{cfg.ClientSecretPath}' does not exist.");
+        return new iPath.Google.Storage.GoogleDriveStorageProvider(name, cfg, loggers.CreateLogger<iPath.Google.Storage.GoogleDriveStorageProvider>());
     }
 
     private static string Required(string? value, string instance, string setting) =>

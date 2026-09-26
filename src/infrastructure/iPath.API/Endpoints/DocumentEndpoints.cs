@@ -171,9 +171,14 @@ public static class DocumentEndpoints
         if (storage.Resolve(res.StorageInstance) is not { } provider || res.StorageKey is not { } key)
             return null;
 
-        var remote = await tileIndexes.GetAsync(provider, key, ct);
-        if (remote is not null)
-            return (remote, r => provider.GetRange(key, r.Offset, r.Length));
+        // Google Drive has request quotas a panning viewer would exhaust: its zip is fetched into
+        // the temp cache once and served locally instead of range by range.
+        if (provider.Type != StorageInstanceType.GoogleDrive)
+        {
+            var remote = await tileIndexes.GetAsync(provider, key, ct);
+            if (remote is not null)
+                return (remote, r => provider.GetRange(key, r.Offset, r.Length));
+        }
 
         var fetched = await mediator.Send(new GetDocumentFileQuery(documentId, FetchRemote: true), ct);
         if (fetched.ServePath is not { } cached)

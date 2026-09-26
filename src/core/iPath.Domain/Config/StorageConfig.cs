@@ -24,6 +24,7 @@ public enum StorageInstanceType
 {
     LocalFiles,
     S3,
+    GoogleDrive,
 }
 
 public class StorageInstanceConfig
@@ -42,4 +43,15 @@ public class StorageInstanceConfig
 
     /// <summary>S3: path-style addressing, required by RustFS / MinIO.</summary>
     public bool ForcePathStyle { get; set; } = true;
+
+    /// <summary>GoogleDrive: service-account key file.</summary>
+    public string? ClientSecretPath { get; set; }
+
+    /// <summary>GoogleDrive: user to impersonate (domain-wide delegation); empty uses the service account itself.</summary>
+    public string? Username { get; set; }
+
+    public string? ApplicationName { get; set; }
+
+    /// <summary>GoogleDrive: id of the folder all keys live under.</summary>
+    public string? RootFolderId { get; set; }
 }

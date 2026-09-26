@@ -1,11 +1,12 @@
 @using iPath.Blazor.ServiceLib.ApiClient
 @implements IDisposable
 @inject IPathApi api
+@inject IStringLocalizer T
 
-<MudText Typo="Typo.h6" Class="mb-2 mt-4">Storage Instances</MudText>
+<MudText Typo="Typo.h6" Class="mb-2 mt-4">@T["Storage Instances"]</MudText>
 <MudSimpleTable Dense="true" Striped="true" Class="mb-6">
     <thead>
-        <tr><th>Name</th><th>Type</th><th>Location</th><th></th></tr>
+        <tr><th>@T["Name"]</th><th>@T["Type"]</th><th>@T["Location"]</th><th></th></tr>
     </thead>
     <tbody>
         @foreach (var instance in _instances)
@@ -14,33 +15,33 @@
                 <td>@instance.Name</td>
                 <td>@instance.Type</td>
                 <td style="word-break:break-all">@instance.Description</td>
-                <td>@if (instance.IsDefault) { <MudChip T="string" Size="Size.Small" Color="Color.Primary">Default</MudChip> }</td>
+                <td>@if (instance.IsDefault) { <MudChip T="string" Size="Size.Small" Color="Color.Primary">@T["Default"]</MudChip> }</td>
             </tr>
         }
     </tbody>
 </MudSimpleTable>
 
 <MudStack Row="true" AlignItems="AlignItems.Center" Class="mb-2">
-    <MudText Typo="Typo.h6">Storage Migrations</MudText>
+    <MudText Typo="Typo.h6">@T["Storage Migrations"]</MudText>
     <MudSpacer />
     <MudIconButton Icon="@Icons.Material.Filled.Refresh" Title="Refresh" OnClick="LoadAsync" />
 </MudStack>
 
 <MudDataGrid Items="_migrations" T="StorageMigrationDto" Dense="true" Striped="true" Hover="true">
     <Columns>
-        <PropertyColumn Property="x => x.CreatedOn" Title="Created" Format="g" />
-        <PropertyColumn Property="x => x.Description" Title="Migration" />
-        <TemplateColumn Title="Status">
+        <PropertyColumn Property="x => x.CreatedOn" Title=@T["Created"] Format="g" />
+        <PropertyColumn Property="x => x.Description" Title=@T["Migration"] />
+        <TemplateColumn Title=@T["Status"]>
             <CellTemplate>
                 <MudChip T="string" Size="Size.Small" Color="@StatusColor(context.Item.Status)">@context.Item.Status</MudChip>
             </CellTemplate>
         </TemplateColumn>
-        <TemplateColumn Title="Progress">
+        <TemplateColumn Title=@T["Progress"]>
             <CellTemplate>
                 @{ var m = context.Item; var done = m.Switched + m.Failed + m.Skipped; }
                 <MudStack Spacing="0" Style="min-width:160px">
                     <MudProgressLinear Value="@(m.Total == 0 ? 100 : done * 100.0 / m.Total)" Color="@(m.Failed > 0 ? Color.Warning : Color.Success)" />
-                    <MudText Typo="Typo.caption">@m.Switched moved, @m.Failed failed, @m.Skipped skipped of @m.Total · @FormatSize(m.Bytes)</MudText>
+                    <MudText Typo="Typo.caption">@m.Switched @T["moved"], @m.Failed @T["failed"], @m.Skipped @T["skipped"] / @m.Total · @FormatSize(m.Bytes)</MudText>
                 </MudStack>
             </CellTemplate>
         </TemplateColumn>
@@ -50,27 +51,27 @@
                 <MudStack Row="true" Spacing="1">
                     @if (m.Failed > 0)
                     {
-                        <MudButton Size="Size.Small" Variant="Variant.Text" OnClick="() => ShowFailedAsync(m)">Failed items</MudButton>
+                        <MudButton Size="Size.Small" Variant="Variant.Text" OnClick="() => ShowFailedAsync(m)">@T["Failed items"]</MudButton>
                     }
                     @if (m.Status is "Pending" or "Running")
                     {
-                        <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Warning" OnClick="() => RunAsync(api.CancelStorageMigration(m.Id), m)">Cancel</MudButton>
+                        <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Warning" OnClick="() => RunAsync(api.CancelStorageMigration(m.Id), m)">@T["Cancel"]</MudButton>
                     }
                     @if (m.Status is "CompletedWithErrors" or "Cancelled")
                     {
-                        <MudButton Size="Size.Small" Variant="Variant.Outlined" OnClick="() => RunAsync(api.RetryStorageMigration(m.Id), m)">Resume</MudButton>
+                        <MudButton Size="Size.Small" Variant="Variant.Outlined" OnClick="() => RunAsync(api.RetryStorageMigration(m.Id), m)">@T["Resume"]</MudButton>
                     }
                     @if (m.Status is "Completed" or "CompletedWithErrors" or "Cancelled")
                     {
                         <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Error" OnClick="() => RunAsync(api.PurgeStorageMigration(m.Id), m)"
-                                   Title="Delete the retired source copies and the local backup">Purge</MudButton>
+                                   Title="Delete the retired source copies and the local backup">@T["Purge"]</MudButton>
                     }
                 </MudStack>
             </CellTemplate>
         </TemplateColumn>
     </Columns>
     <NoRecordsContent>
-        <MudText Typo="Typo.body2">No storage migrations yet.</MudText>
+        <MudText Typo="Typo.body2">@T["No storage migrations yet."]</MudText>
     </NoRecordsContent>
 </MudDataGrid>
 

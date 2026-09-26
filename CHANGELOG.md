@@ -2,6 +2,7 @@
 
 ## 0.4.1
 
+- UI: storage admin labels (System page Storage tab, community storage box) go through the localizer
 - VsiConverter: the scanner metadata file `vips-properties.xml` is no longer packed into the `.dzi.zip`
 - Tests: the conversion poller test waits for real ticks instead of a fixed delay, which failed intermittently on the first run after a build
 - CaseRoom: unconverted SVS/TIFF slides open in the shared viewer (GeoTIFF tile source), and guest links may read and download a case's original files

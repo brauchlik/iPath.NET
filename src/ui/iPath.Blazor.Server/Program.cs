@@ -223,6 +223,9 @@ builder.Services.AddCors(options =>
 
 
 
+if (BuildTimeTool.IsActive)
+    BuildTimeTool.RemoveBackgroundServices(builder.Services);
+
 var app = builder.Build();
 
 app.Logger.LogInformation("Circuit timeouts: client={ClientTimeout}s, jsInterop={JsTimeout}s, retention={Retention}s",
@@ -263,11 +266,14 @@ app.UseHttpLogging();
 var opts = app.Services.GetRequiredService<IOptions<iPathConfig>>();
 
 
-await app.InitStorageAsync();
+// Build-time tools (OpenAPI generation, dotnet ef) only read endpoints and the EF model: no
+// storage, database or old-DB access, so a checkout without a migrated database still builds.
+if (!BuildTimeTool.IsActive)
+    await app.InitStorageAsync();
 
 // Check Old DB (sync import) connection on startup
 var syncCs = app.Services.GetRequiredService<IConfiguration>().GetConnectionString("ipath_old");
-if (!string.IsNullOrEmpty(syncCs))
+if (!BuildTimeTool.IsActive && !string.IsNullOrEmpty(syncCs))
 {
     var log = app.Services.GetRequiredService<ILogger<Program>>();
     try
@@ -338,7 +344,8 @@ else
 }
 
 // DB Migrations & Seeding
-await app.UpdateDatabase();
+if (!BuildTimeTool.IsActive)
+    await app.UpdateDatabase();
 
 
 // Configure static file caching

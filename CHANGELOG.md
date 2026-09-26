@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.3
+## 0.4.0
 
 - Storage: named storage instances (`Storage:Default` + `Storage:Instances`, types `LocalFiles` and `S3`) replace the fixed local storage; without a `Storage` section the old single local folder is used unchanged. S3 works with RustFS, MinIO and AWS (bucket created at startup, multipart uploads for large files). New files are stored under `{group}/{case}/{document}/original` with the key recorded on the document, so moving a case no longer loses its local files; DZI tile indexes are stored next to the zip, so slides on S3 are served tile by tile with range reads and originals honour HTTP range requests without downloading the whole object first
 - Performance: tile and file requests no longer query the database every time - a document's group and file info is cached for 60 seconds, while the access check still runs on every request against the (already cached) user session; an unknown document id now answers 404 instead of throwing
@@ -10,6 +10,9 @@
 - WSI: tile index for stored DZI zips - reads the zip's central directory (including ZIP64) and each tile's local header, and records where the `.dzi` descriptor and every tile's bytes sit, so a tile can be served with one range read instead of extracting the zip; only the descriptor and tile images are indexed, so nothing else in an uploaded zip (e.g. `vips-properties.xml`) can be served. A real 124 MB converter zip (57k tiles) indexes in under a second into a 1.4 MB index
 - Security: files stored on Google Drive are no longer shared as "anyone with the link" - uploads and upload-folder imports stopped setting public permissions and storing a public URL (the WSI link carried the Drive API key); Drive files are served through iPath only, Drive thumbnails are fetched with the service credentials, and the unauthenticated `POST /test/upload` endpoint, which wrote client-named files into the temp folder, is removed
 - Docs: design for the remote storage overhaul (`docs/superpowers/specs/2026-09-26-unified-storage-and-wsi-serving-design.md`) - named storage instances with a server default and a per-community override, a location record per stored object, manual migrations with a local per-group backup, everything served through the app (public Drive links go), DZI tiles range-read from the stored zip via an import-time index, the external VsiConverter as the WSI entry point, and the application/UI impact survey
+
+## 0.3.3
+
 - Fix: zipped DZI imports failed with "DZI files folder ... not found" - the VsiConverter zip carried backslash separators, which extract as literal filenames on Linux. Import now normalizes separators, and the tool writes forward slashes and fails instead of producing a descriptor-only zip when vips made no tiles
 - Fix: the translations admin page was unusable in WebAssembly - it read the target languages from `LocalizationSettings`, a server-only options type that is never bound in the WASM client, so the picker had no entries and nothing loaded. It now reads the same `iPathClientConfig` mirror that the language menu uses, and says so when no target language is configured
 - Admin: the translations page can import shipped defaults (adds keys missing from the live store and fills empty ones, never overwriting a translation) and flags rows whose live translation differs from the shipped text, with the original in the hover and a reset icon in the inline editor to restore the shipped wording

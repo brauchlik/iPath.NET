@@ -79,6 +79,7 @@ public class UpdateCommunityMembershipHandler(iPathDbContext db, IMediator media
         await db.EventStore.AddAsync(evt, ct);
 
         await db.SaveChangesAsync(ct);
+        sess.ReloadUser(request.UserId);
 
         return await mediator.Send(new GetUserByIdQuery(user.Id), ct);
     }

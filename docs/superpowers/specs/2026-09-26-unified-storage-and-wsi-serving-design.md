@@ -1,6 +1,6 @@
 # Unified Binary Storage & WSI Serving — design capture
 
-> **Status: proposed, decisions taken, not implemented.** Captured 2026-09-26 from a design
+> **Status: 0.4.0 implemented (groundwork); 0.4.1 planned, see §14.** Captured 2026-09-26 from a design
 > discussion so the reasoning is not lost. No code exists for anything described here.
 >
 > **Sprint: general remote storage overhaul**, on branch `feature/remote-storage-overhaul`
@@ -471,26 +471,35 @@ VsiConverter (desktop, tools/VsiConverter)  →  {name}.dzi.zip (stored entries)
 - Whether to keep originals long-term (costs roughly the original's size again). *Kept for now,
   decide later.*
 
-## 14. Next time — first steps (smallest first)
+## 14. Status and next steps
 
-0. **Remove public Drive links** — drop `PublicUrl`, `CreatePublicRangeLinkAsync`, the "anyone"
-   permission and `PUBLIC_API_KEY`; serve through the cache. The `NodeFile.PublicUrl` property
-   itself stays unused until the step-7 migration, so step 0 needs no model migration. ✅
-1. **DZI import as-is + tile index** — `DziImportPlugin` validates and indexes the uploaded
-   `.dzi.zip` (tile entries only) and stores it unchanged. ✅ (converter-tool metadata strip still open)
-2. **Range serving** from the stored zip for local storage; remove extraction to `TempDataPath`. ✅
-   Until the `TileIndex` variant exists (step 6), the index is built on first view from the local zip
-   (57k tiles: well under a second) and kept in memory (`DziTileIndexCache`, sliding 20 min,
-   single build per zip). Measured through Kestrel on a real slide: tile p50 0.37 ms, p95 0.5 ms
-   without the per-tile access check. `WsiConversionPlugin`'s loose output is still served as files.
-3. **Cache** access decision and tile index (`HybridCache`).
-4. **Split the storage layers** (§4.1): `IStorageProvider` per instance, document storage service,
-   instance registry from config. Local + current single Drive first.
-5. **S3/RustFS provider** + RustFS container in the AppHost.
-6. **Community instance override** + `List<StorageLocation>` (+ EF migration) + per-user upload
-   Drive instance.
-7. **Migration tool** + consistency check.
-8. **Replay harness** + Toxiproxy profile; dev communities per instance.
+### 0.4.0 — groundwork (done, 2026-09-26)
+
+- Public Drive links and `PublicUrl` removed; unauthenticated `/test/upload` removed.
+- DZI zips stored as uploaded, tile index at import (ZIP64), tiles served by range read; stored
+  index next to the zip; SVS/TIFF viewed natively through OpenSeadragon's GeoTIFF tile source.
+- Named storage instances (`LocalFiles`, `S3` — tested against RustFS), range reads for tiles and
+  originals, per-community instance, keys stored per document.
+- Storage migrations: job + per-document item, background worker, SHA-256 verification, local
+  backup, resume / cancel / purge, System page → Storage tab; community storage change and group
+  moves between communities; cases stay within their community.
+- Server-owned storage fields, pending uploads re-queued after restart, metadata cache for tiles,
+  build and `dotnet ef` work without a migrated database, `ReloadUser` session fix.
+- Sqlite migration `StorageMigrations`.
+
+### 0.4.1 — planned
+
+1. **Google Drive as storage instance** — Drive `IStorageProvider`, several Drives, per-user upload
+   Drive (share with the Google email + notice), upload-folder import copy vs. move, Drive in
+   migrations, Drive zip download-once cache, revoke sharing on unlink/delete.
+2. **Temp split** into `work` / `outbox` / `cache`, `CacheManager` wired in, local write-once.
+3. **Delete paths** (group destroy, user delete, purge) clean up storage.
+4. CaseRoom guests for native SVS (token for the original-file URL).
+5. Converter tool: strip metadata; optionally SVS input (option A).
+6. Postgres / SqlServer migrations (behind since May 2026).
+7. Localise storage UI texts; harden the timing-dependent poller test; replay/benchmark harness;
+   RustFS on a Podman volume (latency check).
+8. Later / to decide: iPath2 binaries migration, label in kept originals, keep originals long-term.
 
 ## 15. Impact on application and UI
 

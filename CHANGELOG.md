@@ -2,6 +2,7 @@
 
 ## 0.4.0
 
+- Fix: changes to a user's roles, group or community memberships and bans did not reach an active user's session - the session cache was stored under the user id as a string but `ReloadUser` removed the Guid, so it never invalidated, and the 5-minute sliding expiry never ran out while the user kept working. `ReloadUser` now uses the same key (and also clears the current request's copy), sessions are refreshed at least every 10 minutes regardless, and community membership changes, group creation (owner), group destruction (all members), user deletion and the iPath2 sync import now reload the affected sessions
 - WSI: unconverted TIFF-based slides (`.svs`, `.tif`) open in the viewer again - the gallery and slide show pass the original file to OpenSeadragon's GeoTIFF tile source, which reads it tile by tile through range requests (from local storage, the cache or S3)
 - Fix: storage migrations failed on files stored before 0.4.0 (their JSON has no retired-location list, which loaded as null), and moving a case to another group of its community broke its older local files, whose path was derived from the case's current group - a move now first pins their full storage key under the old group
 - UI: document properties show the file size, where the file is stored (storage instance and key) and any old copies a storage migration has not purged yet

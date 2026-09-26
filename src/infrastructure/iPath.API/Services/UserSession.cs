@@ -36,13 +36,16 @@ public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemory
 
                     if (userid.HasValue)
                     {
-                        var cachekey = userid.Value.ToString();
+                        var cachekey = CacheKey(userid.Value);
                         if (!cache.TryGetValue(cachekey, out var cachedUser))
                         {
                             cachedUser = LoadUser(userid.Value).Result;
 
+                            // The absolute cap bounds how stale memberships and roles can get when a
+                            // change path misses ReloadUser: sliding alone never expires for an active user.
                             var opts = new MemoryCacheEntryOptions()
-                                .SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                                .SetSlidingExpiration(SlidingExpiration)
+                                .SetAbsoluteExpiration(AbsoluteExpiration);
                             cache.Set(cachekey, cachedUser, opts);
                         }
                         _user = (SessionUserDto?)cachedUser;
@@ -75,8 +78,15 @@ public sealed class UserSession(iPathDbContext db, UserManager<User> um, IMemory
 
     public void ReloadUser(Guid userId)
     {
-        cache.Remove(userId);
+        cache.Remove(CacheKey(userId));
+        if (_user?.Id == userId)
+            _user = null;
     }
+
+    private static readonly TimeSpan SlidingExpiration = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan AbsoluteExpiration = TimeSpan.FromMinutes(10);
+
+    private static string CacheKey(Guid userId) => $"session-user:{userId}";
 
     private async Task<SessionUserDto?> LoadUser(Guid userid)
     {

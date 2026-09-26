@@ -481,7 +481,8 @@ VsiConverter (desktop, tools/VsiConverter)  →  {name}.dzi.zip (stored entries)
 ## 14. Next time — first steps (smallest first)
 
 0. **Remove public Drive links** — drop `PublicUrl`, `CreatePublicRangeLinkAsync`, the "anyone"
-   permission and `PUBLIC_API_KEY`; serve through the cache.
+   permission and `PUBLIC_API_KEY`; serve through the cache. The `NodeFile.PublicUrl` property
+   itself stays unused until the step-7 migration, so step 0 needs no model migration. ✅
 1. **DZI import as-is + tile index** — `DziImportPlugin` validates and indexes the uploaded
    `.dzi.zip` (tile entries only) and stores it unchanged; converter tool strips metadata.
 2. **Range serving** from the stored zip for local storage; remove extraction to `TempDataPath`.

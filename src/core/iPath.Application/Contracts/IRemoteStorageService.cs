@@ -22,8 +22,6 @@ public interface IRemoteStorageService
     Task<StorageRepsonse> DeleteServiceRequestJsonAsync(Guid Id, CancellationToken ctk = default!);
 
 
-    Task<string?> CreateViewLink(DocumentNode doc, CancellationToken ct = default);
-
     Task RenameRequest(ServiceRequest request);
     Task RenameGroup(Group group);
     Task RenameCommunity(Community community);

@@ -225,7 +225,6 @@ public class GoogleDriveStorageService(IOptions<GoogleDriveConfig> gdriveOpts,
             if (file.Status == Upload.UploadStatus.Completed)
             {
                 document.File.Storage = new StorageInfo(this.ProviderName, request.ResponseBody.Id);
-                document.File.PublicUrl = await CreateViewLink(document, ct);
                 document.File.LastStorageExportDate = DateTime.UtcNow;
                 db.Documents.Update(document);
                 await db.SaveChangesAsync(ct);
@@ -466,157 +465,6 @@ and you can upload images and other files directly into that folder. From there 
         }
     }
 
-    public async Task<string?> CreateViewLink(DocumentNode doc, CancellationToken ct = default)
-    {
-        if (!doc.File.Storage.IsGoogle()) return null;
-
-        // Permission logic remains the same
-        var newPermission = new Permission
-        {
-            Type = "anyone",
-            Role = "reader"
-        };
-        await GDrive.Permissions.Create(newPermission, doc.File.Storage.StorageId).ExecuteAsync(ct);
-
-
-        // create a preview link
-        var request = GDrive.Files.Get(doc.File.Storage.StorageId);
-        // Request both thumbnail and the original link as a fallback
-        request.Fields = "thumbnailLink, webContentLink";
-        var file = await request.ExecuteAsync(ct);
-
-        if (!string.IsNullOrEmpty(file.ThumbnailLink))
-        {
-            // Google links usually end in =s220 or =w200-h200
-            // We use Regex or IndexOf to safely swap the ending
-            string baseUrl = file.ThumbnailLink;
-            int index = baseUrl.LastIndexOf('=');
-
-            if (index > 0)
-            {
-                baseUrl = baseUrl.Substring(0, index);
-            }
-
-            // Use =s1280 for the size. 
-            // Ensure there are no trailing spaces or weird characters.
-            return $"{baseUrl}=s1280";
-        }
-
-        // Fallback: If no thumbnail exists, we might have to use the direct link
-        return file.WebContentLink;
-
-    }
-
-
-
-    /*
-    public async Task<ScanExternalDocumentResponse> ScanNewFilesAsync(Guid requestId, CancellationToken ctk = default!)
-    {
-        var sr = await db.ServiceRequests
-            .AsNoTracking()
-            .Include(sr => sr.Documents)
-            .SingleOrDefaultAsync(x => x.Id == requestId, ctk);
-
-        if (sr?.StorageId is null) return new ScanExternalDocumentResponse("Google", null);
-
-        FilesResource.ListRequest listRequest = GDrive.Files.List();
-        listRequest.Q = $"'{sr.StorageId}' in parents and trashed = false";
-        listRequest.Fields = "nextPageToken, files(id, name, mimeType, owners, size, createdTime)";
-
-        IList<v3.Data.File> items = listRequest.Execute().Files;
-
-        List<ExternalFile> newitems = new();
-
-        Console.WriteLine("Items in folder:");
-        if (items != null && items.Count > 0)
-        {
-            foreach (var item in items)
-            {
-                if (item.MimeType != "application/vnd.google-apps.folder")
-                {
-                    if (!sr.Documents.Any(d => d.StorageId == item.Id))
-                    {
-                        var newItem = new ExternalFile(StorageId: item.Id, Filename: item.Name, Mimetype: item.MimeType,
-                            FileSize: item.Size, CreatedOn: item.CreatedTimeDateTimeOffset);
-                        newitems.Add(newItem);
-                    }
-                }
-            }
-        }
-
-        return new ScanExternalDocumentResponse("Google", newitems);
-    }
-    */
-
-    /*
-    public async Task ImportNewFilesAsync(Guid requestId, IReadOnlyList<string> storageIds, CancellationToken ctk = default!)
-    {
-        var sr = await db.ServiceRequests
-            .Include(sr => sr.Documents)
-            .SingleOrDefaultAsync(x => x.Id == requestId, ctk);
-
-        if (sr?.StorageId is null) return;
-
-        FilesResource.ListRequest listRequest = GDrive.Files.List();
-        listRequest.Q = $"'{sr.StorageId}' in parents and trashed = false";
-        listRequest.Fields = "nextPageToken, files(id, name, mimeType, owners)";
-
-        IList<v3.Data.File> items = listRequest.Execute().Files;
-        List<v3.Data.File> newitems = new();
-
-        Console.WriteLine("Items in folder:");
-        if (items != null && items.Count > 0)
-        {
-            foreach (var item in items)
-            {
-                if (item.MimeType != "application/vnd.google-apps.folder" && storageIds.Contains(item.Id))
-                {
-                    if (!sr.Documents.Any(d => d.StorageId == item.Id))
-                    {
-                        newitems.Add(item);
-                        var newDoc = new DocumentNode
-                        {
-                            Id = Guid.CreateVersion7(),
-                            ServiceRequestId = sr.Id,
-                            CreatedOn = DateTime.UtcNow,
-                            OwnerId = sr.OwnerId,
-                            SortNr = sr.Documents.Max(x => x.SortNr) + 1,
-                            StorageId = item.Id,
-                            DocumentType = "file",
-                            File = new NodeFile
-                            {
-                                Filename = item.Name,
-                                MimeType = item.MimeType
-                            }
-                        };
-                        await db.Documents.AddAsync(newDoc, ctk);
-
-                        if (mime.IsImage(item.Name))
-                        {
-                            // thumnail
-                            newDoc.File.ThumbData = await GetThumbnailBase64Async(item.Id);
-                            newDoc.DocumentType = "image";
-                        }
-                        if (clientOpts.Value.WsiExtensions.Contains(System.IO.Path.GetExtension(item.Name)))
-                        {
-                            // 
-                            newDoc.File.PublicUrl = await CreatePublicRangeLinkAsync(item.Id, ctk);
-                            newDoc.DocumentType = "wsi";
-                        }
-                        else
-                        {
-                            // view link for images & files
-                            newDoc.File.PublicUrl = await CreateViewLink(newDoc, ctk);
-                        }
-                    }
-                }
-            }
-            await db.SaveChangesAsync(ctk);
-        }
-    }
-    */
-
-
     private async Task<string?> GetThumbnailBase64Async(string fileId, CancellationToken ct = default)
     {
         // Get the thumbnail link from Google Drive
@@ -634,38 +482,12 @@ and you can upload images and other files directly into that folder. From there 
             baseUrl = baseUrl.Substring(0, index);
         var thumbnailUrl = $"{baseUrl}=s" + clientOpts.Value.ThumbSize;
 
-        // Download the thumbnail image
-        using var httpClient = new HttpClient();
-        var imageBytes = await httpClient.GetByteArrayAsync(thumbnailUrl, ct);
+        // The file is not public, so the thumbnailLink must be fetched with the service's credentials.
+        var imageBytes = await GDrive.HttpClient.GetByteArrayAsync(thumbnailUrl, ct);
 
         // Convert to base64 string
         return Convert.ToBase64String(imageBytes);
     }
-
-    private async Task<string> CreatePublicRangeLinkAsync(string fileId, CancellationToken ct = default)
-    {
-        // 1. Make the file public (Anyone with link can view)
-        var publicPermission = new Permission
-        {
-            Type = "anyone",
-            Role = "reader"
-        };
-
-        await GDrive.Permissions.Create(publicPermission, fileId).ExecuteAsync(ct);
-
-        // 2. Generate the Direct Download URL
-        // This format allows HTTP Range requests (206 Partial Content)
-        // Format: https://www.googleapis.com/drive/v3/files/{fileId}?alt=media&key={YOUR_API_KEY}
-        // Note: For truly public access without OAuth tokens in the header, 
-        // you usually append an API Key or use a specific proxy URL.
-
-        string directUrl = $"https://www.googleapis.com/drive/v3/files/{fileId}?alt=media&key={gdriveOpts.Value.PUBLIC_API_KEY}";
-        return directUrl;
-    }
-
-
-
-
 
     #region "-- Upload Folder --
     public bool UserUploadFolderActive => !string.IsNullOrEmpty(gdriveOpts.Value.UserUploadFolderId);
@@ -844,12 +666,7 @@ and you can upload images and other files directly into that folder. From there 
                                 var ext = System.IO.Path.GetExtension(item.Name);
                                 if (clientOpts.Value.WsiExtensions.Contains(ext))
                                 {
-                                    newDoc.File.PublicUrl = await CreatePublicRangeLinkAsync(item.Id, ct);
                                     newDoc.DocumentType = "wsi";
-                                }
-                                else
-                                {
-                                    newDoc.File.PublicUrl = await CreateViewLink(newDoc, ct);
                                 }
 
                                 var conversionPlugin = conversionPlugins.FirstOrDefault(p => p.CanHandle(ext));

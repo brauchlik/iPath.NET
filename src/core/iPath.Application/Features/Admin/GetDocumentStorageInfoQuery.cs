@@ -12,7 +12,6 @@ public class DocumentStorageInfoDto
     public string? StorageProvider { get; set; }
     public string? StorageId { get; set; }
     public string? RemotePath { get; set; }
-    public string? PublicUrl { get; set; }
     public DateTime? LastStorageExportDate { get; set; }
     public int? ImageWidth { get; set; }
     public int? ImageHeight { get; set; }

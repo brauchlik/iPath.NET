@@ -3230,51 +3230,6 @@
         }
       }
     },
-    "/api/v1/test/upload": {
-      "post": {
-        "tags": [
-          "Test"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
-              "format": "int32",
-              "default": 2
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "required": [
-                  "file"
-                ],
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "$ref": "#/components/schemas/IFormFile"
-                  }
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/api/v1/stats/documents": {
       "get": {
         "tags": [
@@ -6286,12 +6241,6 @@
             ]
           },
           "remotePath": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "publicUrl": {
             "type": [
               "null",
               "string"
@@ -9368,6 +9317,9 @@
           }
         }
       },
+      "QuestionnaireRenderer": {
+        "type": "integer"
+      },
       "QuestionnaireResponseData": {
         "type": "object",
         "properties": {
@@ -9460,6 +9412,16 @@
             "type": [
               "null",
               "boolean"
+            ]
+          },
+          "preferredRenderer": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/QuestionnaireRenderer"
+              }
             ]
           }
         }

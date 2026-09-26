@@ -18,6 +18,8 @@ public class NodeFile
     public string? MimeType { get; set; }
     public string? ThumbData { get; set; }
 
+    // No longer read or written; removed together with the StorageLocation migration so this
+    // change does not need a model migration of its own.
     public string? PublicUrl { get; set; }
 
     public long? FileSize { get; set; }

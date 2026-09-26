@@ -43,7 +43,6 @@
                         {
                             <tr><td class="pr-3">Remote path</td><td style="word-break:break-all;max-width:300px">@_storageInfo.RemotePath</td></tr>
                         }
-                        <tr><td class="pr-3">Public URL</td><td style="word-break:break-all;max-width:300px">@(_storageInfo.PublicUrl ?? "—")</td></tr>
                         <tr><td class="pr-3">Last exported</td><td>@(_storageInfo.LastStorageExportDate?.ToString("g") ?? "—")</td></tr>
                         @if (_storageInfo.ConversionStatus is not null)
                         {

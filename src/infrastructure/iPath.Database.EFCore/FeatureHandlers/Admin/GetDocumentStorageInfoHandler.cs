@@ -40,7 +40,6 @@ public class GetDocumentStorageInfoHandler(
             StorageProvider = doc.File.Storage?.ProviderName,
             StorageId = doc.File.Storage?.StorageId,
             RemotePath = remotePath,
-            PublicUrl = doc.File.PublicUrl,
             LastStorageExportDate = doc.File.LastStorageExportDate,
             ImageWidth = doc.File.ImageWidth,
             ImageHeight = doc.File.ImageHeight,

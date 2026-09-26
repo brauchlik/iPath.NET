@@ -1,3 +1,5 @@
+using iPath.API.Services.Storage.Providers;
+using iPath.Application.Contracts.Storage;
 using DispatchR.Extensions;
 using iPath.API.Services;
 using iPath.API.Services.CaseRoom;
@@ -151,10 +153,15 @@ public static class APIServicesRegistration
 
         // file storage
         services.AddTransient<IMimetypeService, MimetypeService>();
+        services.Configure<StorageConfig>(config.GetSection(StorageConfig.ConfigName));
+        var storageCfg = new StorageConfig();
+        config.GetSection(StorageConfig.ConfigName).Bind(storageCfg);
+        services.AddSingleton<IStorageRegistry>(sp =>
+            StorageRegistry.Create(storageCfg, cfg, sp.GetRequiredService<ILoggerFactory>()));
         if (!services.AddGoogleDriveServices(config))
         {
-            // fallback to local storage if google not configured
-            services.AddScoped<IRemoteStorageService, LocalStorageService>();
+            // LocalFiles / S3 instances when Google Drive is not configured
+            services.AddScoped<IRemoteStorageService, ObjectStorageService>();
         }
         services.AddHostedService<RemoteStorageUploadWorker>(); // Worker for IRemoteStorageUploadQueue
         services.AddScoped<LocalChacheService>();

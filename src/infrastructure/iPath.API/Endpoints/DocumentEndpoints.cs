@@ -1,5 +1,7 @@
 using Ardalis.GuardClauses;
 using iPath.API.Services.Wsi;
+using iPath.Application.Contracts.Storage;
+using iPath.Application.Features.Conversion.Dzi;
 using iPath.Application.Features.Documents;
 using iPath.Application.Features.ServiceRequests.Commands;
 using Microsoft.AspNetCore.Mvc;
@@ -36,54 +38,60 @@ public static class DocumentEndpoints
             .RequireAuthorization();
 
 
-        grp.MapGet("{id}/{filename}", async (string id, string? filename, [FromServices] IMediator mediator, CancellationToken ct) =>
+        grp.MapGet("{id}/{filename}", async (string id, string? filename, [FromServices] IMediator mediator,
+            [FromServices] IStorageRegistry storage, CancellationToken ct) =>
         {
             if (!Guid.TryParse(id, out var nodeId))
                 return Results.BadRequest();
 
-            var res = await mediator.Send(new GetDocumentFileQuery(nodeId), ct);
+            var res = await mediator.Send(new GetDocumentFileQuery(nodeId, FetchRemote: false), ct);
             if (res.AccessDenied) return Results.Unauthorized();
+            if (res.NotFound) return Results.NotFound();
 
-            var path = res.ServePath;
-            if (res.NotFound || path is null) return Results.NotFound();
-
-            return Results.File(path, contentType: res.Info?.MimeType, fileDownloadName: res.Info?.Filename, enableRangeProcessing: true);
+            return await ServeWholeFileAsync(res, storage, res.Info?.Filename, ct);
         })
            .RequireAuthorization()
            .Produces(StatusCodes.Status200OK)
            .Produces(StatusCodes.Status404NotFound);
 
         grp.MapGet("files/{*filepath}", async Task<IResult> (string filepath, [FromServices] IMediator mediator,
-            [FromServices] DziTileIndexCache tileIndexes, [FromServices] IOptions<iPath.Domain.Config.iPathConfig> opts,
-            HttpContext ctx, CancellationToken ct) =>
+            [FromServices] DziTileIndexCache tileIndexes, [FromServices] IStorageRegistry storage,
+            [FromServices] IOptions<iPath.Domain.Config.iPathConfig> opts, HttpContext ctx, CancellationToken ct) =>
         {
             var request = DziFileRequest.Parse(filepath);
             if (request is null) return Results.BadRequest();
 
-            var res = await mediator.Send(new GetDocumentFileQuery(request.DocumentId), ct);
-            if (res.AccessDenied) return Results.Unauthorized();
-
-            var path = res.ServePath;
-            if (res.NotFound || path is null) return Results.NotFound();
-
-            if (request.Kind == DziFileKind.Raw)
-                return Results.File(path, contentType: res.Info?.MimeType ?? "application/octet-stream", enableRangeProcessing: true);
-
-            var index = await tileIndexes.GetAsync(path, ct);
-            if (index is null)
-                return ServeLooseDzi(opts.Value.TempDataPath, request, ctx);
-
-            if (request.Kind == DziFileKind.Descriptor)
+            try
             {
-                SetNoCache(ctx);
-                return new FileRangeResult(path, index.Descriptor.Offset, index.Descriptor.Length, "application/xml");
+                var res = await mediator.Send(new GetDocumentFileQuery(request.DocumentId, FetchRemote: false), ct);
+                if (res.AccessDenied) return Results.Unauthorized();
+                if (res.NotFound) return Results.NotFound();
+
+                if (request.Kind == DziFileKind.Raw)
+                    return await ServeWholeFileAsync(res, storage, downloadName: null, ct);
+
+                var source = await ResolveTileSourceAsync(res, request.DocumentId, mediator, tileIndexes, storage, ct);
+                if (source is null)
+                    return ServeLooseDzi(opts.Value.TempDataPath, request, ctx);
+
+                var (index, readRange) = source.Value;
+                if (request.Kind == DziFileKind.Descriptor)
+                {
+                    SetNoCache(ctx);
+                    return BlobRangeResults.For(readRange(index.Descriptor), "application/xml");
+                }
+
+                if (!index.TryGetTile(request.Level, request.Column, request.Row, out var tile))
+                    return Results.NotFound();
+
+                SetTileCache(ctx);
+                return BlobRangeResults.For(readRange(tile), TileContentType(index.TileExtension));
             }
-
-            if (!index.TryGetTile(request.Level, request.Column, request.Row, out var tile))
-                return Results.NotFound();
-
-            SetTileCache(ctx);
-            return new FileRangeResult(path, tile.Offset, tile.Length, TileContentType(index.TileExtension));
+            catch (OperationCanceledException) when (ctx.RequestAborted.IsCancellationRequested)
+            {
+                // The viewer panned on and dropped the request; nothing to answer.
+                return Results.Empty;
+            }
         })
         .RequireAuthorization()
         .Produces(StatusCodes.Status200OK)
@@ -126,6 +134,52 @@ public static class DocumentEndpoints
             .RequireAuthorization("Admin");
 
         return builder;
+    }
+
+    /// <summary>
+    /// A local copy (storage file or temp cache) is sent with zero-copy range support; a file on
+    /// a remote instance is streamed from it, range by range when the client asks for ranges.
+    /// </summary>
+    private static async Task<IResult> ServeWholeFileAsync(FetchFileResponse res, IStorageRegistry storage, string? downloadName, CancellationToken ct)
+    {
+        var contentType = string.IsNullOrEmpty(res.Info?.MimeType) ? "application/octet-stream" : res.Info.MimeType;
+
+        if (res.ServePath is { } path)
+            return Results.File(path, contentType, downloadName, enableRangeProcessing: true);
+
+        if (storage.Resolve(res.StorageInstance) is { } provider && res.StorageKey is { } key
+            && await provider.GetLengthAsync(key, ct) is { } length)
+            return new RemoteFileResult(provider, key, length, contentType, downloadName);
+
+        return Results.NotFound();
+    }
+
+    /// <summary>
+    /// The tile index and how to read a range for a DZI zip: from a local copy when there is one,
+    /// else straight from the remote instance using the stored index. A remote zip without a
+    /// stored index is fetched into the temp cache once and indexed there.
+    /// </summary>
+    private static async Task<(DziTileIndex Index, Func<ZipRange, BlobRange> ReadRange)?> ResolveTileSourceAsync(
+        FetchFileResponse res, Guid documentId, IMediator mediator, DziTileIndexCache tileIndexes, IStorageRegistry storage, CancellationToken ct)
+    {
+        if (res.ServePath is { } path)
+        {
+            var local = await tileIndexes.GetAsync(path, ct);
+            return local is null ? null : (local, r => new PhysicalFileRange(path, r.Offset, r.Length));
+        }
+
+        if (storage.Resolve(res.StorageInstance) is not { } provider || res.StorageKey is not { } key)
+            return null;
+
+        var remote = await tileIndexes.GetAsync(provider, key, ct);
+        if (remote is not null)
+            return (remote, r => provider.GetRange(key, r.Offset, r.Length));
+
+        var fetched = await mediator.Send(new GetDocumentFileQuery(documentId, FetchRemote: true), ct);
+        if (fetched.ServePath is not { } cached)
+            return null;
+        var index = await tileIndexes.GetAsync(cached, ct);
+        return index is null ? null : (index, r => new PhysicalFileRange(cached, r.Offset, r.Length));
     }
 
     // WsiConversionPlugin still writes its dzsave output unzipped into TempDataPath.

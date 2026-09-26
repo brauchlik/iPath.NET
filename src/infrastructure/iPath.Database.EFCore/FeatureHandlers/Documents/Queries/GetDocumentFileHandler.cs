@@ -1,3 +1,4 @@
+using iPath.Application.Contracts.Storage;
 using iPath.Domain.Config;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -7,6 +8,7 @@ namespace iPath.EF.Core.FeatureHandlers.Documents.Queries;
 
 public class GetDocumentFileHandler(iPathDbContext db,
     IRemoteStorageService srvStorage,
+    IStorageRegistry storage,
     IUserSession sess,
     IOptions<iPathConfig> opts,
     IMemoryCache cache,
@@ -42,25 +44,30 @@ public class GetDocumentFileHandler(iPathDbContext db,
 
         var fn = Path.Combine(opts.Value.TempDataPath, document.DocumentId.ToString());
 
+        IStorageProvider? provider = null;
+        string? key = null;
         string? storagePath = null;
-        if (document.File?.Storage?.ProviderName == "LocalFiles" && !string.IsNullOrEmpty(document.File.Storage.StorageId))
+        if (document.File?.Storage is { } stored && !string.IsNullOrEmpty(stored.StorageId)
+            && storage.Resolve(stored.ProviderName) is { } resolved)
         {
-            var dir = Path.Combine(opts.Value.LocalDataPath, document.GroupId.ToString(), document.RequestId.ToString());
-            storagePath = Path.Combine(dir, document.File.Storage.StorageId);
-            if (!System.IO.File.Exists(storagePath))
-                storagePath = null;
+            provider = resolved;
+            key = StorageKeys.Resolve(stored, document.GroupId, document.RequestId);
+            storagePath = provider.GetLocalPath(key);
         }
 
-        // A local storage file is served in place; only remote files are fetched into the temp cache.
-        if (storagePath is null && !System.IO.File.Exists(fn))
+        // Local storage files are served in place. Remote files are fetched into the temp cache,
+        // unless the caller range-reads them from the instance directly (tiles, partial downloads).
+        var remoteReadable = provider is not null && storagePath is null;
+        if (storagePath is null && !System.IO.File.Exists(fn) && (request.FetchRemote || !remoteReadable))
         {
             await srvStorage.GetFileAsync(document.DocumentId, cancellationToken);
         }
 
-        if (storagePath is null && !System.IO.File.Exists(fn))
+        if (storagePath is null && !System.IO.File.Exists(fn) && !remoteReadable)
             return new FetchFileResponse(NotFound: true);
 
-        return new FetchFileResponse(TempFile: fn, Info: document.File, StorageFilePath: storagePath);
+        return new FetchFileResponse(TempFile: fn, Info: document.File, StorageFilePath: storagePath,
+            StorageInstance: remoteReadable ? provider!.InstanceName : null, StorageKey: remoteReadable ? key : null);
     }
 
     private async Task<DocumentFileMetadata?> GetMetadataAsync(Guid documentId, CancellationToken ct)

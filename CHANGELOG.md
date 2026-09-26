@@ -2,6 +2,7 @@
 
 ## 0.3.3
 
+- Storage: named storage instances (`Storage:Default` + `Storage:Instances`, types `LocalFiles` and `S3`) replace the fixed local storage; without a `Storage` section the old single local folder is used unchanged. S3 works with RustFS, MinIO and AWS (bucket created at startup, multipart uploads for large files). New files are stored under `{group}/{case}/{document}/original` with the key recorded on the document, so moving a case no longer loses its local files; DZI tile indexes are stored next to the zip, so slides on S3 are served tile by tile with range reads and originals honour HTTP range requests without downloading the whole object first
 - Performance: tile and file requests no longer query the database every time - a document's group and file info is cached for 60 seconds, while the access check still runs on every request against the (already cached) user session; an unknown document id now answers 404 instead of throwing
 - Fix: the `data` and `temp` folders were only created when `DataRoot` itself did not exist yet, so a data root that already held e.g. its `appsettings.json` had no temp folder and every upload failed with "Queried object temp was not found"; both are now created on every start (still only when they sit directly under `DataRoot`)
 - Dev: `ipath-storage` launch profile (http://localhost:5100/, `CONFIG_PATH=C:/Daten/ipath_storage`) for testing the storage overhaul against a fresh seeded database, next to the usual instance on port 5000

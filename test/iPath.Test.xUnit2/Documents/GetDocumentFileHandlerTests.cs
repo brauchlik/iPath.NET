@@ -91,6 +91,7 @@ public class GetDocumentFileHandlerTests : IDisposable
     private GetDocumentFileHandler CreateHandler() => new(
         _db,
         Substitute.For<IRemoteStorageService>(),
+        Substitute.For<iPath.Application.Contracts.Storage.IStorageRegistry>(),
         _sess,
         Options.Create(new iPathConfig { TempDataPath = _temp, LocalDataPath = _temp }),
         _cache,

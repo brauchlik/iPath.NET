@@ -86,7 +86,7 @@ public static partial class DziZipIndexer
         }
 
         var descriptorRange = ZipCentralDirectory.ResolveDataRange(zip, descriptor.Entry);
-        return DziZipIndexResult.Ok(new DziTileIndex(descriptorRange, extensions[0], tileEntries));
+        return DziZipIndexResult.Ok(new DziTileIndex(descriptorRange, extensions[0], tileEntries, zip.Length));
     }
 
     private static string NormalizeExtension(string extension)

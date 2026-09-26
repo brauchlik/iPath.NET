@@ -117,7 +117,13 @@ public class DziImportPluginProcessTests
             document.File.ImageWidth.Should().Be(2000);
             document.File.ImageHeight.Should().Be(1000);
             Directory.GetFileSystemEntries(root).Should().BeEquivalentTo(
-                [staging, stored], "nothing is extracted into the temp folder");
+                [staging, stored, stored + ".tileindex"], "nothing is extracted into the temp folder");
+            using (var sidecar = File.OpenRead(stored + ".tileindex"))
+            {
+                var index = DziTileIndex.ReadFrom(sidecar);
+                index.ZipLength.Should().Be(new FileInfo(stored).Length);
+                index.TryGetTile(5, 1, 0, out _).Should().BeTrue();
+            }
         }
         finally
         {

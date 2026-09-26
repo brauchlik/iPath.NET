@@ -10,19 +10,23 @@ namespace iPath.Application.Features.Conversion.Dzi;
 public sealed class DziTileIndex
 {
     private const uint Magic = 0x5A445049; // "IPDZ"
-    private const byte FormatVersion = 1;
+    private const byte FormatVersion = 2;
 
     private readonly TileEntry[] _tiles;
 
-    public DziTileIndex(ZipRange descriptor, string tileExtension, IEnumerable<TileEntry> tiles)
+    public DziTileIndex(ZipRange descriptor, string tileExtension, IEnumerable<TileEntry> tiles, long zipLength)
     {
         Descriptor = descriptor;
+        ZipLength = zipLength;
         TileExtension = tileExtension;
         _tiles = tiles.ToArray();
         Array.Sort(_tiles, TileEntry.Compare);
     }
 
     public ZipRange Descriptor { get; }
+
+    /// <summary>Length of the zip the index was built from; a stored index is only valid for that zip.</summary>
+    public long ZipLength { get; }
 
     /// <summary>Extension of every tile, without the dot (e.g. "webp").</summary>
     public string TileExtension { get; }
@@ -78,6 +82,7 @@ public sealed class DziTileIndex
         writer.Write(Magic);
         writer.Write(FormatVersion);
         writer.Write(TileExtension);
+        writer.Write(ZipLength);
         writer.Write(Descriptor.Offset);
         writer.Write(Descriptor.Length);
         writer.Write(_tiles.Length);
@@ -101,6 +106,7 @@ public sealed class DziTileIndex
             throw new InvalidDataException($"Unsupported DZI tile index version {version}.");
 
         var extension = reader.ReadString();
+        var zipLength = reader.ReadInt64();
         var descriptor = new ZipRange(reader.ReadInt64(), reader.ReadInt64());
         var count = reader.ReadInt32();
         if (count < 0)
@@ -110,7 +116,7 @@ public sealed class DziTileIndex
         for (var i = 0; i < count; i++)
             tiles[i] = new TileEntry(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt64(), reader.ReadInt32());
 
-        return new DziTileIndex(descriptor, extension, tiles);
+        return new DziTileIndex(descriptor, extension, tiles, zipLength);
     }
 
     public readonly record struct TileEntry(int Level, int Column, int Row, long Offset, int Length)

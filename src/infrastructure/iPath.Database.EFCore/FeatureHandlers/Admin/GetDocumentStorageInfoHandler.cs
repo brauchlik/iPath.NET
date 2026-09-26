@@ -1,4 +1,5 @@
 using iPath.Application.Contracts;
+using iPath.Application.Contracts.Storage;
 using iPath.Application.Features.Admin;
 using iPath.Domain.Config;
 using Microsoft.Extensions.Options;
@@ -10,6 +11,7 @@ namespace iPath.EF.Core.FeatureHandlers.Admin;
 public class GetDocumentStorageInfoHandler(
     iPathDbContext db,
     IOptions<iPathConfig> opts,
+    IStorageRegistry storage,
     IRemoteStorageService srvStorage)
     : IRequestHandler<GetDocumentStorageInfoQuery, Task<DocumentStorageInfoDto?>>
 {
@@ -25,10 +27,11 @@ public class GetDocumentStorageInfoHandler(
         var tempFile = Path.Combine(opts.Value.TempDataPath, doc.Id.ToString());
 
         string? remotePath = null;
-        if (doc.File.Storage?.ProviderName == "LocalFiles" && doc.ServiceRequest is not null)
+        var provider = storage.Resolve(doc.File.Storage?.ProviderName);
+        if (provider is not null && doc.ServiceRequest is not null)
         {
-            var dir = Path.Combine(opts.Value.LocalDataPath, doc.ServiceRequest.GroupId.ToString(), doc.ServiceRequest.Id.ToString());
-            remotePath = Path.Combine(dir, doc.File.Storage.StorageId);
+            var key = StorageKeys.Resolve(doc.File.Storage!, doc.ServiceRequest.GroupId, doc.ServiceRequestId);
+            remotePath = provider.GetLocalPath(key) ?? $"{provider.Description}/{key}";
         }
 
         return new DocumentStorageInfoDto
@@ -44,7 +47,8 @@ public class GetDocumentStorageInfoHandler(
             ImageWidth = doc.File.ImageWidth,
             ImageHeight = doc.File.ImageHeight,
             ConversionStatus = doc.File.ConversionStatus?.ToString(),
-            StorageProviderMismatch = doc.File.Storage?.ProviderName != srvStorage.ProviderName
+            StorageProviderMismatch = doc.File.Storage is not null
+                && (provider?.InstanceName ?? doc.File.Storage.ProviderName) != srvStorage.ProviderName
         };
     }
 }

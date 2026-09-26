@@ -63,6 +63,12 @@ public class DziImportPlugin(
             if (index is null)
                 return ConversionResult.Fail($"Failed to import DZI: {result.Error}");
 
+            // Stored next to the zip, so remote instances serve tiles without reading the zip's directory.
+            await using (var sidecar = File.Create(storedZipPath + ".tileindex"))
+            {
+                index.WriteTo(sidecar);
+            }
+
             await using (var zip = OpenRead(storedZipPath))
             {
                 try

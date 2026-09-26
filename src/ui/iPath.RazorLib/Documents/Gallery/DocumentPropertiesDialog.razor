@@ -10,18 +10,23 @@
             <MudTextField Label=@T["DocumentType"] Value="Model.DocumentType" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
             <MudTextField Label=@T["MimeType"] @bind-Value="Model.File.MimeType" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
             <MudTextField Label=@T["Dimensions"] Value="Model.Dimensions" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
-            <MudTextField Label=@T["File size"] Value="FileSize" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
-            <MudTextField Label=@T["Storage"] Value="@(Model.File?.Storage?.ProviderName ?? T["not stored yet"])" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
-            @if (Model.File?.Storage is { } storage)
-            {
-                <MudTextField Label=@T["Storage key"] Value="storage.StorageId" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" Lines="2" />
-            }
-            @if (Model.File?.RetiredLocations is { Count: > 0 } retired)
-            {
-                <MudTextField Label=@T["Old copies (until the migration is purged)"]
-                              Value="@string.Join(Environment.NewLine, retired.Select(r => $"{r.ProviderName}: {r.StorageId}"))"
-                              Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" Lines="@Math.Min(4, retired.Count + 1)" />
-            }
+            <MudExpansionPanels Outlined="true" Dense="true" Elevation="0">
+                <MudExpansionPanel Text="@($"{T["Storage"]}: {Model.File?.Storage?.ProviderName ?? T["not stored yet"]}")">
+                    <MudStack Spacing="2">
+                        <MudTextField Label=@T["File size"] Value="FileSize" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" />
+                        @if (Model.File?.Storage is { } storage)
+                        {
+                            <MudTextField Label=@T["Storage key"] Value="storage.StorageId" Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" Lines="2" />
+                        }
+                        @if (Model.File?.RetiredLocations is { Count: > 0 } retired)
+                        {
+                            <MudTextField Label=@T["Old copies (until the migration is purged)"]
+                                          Value="@string.Join(Environment.NewLine, retired.Select(r => $"{r.ProviderName}: {r.StorageId}"))"
+                                          Variant="Variant.Outlined" ShrinkLabel="true" Margin="Margin.Dense" ReadOnly="true" Lines="@Math.Min(4, retired.Count + 1)" />
+                        }
+                    </MudStack>
+                </MudExpansionPanel>
+            </MudExpansionPanels>
         </MudStack>
     </DialogContent>
     <DialogActions>

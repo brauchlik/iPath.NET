@@ -304,7 +304,7 @@ Stored (uncompressed) entries are contiguous byte ranges, so a tile is a seek + 
   automatically; the index reader must parse it.
 - Uploads already fully stored are kept **as uploaded**. Repack only if any entry is deflated
   (third-party zip tools). The index maps entry names, so the `{docId}` rename disappears.
-- The index is compact (sorted binary arrays, ~12 bytes per tile → ~1.5 MB for 130k tiles),
+- The index is compact (sorted binary records, 24 bytes per tile; measured: 57k tiles → 1.4 MB),
   loaded once per slide and kept in memory. The zip's own central directory is no substitute: ~10 MB
   for the same slide because of the names, and it points at local headers, so every tile would need
   a second read.
